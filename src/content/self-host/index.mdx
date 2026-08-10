@@ -1,0 +1,22 @@
+---
+title: "Self-Host"
+description: "Run your workers, the control plane, or both on your own infrastructure."
+---
+
+Rivet has two halves, and you can host either one yourself.
+
+- The **control plane** routes, schedules, and persists. It is stateful.
+- A **worker** is a process running your code with the Rivet SDK. Workers connect outbound to a control plane.
+
+## Deployment models
+
+| | Control plane: Rivet | Control plane: yours |
+| --- | --- | --- |
+| **Workers: Rivet** | Fully managed | Not available |
+| **Workers: yours** | BYOC | Full self-hosting |
+
+Rivet can run the control plane for you at [dashboard.rivet.dev](https://dashboard.rivet.dev). Running your own workers against it is the middle cell, usually called BYOC, and it is documented in the Workers section below.
+
+<Warning>
+**TODO.** Architecture diagram: control plane and workers as two boxes, with the three valid configurations named. This is the canonical explanation every other surface links back to. Hand-authored inline SVG, pine (#2E4034) as the structural color.
+</Warning>

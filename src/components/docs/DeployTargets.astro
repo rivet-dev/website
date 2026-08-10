@@ -1,0 +1,25 @@
+---
+// Deploy target cards for the docs. The target list is shared with the
+// registry page's Deploy section via src/data/deploy-targets.ts.
+import { DEPLOY_TARGETS } from "@/data/deploy-targets";
+---
+
+<div
+	style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.5rem 0;"
+>
+	{
+		DEPLOY_TARGETS.map((target) => (
+			<a
+				href={target.href}
+				style="display:block;text-decoration:none;color:inherit;border:1px solid rgba(27,25,22,0.15);border-radius:0.75rem;padding:1.25rem;background:rgba(255,255,255,0.55);"
+			>
+				<img
+					src={target.image}
+					alt={target.title}
+					style="height:22px;width:auto;max-width:40px;display:block;margin-bottom:0.6rem;"
+				/>
+				<div style="font-weight:600;color:#1b1916;">{target.title}</div>
+			</a>
+		))
+	}
+</div>

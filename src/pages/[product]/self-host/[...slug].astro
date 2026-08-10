@@ -1,0 +1,68 @@
+---
+// Per-product Self-Host tab: /{product}/self-host/{...slug}
+//
+// Guide bodies live once in the `selfHost` collection and are fanned over
+// products x guides here, filtered by `deployMatrix`. Product-specific copy
+// enters only through <ProductSlot>. Nothing is codegen'd into src/content.
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { createProductSlot } from '@/components/docs/ProductSlot';
+import { products } from '@/sitemap/products';
+import { guidesFor } from '@/sitemap/deployMatrix';
+import { slotsFor } from '@/sitemap/selfHostSlots';
+
+// Every generated copy points at the Actors variant so search engines get one
+// winner instead of choosing arbitrarily within the duplicate cluster.
+const CANONICAL_PRODUCT = 'actors';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('selfHost');
+	const byId = new Map(entries.map((entry) => [entry.id, entry]));
+	const paths = [];
+
+	for (const product of products) {
+		for (const guide of guidesFor(product.id)) {
+			// `index` collapses to the section root in the glob loader, so
+			// `workers/index.mdx` has the id `workers`.
+			const entry = byId.get(guide.slug === 'index' ? 'index' : guide.slug);
+			if (!entry) {
+				throw new Error(
+					`Self-host guide source missing for "${guide.slug}". Add website/src/content/self-host/${guide.slug}.mdx or remove it from deployMatrix.`,
+				);
+			}
+
+			paths.push({
+				params: {
+					product: product.id,
+					slug: guide.slug === 'index' ? undefined : guide.slug,
+				},
+				props: {
+					entry,
+					productId: product.id,
+					productName: product.name,
+					guideSlug: guide.slug,
+				},
+			});
+		}
+	}
+
+	return paths;
+}
+
+const { entry, productId, productName, guideSlug } = Astro.props;
+
+const canonicalPath = guideSlug === 'index'
+	? `/${CANONICAL_PRODUCT}/self-host/`
+	: `/${CANONICAL_PRODUCT}/self-host/${guideSlug}/`;
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix={`/${productId}/self-host`}
+	entryIdPrefix=""
+	breadcrumbName={`${productName} Self-Host`}
+	productId={productId}
+	tabId="self-host"
+	canonicalUrl={`https://rivet.dev${canonicalPath}`}
+	extraComponents={{ ProductSlot: createProductSlot(slotsFor(productId, guideSlug)) }}
+/>

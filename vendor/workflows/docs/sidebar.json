@@ -1,0 +1,48 @@
+{
+	"docs": [
+		{
+			"title": "General",
+			"pages": [
+				{
+					"title": "Introduction",
+					"href": "/workflows/docs",
+					"icon": "faSquareInfo"
+				},
+				{
+					"title": "Quickstart",
+					"href": "/workflows/docs/quickstart",
+					"icon": "faFastForward",
+					"badge": "TODO"
+				},
+				{
+					"title": "Concepts",
+					"href": "/workflows/docs/concepts",
+					"icon": "faShapes",
+					"badge": "TODO"
+				}
+			]
+		}
+	],
+	"tutorials": [
+		{
+			"title": "General",
+			"pages": [
+				{
+					"title": "Overview",
+					"href": "/workflows/tutorials",
+					"icon": "faSquareInfo"
+				}
+			]
+		},
+		{
+			"title": "Guides",
+			"pages": [
+				{
+					"title": "Getting Started",
+					"href": "/workflows/tutorials/getting-started",
+					"badge": "TODO"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,41 @@
+---
+title: "Vercel"
+description: "Run Rivet workers on Vercel."
+---
+
+## Requirements
+
+
+<Warning>
+**TODO.** Hard prerequisites for Vercel, with versions.
+</Warning>
+<ProductSlot name="requirements" />
+
+<ProductSlot name="caveats" />
+
+## Steps
+
+
+<Warning>
+**TODO.** Canonical worker sequence for Vercel:
+
+Vercel builds your app for you, so there is no Dockerfile or image push step.
+3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
+4. Deploy using the Vercel command.
+5. Verify, showing the output where the worker registers.
+
+Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+
+**Source material:** `website/src/content/_pending-rewrite/deploy/vercel.mdx`
+</Warning>
+<ProductSlot name="snippet" />
+
+<ProductSlot name="env" />
+
+<ProductSlot name="verify" />
+
+## Next steps
+
+- [Production checklist](../workers/production-checklist)
+- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
+- Observability: logging and metrics for your product

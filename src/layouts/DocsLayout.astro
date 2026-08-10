@@ -1,0 +1,38 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { Header } from '@/components/v2/Header';
+import type { SidebarItem } from '@/lib/sitemap';
+
+interface Props {
+	title: string;
+	description?: string;
+	canonicalUrl?: string;
+	sidebar?: SidebarItem[];
+	/** Product vertical this page belongs to; omitted outside the verticals. */
+	productId?: string;
+	tabId?: string;
+	/** Identity for docs sections that are not a product vertical. */
+	sectionLabel?: string;
+}
+
+const { title, description, canonicalUrl, sidebar, productId, tabId, sectionLabel } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} themeColor="#EFEFEF">
+	<Header variant="full-width" showProductBar={true} light={true} active="docs" sidebarData={sidebar} initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} client:load />
+	<div class="paper-grain selection-paper w-full relative z-10 font-sans">
+		<div class="mx-auto w-full min-h-content flex flex-col md:grid md:grid-cols-docs" style="--header-height: 8.0625rem;">
+			<slot />
+		</div>
+	</div>
+</BaseLayout>
+
+<!-- Docs sit on the porcelain field, matching the marketing pages. The body
+     itself is painted so overscroll and short pages never flash the dark
+     base. Learn keeps its own dark shell. -->
+<style is:global>
+	body {
+		background-color: #efefef;
+	}
+</style>

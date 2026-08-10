@@ -1,0 +1,49 @@
+---
+// Per-product docs vertical: /{product}/{docs|tutorials|deploy}/{...slug}
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { getContentParamSlug } from '@/lib/content-path';
+import { products } from '@/sitemap/products';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('docs');
+	const paths = [];
+
+	for (const product of products) {
+		for (const tab of product.tabs) {
+			// Self-Host has its own route: its guide bodies live in the shared
+			// `selfHost` collection, not in the product-scoped `docs` collection.
+			if (tab.id === 'self-host') continue;
+			// The glob loader collapses `<dir>/index.mdx` to the directory id, so
+			// the tab's own overview page has the bare tab root as its id.
+			const root = `${product.id}/${tab.id}`;
+			const prefix = `${root}/`;
+			for (const entry of entries) {
+				const isRoot = entry.id === root;
+				if (!isRoot && !entry.id.startsWith(prefix)) continue;
+				paths.push({
+					params: {
+						product: product.id,
+						tab: tab.id,
+						slug: isRoot ? undefined : getContentParamSlug(entry.id.slice(prefix.length)),
+					},
+					props: { entry, productId: product.id, tabId: tab.id, productName: product.name, tabTitle: tab.title },
+				});
+			}
+		}
+	}
+
+	return paths;
+}
+
+const { entry, productId, tabId, productName, tabTitle } = Astro.props;
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix={`/${productId}/${tabId}`}
+	entryIdPrefix={`${productId}/${tabId}/`}
+	breadcrumbName={`${productName} ${tabTitle}`}
+	productId={productId}
+	tabId={tabId}
+/>

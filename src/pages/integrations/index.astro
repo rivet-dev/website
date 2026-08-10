@@ -1,0 +1,17 @@
+---
+import { getEntry } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+
+const entry = await getEntry('docs', 'integrations');
+if (!entry) {
+	throw new Error('Missing integrations index content');
+}
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix="/integrations"
+	entryIdPrefix="integrations/"
+	breadcrumbName="Integrations"
+	sectionLabel="Integrations"
+/>

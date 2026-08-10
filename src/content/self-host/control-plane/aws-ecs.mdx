@@ -1,0 +1,39 @@
+---
+title: "AWS ECS"
+description: "Run the Rivet control plane on AWS ECS."
+---
+
+## Requirements
+
+
+<Warning>
+**TODO.** Hard prerequisites for running the control plane on AWS ECS, with versions.
+</Warning>
+<ProductSlot name="requirements" />
+
+<ProductSlot name="caveats" />
+
+## Steps
+
+
+<Warning>
+**TODO.** Canonical control plane sequence for AWS ECS:
+
+1. Provision storage: volume, PVC, or disk.
+2. Run the control plane with a pinned image tag.
+3. Configure the minimum viable environment, linking the configuration reference.
+4. Open ports, linking the ports reference.
+5. Verify with a health check and its expected output.
+6. Connect a worker, linking the matching worker guide.
+
+**Source material:** `website/src/content/_pending-rewrite/self-hosting/aws-ecs.mdx`
+</Warning>
+<ProductSlot name="env" />
+
+<ProductSlot name="verify" />
+
+## Next steps
+
+- [Production checklist](../control-plane/production-checklist)
+- [Deploy your workers](../workers)
+- [Configuration reference](../control-plane/configuration)

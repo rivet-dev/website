@@ -1,0 +1,1529 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Root",
+  "type": "object",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "postgres"
+      ],
+      "properties": {
+        "postgres": {
+          "$ref": "#/definitions/Postgres"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "file_system"
+      ],
+      "properties": {
+        "file_system": {
+          "$ref": "#/definitions/FileSystem"
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "properties": {
+    "api_peer": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ApiPeer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "api_public": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ApiPublic"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "auth": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Auth"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cache": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Cache"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "clickhouse": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ClickHouse"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "guard": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Guard"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "logs": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Logs"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "metrics": {
+      "default": {
+        "host": null,
+        "port": null
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Metrics"
+        }
+      ]
+    },
+    "pegboard": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Pegboard"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pyroscope": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Pyroscope"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "runtime": {
+      "default": {
+        "allow_version_rollback": null,
+        "force_shutdown_duration": null,
+        "gasoline_prune_eligibility_duration": null,
+        "gasoline_prune_interval_duration": null,
+        "guard_shutdown_duration": null,
+        "worker_cpu_max": null,
+        "worker_load_shedding_beta": null,
+        "worker_load_shedding_curve": null,
+        "worker_shutdown_duration": null
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Runtime"
+        }
+      ]
+    },
+    "sqlite": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Sqlite"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "telemetry": {
+      "default": {
+        "enabled": true
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Telemetry"
+        }
+      ]
+    },
+    "topology": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Topology"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ApiPeer": {
+      "description": "Configuration for the private API service.",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "ip"
+        },
+        "port": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApiPublic": {
+      "description": "Configuration for the public API service.",
+      "type": "object",
+      "properties": {
+        "respect_forwarded_for": {
+          "description": "Flag to respect the X-Forwarded-For header for client IP addresses.\n\nWill be ignored in favor of CF-Connecting-IP if DNS provider is configured as Cloudflare.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "verbose_errors": {
+          "description": "Flag to enable verbose error reporting.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Auth": {
+      "type": "object",
+      "required": [
+        "admin_token"
+      ],
+      "properties": {
+        "admin_token": {
+          "$ref": "#/definitions/Secret<String>"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Cache": {
+      "description": "Configuration for the cache layer.",
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "driver": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/CacheDriver"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CacheDriver": {
+      "type": "string",
+      "enum": [
+        "in_memory"
+      ]
+    },
+    "ClickHouse": {
+      "type": "object",
+      "required": [
+        "http_url",
+        "native_url",
+        "username"
+      ],
+      "properties": {
+        "http_url": {
+          "description": "URL to the HTTP access port for ClickHouse.",
+          "type": "string",
+          "format": "uri"
+        },
+        "native_url": {
+          "description": "URL to the native access port for ClickHouse.",
+          "type": "string",
+          "format": "uri"
+        },
+        "password": {
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Secret<String>"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "secure": {
+          "default": false,
+          "type": "boolean"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Datacenter": {
+      "type": "object",
+      "required": [
+        "datacenter_label",
+        "is_leader",
+        "peer_url",
+        "public_url"
+      ],
+      "properties": {
+        "datacenter_label": {
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "is_leader": {
+          "type": "boolean"
+        },
+        "name": {
+          "description": "When configuring `datacenters` via a hashmap this is automatically derived from the key. Required when configuring via list (which is deprecated)",
+          "default": "",
+          "type": "string"
+        },
+        "peer_url": {
+          "description": "URL of the api-peer service",
+          "type": "string",
+          "format": "uri"
+        },
+        "proxy_url": {
+          "description": "URL of the guard service that other datacenters can access privately. Goes to the same place as",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "public_url": {
+          "description": "Public origin that can be used to connect to this region.",
+          "type": "string",
+          "format": "uri"
+        },
+        "valid_hosts": {
+          "description": "List of hosts that are valid to connect to this region with. This is used in regional endpoints to validate that incoming requests to this datacenter are going to a region-specific domain.\n\nIMPORTANT: Do not use a global origin that routes to multiple different regions. This will cause unpredictable behavior when requests are expected to go to a specific region.",
+          "default": null,
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DatacentersRepr": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Datacenter"
+          }
+        },
+        {
+          "description": "Deprecated.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Datacenter"
+          }
+        }
+      ]
+    },
+    "EnvoyLoadBalancer": {
+      "oneOf": [
+        {
+          "description": "Current default. Finds the highest protocol version, then seeks from a random ping timestamp.",
+          "type": "object",
+          "required": [
+            "random_ping_timestamp"
+          ],
+          "properties": {
+            "random_ping_timestamp": {
+              "type": "object",
+              "properties": {
+                "use_snapshot_read": {
+                  "default": true,
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Finds the highest protocol version, then chooses the newest fresh ping timestamp. This is purely for testing behavior that pins allocations to a single Envoy.",
+          "type": "object",
+          "required": [
+            "newest_ping_timestamp"
+          ],
+          "properties": {
+            "newest_ping_timestamp": {
+              "type": "object",
+              "properties": {
+                "use_snapshot_read": {
+                  "default": true,
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Reads the full highest-version Envoy load-balancer range and chooses a random eligible Envoy.",
+          "type": "object",
+          "required": [
+            "random_full_range"
+          ],
+          "properties": {
+            "random_full_range": {
+              "type": "object",
+              "properties": {
+                "use_snapshot_read": {
+                  "default": true,
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Hash-ring-based envoy selection backed by `EnvoyHashIdxKey`.\n\n`samples` controls the algorithm: - `1`: uniform random pick — draws one random ring pivot and returns the first fresh envoy. **Short-circuits past the `SlotsKey` read**, so this variant is strictly cheaper than `samples >= 2`. Pick when actor cost per envoy is uniform or measurements don't justify load awareness. - `>= 2`: power-of-K choices. Draws K independent random pivots, reads `SlotsKey` for each, picks min slots with uniform random tiebreak. Recommended default.",
+          "type": "object",
+          "required": [
+            "hash"
+          ],
+          "properties": {
+            "hash": {
+              "type": "object",
+              "properties": {
+                "max_scan": {
+                  "description": "Maximum stale entries walked per `scan_for_fresh` call before aborting and returning `None`. Circuit breaker against pathological drain scenarios. Default 16. Range 1..=256.",
+                  "default": 16,
+                  "type": "integer",
+                  "format": "uint32",
+                  "minimum": 0.0
+                },
+                "samples": {
+                  "description": "Number of independent ring samples per allocation. `1` = uniform pick (no slot read), `>= 2` = power-of-K-choices.",
+                  "default": 2,
+                  "type": "integer",
+                  "format": "uint8",
+                  "minimum": 0.0
+                },
+                "slot_jitter": {
+                  "description": "Additive random integer added to each candidate's slot count before the min-slot comparison. Decorrelates concurrent allocators reading the same stale `SlotsKey` snapshot. Only relevant when `samples >= 2`. `0` disables. Range 0..=64. Default 4.\n\nSee `slot_jitter` block in `engine/packages/pegboard/src/workflows/actor2/alloc_serverful/hash.rs` for how the default was sized.",
+                  "default": 4,
+                  "type": "integer",
+                  "format": "uint8",
+                  "minimum": 0.0
+                },
+                "use_snapshot_read": {
+                  "default": true,
+                  "type": "boolean"
+                },
+                "virtual_nodes": {
+                  "default": 8,
+                  "type": "integer",
+                  "format": "uint8",
+                  "minimum": 0.0
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "FileSystem": {
+      "type": "object",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Guard": {
+      "type": "object",
+      "properties": {
+        "actor_force_wake_pending_timeout_ms": {
+          "description": "Timeout sent with actor force-wake requests in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "actor_ready_timeout_ms": {
+          "description": "Timeout for waiting for an actor to become ready in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "enable_websocket_health_route": {
+          "description": "Enables the internal websocket health route for debug and latency testing. This is intended for websocket ping/pong verification and should remain disabled in normal deployments.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "host": {
+          "description": "Host for HTTP traffic",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "ip"
+        },
+        "http_max_request_body_size": {
+          "description": "Max HTTP request body size in bytes (first line of defense).",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "https": {
+          "description": "Enable & configure HTTPS",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Https"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "port": {
+          "description": "Port for HTTP traffic",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "route_api_public_timeout_ms": {
+          "description": "Timeout for resolving api-public routes in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_auth_check_timeout_ms": {
+          "description": "Timeout for guard-owned route authorization checks in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_cache_ttl_ms": {
+          "description": "TTL for cached route lookups in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_compute_timeout_ms": {
+          "description": "Timeout for resolving compute routes in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_dispatch_timeout_ms": {
+          "description": "Timeout for dispatching to each guard routing module in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_pegboard_auth_check_timeout_ms": {
+          "description": "Timeout for pegboard actor route authorization checks in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_pegboard_fetch_actor_timeout_ms": {
+          "description": "Timeout for fetching pegboard actor routing state in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_pegboard_resolve_query_timeout_ms": {
+          "description": "Timeout for resolving pegboard actor query routes in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_pegboard_subscribe_timeout_ms": {
+          "description": "Timeout for subscribing to pegboard actor routing events in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_pegboard_wake_signal_timeout_ms": {
+          "description": "Timeout for sending pegboard actor wake signals in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "route_timeout_ms": {
+          "description": "Backstop timeout for route resolution in milliseconds. Primary timeout signals live inside each guard routing phase.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "tcp_nodelay": {
+          "description": "Enables TCP_NODELAY on accepted Guard sockets.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "trace_propagation": {
+          "description": "Enables W3C trace context propagation (extract from incoming requests, inject into upstream requests/websockets).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "websocket_max_frame_size": {
+          "description": "Max WebSocket frame size in bytes.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "websocket_max_message_size": {
+          "description": "Max WebSocket message size in bytes.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Https": {
+      "type": "object",
+      "required": [
+        "port",
+        "tls"
+      ],
+      "properties": {
+        "port": {
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "tls": {
+          "$ref": "#/definitions/Tls"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Logs": {
+      "type": "object",
+      "properties": {
+        "redirect_logs_dir": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Memory": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "default": "default",
+          "type": "string"
+        },
+        "disable_memory_optimization": {
+          "description": "When true, force every UPS publish to round-trip through the memory driver instead of taking the in-process fast path for subjects that have a local subscriber on the same engine pod. Opt-in diagnostic; default false.",
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Metrics": {
+      "description": "Configuration for the metrics service.",
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "ip"
+        },
+        "port": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Nats": {
+      "type": "object",
+      "required": [
+        "addresses"
+      ],
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "client_capacity": {
+          "description": "Capacity of the async-nats client command queue.\n\nWhen this fills, client operations such as subscribe, publish, and drain wait until the connection task catches up.",
+          "default": 1048576,
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "disable_memory_optimization": {
+          "description": "When true, force every UPS publish to round-trip through NATS instead of taking the in-process fast path for subjects that have a local subscriber on the same engine pod. Opt-in diagnostic; default false.",
+          "default": false,
+          "type": "boolean"
+        },
+        "password": {
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Secret<String>"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "port": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "subscription_capacity": {
+          "description": "Capacity of each individual NATS subscriber message buffer.\n\nWhen this fills, async-nats drops the message and emits `SlowConsumer`. Rivet logs this as `nats slow consumer`.",
+          "default": 262144,
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "username": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Pegboard": {
+      "type": "object",
+      "properties": {
+        "actor_allocation_candidate_sample_size": {
+          "description": "Amount of runners to query from the allocation queue and choose at random when allocating an actor.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "actor_allocation_threshold": {
+          "description": "How long to wait for an ack response from the outbound request layer before setting actor as lost.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "actor_retry_duration_threshold": {
+          "description": "How long to wait after starting to attempt to reallocate before before setting actor to sleep.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "actor_start_threshold": {
+          "description": "How long to wait after creating and not receiving a starting state before setting actor as lost.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "actor_stop_threshold": {
+          "description": "How long to wait after stopping and not receiving a stop state before setting actor as lost.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "base_retry_timeout": {
+          "description": "Time to delay an actor from rescheduling after a rescheduling failure.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "default_metadata_poll_interval": {
+          "description": "Default metadata poll interval for serverless runners when not specified in runner config.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "envoy_eligible_threshold": {
+          "description": "How long after last ping before considering a envoy ineligible for allocation.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "envoy_event_demuxer_gc_interval": {
+          "description": "GC interval for actor event demuxer in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "envoy_event_demuxer_max_last_seen_threshold": {
+          "description": "Max time since last seen before actor is considered stale, in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "envoy_expire_scheduler_max_concurrent_expires": {
+          "description": "Maximum concurrent background expire operations spawned by the read-path envoy expire scheduler.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "envoy_expire_scheduler_max_pending": {
+          "description": "Maximum pending envoys tracked by the read-path envoy expire scheduler.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "envoy_load_balancer": {
+          "description": "Strategy for choosing an Envoy when allocating a serverful actor.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EnvoyLoadBalancer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "envoy_lost_threshold": {
+          "description": "How long to wait before considering an envoy lost and evicting all of its actors.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "envoy_max_response_payload_size": {
+          "description": "Max response payload size in bytes from actors.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "envoy_ping_timeout": {
+          "description": "Max time since last pong before the envoy connection is terminated. Unit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "envoy_update_ping_interval": {
+          "description": "Ping interval for envoy updates in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_gc_interval_ms": {
+          "description": "GC interval for in-flight requests in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_http_max_request_body_size": {
+          "description": "Max HTTP request body size in bytes for requests to actors.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "gateway_hws_max_pending_size": {
+          "description": "Max pending message buffer size for hibernating WebSockets in bytes.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_hws_message_ack_timeout_ms": {
+          "description": "Hibernating WebSocket message ack timeout in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_response_start_timeout_ms": {
+          "description": "Timeout for response to start in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_tunnel_ping_timeout_ms": {
+          "description": "Tunnel ping timeout in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "gateway_update_ping_interval_ms": {
+          "description": "Ping interval for gateway updates in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gateway_websocket_open_timeout_ms": {
+          "description": "WebSocket open/handshake timeout in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "hibernating_request_eligible_threshold": {
+          "description": "How long after last ping before considering a hibernating request disconnected.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "min_metadata_poll_interval": {
+          "description": "Minimum metadata poll interval for serverless runners.\n\nThe actual poll interval will be the maximum of this value and the runner config's `metadata_poll_interval` setting. This prevents excessive polling even if the runner config specifies a very short interval.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "pool_desired_max_override": {
+          "description": "Global pool desired max.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "preload_max_total_bytes": {
+          "description": "Maximum total size of all preloaded KV data sent with the actor start command. Setting to 0 disables all preloading.\n\nUnit is in bytes. Default: 1,048,576 (1 MiB).",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "reschedule_backoff_max_exponent": {
+          "description": "Maximum exponent for the reschedule backoff calculation.\n\nThis controls the maximum backoff duration when rescheduling actors.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "retry_reset_duration": {
+          "description": "How long an actor goes without retries before it's retry count is reset to 0, effectively resetting its backoff to 0.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "runner_eligible_threshold": {
+          "description": "How long after last ping before considering a runner ineligible for allocation.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "runner_event_demuxer_gc_interval_ms": {
+          "description": "GC interval for actor event demuxer in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "runner_event_demuxer_max_last_seen_ms": {
+          "description": "Max time since last seen before actor is considered stale, in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "runner_lost_threshold": {
+          "description": "How long to wait after last ping before forcibly removing a runner from the database and deleting its workflow, evicting all actors.\n\nNote that the runner may still be running and can reconnect.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "runner_max_response_payload_body_size": {
+          "description": "Max response payload size in bytes from actors.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "runner_ping_timeout_ms": {
+          "description": "Max time since last pong before the runner connection is terminated. Unit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "runner_pool_consecutive_successes_to_clear_error": {
+          "description": "Number of consecutive successes required to clear an active runner pool error.\n\nThis prevents a single success from clearing an error during flapping conditions. Higher values provide more stability but slower recovery from transient errors.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "runner_update_ping_interval_ms": {
+          "description": "Ping interval for runner updates in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "serverless_backoff_max_exponent": {
+          "description": "Maximum exponent for the serverless backoff calculation.\n\nThis controls the maximum backoff duration when serverlessly connecting to runners.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "serverless_base_retry_timeout": {
+          "description": "Time to delay a serverless runner from attempting a new outbound connection after a connection failure.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "serverless_drain_grace_period": {
+          "description": "**Deprecated** Configure the drain period in the runner config.\n\nDrain grace period for serverless runners.\n\nThis time is subtracted from the configured request duration. Once `duration - grace` is reached, the runner is sent stop commands for all of its actors. After the grace period is over (i.e. the full duration is reached) the runner websocket is forcibly closed.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "serverless_retry_reset_duration": {
+          "description": "How long a serverless runner goes without connection failures before it's retry count is reset to 0, effectively resetting its backoff to 0.\n\nUnit is in milliseconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Postgres": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "ssl": {
+          "description": "SSL configuration options",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PostgresSsl"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "description": "URL to connect to Postgres with\n\nSupports standard PostgreSQL connection parameters including `sslmode`. Supported sslmode values: `disable`, `prefer` (default), `require`. To verify server certificates, use `sslmode=require` with `ssl.root_cert_path`.\n\nExample with sslmode: `postgresql://user:pass@host:5432/db?sslmode=require`\n\nSee: https://docs.rs/postgres/0.19.10/postgres/config/struct.Config.html#url",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Secret<String>"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Postgres2": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "disable_memory_optimization": {
+          "description": "When true, force every UPS publish to round-trip through the postgres driver instead of taking the in-process fast path for subjects that have a local subscriber on the same engine pod. Opt-in diagnostic; default false.",
+          "default": false,
+          "type": "boolean"
+        },
+        "memory_optimization": {
+          "deprecated": true,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "ssl": {
+          "description": "SSL configuration options",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PostgresSsl"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "description": "URL to connect to Postgres with\n\nSupports standard PostgreSQL connection parameters including `sslmode`. Supported sslmode values: `disable`, `prefer` (default), `require`. To verify server certificates, use `sslmode=require` with `ssl.root_cert_path`.\n\nSee: https://docs.rs/postgres/0.19.10/postgres/config/struct.Config.html#url",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Secret<String>"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "PostgresSsl": {
+      "type": "object",
+      "properties": {
+        "client_cert_path": {
+          "description": "Path to the client certificate file\n\nUsed for client certificate authentication Equivalent to PostgreSQL's `sslcert` parameter",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "client_key_path": {
+          "description": "Path to the client private key file\n\nUsed for client certificate authentication Equivalent to PostgreSQL's `sslkey` parameter",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root_cert_path": {
+          "description": "Path to the root certificate file for verifying the server's certificate\n\nRequired when using custom certificate authorities (e.g., Supabase) Equivalent to PostgreSQL's `sslrootcert` parameter",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Pyroscope": {
+      "type": "object",
+      "required": [
+        "server_url"
+      ],
+      "properties": {
+        "sample_rate": {
+          "description": "Sampling frequency in Hz.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "server_url": {
+          "description": "Base URL of the Pyroscope server profiles are pushed to. Presence of this block means profiling is available; the profiler itself is toggled at runtime via the `profile enable`/`profile disable` CLI and starts off.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Runtime": {
+      "type": "object",
+      "properties": {
+        "allow_version_rollback": {
+          "description": "Whether or not to allow running the engine when the previous version that was run is higher than the current version.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "force_shutdown_duration": {
+          "description": "Time (in seconds) after which the engine process will forcibly exit after receiving SIGTERM. Must be greater than or equal to both worker_shutdown_duration and guard_shutdown_duration. Defaults to 10 minutes.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "gasoline_prune_eligibility_duration": {
+          "description": "Time (in seconds) after completion before considering a workflow eligible for pruning. Defaults to 7 days. Set to 0 to never prune workflow data.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "gasoline_prune_interval_duration": {
+          "description": "Time (in seconds) to periodically check for workflows to prune. Defaults to 12 hours.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "guard_shutdown_duration": {
+          "description": "Time (in seconds) to allow for guard to wait for pending requests after receiving SIGTERM. Defaults to 10 minutes.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "worker_cpu_max": {
+          "description": "Adjusts worker curve around this value (in millecores, i.e. 1000 = 1 core). Is not a hard limit. When unset, uses /sys/fs/cgroup/cpu.max, and if that is unset uses total host cpu.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "worker_load_shedding_beta": {
+          "description": "Exponential moving average beta term. Defaults to 0.95.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "float"
+        },
+        "worker_load_shedding_curve": {
+          "description": "Determine load shedding ratio based on linear mapping on cpu usage. We will gradually pull less workflows as the cpu usage increases. Units are in (permille overall cpu usage, permille) Default: |     .   . 100% | _____   . |     .\\  . % wfs |     . \\ . |     .  \\. 5% |     .   \\_____ |_____.___.______ 0    70% 90% avg cpu usage",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "array",
+            "items": [
+              {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              },
+              {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            ],
+            "maxItems": 2,
+            "minItems": 2
+          },
+          "maxItems": 2,
+          "minItems": 2
+        },
+        "worker_shutdown_duration": {
+          "description": "Time (in seconds) to allow for the gasoline worker engine to stop gracefully after receiving SIGTERM. Defaults to 30 seconds.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Secret<String>": {
+      "type": "string"
+    },
+    "Sqlite": {
+      "type": "object",
+      "properties": {
+        "unstable_disable_commit_size_cap": {
+          "description": "UNSTABLE: disables the SQLite v2 commit dirty-page size cap.",
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "unstable_disable_compaction": {
+          "description": "UNSTABLE: disables SQLite hot compaction.",
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Telemetry": {
+      "type": "object",
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Tls": {
+      "type": "object",
+      "required": [
+        "actor_cert_path",
+        "actor_key_path",
+        "api_cert_path",
+        "api_key_path"
+      ],
+      "properties": {
+        "actor_cert_path": {
+          "type": "string"
+        },
+        "actor_key_path": {
+          "type": "string"
+        },
+        "api_cert_path": {
+          "type": "string"
+        },
+        "api_key_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Topology": {
+      "type": "object",
+      "required": [
+        "datacenter_label",
+        "datacenters"
+      ],
+      "properties": {
+        "datacenter_label": {
+          "description": "Must be included in `datacenters`",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "datacenters": {
+          "description": "Map of all datacenters, including this datacenter.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DatacentersRepr"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

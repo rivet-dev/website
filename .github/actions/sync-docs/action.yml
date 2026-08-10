@@ -1,0 +1,117 @@
+name: Sync docs to rivet-website
+description: >-
+  Copies this repo's docs/ bundle into rivet-website's vendor/<product>/ and
+  opens or updates a PR there. Product repos reference this action, so the
+  bundle contract lives in one place.
+
+inputs:
+  product:
+    description: Product id, e.g. `actors`, `agentos`. Must match DOCS_SOURCES in the website.
+    required: true
+  token:
+    description: >-
+      Token with contents+pull-requests write on rivet-dev/rivet-website. A
+      GitHub App installation token scoped to that one repo is the intended
+      shape; the default GITHUB_TOKEN cannot reach another repository.
+    required: true
+  source:
+    description: Path to the docs bundle in this repo.
+    required: false
+    default: docs
+  website-repo:
+    description: Repository that publishes the docs.
+    required: false
+    default: rivet-dev/rivet-website
+  extra-paths:
+    description: >-
+      Additional repo-root-relative paths to ship, whitespace separated. Snippet
+      paths in MDX resolve against the repo root, so anything <CodeSnippet>
+      references must travel with the bundle: `examples/docs self-host/workers`.
+      The vendored copy is a partial mirror of the repo root, so the same path
+      resolves in CI as it does against a sibling checkout.
+    required: false
+    default: ""
+  auto-merge:
+    description: Merge the PR automatically when checks pass.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Validate the bundle
+      shell: bash
+      run: |
+        set -euo pipefail
+        src="${{ inputs.source }}"
+        # Fail here rather than shipping a bundle the website cannot render.
+        [ -d "$src/content" ] || { echo "::error::missing $src/content"; exit 1; }
+        [ -f "$src/sidebar.json" ] || { echo "::error::missing $src/sidebar.json"; exit 1; }
+        python3 -c "import json,sys; json.load(open('$src/sidebar.json'))" \
+          || { echo "::error::$src/sidebar.json is not valid JSON"; exit 1; }
+        count=$(find "$src/content" -name '*.mdx' | wc -l)
+        [ "$count" -gt 0 ] || { echo "::error::no .mdx under $src/content"; exit 1; }
+        echo "bundle ok: $count pages"
+
+    - name: Check out the website
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.website-repo }}
+        token: ${{ inputs.token }}
+        path: .rivet-website
+
+    - name: Copy the bundle
+      shell: bash
+      run: |
+        set -euo pipefail
+        root=".rivet-website/vendor/${{ inputs.product }}"
+        # Delete first so removed pages actually disappear downstream.
+        rm -rf "$root/docs"
+        mkdir -p "$root/docs"
+        cp -a "${{ inputs.source }}/." "$root/docs/"
+
+        for extra in ${{ inputs.extra-paths }}; do
+          [ -e "$extra" ] || { echo "::error::extra-path '$extra' does not exist"; exit 1; }
+          rm -rf "$root/$extra"
+          mkdir -p "$root/$(dirname "$extra")"
+          cp -a "$extra" "$root/$extra"
+        done
+
+    - name: Open or update the PR
+      shell: bash
+      working-directory: .rivet-website
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+        product="${{ inputs.product }}"
+        branch="docs-sync/$product"
+        short="${GITHUB_SHA::7}"
+
+        git config user.name "rivet-docs-sync[bot]"
+        git config user.email "docs-sync@rivet.dev"
+
+        # --porcelain covers new and deleted files, which `git diff` alone misses.
+        if [ -z "$(git status --porcelain -- "vendor/$product")" ]; then
+          echo "no docs changes; nothing to sync"
+          exit 0
+        fi
+
+        git checkout -B "$branch"
+        git add -A "vendor/$product"
+        git commit -m "docs($product): sync from ${GITHUB_REPOSITORY}@${short}"
+        git push --force-with-lease origin "$branch"
+
+        if ! gh pr view "$branch" --json number >/dev/null 2>&1; then
+          gh pr create \
+            --title "docs($product): sync from ${GITHUB_REPOSITORY}" \
+            --body "Automated docs sync from \`${GITHUB_REPOSITORY}@${short}\`.
+
+Do not edit \`vendor/$product/\` here. Edit the docs in \`${GITHUB_REPOSITORY}\` and this PR updates itself." \
+            --head "$branch"
+        fi
+
+        if [ "${{ inputs.auto-merge }}" = "true" ]; then
+          gh pr merge "$branch" --squash --auto || \
+            echo "::warning::could not enable auto-merge; merge $branch manually"
+        fi

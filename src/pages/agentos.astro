@@ -1,0 +1,36 @@
+---
+// Placeholder marketing page for the agentOS vertical. Structure only: the
+// prototype needs every product in the header dropdown to land somewhere real.
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
+import { getProduct } from '@/sitemap/products';
+
+const tabs = getProduct('agentos')?.tabs ?? [];
+---
+
+<MarketingLayout title="agentOS - Rivet" description="How agents act: file system, shell, tools." active="product">
+	<main class="mx-auto w-full max-w-3xl px-6 pb-28 pt-40">
+		<p class="font-mono text-xs uppercase tracking-[0.18em] text-pine">Product</p>
+		<h1 class={`${HERO_H1_CLASS} mt-4`}>agentOS</h1>
+		<p class={`${SUBTITLE_CLASS} mt-5`}>How agents act: file system, shell, tools.</p>
+
+		<div class="mt-10 rounded-2xl border border-ink/15 bg-white/55 p-6">
+			<p class="text-sm font-medium text-ink">TODO: marketing page</p>
+			<p class="mt-2 text-sm text-ink-soft">agentOS currently lives on its own site at agentos-sdk.dev. This page is the placeholder for pulling that marketing story back onto rivet.dev.</p>
+		</div>
+
+		<div class="mt-10">
+			<p class="font-mono text-xs uppercase tracking-[0.18em] text-pine">Documentation</p>
+			<div class="mt-4 grid gap-3 sm:grid-cols-3">
+				{tabs.map((tab) => (
+					<a
+						href={tab.href}
+						class="rounded-xl border border-ink/15 bg-white/55 px-4 py-3 text-sm text-ink transition-colors hover:border-ink/30"
+					>
+						{tab.title}
+					</a>
+				))}
+			</div>
+		</div>
+	</main>
+</MarketingLayout>

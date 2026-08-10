@@ -1,0 +1,20 @@
+node_modules/
+# Root build output only. packages/icons/dist is prebuilt and committed: it
+# inlines Font Awesome Pro definitions, so building it here would need a Pro
+# token.
+/dist/
+.astro/
+.turbo/
+.DS_Store
+*.log
+
+# Generated at build time
+src/generated/
+
+# Assembled by scripts/assemble.mjs — each product's docs are symlinked in from
+# its own repo (sibling checkout) or from vendor/ as a fallback. Never commit
+# these; edit the source repo instead.
+src/content/docs/actors/
+src/content/docs/agentos/
+src/content/docs/dynamic-apps/
+src/content/docs/workflows/
