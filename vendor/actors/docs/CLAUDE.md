@@ -77,7 +77,7 @@ the website's icon package.
 
 - **Marketing pages.** They live in the website repo.
 - **Deploy and self-hosting guides.** They are written once in the website repo
-  and templated across all four products. Do not write a per-product copy.
+  and templated across every product. Do not write a per-product copy.
 - **Website components.** Do not import from the website by relative path or
   alias; a page must render from the components the site already provides.
 
