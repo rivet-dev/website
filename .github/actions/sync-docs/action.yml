@@ -103,11 +103,16 @@ runs:
         git push --force-with-lease origin "$branch"
 
         if ! gh pr view "$branch" --json number >/dev/null 2>&1; then
+          # Build the body with printf rather than a literal newline in the YAML.
+          # A continuation line starting at column 1 would close this block
+          # scalar, and indenting it instead would put four or more leading
+          # spaces in the body, which markdown renders as a code block.
+          body=$(printf '%s\n\n%s\n' \
+            "Automated docs sync from \`${GITHUB_REPOSITORY}@${short}\`." \
+            "Do not edit \`vendor/$product/\` here. Edit the docs in \`${GITHUB_REPOSITORY}\` and this PR updates itself.")
           gh pr create \
             --title "docs($product): sync from ${GITHUB_REPOSITORY}" \
-            --body "Automated docs sync from \`${GITHUB_REPOSITORY}@${short}\`.
-
-Do not edit \`vendor/$product/\` here. Edit the docs in \`${GITHUB_REPOSITORY}\` and this PR updates itself." \
+            --body "$body" \
             --head "$branch"
         fi
 
