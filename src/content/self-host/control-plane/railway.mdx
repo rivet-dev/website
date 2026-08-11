@@ -88,6 +88,8 @@ Railway's HTTP proxy supports WebSockets. If you add your own reverse proxy insi
 
 Both templates provision a single control plane service on PostgreSQL, which is a fine starting point. Before raising the replica count, add NATS for pub/sub so replicas coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
+Railway has no CPU-target autoscaler, so replica count is a number you set rather than one that moves with load. Pick it for peak traffic, and use <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/aws-ecs">AWS ECS</SelfHostLink> if you need it to scale on its own.
+
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

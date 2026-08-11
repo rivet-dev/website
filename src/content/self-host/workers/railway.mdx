@@ -68,6 +68,8 @@ Runner-mode workers are interchangeable, so raising the service's replica count 
 
 Removing a replica is the slow direction: it drains for up to 30 minutes, so keep the draining period at `2100` and reduce replica count gradually rather than in one step.
 
+Railway has no CPU-target autoscaler, so replica count is fixed until you change it. Size it for peak traffic, or use <SelfHostLink to="workers/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="workers/aws-ecs">AWS ECS</SelfHostLink> where the count moves with load.
+
 ## Settings to avoid
 
 <Warning>

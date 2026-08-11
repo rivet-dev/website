@@ -15,7 +15,7 @@ We recommend passing this page to your coding agent to verify your configuration
 
 ## Resources
 
-- **Set container resource limits.** At least 1 CPU and 2 GB of RAM per control plane instance.
+- **Set container resource requests and limits.** The shipped Kubernetes manifests request **2 CPU and 2 GB** per control plane instance, with limits of 3 CPU and 4 GB. Size other platforms to match; 1 CPU is enough only for a quiet single-node deployment.
 - **Configure health checks.** Liveness and readiness probes against `/health` on port `6421`, with a five second timeout. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
 - **Raise load balancer idle timeouts to 3600 seconds.** Long-lived WebSockets are dropped by the 30 to 60 second defaults, which causes reconnect storms. This is the most common self-hosting mistake. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
 
@@ -23,7 +23,7 @@ We recommend passing this page to your coding agent to verify your configuration
 
 - **Run two or more nodes.** A single control plane node is a single point of failure. Deploy at least two behind a load balancer.
 - **Do not run multiple file system nodes.** RocksDB is single-node. Multi-node deployments need PostgreSQL or FoundationDB. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-- **Configure autoscaling, on a shared backend only.** Target 60% CPU and 80% memory to leave headroom for traffic spikes. In Kubernetes this is a Horizontal Pod Autoscaler, and the shipped manifests include one at 2 to 10 replicas. Never autoscale a node on the file system backend: adding replicas to a single-node RocksDB deployment corrupts it.
+- **Configure autoscaling, on a shared backend only.** Target 60% CPU and 80% memory to leave headroom for traffic spikes. In Kubernetes this is a Horizontal Pod Autoscaler, and the shipped manifests include one at 2 to 10 replicas with a 15 minute scale-down stabilization window. Memory is a backstop rather than a scaling signal: it does not fall as fast as CPU, so scaling in needs to wait it out. Never autoscale a node on the file system backend: adding replicas to a single-node RocksDB deployment corrupts it.
 - **Check the rate limit on your serverless worker platform.** Actor start requests all originate from your control plane nodes, so they come from a small set of IPs. Per-IP rate limits throttle the control plane long before they would throttle end-user traffic. Size the limit to your peak actor create and wake rate.
 
 ## Storage

@@ -118,6 +118,8 @@ Use the direct connection string, not a pooled one. See <SelfHostLink to="contro
 
 `05-rivet-engine-hpa.yaml` is a HorizontalPodAutoscaler on the engine Deployment. It scales between **2 and 10 replicas**, targeting **60% average CPU** and **80% average memory**.
 
+Memory is a backstop, not a scaling signal. It does not fall as quickly as CPU, so the manifest pairs it with a **15 minute scale-down stabilization window** and removes at most one pod at a time. Without that, a memory spike holds the replica count up long after load has passed, and every removed replica severs the long-lived WebSockets it was serving.
+
 ```bash
 kubectl -n rivet-engine get hpa rivet-engine
 ```
