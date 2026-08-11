@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 import { getDocsPath } from '../metadata/shared';
 

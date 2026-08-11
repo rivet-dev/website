@@ -5,9 +5,9 @@
 # a copy: change the docs, and the skill changes on the next push to main.
 #
 # To test this workflow:
-#   1. Trigger manually: gh workflow run skills.yml --repo rivet-dev/rivet-website
-#   2. Watch execution:  gh run watch --repo rivet-dev/rivet-website
-#   3. Check failures:   gh run view --repo rivet-dev/rivet-website --log-failed
+#   1. Trigger manually: gh workflow run skills.yml --repo rivet-dev/website
+#   2. Watch execution:  gh run watch --repo rivet-dev/website
+#   3. Check failures:   gh run view --repo rivet-dev/website --log-failed
 #   4. Verify contents:  gh api repos/rivet-dev/skills/contents --jq '.[].name'
 #   5. Latest commit:    gh api repos/rivet-dev/skills/commits --jq '.[0].commit.message'
 
@@ -80,7 +80,7 @@ jobs:
 
           One skill per Rivet product, plus the example projects its documentation
           embeds. Every file here is generated from the docs by
-          [rivet-dev/rivet-website](https://github.com/rivet-dev/rivet-website)
+          [rivet-dev/website](https://github.com/rivet-dev/website)
           (`.github/workflows/skills.yml`) and replaced wholesale on each publish.
 
           Edits made here are overwritten. To change a skill, change the product's
@@ -100,6 +100,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update skills from rivet-dev/rivet-website@${{ github.sha }}"
+            git commit -m "chore: update skills from rivet-dev/website@${{ github.sha }}"
             git push
           fi

@@ -76,7 +76,7 @@ export const PRODUCTS: ProductMetadata[] = [
 	{
 		id: "actors",
 		name: "Actors",
-		tagline: "Orchestrate sessions, queues, and jobs at any scale",
+		tagline: "The primitive for stateful workloads",
 		repo: "rivet",
 		color: "#2C5A7A",
 		contrast: 6.41,

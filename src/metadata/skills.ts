@@ -35,18 +35,11 @@ export interface SkillExample {
 export interface Skill {
 	/** Directory name in the skills repo, and the `name:` in the frontmatter. */
 	name: string;
-	product: string;
 	description: string;
 	docs: DocPage[];
 	examples: SkillExample[];
 	/** Absolute path to an OpenAPI document to ship beside the skill, if any. */
 	openApiPath?: string;
-}
-
-/** Skill directory for a product. Namespaced so it reads as Rivet's in a
- * shared skills directory. */
-export function skillName(product: string) {
-	return `rivet-${product}`;
 }
 
 export function listSkills(): Skill[] {
@@ -78,9 +71,9 @@ export function listSkills(): Skill[] {
 		);
 
 		return {
-			name: skillName(product.id),
-			product: product.id,
-			description: `${product.name}: ${product.tagline}.`,
+			// Namespaced so it reads as Rivet's in a shared skills directory.
+			name: `rivet-${product.id}`,
+			description,
 			docs,
 			examples: collectExamples(product.id, docs),
 			openApiPath: existsSync(openApi) ? openApi : undefined,

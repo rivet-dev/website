@@ -1,7 +1,7 @@
 # sync-docs
 
 Publishes a product repo's `docs/` bundle to
-[rivet-website](https://github.com/rivet-dev/rivet-website).
+[rivet-website](https://github.com/rivet-dev/website).
 
 Docs live in the repo that owns the product; the website symlinks a sibling
 checkout in local dev and reads `vendor/<product>/` in CI. This action is the
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: rivet-dev/rivet-website/.github/actions/sync-docs@main
+      - uses: rivet-dev/website/.github/actions/sync-docs@main
         with:
           product: agentos            # must match DOCS_SOURCES in the website
           token: ${{ secrets.RIVET_WEBSITE_TOKEN }}
@@ -51,5 +51,5 @@ is the intended shape; `GITHUB_TOKEN` cannot reach another repository.
 | `product` | — | Required. Must match a key in the website's `DOCS_SOURCES`. |
 | `token` | — | Required. Write access to rivet-website. |
 | `source` | `docs` | Bundle path in this repo. |
-| `website-repo` | `rivet-dev/rivet-website` | Override for forks. |
+| `website-repo` | `rivet-dev/website` | Override for forks. |
 | `auto-merge` | `true` | Set `false` to review each sync. |

@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ProductHeroCta } from '@/components/marketing/ProductHeroCta';
-import { ProductMark } from '@/components/ProductBar';
+import {
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+} from '@/components/marketing/typography';
+import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { getProduct } from '@/sitemap/products';
 import {
 	AppWindow,
@@ -192,31 +196,40 @@ const appsFeatures = [
 
 export const AppsHero = ({
 	highlightedCode,
-	installCommand,
-	setupHref,
+	docsHref,
 }: {
 	highlightedCode: string;
-	installCommand: string;
-	setupHref: string;
+	docsHref: string;
 }) => {
 	const product = getProduct('dynamic-apps');
 
 	return (
-	<section className='relative flex min-h-[92svh] flex-col justify-center overflow-hidden bg-paper px-6 pb-20 pt-44 md:pb-24 md:pt-52'>
+	<section className='relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20'>
 		<div className='mx-auto w-full max-w-7xl'>
 			<div className='mx-auto flex max-w-5xl flex-col items-center text-center'>
 				{product && (
 					<div className='mb-7 flex'>
-						<ProductMark product={product} className='h-11 w-auto md:h-12' />
+						<ProductLockup product={product} />
 					</div>
 				)}
 				<h1 className='mb-4 max-w-4xl text-balance text-4xl font-medium leading-[1.06] tracking-[-0.02em] text-ink md:text-5xl'>
 					{product?.description}
 				</h1>
 				<p className='mb-7 max-w-3xl text-base leading-relaxed text-ink-soft md:text-lg'>
-					Every server runs in agentOS, and the entire deployment stack is a library in your existing backend&mdash;not extra infrastructure.
+					Scales to 0, scales to millions. Dirt cheap, just 22 MB per app. Deploy on any cloud.
 				</p>
-				<ProductHeroCta command={installCommand} setupHref={setupHref} />
+				<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
+					<a href={docsHref} className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+						Documentation
+						<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+					</a>
+					<a
+						href="/talk-to-an-engineer"
+						className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
+					>
+						Talk to an engineer
+					</a>
+				</div>
 			</div>
 
 			<div className='mt-14 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>

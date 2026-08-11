@@ -45,11 +45,11 @@ function HeroTitle({
 		return (
 			<div className="mb-4 flex items-center justify-center gap-3">
 				{/* The mark is a solid-white SVG, so it is masked and refilled with
-				    the Actors accent rather than flattened to black. */}
+				    ink to read on the porcelain field. */}
 				<span
 					aria-hidden="true"
 					style={wordmarkMaskStyle(actorsLogo.src)}
-					className="inline-block h-8 w-8 bg-product-actors md:h-9 md:w-9"
+					className="inline-block h-8 w-8 bg-ink md:h-9 md:w-9"
 				/>
 				<h1 className="text-4xl font-medium tracking-tight text-ink">
 					{title}
@@ -90,12 +90,12 @@ function LandingCard({ item }: { item: DocsLandingItem }) {
 					<span
 						aria-hidden="true"
 						style={wordmarkMaskStyle(item.logoSrc)}
-						className={`relative inline-block h-14 w-14 transition-transform duration-200 group-hover:scale-105 ${item.logoClassName ?? "bg-ink"}`}
+						className={`relative inline-block h-14 w-14 transition-transform duration-200 group-hover:scale-105 bg-ink`}
 					/>
 				) : (
 					<Icon
 						icon={item.icon}
-						className={`relative text-6xl transition-transform duration-200 group-hover:scale-105 ${item.iconClassName ?? "text-pine"}`}
+						className={`relative text-6xl transition-transform duration-200 group-hover:scale-105 text-ink-soft`}
 					/>
 				)}
 			</div>

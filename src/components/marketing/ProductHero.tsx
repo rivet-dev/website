@@ -1,6 +1,10 @@
-import { ProductMark } from "@/components/ProductBar";
+import { ProductLockup } from "./ProductLockup";
 import { getProduct } from "@/sitemap/products";
-import { ProductHeroCta } from "./ProductHeroCta";
+import {
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+} from "./typography";
 
 /**
  * The shared product hero: mark, title, subtitle, CTA pair.
@@ -13,25 +17,23 @@ export function ProductHero({
 	productId,
 	title,
 	subtitle,
-	installCommand,
-	setupHref,
+	docsHref,
 }: {
 	productId: string;
 	/** Defaults to the product's tagline, the same line the switcher shows. */
 	title?: string;
 	subtitle: string;
-	installCommand: string;
-	setupHref: string;
+	docsHref: string;
 }) {
 	const product = getProduct(productId);
 	const heading = title ?? product?.description ?? "";
 
 	return (
-		<section className="relative flex min-h-[92svh] flex-col justify-center overflow-hidden bg-paper px-6 pb-28 pt-44 md:pb-32 md:pt-52">
+		<section className="relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20">
 			<div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
 				{product && (
 					<div className="mb-7 flex">
-						<ProductMark product={product} className="h-11 w-auto md:h-12" />
+						<ProductLockup product={product} />
 					</div>
 				)}
 
@@ -43,7 +45,18 @@ export function ProductHero({
 					{subtitle}
 				</p>
 
-				<ProductHeroCta command={installCommand} setupHref={setupHref} />
+				<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
+				<a href={docsHref} className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+					Documentation
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+				</a>
+				<a
+					href="/talk-to-an-engineer"
+					className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
+				>
+					Talk to an engineer
+				</a>
+			</div>
 			</div>
 		</section>
 	);

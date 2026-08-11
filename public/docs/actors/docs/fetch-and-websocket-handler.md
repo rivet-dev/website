@@ -1,3 +1,0 @@
-# Fetch and WebSocket Handler
-
-These docs have moved to [Low-Level WebSocket Handler](/actors/docs/websocket-handler) and [Low-Level Request Handler](/actors/docs/request-handler).

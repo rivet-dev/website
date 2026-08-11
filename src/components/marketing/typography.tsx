@@ -27,7 +27,7 @@ export const CAPTION_CLASS = 'font-mono text-xs text-ink-faint';
 // field, viewport-tied height, with a single heading, one description
 // paragraph, and the shared CTA pair below it.
 export const PRODUCT_HERO_SECTION_CLASS =
-	'relative flex min-h-[92svh] flex-col justify-center bg-paper px-6 pt-44 pb-28 md:pt-52 md:pb-32';
+	'relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20';
 export const PRODUCT_HERO_INNER_CLASS =
 	'mx-auto flex w-full max-w-5xl flex-col items-center text-center';
 export const PRODUCT_HERO_H1_CLASS =

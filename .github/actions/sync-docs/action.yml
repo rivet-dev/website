@@ -10,7 +10,7 @@ inputs:
     required: true
   token:
     description: >-
-      Token with contents+pull-requests write on rivet-dev/rivet-website. A
+      Token with contents+pull-requests write on rivet-dev/website. A
       GitHub App installation token scoped to that one repo is the intended
       shape; the default GITHUB_TOKEN cannot reach another repository.
     required: true
@@ -21,7 +21,7 @@ inputs:
   website-repo:
     description: Repository that publishes the docs.
     required: false
-    default: rivet-dev/rivet-website
+    default: rivet-dev/website
   extra-paths:
     description: >-
       Additional repo-root-relative paths to ship, whitespace separated. Snippet

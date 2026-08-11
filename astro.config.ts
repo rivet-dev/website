@@ -7,7 +7,6 @@ import sentry from "@sentry/astro";
 // The docs MDX pipeline (react + mdx + remark/rehype/Shiki) and route
 // generation, inlined from the former @rivet-dev/docs-theme package.
 import { docsPipeline } from './src/integrations/docs-pipeline';
-import { skillVersion } from './src/integrations/skill-version';
 import { redirects } from './redirects.mjs';
 
 // Wildcard sub-path redirects (`wildcardRedirects` in redirects.mjs) are applied
@@ -40,7 +39,6 @@ export default defineConfig({
 	// markdown (.md) remark/rehype + syntaxHighlight:false are configured by
 	// docsPipeline()'s markdown integration; .mdx is handled by its mdx().
 	integrations: [
-		skillVersion(),
 		...docsPipeline(),
 		tailwind({
 			applyBaseStyles: false,
