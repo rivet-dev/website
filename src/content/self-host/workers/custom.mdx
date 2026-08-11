@@ -74,7 +74,7 @@ Actors drain for up to 30 minutes. Give the process at least 35 minutes between 
 
 ## Troubleshooting
 
-**The worker never appears under Runners.** In runner mode, check outbound network access and that `RIVET_ENDPOINT` carries the right namespace and token. In serverless mode, check that the registered URL is reachable from the public internet.
+**The worker never appears under Runners.** In runner mode, check the control plane logs first. A `no_runner_config` rejection there means no runner config exists for the pool, which the worker reports only as a silent reconnect loop. See <SelfHostLink to="workers">Runner configs</SelfHostLink>. Otherwise check outbound network access and that `RIVET_ENDPOINT` carries the right namespace and token. In serverless mode, check that the registered URL is reachable from the public internet.
 
 **Actors do not respond.** Confirm both `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` are set. Missing the public one leaves clients with no connection details.
 

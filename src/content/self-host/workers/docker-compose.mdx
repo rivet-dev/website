@@ -21,7 +21,7 @@ Workers run in **runner** mode here: the container opens a connection out to the
 <Step title="Package your app">
 
 ```dockerfile
-FROM node:20-alpine
+FROM node:24-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
@@ -30,6 +30,8 @@ CMD ["node", "server.js"]
 ```
 
 `CMD` invokes the binary directly rather than `npm start`, so the process receives `SIGTERM` and can drain.
+
+Rivet requires Node 22 or newer. Alpine images need a build toolchain because Rivet's SQLite dependency has no musl prebuilt binary, so the Debian-based image is the smaller working choice.
 
 <ProductSlot name="snippet" />
 
@@ -70,6 +72,21 @@ When both halves live in the same Compose file, the worker reaches the control p
 ```
 
 See <SelfHostLink to="control-plane/docker-compose">the control plane guide</SelfHostLink> for the other half of this file.
+
+</Step>
+
+<Step title="Create the runner config">
+
+A worker is refused until a runner config exists for its pool. Against a self-hosted control plane, create it once:
+
+```bash
+curl -X PUT "http://localhost:6420/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Rivet Cloud does this for you. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
 
 </Step>
 

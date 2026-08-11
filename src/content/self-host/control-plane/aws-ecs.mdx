@@ -119,6 +119,21 @@ aws ecs describe-services --cluster <cluster> --services rivet-engine \
 Expect `COMPLETED`. Then open `/ui` on the load balancer hostname and log in with the admin token.
 
 </Step>
+<Step title="Create the runner config">
+
+A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+
+```bash
+curl -X PUT "http://<load-balancer-host>/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+
+</Step>
+
 
 </Steps>
 

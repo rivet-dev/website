@@ -20,7 +20,7 @@ description: "Run the Rivet control plane on Kubernetes."
 <Step title="Download the manifests">
 
 ```bash
-npx giget@latest gh:rivet-dev/rivet/self-host/k8s/engine rivet-k8s
+npx giget@latest gh:rivet-dev/rivet/self-host/control-plane/kubernetes rivet-k8s
 cd rivet-k8s
 ```
 
@@ -44,7 +44,7 @@ Save the value somewhere safe, then store it as a secret:
 
 ```bash
 kubectl create namespace rivet-engine
-kubectl -n rivet-engine create secret generic rivet-secrets --from-literal=admin-token=YOUR_TOKEN_HERE
+kubectl -n rivet-engine create secret generic rivet-engine-secrets --from-literal=admin-token=YOUR_TOKEN_HERE
 ```
 
 </Step>
@@ -81,6 +81,21 @@ kubectl -n rivet-engine get pods
 ```
 
 Every pod should be `Running`. Visit `/ui` on your `public_url` and log in with the admin token.
+
+</Step>
+
+<Step title="Create the runner config">
+
+A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+
+```bash
+curl -X PUT "<public_url>/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
 
 </Step>
 

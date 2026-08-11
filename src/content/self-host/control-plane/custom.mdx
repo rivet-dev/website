@@ -67,12 +67,27 @@ Set idle, read, and send timeouts to at least `3600` seconds on every proxy in t
 <Step title="Verify">
 
 ```bash
-curl http://<host>:6421/health
+curl -i http://<host>:6421/health
 ```
 
-Expect `ok`. The dashboard is at `/ui` on port `6420`.
+Expect `200`. The dashboard is at `/ui` on port `6420`.
 
 </Step>
+<Step title="Create the runner config">
+
+A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+
+```bash
+curl -X PUT "http://<host>:6420/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+
+</Step>
+
 
 <Step title="Connect a worker">
 

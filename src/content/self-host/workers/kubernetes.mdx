@@ -22,14 +22,15 @@ Workers run in **runner** mode here: the pod opens a connection out to the contr
 <Step title="Package your app">
 
 ```dockerfile
-FROM node:20-alpine
+FROM node:24-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
-ENV PORT=8080
 CMD ["node", "server.js"]
 ```
+
+Rivet requires Node 22 or newer. Alpine images need a build toolchain because Rivet's SQLite dependency has no musl prebuilt binary, so the Debian-based image is the smaller working choice. A runner-mode worker listens on no port.
 
 <ProductSlot name="snippet" />
 
@@ -46,18 +47,35 @@ docker push registry.example.com/your-team/rivet-worker:latest
 
 <Step title="Configure the connection">
 
-```yaml rivet-secrets.yaml
+```yaml rivet-worker-secrets.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: rivet-secrets
+  name: rivet-worker-secrets
 type: Opaque
 stringData:
   RIVET_ENDPOINT: <your-rivet-endpoint>
   RIVET_PUBLIC_ENDPOINT: <your-rivet-public-endpoint>
 ```
 
-Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
+Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. `RIVET_ENDPOINT` is the only one a runner-mode worker needs to connect. Set `RIVET_PUBLIC_ENDPOINT` as well when browser clients read connection details from this worker.
+
+The name is scoped to the worker so it does not collide with the control plane's `rivet-engine-secrets` if you run both in one namespace.
+
+</Step>
+
+<Step title="Create the runner config">
+
+A worker is refused until a runner config exists for its pool. Against a self-hosted control plane, create it once:
+
+```bash
+curl -X PUT "http://<control-plane-host>:6420/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Rivet Cloud does this for you. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
 
 </Step>
 
@@ -86,11 +104,11 @@ spec:
           image: registry.example.com/your-team/rivet-worker:latest
           envFrom:
             - secretRef:
-                name: rivet-secrets
+                name: rivet-worker-secrets
 ```
 
 ```bash
-kubectl apply -f rivet-secrets.yaml
+kubectl apply -f rivet-worker-secrets.yaml
 kubectl apply -f deployment.yaml
 ```
 

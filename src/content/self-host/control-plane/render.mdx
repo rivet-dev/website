@@ -96,6 +96,21 @@ https://rivet-engine-xxxx.onrender.com/ui/
 Log in with the admin token.
 
 </Step>
+<Step title="Create the runner config">
+
+A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+
+```bash
+curl -X PUT "https://rivet-engine-xxxx.onrender.com/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+
+</Step>
+
 
 <Step title="Connect a worker">
 

@@ -22,7 +22,7 @@ Cloud Run is request-driven, so workers run in **serverless** mode: the control 
 <Step title="Package your app">
 
 ```dockerfile
-FROM node:20-alpine
+FROM node:24-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev

@@ -50,12 +50,27 @@ The named volume is what makes data survive a container replacement. Pin the ima
 <Step title="Verify">
 
 ```bash
-curl http://localhost:6421/health
+curl -i http://localhost:6421/health
 ```
 
-Expect `ok`. The dashboard is at `http://<host>:6420/ui`.
+Expect `200`. The dashboard is at `http://<host>:6420/ui`.
 
 </Step>
+<Step title="Create the runner config">
+
+A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+
+```bash
+curl -X PUT "http://<host>:6420/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+
+</Step>
+
 
 <Step title="Put TLS in front">
 

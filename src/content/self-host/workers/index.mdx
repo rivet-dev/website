@@ -56,19 +56,39 @@ How a worker registers depends on how its platform runs it.
 
 The platform guides say which mode applies and register the URL where one is needed.
 
+## Runner configs
+
+A **runner config** declares a pool on the control plane. A worker connecting to a pool that has no config is refused, so this must exist before any worker can run actors. The default pool is named `default`.
+
+Rivet Cloud creates the config for you when you connect a namespace through the dashboard. On a self-hosted control plane, create it once per namespace:
+
+```bash
+curl -X PUT "http://<control-plane-host>:6420/runner-configs/default?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"datacenters":{"default":{"normal":{}}}}'
+```
+
+Use `normal` for runner mode. Serverless pools use `serverless` instead and carry the URL the control plane calls, which the serverless platform guides cover.
+
+Without it the worker starts cleanly and then retries forever, and actor calls fail with `no_runner_config_configured`.
+
 ## Packaging
 
 Runner-mode platforms take a container. A minimal Node image:
 
 ```dockerfile
-FROM node:20-alpine
+FROM node:24-slim
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
-ENV PORT=8080
 CMD ["node", "server.js"]
 ```
+
+Rivet requires Node 22 or newer, so pin an active LTS. Prefer the Debian-based images over Alpine: Rivet's SQLite dependency ships no musl prebuilt binary, so Alpine falls back to compiling it from source and needs a full build toolchain in the image.
+
+Runner-mode workers listen on no port, so the image sets none. Serverless platforms inject their own `PORT`.
 
 <ProductSlot name="snippet" />
 
