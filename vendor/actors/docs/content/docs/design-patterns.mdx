@@ -146,7 +146,6 @@ Use this when:
 </Tab>
 </Tabs>
 
-
 ### Syncing State Changes
 
 Use `onStateChange` to automatically sync actor state changes to external resources. This hook runs after state changes are flushed, which is coalesced to once per event loop tick rather than once per individual field mutation.
@@ -208,9 +207,3 @@ Actors are designed to maintain state across multiple requests. Creating a new a
 <CodeSnippet file="examples/docs/actors-design-patterns/actor-per-request.ts" />
 
 **Solution:** Use actors for entities that persist (users, sessions, documents), not for one-off operations. For stateless request handling, use regular functions.
-
-## API Reference
-
-- [`ActorDefinition`](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html) - Interface for pattern examples
-- [`ActorContext`](/typedoc/interfaces/rivetkit.mod.ActorContext.html) - Context usage patterns
-- [`ActionContext`](/typedoc/interfaces/rivetkit.mod.ActionContext.html) - Action patterns

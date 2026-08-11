@@ -216,6 +216,10 @@
 						{
 							"title": "Limits",
 							"href": "/actors/docs/limits"
+						},
+						{
+							"title": "Regions & Multi-Region",
+							"href": "/actors/docs/general/edge"
 						}
 					]
 				}
@@ -311,6 +315,10 @@
 						{
 							"title": "Pool Configuration",
 							"href": "/actors/docs/general/pool-configuration"
+						},
+						{
+							"title": "Container Runner",
+							"href": "/actors/docs/container-runner"
 						}
 					]
 				},
@@ -318,11 +326,6 @@
 					"title": "API Reference",
 					"collapsible": true,
 					"pages": [
-						{
-							"title": "TypeScript API",
-							"href": "/typedoc",
-							"external": true
-						},
 						{
 							"title": "OpenAPI",
 							"href": "https://github.com/rivet-dev/rivet/tree/main/rivetkit-openapi",
@@ -342,24 +345,29 @@
 						{
 							"title": "Skill File",
 							"href": "/actors/docs/general/skill"
-						},
-						{
-							"title": "Docs for LLMs",
-							"href": "/actors/docs/general/docs-for-llms"
 						}
 					]
 				}
 			]
 		}
 	],
-	"tutorials": [
+	"learn": [
 		{
 			"title": "General",
 			"pages": [
 				{
 					"title": "Overview",
-					"href": "/actors/tutorials",
+					"href": "/actors/learn",
 					"icon": "faSquareInfo"
+				}
+			]
+		},
+		{
+			"title": "Architecture",
+			"pages": [
+				{
+					"title": "A Radically Simpler Architecture",
+					"href": "/actors/learn/a-radically-simpler-architecture"
 				}
 			]
 		},
@@ -367,47 +375,61 @@
 			"title": "Guides",
 			"pages": [
 				{
-					"title": "Build a Chat Room",
-					"href": "/actors/tutorials/chat-room",
-					"badge": "TODO"
+					"title": "AI Agent",
+					"href": "/actors/learn/ai-agent"
 				},
 				{
-					"title": "Build an AI Agent",
-					"href": "/actors/tutorials/ai-agent",
-					"badge": "TODO"
+					"title": "Chat Room",
+					"href": "/actors/learn/chat-room"
+				},
+				{
+					"title": "Collaborative Text Editor",
+					"href": "/actors/learn/collaborative-text-editor"
+				},
+				{
+					"title": "Cron Jobs and Scheduled Tasks",
+					"href": "/actors/learn/cron-jobs"
+				},
+				{
+					"title": "Database per Tenant",
+					"href": "/actors/learn/per-tenant-database"
+				},
+				{
+					"title": "Live Cursors and Presence",
+					"href": "/actors/learn/live-cursors"
+				},
+				{
+					"title": "Multiplayer Game",
+					"href": "/actors/learn/multiplayer-game"
+				}
+			]
+		}
+	],
+	"integrations": [
+		{
+			"title": "General",
+			"pages": [
+				{
+					"title": "Overview",
+					"href": "/actors/integrations",
+					"icon": "faSquareInfo"
 				}
 			]
 		},
 		{
-			"title": "To Migrate",
+			"title": "Integrations",
 			"pages": [
 				{
-					"title": "Chat Room",
-					"href": "/cookbook/chat-room"
+					"title": "Flue",
+					"href": "/actors/integrations/flue"
 				},
 				{
-					"title": "AI Agent",
-					"href": "/cookbook/ai-agent"
+					"title": "Vercel Eve",
+					"href": "/actors/integrations/vercel-eve"
 				},
 				{
-					"title": "Collaborative Text Editor",
-					"href": "/cookbook/collaborative-text-editor"
-				},
-				{
-					"title": "Cron Jobs",
-					"href": "/cookbook/cron-jobs"
-				},
-				{
-					"title": "Live Cursors",
-					"href": "/cookbook/live-cursors"
-				},
-				{
-					"title": "Multiplayer Game",
-					"href": "/cookbook/multiplayer-game"
-				},
-				{
-					"title": "Per-Tenant Database",
-					"href": "/cookbook/per-tenant-database"
+					"title": "Vercel Workflows (Beta)",
+					"href": "/actors/integrations/vercel-workflows"
 				}
 			]
 		}
