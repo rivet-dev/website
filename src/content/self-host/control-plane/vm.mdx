@@ -98,6 +98,8 @@ From a container on the same host, use `host.docker.internal` instead of the hos
 
 ## Using PostgreSQL
 
+The file system backend above is RocksDB on local disk: single-node, and impossible to share between hosts. Scaling past one control plane node means moving to PostgreSQL first, then adding NATS for pub/sub. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. The commands below are still one engine container on one host; PostgreSQL is what makes adding a second host possible later.
+
 ```bash
 docker network create rivet-net
 

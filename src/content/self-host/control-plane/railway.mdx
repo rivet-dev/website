@@ -84,6 +84,10 @@ If your start command is a wrapper (`npm start`, `yarn start`, a shell script), 
 
 Railway's HTTP proxy supports WebSockets. If you add your own reverse proxy inside the service, raise its idle and read timeouts to `3600`. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
 
+## Scaling past one instance
+
+Both templates provision a single control plane service on PostgreSQL, which is a fine starting point. Before raising the replica count, add NATS for pub/sub so replicas coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

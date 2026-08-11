@@ -137,6 +137,8 @@ Render's proxy supports WebSockets but closes connections that sit idle past its
 
 The blueprint above is a single instance on managed PostgreSQL, which is a fine starting point. Before scaling out, add NATS for pub/sub so instances coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
+With NATS in place, instance count can be raised or handed to Render's autoscaling on a CPU target. Target 60% CPU, matching the <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> manifests, and keep a minimum of two instances. Autoscaling a control plane that is still on the file system backend corrupts it, but that does not apply here: this blueprint is on PostgreSQL from the start.
+
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

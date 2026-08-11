@@ -62,6 +62,12 @@ If your start command is a wrapper (`npm start`, `yarn start`, a shell script), 
 - Invoke the binary directly, for example `node dist/index.js`.
 - Or run `dumb-init` or `tini` as PID 1 in your Dockerfile.
 
+## Scaling
+
+Runner-mode workers are interchangeable, so raising the service's replica count adds capacity with nothing to re-register. New replicas dial out and appear under **Runners**.
+
+Removing a replica is the slow direction: it drains for up to 30 minutes, so keep the draining period at `2100` and reduce replica count gradually rather than in one step.
+
 ## Settings to avoid
 
 <Warning>

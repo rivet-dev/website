@@ -42,6 +42,12 @@ Once tasks are running they appear under **Runners** in the dashboard. Nothing n
 
 <ProductSlot name="verify" />
 
+## Autoscaling
+
+Runner-mode tasks are interchangeable, so ECS Service Auto Scaling can drive the desired count. Use target tracking on `ECSServiceAverageCPUUtilization` at 60%, with a minimum of two tasks.
+
+Scale-in is the caveat. It is bound by the same 120 second `stopTimeout` cap, so actors on a removed task are cut off rather than drained. Set a long scale-in cooldown, or leave the desired count fixed and change capacity at deploy time instead.
+
 ## Next steps
 
 - <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>

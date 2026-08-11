@@ -114,6 +114,12 @@ The service should be `running`. It then appears under **Runners** in the dashbo
 
 <ProductSlot name="verify" />
 
+## Scaling
+
+Compose has no autoscaler. Runner-mode workers are interchangeable, so `docker compose up -d --scale my-app=3` adds replicas that all join the same pool, but they share one host's CPU and memory. For capacity beyond a single host, or for autoscaling, move to <SelfHostLink to="workers/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="workers/aws-ecs">ECS</SelfHostLink>.
+
+Keep `stop_grace_period: 35m` on every replica. Scaling down cuts actors off otherwise.
+
 ## Next steps
 
 - <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>

@@ -60,6 +60,10 @@ Set the Worker URL with the `/api/rivet` path as the serverless runner URL in th
 
 <ProductSlot name="verify" />
 
+## Scaling
+
+Cloudflare autoscales Workers for you: there are no instances or replicas to configure. The one scaling bound you own is `maxConcurrentActors` on the serverless runner config, which caps concurrent actors across the whole pool and defaults to `1000`. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+
 ## Next steps
 
 - <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>

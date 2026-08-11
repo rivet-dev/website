@@ -48,7 +48,7 @@ docker run -d \
   rivetdev/engine:2.3.3
 ```
 
-For multi-node, drop the file system variable and set `RIVET__POSTGRES__URL` instead. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+For multi-node, drop the file system variable, set `RIVET__POSTGRES__URL` instead, and add NATS for pub/sub. Do not replicate or autoscale a node that is still on the file system backend: RocksDB is single-node. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
 </Step>
 

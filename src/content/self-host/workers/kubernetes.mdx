@@ -135,6 +135,16 @@ Once the pod is ready it appears under **Runners** in the dashboard. Nothing nee
 
 <ProductSlot name="verify" />
 
+## Autoscaling
+
+Runner-mode workers are interchangeable, so `replicas` can be raised freely or driven by a HorizontalPodAutoscaler on CPU. Nothing needs re-registering; new pods dial out and appear under **Runners**.
+
+```bash
+kubectl autoscale deployment rivet-worker --cpu-percent=60 --min=2 --max=10
+```
+
+Scale-down is the part that needs care. A pod the autoscaler removes still drains for up to 30 minutes under `terminationGracePeriodSeconds: 2100`, so it keeps serving its actors long after the HPA has stopped counting it. Set a scale-down stabilization window that matches, or the autoscaler will keep removing pods that have not actually released their capacity.
+
 ## If you expose the worker
 
 A worker does not need an Ingress to run actors. If you add one anyway, raise its idle timeout to `3600` seconds: workers connect over WebSocket and the defaults will sever them. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.

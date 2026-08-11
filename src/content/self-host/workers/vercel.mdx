@@ -63,7 +63,9 @@ Set your deployment URL with the `/api/rivet` path as the serverless runner URL 
 
 <Step title="Tune the request lifespan">
 
-`requestLifespan` is how long a serverless request lives before actors migrate to a fresh instance. Set it just below your plan's hard timeout: `295` on Hobby, `3595` on Pro. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+`requestLifespan` is how long a serverless request lives before actors migrate to a fresh instance. Set it just below your plan's hard timeout: `295` on Hobby, `3595` on Pro.
+
+Set `drainGracePeriod` alongside it. It defaults to `1800` and must be strictly less than `requestLifespan`, so either of those values is rejected until you lower it. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
 
 </Step>
 

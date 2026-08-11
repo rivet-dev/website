@@ -89,12 +89,13 @@ Expect `True`. The service then appears as connected in the dashboard.
 
 <ProductSlot name="verify" />
 
-## Concurrency and timeouts
+## Scaling and timeouts
 
-Two Cloud Run settings interact with how many actors you can host:
+Three Cloud Run settings interact with how many actors you can host:
 
 - **`--concurrency`** caps in-flight requests per instance, and each in-flight `/api/rivet/start` hosts one actor. It is therefore your actors-per-instance limit. Size it from per-actor memory and CPU; Cloud Run scales out more instances once instances hit the cap.
-- **`--timeout`** caps request duration at 60 minutes. Set `requestLifespan` just under it, around `840` for a 15-minute timeout, so actors migrate on your schedule rather than being cut off. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+- **`--max-instances`** caps how far Cloud Run scales out. Together with `--concurrency` it bounds the whole service at `concurrency × max-instances` actors. The deploy command above sets `--min-instances 1`, which is only the floor, so set the ceiling deliberately rather than inheriting the default.
+- **`--timeout`** caps request duration at 60 minutes. Set `requestLifespan` just under it, around `840` for a 15-minute timeout, so actors migrate on your schedule rather than being cut off. Lower `drainGracePeriod` to match: it defaults to `1800` and must be strictly less than `requestLifespan`. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
 
 Actor start requests all originate from your control plane's IPs, so any per-IP rate limit throttles the control plane long before real user traffic.
 

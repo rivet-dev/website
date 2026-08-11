@@ -87,11 +87,9 @@ await rivet.runnerConfigsUpsert("freestyle-runner", {
     default: {
       serverless: {
         url: `https://${FREESTYLE_DOMAIN}/api/rivet`,
-        runnersMargin: 1,
-        minRunners: 1,
-        maxRunners: 1,
-        slotsPerRunner: 1,
         requestLifespan: 60 * 5 - 5,
+        drainGracePeriod: 30,
+        maxConcurrentActors: 1000,
       },
     },
   },
@@ -101,10 +99,13 @@ await rivet.runnerConfigsUpsert("freestyle-runner", {
 | Field | Meaning |
 | --- | --- |
 | `url` | The deployment's `/api/rivet` base path. The control plane appends `/start` itself. |
-| `runnersMargin` | Spare runners kept warm |
-| `minRunners` / `maxRunners` | Scaling bounds |
-| `slotsPerRunner` | Concurrent actors per runner |
 | `requestLifespan` | Request lifetime, kept just under Freestyle's `timeout` |
+| `drainGracePeriod` | Time reserved at the end of each request for actors to stop gracefully. Must be **less than** `requestLifespan`, and it defaults to `1800`, so a short lifespan has to set it explicitly or the config is rejected. |
+| `maxConcurrentActors` | Ceiling on concurrent actors across the pool. Freestyle scales the deployment itself, so this is the only scaling bound to set. |
+
+<Warning>
+Do not pin `minRunners`, `maxRunners`, `slotsPerRunner`, or `runnersMargin`. They are deprecated, and `maxRunners` still has a live effect: when `maxConcurrentActors` is omitted it becomes the concurrency ceiling, so `maxRunners: 1` caps the whole deployment at one actor.
+</Warning>
 
 </Step>
 

@@ -145,6 +145,8 @@ Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner confi
 
 EFS-backed file system storage is single-node: RocksDB cannot be shared between tasks. Before raising the desired count above one, move to RDS PostgreSQL and add NATS for pub/sub. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
+Once on RDS, ECS Service Auto Scaling can drive the desired count. Use target tracking on average CPU at 60%, matching the <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> manifests, and keep a minimum of two tasks so the service survives losing one. Leave the desired count at one for as long as the task is on EFS.
+
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

@@ -147,7 +147,7 @@ volumes:
   postgres-data:
 ```
 
-Multi-node deployments also need NATS. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+This file still runs a single engine container, so it is not yet a multi-node deployment. It is the prerequisite for one: the file system backend is single-node RocksDB and cannot be shared, while PostgreSQL can. Multi-node deployments also need NATS. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
 ## Using a config file
 

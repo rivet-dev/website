@@ -63,6 +63,10 @@ https://your-project.functions.supabase.co/functions/v1/rivet/api/rivet
 
 <ProductSlot name="verify" />
 
+## Scaling
+
+Supabase autoscales Edge Functions for you: there are no instances or replicas to configure. The one scaling bound you own is `maxConcurrentActors` on the serverless runner config, which caps concurrent actors across the whole pool and defaults to `1000`. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+
 ## Next steps
 
 - <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>

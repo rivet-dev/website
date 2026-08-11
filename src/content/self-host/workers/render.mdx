@@ -67,6 +67,12 @@ The service log should show the worker connecting. Open the dashboard and confir
 
 <ProductSlot name="verify" />
 
+## Scaling
+
+Runner-mode workers are interchangeable, so instance count can be raised, or driven by Render's autoscaling on a CPU target. Target 60% CPU, matching the rest of the guides. Nothing needs re-registering; new instances dial out and appear under **Runners**. See [Render's scaling docs](https://render.com/docs/scaling).
+
+Scaling in is bounded by the drain below, so an instance being removed keeps serving its actors well past the point Render stops routing to it.
+
 ## Graceful shutdown
 
 Actors drain for up to 30 minutes, which is longer than Render waits between `SIGTERM` and `SIGKILL`. Plan deploys so a new instance is up before the old one goes away, and keep the process itself signal-aware: a wrapper such as `npm start` becomes PID 1 and swallows `SIGTERM`. Invoke the binary directly, or use `dumb-init` or `tini`.

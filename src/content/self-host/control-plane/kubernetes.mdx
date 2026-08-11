@@ -114,6 +114,18 @@ To use Amazon RDS, Cloud SQL, or Azure Database instead of the bundled Postgres:
 
 Use the direct connection string, not a pooled one. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
+## Autoscaling
+
+`05-rivet-engine-hpa.yaml` is a HorizontalPodAutoscaler on the engine Deployment. It scales between **2 and 10 replicas**, targeting **60% average CPU** and **80% average memory**.
+
+```bash
+kubectl -n rivet-engine get hpa rivet-engine
+```
+
+It needs the metrics server from the requirements above. Without it the targets read `<unknown>` and the HPA never scales.
+
+Autoscaling is only safe here because this bundle runs on PostgreSQL and NATS. The file system (RocksDB) backend is single-node, so an engine using it must stay at one replica. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
 ## Applying configuration changes
 
 The ConfigMap is read at startup, so a change needs a restart:

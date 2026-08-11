@@ -81,6 +81,12 @@ Expect `active`. The worker then appears under **Runners** in the dashboard.
 
 <ProductSlot name="verify" />
 
+## Scaling
+
+There is no autoscaler on a bare host. Runner-mode workers are interchangeable, so capacity is added by running the same unit on more hosts, each with its own `RIVET_ENDPOINT`. They all join the same pool and appear under **Runners**. To autoscale instead, move the worker to a platform that has one, such as <SelfHostLink to="workers/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="workers/aws-ecs">ECS</SelfHostLink>.
+
+Running two units on one host works but shares the host's CPU and memory, so it adds concurrency rather than capacity.
+
 ## Operating
 
 Restart after deploying a new build or changing environment variables:
