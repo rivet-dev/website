@@ -1,19 +1,31 @@
-# Edge Networking
+# Regions & Multi-Region
 
-Actors automatically run near your users on your provider's global network.
+Actors run near your users, in a region you can choose.
 
-At the moment, edge networking is only supported on Rivet Cloud & Cloudflare Workers. More self-hosted platforms are on the roadmap.
+An actor lives in one region. Which region it lands in, and how a client reaches it, is the same model whether you run on Rivet Cloud or your own multi-region deployment.
 
 ## Region selection
 
-### Automatic region selection
+### Automatic
 
-By default, actors will choose the nearest region based on the client's location.
+By default, an actor is created in the region nearest the client. Rivet uses [Anycast routing](https://en.wikipedia.org/wiki/Anycast) to find the closest point of presence without a slow manual pinging round.
 
-Under the hood, Rivet and Cloudflare use [Anycast routing](https://en.wikipedia.org/wiki/Anycast) to automatically find the best location for the client to connect to without relying on a slow manual pinging process.
+### Manual
 
-### Manual region selection
+Override the region with region options at create time:
 
-The region an actor is created in can be overridden using region options:
+See [Actor-Actor Communication](/actors/docs/communicating-between-actors) for the full set of create options.
 
-See [Create  Manage Actors](/actors/docs/communicating-between-actors) for more information.
+## Where the actor stays
+
+An actor does not migrate between regions. It is created in one region and stays there for its lifetime, so its state is always local to the compute running it. That locality is the point: reads and writes never cross a region boundary.
+
+Communication between actors in different regions goes over the network, so treat a cross-region actor call the same way you would treat any other remote call.
+
+## Multi-region when self-hosting
+
+Edge networking with automatic region selection is available on Rivet Cloud and Cloudflare Workers. Self-hosted deployments can run multiple regions, but you configure the topology and hostnames yourself.
+
+A self-hosted multi-region deployment runs a control plane in each region, all sharing one database and pub/sub layer, with each region reachable at its own hostname. See [Multi-Region](/actors/self-host/control-plane/multi-region) in the self-host docs for the topology configuration.
+
+The rule that matters most: each region needs its **own** hostname. Pointing a shared, load-balanced origin at several regions makes it impossible to address a specific one.

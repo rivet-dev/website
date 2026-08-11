@@ -29,9 +29,3 @@ Use connections to listen for events from other actors:
 ### Batch Operations
 
 Process multiple items in parallel:
-
-## API Reference
-
-- [`ActorHandle`](/typedoc/types/rivetkit.client_mod.ActorHandle.html) - Handle for calling other actors
-- [`Client`](/typedoc/types/rivetkit.mod.Client.html) - Client type for actor communication
-- [`ActorAccessor`](/typedoc/interfaces/rivetkit.client_mod.ActorAccessor.html) - Accessor for getting actor handles

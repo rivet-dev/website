@@ -23,7 +23,8 @@ import { useState, useEffect } from "react";
 
 interface DocsPageDropdownProps {
 	title: string;
-	markdownPath: string; // Path to the generated .md file in public/docs/
+	/** Site path of this page without slashes; the Markdown mirror is it plus `.md`. */
+	markdownPath: string;
 	currentUrl: string;
 }
 

@@ -73,11 +73,6 @@
 					"icon": "faTowerBroadcast"
 				},
 				{
-					"title": "Workflows",
-					"href": "/actors/docs/workflows",
-					"icon": "faDiagramNext"
-				},
-				{
 					"title": "Queues",
 					"href": "/actors/docs/queues",
 					"icon": "faMailbox"

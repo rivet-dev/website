@@ -1,0 +1,27 @@
+{
+	"docs": [
+		{
+			"title": "General",
+			"pages": [
+				{
+					"title": "Overview",
+					"href": "/cloud/docs",
+					"icon": "faSquareInfo"
+				}
+			]
+		},
+		{
+			"title": "Deploying",
+			"pages": [
+				{
+					"title": "Rivet Compute",
+					"href": "/cloud/docs/compute"
+				},
+				{
+					"title": "Preview Deployments",
+					"href": "/cloud/docs/preview-deployments"
+				}
+			]
+		}
+	]
+}

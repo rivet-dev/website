@@ -1,0 +1,129 @@
+---
+title: "Render"
+description: "Run the Rivet control plane on Render with managed PostgreSQL."
+---
+
+## Requirements
+
+- A [Render account](https://render.com)
+- A GitHub repository Render can build from
+
+<ProductSlot name="requirements" />
+
+<ProductSlot name="caveats" />
+
+## Steps
+
+<Steps>
+
+<Step title="Add the blueprint files">
+
+Three files at the root of your repository. The blueprint provisions a managed PostgreSQL database and the control plane together, and generates the admin token for you.
+
+```yaml render.yaml
+databases:
+  - name: rivet-db
+    plan: basic-256mb
+    databaseName: rivet
+    user: rivet
+
+services:
+  - type: web
+    name: rivet-engine
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rivet-db
+          property: connectionString
+      - key: RIVET__AUTH__ADMIN_TOKEN
+        generateValue: true
+```
+
+```dockerfile Dockerfile.render
+FROM rivetdev/engine:latest
+
+COPY entrypoint.render.sh /entrypoint.render.sh
+RUN chmod +x /entrypoint.render.sh
+
+ENTRYPOINT ["/entrypoint.render.sh"]
+```
+
+The entrypoint exists because Render hands you `DATABASE_URL`, and the engine reads `RIVET__POSTGRES__URL`. It translates one into the other.
+
+```bash entrypoint.render.sh
+#!/bin/sh
+
+if [ -n "$DATABASE_URL" ]; then
+    export RIVET__POSTGRES__URL="${DATABASE_URL}?sslmode=disable"
+fi
+
+exec /usr/bin/rivet-engine start
+```
+
+Commit and push all three.
+
+</Step>
+
+<Step title="Create the blueprint instance">
+
+1. Open the [Render dashboard](https://dashboard.render.com/).
+2. Click **Blueprints**, then **New Blueprint Instance**.
+3. Connect GitHub if you have not already, and select the repository.
+4. Click **Apply**.
+
+Render creates the database and deploys the control plane.
+
+</Step>
+
+<Step title="Get the admin token">
+
+On the **rivet-engine** service, open the **Environment** tab, find `RIVET__AUTH__ADMIN_TOKEN`, and reveal it. You need it for the dashboard and for every worker.
+
+</Step>
+
+<Step title="Verify">
+
+Open your service URL with `/ui/` appended:
+
+```
+https://rivet-engine-xxxx.onrender.com/ui/
+```
+
+Log in with the admin token.
+
+</Step>
+
+<Step title="Connect a worker">
+
+```bash
+RIVET_ENDPOINT=https://<namespace>:<admin-token>@rivet-engine-xxxx.onrender.com
+RIVET_PUBLIC_ENDPOINT=https://<namespace>@rivet-engine-xxxx.onrender.com
+```
+
+Confirm the worker appears under **Runners**. See <SelfHostLink to="workers">Workers</SelfHostLink>.
+
+</Step>
+
+</Steps>
+
+<ProductSlot name="env" />
+
+<ProductSlot name="verify" />
+
+## WebSocket timeouts
+
+Render's proxy supports WebSockets but closes connections that sit idle past its own timeout. If you put your own reverse proxy in front of the engine on Render, raise its idle and read timeouts to `3600` seconds. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+## Scaling past one instance
+
+The blueprint above is a single instance on managed PostgreSQL, which is a fine starting point. Before scaling out, add NATS for pub/sub so instances coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/render">Deploy workers on Render</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

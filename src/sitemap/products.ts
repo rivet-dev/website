@@ -1,9 +1,11 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { faDiagramNext, faGrid2 } from "@rivet-gg/icons";
+import { faCloud, faDiagramNext, faSparkles } from "@rivet-gg/icons";
 import type { SidebarItem } from "@/lib/sitemap";
 import rawSidebars from "@/generated/sidebars.json";
 import { SIDEBAR_ICONS } from "@/generated/sidebar-icons";
+import { PRODUCTS, VISIBLE_PRODUCTS, type ProductMetadata } from "./product-metadata";
 import { deploySidebar } from "./self-host";
+import { integrationSidebar } from "@/data/integrations";
 
 /**
  * Sidebars come from each product's own repo, collected into
@@ -28,7 +30,15 @@ function hydrateIcons<T>(node: T): T {
 }
 
 const SIDEBARS = hydrateIcons(
-	rawSidebars as Record<string, { docs: SidebarItem[]; tutorials?: SidebarItem[] }>,
+	rawSidebars as Record<
+		string,
+		{
+			docs: SidebarItem[];
+			learn?: SidebarItem[];
+			tutorials?: SidebarItem[];
+			integrations?: SidebarItem[];
+		}
+	>,
 );
 
 function productSidebars(productId: string) {
@@ -38,19 +48,37 @@ function productSidebars(productId: string) {
 			`No sidebar for "${productId}". Run \`pnpm assemble\` to collect it from the product repo.`,
 		);
 	}
-	return { docs: bundle.docs, tutorials: bundle.tutorials ?? [] };
+	return {
+		docs: bundle.docs,
+		learn: bundle.learn ?? bundle.tutorials ?? [],
+		integrations: bundle.integrations ?? [],
+	};
 }
 
-export type ProductTabId = "docs" | "tutorials" | "self-host";
+export type ProductTabId =
+	| "overview"
+	| "use-cases"
+	| "learn"
+	| "docs"
+	| "integrations"
+	| "registry"
+	| "self-host";
 
 export interface ProductTab {
 	id: ProductTabId;
 	title: string;
 	href: string;
+	/** Routed, but not rendered in the nav. See HIDDEN.md. */
+	hidden?: boolean;
+	/** Empty for Overview, which is the product's marketing page. */
 	sidebar: SidebarItem[];
 }
 
 export interface Product {
+	/** Kept out of the switcher and the docs index. Still routed. */
+	hidden?: boolean;
+	/** Short status chip shown next to the name. */
+	badge?: string;
 	/** URL segment and content-collection prefix, e.g. `actors`. */
 	id: string;
 	name: string;
@@ -67,68 +95,116 @@ export interface Product {
 	tabs: ProductTab[];
 }
 
-// The Self-Host tab covers both halves of the deployment story. The rename from
-// "Deploy" holds semantically: BYOC is self-hosting your compute, so running
-// your own workers against Rivet Cloud belongs here too.
+/**
+ * Every product exposes the same five tabs, so the secondary nav is identical
+ * across products and on marketing pages as well as docs.
+ *
+ * Overview is the product's marketing page and carries no sidebar. Self-Host is
+ * generated from `deployMatrix` rather than shipped in the product's bundle,
+ * because deployment is a property of the platform, not of the product.
+ */
+/** Fallback marks for products with no wordmark SVG. */
+const PRODUCT_GLYPHS: Record<string, IconDefinition | undefined> = {
+	"dynamic-apps": faSparkles,
+	workflows: faDiagramNext,
+	cloud: faCloud,
+};
+
 function tabs(
-	productId: string,
-	sidebars: { docs: SidebarItem[]; tutorials: SidebarItem[] },
+	meta: ProductMetadata,
+	sidebars: { docs: SidebarItem[]; learn: SidebarItem[]; integrations: SidebarItem[] },
 ): ProductTab[] {
-	return [
+	const id = meta.id;
+	const has = (tab: "learn" | "integrations" | "registry") =>
+		meta.optionalTabs.includes(tab);
+
+	const all: ProductTab[] = [
+		{ id: "overview", title: "Overview", href: `/${id}`, sidebar: [] },
+		{
+			// A single page, not a section: no sidebar.
+			id: "use-cases",
+			title: "Use Cases",
+			href: `/${id}/use-cases`,
+			sidebar: [],
+		},
+		...(has("learn")
+			? [
+					{
+						id: "learn" as const,
+						title: "Learn",
+						href: `/${id}/learn`,
+						sidebar: sidebars.learn,
+					},
+				]
+			: []),
 		{
 			id: "docs",
 			title: "Documentation",
-			href: `/${productId}/docs`,
+			href: `/${id}/docs`,
 			sidebar: sidebars.docs,
 		},
-		{
-			id: "tutorials",
-			title: "Tutorials",
-			href: `/${productId}/tutorials`,
-			sidebar: sidebars.tutorials,
-		},
+		...(has("integrations")
+			? [
+					{
+						id: "integrations" as const,
+						title: "Integrations",
+						href: `/${id}/integrations`,
+						// Built here, not from the bundle: the sidebar carries vendor
+						// logos and category groups, which a product repo's sidebar.json
+						// has no way to express.
+						sidebar: integrationSidebar(id),
+					},
+				]
+			: []),
+		...(has("registry")
+			? [
+					{
+						// A standalone catalog with its own layout, not a docs section.
+						id: "registry" as const,
+						title: "Registry",
+						href: `/${id}/registry`,
+						sidebar: [],
+					},
+				]
+			: []),
 		{
 			id: "self-host",
 			title: "Self-Host",
-			href: `/${productId}/self-host`,
-			sidebar: deploySidebar(productId),
+			href: `/${id}/self-host`,
+			sidebar: deploySidebar(id),
 		},
 	];
+
+	const hidden = new Set<string>(meta.hiddenTabs ?? []);
+	const marked = all.map((tab) =>
+		hidden.has(tab.id) ? { ...tab, hidden: true } : tab,
+	);
+
+	// An explicit list narrows the set; without one a product gets them all.
+	if (!meta.tabs) return marked;
+	const wanted = new Set<ProductTabId>(meta.tabs);
+	return marked.filter((tab) => wanted.has(tab.id));
 }
 
-// Display order is fixed: Actors, agentOS, Dynamic Apps, Workflows.
-export const products: Product[] = [
-	{
-		id: "actors",
-		name: "Actors",
-		description: "Where agents live: state, identity, durability",
-		href: "/actors",
-		tabs: tabs("actors", productSidebars("actors")),
-	},
-	{
-		id: "agentos",
-		name: "agentOS",
-		description: "How agents act: file system, shell, tools",
-		href: "/agentos",
-		tabs: tabs("agentos", productSidebars("agentos")),
-	},
-	{
-		id: "dynamic-apps",
-		name: "Dynamic Apps",
-		description: "User-generated apps as isolated, durable instances",
-		href: "/dynamic-apps",
-		icon: faGrid2,
-		tabs: tabs("dynamic-apps", productSidebars("dynamic-apps")),
-	},
-	{
-		id: "workflows",
-		name: "Workflows",
-		description: "Durable, replayable multi-step operations",
-		href: "/workflows",
-		icon: faDiagramNext,
-		tabs: tabs("workflows", productSidebars("workflows")),
-	},
-];
+// Built from the metadata so name, tagline, and order live in exactly one file.
+export const products: Product[] = PRODUCTS.map((meta) => ({
+	id: meta.id,
+	name: meta.name,
+	description: meta.tagline,
+	href: `/${meta.id}`,
+	icon: PRODUCT_GLYPHS[meta.id],
+	hidden: meta.hidden,
+	badge: meta.badge,
+	tabs: tabs(meta, productSidebars(meta.id)),
+}));
+
+/** The pillars, in display order. Everything user-facing lists these. */
+export const visibleProducts = products.filter((product) => !product.hidden);
+
+/** Tabs to render in the nav for a product: everything except hidden ones. */
+export function visibleTabs(product: Product): ProductTab[] {
+	return product.tabs.filter((tab) => !tab.hidden);
+}
 
 export const productIds = products.map((product) => product.id);
 

@@ -3,39 +3,74 @@ title: "Railway"
 description: "Run Rivet workers on Railway."
 ---
 
+Workers run in **runner** mode here: your service opens a connection out to the control plane on startup. It needs no public domain and nothing pasted into a connect form.
+
 ## Requirements
 
+- A [Railway account](https://railway.app)
+- A GitHub repository containing your app
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Railway, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Railway:
+<Step title="Deploy the repository">
 
-Railway builds your app for you, so there is no Dockerfile or image push step.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Railway command.
-5. Verify, showing the output where the worker registers.
+Connect your GitHub account to Railway and select the repository. Railway detects and deploys it. See [Railway's quick start](https://docs.railway.com/quick-start).
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
-
-**Source material:** `website/src/content/_pending-rewrite/deploy/railway.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Set the environment variables">
+
+Add `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` as service variables. Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. See [Railway's variables docs](https://docs.railway.com/guides/variables#service-variables).
+
+If your control plane is another Railway service, reference its private domain rather than a public one.
+
+</Step>
+
+<Step title="Set the draining period">
+
+Railway kills the old deploy 0 seconds after `SIGTERM` by default, so actors are cut off mid-drain on every deploy.
+
+Under **Settings → Deploy**, set **Draining seconds**. Actors need up to 30 minutes, so `2100` is the safe value. See [Railway's deployment teardown docs](https://docs.railway.com/deployments/deployment-teardown).
+
+</Step>
+
+<Step title="Verify">
+
+Open the dashboard and confirm your service appears under **Runners**. It reconnects automatically if the connection drops.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Signal handling
+
+If your start command is a wrapper (`npm start`, `yarn start`, a shell script), the wrapper becomes PID 1 and swallows `SIGTERM`, so the drain never runs regardless of the draining period.
+
+- Invoke the binary directly, for example `node dist/index.js`.
+- Or run `dumb-init` or `tini` as PID 1 in your Dockerfile.
+
+## Settings to avoid
+
+<Warning>
+Do not enable [App Sleeping](https://docs.railway.com/reference/app-sleeping) on a worker. Sleeping suspends the process, which drops its connection to the control plane, and Railway only wakes a service on inbound HTTP. Worker traffic is outbound, so the service would never wake and actors could not be scheduled to it.
+</Warning>
+
+[Multi-region deploys](https://docs.railway.com/reference/deployment-regions) are supported and place workers closer to your users.
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/railway">Run the control plane on Railway</SelfHostLink>

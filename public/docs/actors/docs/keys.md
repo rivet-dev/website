@@ -37,10 +37,3 @@ Use keys to provide basic actor configuration:
 ### Complex Configuration with Input
 
 For more complex configuration, use [input parameters](/actors/docs/input):
-
-## API Reference
-
-- [`ActorKey`](/typedoc/types/rivetkit.mod.ActorKey.html) - Key type for actors
-- [`ActorQuery`](/typedoc/types/rivetkit.mod.ActorQuery.html) - Query type using keys
-- [`GetOptions`](/typedoc/interfaces/rivetkit.client_mod.GetOptions.html) - Options for getting by key
-- [`QueryOptions`](/typedoc/interfaces/rivetkit.client_mod.QueryOptions.html) - Options for querying

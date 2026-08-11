@@ -163,4 +163,4 @@ These timeouts control how actors are shut down when a serverless request reache
 
 ## Increasing Limits
 
-These limits are sane defaults designed to protect your application from exploits and accidental runaway bugs. If you have a use case that requires different limits, [contact us](https://rivet.dev/contact) to discuss your requirements.
+These limits are sane defaults designed to protect your application from exploits and accidental runaway bugs. If you have a use case that requires different limits, [contact us](https://rivet.dev/sales) to discuss your requirements.

@@ -1,0 +1,34 @@
+---
+title: "Rivet Cloud"
+description: "Managed Rivet: the control plane and, if you want it, your compute too."
+---
+
+Rivet Cloud runs the control plane for you. You keep writing the same code and deploy it one of two ways:
+
+- **Bring your own compute.** Run workers on your own infrastructure and point them at Rivet Cloud. Every platform in the [Self-Host](/actors/self-host/workers) worker guides works this way.
+- **Rivet Compute.** Hand Rivet a container and it runs your backend as well. See [Rivet Compute](/cloud/docs/compute).
+
+Nothing here is required to use Rivet. If you would rather run the control plane yourself, see [Self-Host](/actors/self-host).
+
+## Getting started
+
+1. Create a project at [dashboard.rivet.dev](https://dashboard.rivet.dev).
+2. Open **Connect** and pick how you want to deploy.
+3. Copy the endpoint values, or the cloud token if you are deploying with Rivet Compute.
+
+## Tokens
+
+Rivet Cloud issues three kinds of token, and mixing them up is the most common source of `401`s.
+
+| Token | Prefix | Scope | Used for |
+| --- | --- | --- | --- |
+| Secret | `sk_` | Engine API at `api.rivet.dev` | `RIVET_ENDPOINT`, server-side only |
+| Publishable | `pk_` | Engine API at `api.rivet.dev` | `RIVET_PUBLIC_ENDPOINT`, safe for browsers |
+| Cloud API | `cloud_api_` | Cloud API at `cloud-api.rivet.dev` | `rivet deploy`, CI, managed-pool APIs |
+
+A `pk_` token will fail against the Cloud API, and a `cloud_api_` token will fail against the Engine API. They are not interchangeable.
+
+## In this section
+
+- [Rivet Compute](/cloud/docs/compute): deploy your backend as a container
+- [Preview Deployments](/cloud/docs/preview-deployments): an isolated namespace per pull request

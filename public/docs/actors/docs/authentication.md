@@ -87,9 +87,3 @@ The limits in this example are [ephemeral](/actors/docs/state#ephemeral-variable
 ### Caching Tokens
 
 Cache validated tokens in `c.vars` to avoid redundant validation on repeated connections. See [ephemeral variables](/actors/docs/state#ephemeral-variables) for more details.
-
-## API Reference
-
-- [`AuthIntent`](/typedoc/types/rivetkit.mod.AuthIntent.html) - Authentication intent type
-- [`OnBeforeConnectContext`](/typedoc/interfaces/rivetkit.mod.OnBeforeConnectContext.html) - Context for auth checks
-- [`OnConnectContext`](/typedoc/interfaces/rivetkit.mod.OnConnectContext.html) - Context after connection

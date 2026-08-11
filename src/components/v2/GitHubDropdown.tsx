@@ -17,9 +17,14 @@ function formatNumber(num: number): string {
 	return num.toString();
 }
 
+// One repo per product, plus the supporting libraries. `rivet-dev/rivet` was
+// renamed to `rivet-dev/actors`; GitHub still redirects the old name, but the
+// counter names the current one.
 const REPOS = [
-	"rivet-dev/rivet",
+	"rivet-dev/actors",
 	"rivet-dev/agentos",
+	"rivet-dev/dynamic-apps",
+	"rivet-dev/workflows",
 	"rivet-dev/secure-exec",
 	"rivet-dev/sandbox-agent",
 	"rivet-dev/antiox",

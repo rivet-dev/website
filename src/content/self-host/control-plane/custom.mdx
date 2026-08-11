@@ -1,39 +1,105 @@
 ---
 title: "Custom Platform"
-description: "Run the Rivet control plane on Custom Platform."
+description: "Run the Rivet control plane on any platform that can run a container."
 ---
+
+The control plane is a single container image, `rivetdev/engine`. Any platform that can run it with a persistent volume and a stable address can host it.
 
 ## Requirements
 
+Your platform must provide:
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on Custom Platform, with versions.
-</Warning>
+- **A container runtime**, or a Linux host you can run the binary on.
+- **A persistent volume.** The control plane is stateful. Storage that resets on redeploy will lose actor state.
+- **A stable network identity**, so workers keep reaching the same place.
+- **Long-lived connections.** Platforms that cap request duration or idle time below an hour will sever WebSockets. This rules out serverless platforms entirely.
+- **`SIGTERM` plus a grace period**, so the control plane can drain and flush state before it is killed.
+
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for Custom Platform:
+<Step title="Generate an admin token">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+```bash
+openssl rand -hex 32
+```
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/custom.mdx`
-</Warning>
+Store it wherever your platform keeps secrets. Without it, the API is unauthenticated.
+
+</Step>
+
+<Step title="Run the image">
+
+Pin the tag. Never run `latest` in production.
+
+```bash
+docker run -d \
+  --restart unless-stopped \
+  -p 6420:6420 \
+  -p 6421:6421 \
+  -v rivet-data:/data \
+  -e RIVET__FILE_SYSTEM__PATH="/data" \
+  -e RIVET__AUTH__ADMIN_TOKEN="<your-token>" \
+  rivetdev/engine:2.3.3
+```
+
+For multi-node, drop the file system variable and set `RIVET__POSTGRES__URL` instead. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
+</Step>
+
+<Step title="Expose the ports">
+
+`6420` carries API, dashboard, and WebSocket traffic and should sit behind TLS. `6421` serves health checks and should stay internal. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+</Step>
+
+<Step title="Raise the load balancer idle timeout">
+
+Set idle, read, and send timeouts to at least `3600` seconds on every proxy in the path. The 30 to 60 second defaults sever live WebSockets and cause reconnect storms.
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+curl http://<host>:6421/health
+```
+
+Expect `ok`. The dashboard is at `/ui` on port `6420`.
+
+</Step>
+
+<Step title="Connect a worker">
+
+Point a worker at the control plane and confirm it appears under **Runners**:
+
+```bash
+RIVET_ENDPOINT="https://default:<admin-token>@your-control-plane.example.com"
+```
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Troubleshooting
+
+**Workers connect, then drop every 30 to 60 seconds.** The load balancer idle timeout is still at its default.
+
+**State disappears after a deploy.** The volume is not persistent, or the data path does not point at it.
+
+**The dashboard rejects your token.** `RIVET__AUTH__ADMIN_TOKEN` is not reaching the container. Confirm the variable name, including the double underscores.
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers">Deploy your workers</SelfHostLink>

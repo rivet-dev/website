@@ -2,10 +2,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const SITE_BASE_URL = "https://rivet.dev";
-export const DOCS_BASE_URL = `${SITE_BASE_URL}/actors/docs`;
 export const PROJECT_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
-// Docs slugs are product-scoped (`actors/docs/state`, `workflows/tutorials`),
+// Docs slugs are product-scoped (`actors/docs/state`, `agentos/tutorials`),
 // so the collection slug is already the site path.
 export function getDocsPath(slug: string) {
 	if (slug === "integrations" || slug.startsWith("integrations/")) {

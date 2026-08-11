@@ -2,9 +2,11 @@ import {
 	faAws,
 	faCloudflare,
 	faDocker,
+	faFreestyle,
 	faGoogleCloud,
 	faKubernetes,
 	faRailway,
+	faRender,
 	faRocket,
 	faServer,
 	faSupabase,
@@ -17,12 +19,14 @@ export type Provider =
 	| "vm"
 	| "aws-ecs"
 	| "railway"
+	| "render"
 	| "custom"
 	| "vercel"
 	| "cloudflare-workers"
 	| "gcp-cloud-run"
 	| "aws-lambda"
-	| "supabase-functions";
+	| "supabase-functions"
+	| "freestyle";
 
 /**
  * The two things a platform can host. A worker runs the user's code with the
@@ -107,6 +111,14 @@ export const deployOptions: DeployOption[] = [
 		support: { worker: "supported", "control-plane": "supported" },
 	},
 	{
+		displayName: "Render",
+		name: "render",
+		slug: "render",
+		description: "Deploy Rivet to Render with managed PostgreSQL and automatic HTTPS",
+		icon: faRender as any,
+		support: { worker: "supported", "control-plane": "supported" },
+	},
+	{
 		displayName: "Custom Platform",
 		name: "custom",
 		shortTitle: "Custom",
@@ -160,6 +172,15 @@ export const deployOptions: DeployOption[] = [
 		description:
 			"Run Rivet on Supabase Edge Functions with the WebAssembly runtime",
 		icon: faSupabase,
+		specializedPlatform: true,
+		support: { worker: "supported", "control-plane": "unsupported" },
+	},
+	{
+		displayName: "Freestyle",
+		name: "freestyle",
+		slug: "freestyle",
+		description: "Run AI-generated Rivet backends on Freestyle's sandboxed Deno runtime",
+		icon: faFreestyle as any,
 		specializedPlatform: true,
 		support: { worker: "supported", "control-plane": "unsupported" },
 	},

@@ -1,13 +1,13 @@
 {
 	"docs": [
 		{
-			"title": "Introduction",
-			"href": "/agentos/docs",
-			"icon": "faCircleInfo"
-		},
-		{
 			"title": "General",
 			"pages": [
+				{
+					"title": "Overview",
+					"href": "/agentos/docs",
+					"icon": "faSquareInfo"
+				},
 				{
 					"title": "Quickstart",
 					"href": "/agentos/docs/quickstart",
@@ -17,6 +17,11 @@
 					"title": "Crash Course",
 					"href": "/agentos/docs/crash-course",
 					"icon": "faLightbulb"
+				},
+				{
+					"title": "Inspector",
+					"href": "/agentos/docs/inspector",
+					"icon": "faMagnifyingGlass"
 				},
 				{
 					"title": "agentOS vs Sandbox",
@@ -81,15 +86,54 @@
 					"icon": "faCheck"
 				},
 				{
-					"title": "LLM Credentials",
-					"href": "/agentos/docs/llm-credentials",
+					"title": "Models & Credentials",
+					"href": "/agentos/docs/models-and-credentials",
 					"icon": "faKey"
+				}
+			]
+		},
+		{
+			"title": "Execution",
+			"pages": [
+				{
+					"title": "Bash",
+					"href": "/agentos/docs/bash",
+					"icon": "faTerminal"
 				},
 				{
-					"title": "LLM Gateway",
-					"href": "/agentos/docs/llm-gateway",
-					"badge": "Coming Soon",
-					"icon": "faCloud"
+					"title": "Node.js",
+					"href": "/agentos/docs/javascript",
+					"icon": "faNodeJs"
+				},
+				{
+					"title": "Python",
+					"href": "/agentos/docs/python",
+					"icon": "faPython"
+				}
+			]
+		},
+		{
+			"title": "Orchestration",
+			"pages": [
+				{
+					"title": "Multiplayer",
+					"href": "/agentos/docs/multiplayer",
+					"icon": "faTowerBroadcast"
+				},
+				{
+					"title": "Workflows & Graphs",
+					"href": "/agentos/docs/workflows",
+					"icon": "faDiagramNext"
+				},
+				{
+					"title": "Crons & Loops",
+					"href": "/agentos/docs/cron",
+					"icon": "faClock"
+				},
+				{
+					"title": "Agent-to-Agent",
+					"href": "/agentos/docs/agent-to-agent",
+					"icon": "faArrowsLeftRight"
 				}
 			]
 		},
@@ -107,12 +151,7 @@
 					"icon": "faFloppyDisk"
 				},
 				{
-					"title": "Bindings",
-					"href": "/agentos/docs/bindings",
-					"icon": "faWrench"
-				},
-				{
-					"title": "Processes & Shell",
+					"title": "Processes & Shells",
 					"href": "/agentos/docs/processes",
 					"icon": "faTerminal"
 				},
@@ -120,28 +159,6 @@
 					"title": "Networking & Previews",
 					"href": "/agentos/docs/networking",
 					"icon": "faGlobe"
-				},
-				{
-					"title": "Cron Jobs",
-					"href": "/agentos/docs/cron",
-					"icon": "faClock"
-				},
-				{
-					"title": "Browser",
-					"href": "/agentos/docs/browser",
-					"badge": "Beta",
-					"icon": "faWindowMaximize"
-				},
-				{
-					"title": "Sandbox Mounting",
-					"href": "/agentos/docs/sandbox",
-					"badge": "Beta",
-					"icon": "faHardDrive"
-				},
-				{
-					"title": "JavaScript Runtime",
-					"href": "/agentos/docs/js-runtime",
-					"icon": "faNodeJs"
 				},
 				{
 					"title": "Permissions",
@@ -156,32 +173,24 @@
 			]
 		},
 		{
-			"title": "Orchestration",
+			"title": "Extensions",
 			"pages": [
 				{
-					"title": "Authentication",
-					"href": "/agentos/docs/authentication",
-					"icon": "faKey"
+					"title": "Custom Bindings",
+					"href": "/agentos/docs/bindings",
+					"icon": "faWrench"
 				},
 				{
-					"title": "Webhooks",
-					"href": "/agentos/docs/webhooks",
-					"icon": "faLink"
+					"title": "Browser Automation",
+					"href": "/agentos/docs/browser",
+					"badge": "Beta",
+					"icon": "faWindowMaximize"
 				},
 				{
-					"title": "Multiplayer & Realtime",
-					"href": "/agentos/docs/multiplayer",
-					"icon": "faTowerBroadcast"
-				},
-				{
-					"title": "Agent-to-Agent",
-					"href": "/agentos/docs/agent-to-agent",
-					"icon": "faArrowsLeftRight"
-				},
-				{
-					"title": "Workflows",
-					"href": "/agentos/docs/workflows",
-					"icon": "faDiagramNext"
+					"title": "External Sandboxes",
+					"href": "/agentos/docs/sandboxes",
+					"badge": "Beta",
+					"icon": "faHardDrive"
 				}
 			]
 		},
@@ -189,14 +198,8 @@
 			"title": "Reference",
 			"pages": [
 				{
-					"title": "API Reference",
-					"href": "https://github.com/rivet-dev/agentos",
-					"external": true,
-					"target": "_blank"
-				},
-				{
-					"title": "Deploy",
-					"href": "/agentos/docs/deployment"
+					"title": "Authentication",
+					"href": "/agentos/docs/authentication"
 				},
 				{
 					"title": "Custom Software",
@@ -303,7 +306,7 @@
 					"collapsible": true,
 					"pages": [
 						{
-							"title": "Core SDK",
+							"title": "Direct VM SDK",
 							"href": "/agentos/docs/core"
 						},
 						{
@@ -311,36 +314,39 @@
 							"href": "/agentos/docs/debugging"
 						},
 						{
-							"title": "Benchmarks",
-							"href": "/agentos/docs/benchmarks"
-						},
-						{
-							"title": "Cost Evaluation",
-							"href": "/agentos/docs/cost-evaluation"
+							"title": "Performance",
+							"href": "/agentos/docs/performance"
 						}
 					]
 				}
 			]
 		}
 	],
-	"tutorials": [
+	"integrations": [
 		{
 			"title": "General",
 			"pages": [
 				{
 					"title": "Overview",
-					"href": "/agentos/tutorials",
+					"href": "/agentos/integrations",
 					"icon": "faSquareInfo"
 				}
 			]
 		},
 		{
-			"title": "Guides",
+			"title": "Frameworks",
 			"pages": [
 				{
-					"title": "Getting Started",
-					"href": "/agentos/tutorials/getting-started",
-					"badge": "TODO"
+					"title": "Flue",
+					"href": "/agentos/integrations/flue"
+				},
+				{
+					"title": "Rivet",
+					"href": "/agentos/integrations/rivet"
+				},
+				{
+					"title": "Vercel Eve",
+					"href": "/agentos/integrations/vercel-eve"
 				}
 			]
 		}

@@ -2,11 +2,12 @@ import { faCloudflare } from '@rivet-gg/icons';
 import type { CompareEntry } from './types';
 
 export const cloudflareDurableObjects: CompareEntry = {
-	slug: 'rivet-vs-cloudflare-durable-objects',
+	slug: 'rivet-actors-vs-cloudflare-durable-objects',
+	product: 'actors',
 	competitorName: 'Cloudflare Durable Objects',
 	rivetProductName: 'Rivet Actors',
 	competitorIcon: faCloudflare,
-	title: 'Rivet vs Cloudflare Durable Objects',
+	title: 'Rivet Actors vs Cloudflare Durable Objects',
 	description:
 		'Compare Rivet Actors and Cloudflare Durable Objects: open-source stateful actors on your own infrastructure versus stateful compute tied to Cloudflare.',
 	heroSubtitle:

@@ -5,35 +5,71 @@ description: "Run the Rivet control plane on Railway."
 
 ## Requirements
 
+- A [Railway account](https://railway.app)
+- The [Railway CLI](https://docs.railway.app/develop/cli), optional
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on Railway, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for Railway:
+<Step title="Deploy a template">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+Two templates are published. Both provision the control plane and a PostgreSQL database.
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/railway.mdx`
-</Warning>
+| [Rivet](https://railway.com/deploy/rivet?referralCode=RC7bza&utm_medium=integration&utm_source=template&utm_campaign=generic) | [Rivet Starter](https://railway.com/deploy/rivet-starter) |
+| --- | --- |
+| Blank template | Complete example |
+| Control plane and PostgreSQL | Control plane, PostgreSQL, and a chat app built with actors |
+| Manual setup from here | Runs immediately |
+
+To build it by hand instead, create a project, add a **PostgreSQL** database, then add a **Docker Image** service using `rivetdev/engine:latest` with `RIVET__POSTGRES__URL=${{Postgres.DATABASE_URL}}`.
+
+The [Railway template repository](https://github.com/rivet-dev/template-railway) is a useful starting point for your own application.
+
+</Step>
+
+<Step title="Find the admin token">
+
+The templates generate one. It is under the **Variables** tab as `RIVET__AUTH__ADMIN_TOKEN`.
+
+</Step>
+
+<Step title="Set the draining period">
+
+Railway kills the old deploy **0 seconds** after `SIGTERM` by default, so in-flight requests are dropped and state flushes are interrupted on every single deploy. Rivet drains cleanly on `SIGTERM`, but only if it is given time.
+
+Under **Settings → Deploy**, set **Draining seconds** to `60`. It can also be set with `drainingSeconds` in config-as-code, or the `RAILWAY_DEPLOYMENT_DRAINING_SECONDS` service variable. See [Railway's deployment teardown docs](https://docs.railway.com/deployments/deployment-teardown).
+
+</Step>
+
+<Step title="Verify">
+
+Open your service URL with `/ui` appended and log in with the admin token.
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Signal handling
+
+If your start command is a wrapper (`npm start`, `yarn start`, a shell script), the wrapper becomes PID 1, swallows `SIGTERM`, and the drain never happens no matter what you set the draining period to.
+
+- Invoke the binary directly, for example `node dist/index.js`.
+- Or run `dumb-init` or `tini` as PID 1 in your Dockerfile.
+
+## WebSocket timeouts
+
+Railway's HTTP proxy supports WebSockets. If you add your own reverse proxy inside the service, raise its idle and read timeouts to `3600`. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/railway">Deploy workers on Railway</SelfHostLink>

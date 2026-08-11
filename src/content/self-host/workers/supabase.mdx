@@ -1,34 +1,63 @@
 ---
 title: "Supabase Functions"
-description: "Run Rivet workers on Supabase Functions."
+description: "Run Rivet workers on Supabase Edge Functions."
 ---
+
+Supabase Edge Functions is a **serverless** platform: there is no long-lived process, so the control plane calls your `/api/rivet` endpoint to start actors. The function URL has to be public and registered.
 
 ## Requirements
 
+- A [Supabase project](https://supabase.com/)
+- The [Supabase CLI](https://supabase.com/docs/guides/cli) configured for it
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Supabase Functions, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Supabase Functions:
+<Step title="Set the secrets">
 
-Supabase Functions builds your app for you, so there is no Dockerfile or image push step.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Supabase Functions command.
-5. Verify, showing the output where the worker registers.
+```sh
+npx supabase secrets set \
+  RIVET_ENDPOINT=https://your-namespace:sk_...@api.rivet.dev \
+  RIVET_PUBLIC_ENDPOINT=https://your-namespace@api.rivet.dev
+```
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/supabase.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Check the import map">
+
+`deno.json` must point `rivetkit` at `@rivetkit/supabase`. That keeps the deploy on the WebAssembly runtime. Without it the deploy pulls the native engine and fails with a `413`, request too large.
+
+</Step>
+
+<Step title="Deploy">
+
+```sh
+npx supabase functions deploy rivet
+```
+
+</Step>
+
+<Step title="Register the URL">
+
+Set the function URL with the `/api/rivet` path as the serverless runner URL in the dashboard. For a function named `rivet` this is usually:
+
+```
+https://your-project.functions.supabase.co/functions/v1/rivet/api/rivet
+```
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
@@ -36,6 +65,5 @@ Every command shows its expected output. Six steps is the ceiling. Do not restat
 
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/cloudflare">Cloudflare Workers</SelfHostLink>, the other WebAssembly-runtime target

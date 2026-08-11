@@ -189,10 +189,3 @@ Connections are normally held at the gateway until the actor is ready. Pass `ski
 ### Async Handlers
 
 The `onWebSocket` handler can be async, allowing you to perform async code before setting up event listeners:
-
-## API Reference
-
-- [`WebSocketContext`](/typedoc/interfaces/rivetkit.mod.WebSocketContext.html) - Context for WebSocket handlers
-- [`UniversalWebSocket`](/typedoc/interfaces/rivetkit.mod.UniversalWebSocket.html) - Universal WebSocket interface
-- [`handleRawWebSocketHandler`](/typedoc/functions/rivetkit.mod.handleRawWebSocketHandler.html) - Function to handle raw WebSocket
-- [`UpgradeWebSocketArgs`](/typedoc/interfaces/rivetkit.mod.UpgradeWebSocketArgs.html) - Arguments for WebSocket upgrade

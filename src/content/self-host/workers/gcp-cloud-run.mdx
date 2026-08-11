@@ -3,40 +3,102 @@ title: "Google Cloud Run"
 description: "Run Rivet workers on Google Cloud Run."
 ---
 
+Cloud Run is request-driven, so workers run in **serverless** mode: the control plane calls your `/api/rivet` endpoint to start actors, and the service URL has to be public and registered.
+
 ## Requirements
 
+- A Google Cloud project with Cloud Run and Artifact Registry enabled
+- `gcloud` authenticated (`gcloud auth login`) with the project set
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Google Cloud Run, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Google Cloud Run:
+<Step title="Package your app">
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Google Cloud Run command.
-5. Verify, showing the output where the worker registers.
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+ENV RIVET_PORT=8080
+CMD ["node", "server.js"]
+```
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+`RIVET_PORT` is the port RivetKit's listener binds. Cloud Run routes to `8080` by default, and RivetKit does not read Cloud Run's `PORT` variable.
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/gcp-cloud-run.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Build and push">
+
+```bash
+gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_PROJECT/rivet-worker/rivet-worker:latest
+```
+
+</Step>
+
+<Step title="Deploy">
+
+`RIVETKIT_RUNTIME_MODE=serverless` is required. Without it the app defaults to runner mode, which does not fit Cloud Run's request-driven model.
+
+```bash
+gcloud run deploy rivet-worker \
+  --image us-central1-docker.pkg.dev/YOUR_PROJECT/rivet-worker/rivet-worker:latest \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --min-instances 1 \
+  --set-env-vars RIVET_ENDPOINT=<your-rivet-endpoint>,RIVET_PUBLIC_ENDPOINT=<your-rivet-public-endpoint>,RIVETKIT_RUNTIME_MODE=serverless
+```
+
+Both endpoint values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
+
+</Step>
+
+<Step title="Register the URL">
+
+Take the service URL from the deploy output, append `/api/rivet`, and set it as the serverless runner URL in the dashboard:
+
+```
+https://rivet-worker-xxxxx-uc.a.run.app/api/rivet
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+gcloud run services describe rivet-worker --region us-central1 \
+  --format 'value(status.conditions[?type="Ready"].status)'
+```
+
+Expect `True`. The service then appears as connected in the dashboard.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Concurrency and timeouts
+
+Two Cloud Run settings interact with how many actors you can host:
+
+- **`--concurrency`** caps in-flight requests per instance, and each in-flight `/api/rivet/start` hosts one actor. It is therefore your actors-per-instance limit. Size it from per-actor memory and CPU; Cloud Run scales out more instances once instances hit the cap.
+- **`--timeout`** caps request duration at 60 minutes. Set `requestLifespan` just under it, around `840` for a 15-minute timeout, so actors migrate on your schedule rather than being cut off. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+
+Actor start requests all originate from your control plane's IPs, so any per-IP rate limit throttles the control plane long before real user traffic.
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>

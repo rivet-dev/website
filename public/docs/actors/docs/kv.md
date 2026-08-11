@@ -33,7 +33,3 @@ Use `listRange(start, end)` to read an arbitrary half-open range `[start, end)`.
 ## Batch Operations
 
 KV supports batch operations for efficiency. `batchPut` and `batchGet` work on raw `Uint8Array` keys and values, so encode strings before passing them in.
-
-## API Reference
-
-- [`ActorContext`](/typedoc/interfaces/rivetkit.mod.ActorContext.html) - `c.kv` is available on the context

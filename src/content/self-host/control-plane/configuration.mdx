@@ -3,8 +3,84 @@ title: "Configuration"
 description: "Every control plane setting, in one table. Guides link here instead of restating options."
 ---
 
-<Warning>
-**TODO.** Port and rewrite as the canonical configuration reference. Platform guides link here instead of restating.
+import EngineConfigSchema from "@/components/docs/EngineConfigSchemaClient.astro";
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/configuration.mdx`
-</Warning>
+The control plane is the Rivet Engine. It reads configuration from files, from environment variables, or from both.
+
+## Configuration sources
+
+The engine accepts JSON, JSON5, JSONC, YAML, and YML, plus environment variables.
+
+### Environment variables
+
+Prefix a setting with `RIVET__` and separate each level of nesting with `__`. Names are case-insensitive. To set `postgres.url`:
+
+```bash
+RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database"
+```
+
+### Configuration files
+
+Files are discovered automatically in a platform-specific directory:
+
+| Platform | Path |
+| --- | --- |
+| Linux | `/etc/rivet/config.json` |
+| macOS | `/Library/Application Support/rivet/config.json` |
+| Windows | `C:\ProgramData\rivet\config.json` |
+
+Multiple files in the same directory are merged. `/etc/rivet/config.json` and `/etc/rivet/database.json` are loaded together.
+
+Override the search path with `--config`:
+
+```bash
+# Load from a specific file
+rivet-engine --config /path/to/config.json
+
+# Load from a directory
+rivet-engine --config /etc/rivet
+
+# Load multiple paths, merged in order
+rivet-engine --config /etc/rivet/base.json --config /etc/rivet/override.json
+```
+
+## Reference
+
+<EngineConfigSchema />
+
+### Envoy load balancing
+
+`pegboard.envoy_load_balancer` selects how actors are assigned to envoys. The `hash` strategy uses a hash ring:
+
+```json
+{
+	"pegboard": {
+		"envoy_load_balancer": {
+			"hash": {
+				"virtual_nodes": 8,
+				"samples": 2,
+				"max_scan": 16,
+				"use_snapshot_read": true
+			}
+		}
+	}
+}
+```
+
+Use `samples: 1` for a uniform random pick that skips slot reads, or `samples: 2` or higher for power-of-K choices over envoy slot counts. Treat `virtual_nodes` as an operational invariant once envoys have registered: changing it reshuffles the ring.
+
+## Telemetry
+
+The engine exports traces and metrics over OpenTelemetry.
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `RIVET_OTEL_ENABLED` | Set to `1` to enable export | off |
+| `RIVET_OTEL_GRPC_ENDPOINT` | Collector endpoint | `http://localhost:4317` |
+| `RIVET_OTEL_SAMPLER_RATIO` | Trace sampling ratio | `0.001` |
+
+## Next steps
+
+- <SelfHostLink to="control-plane/storage">Storage backends</SelfHostLink>
+- <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

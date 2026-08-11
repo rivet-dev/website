@@ -3,6 +3,55 @@ title: "Ports"
 description: "Every port the control plane listens on and what talks to it. Guides link here instead of restating."
 ---
 
-<Warning>
-**TODO.** Port and rewrite as the canonical ports reference. Platform guides link here instead of restating.
-</Warning>
+| Port | Purpose | Who connects | Expose publicly |
+| --- | --- | --- | --- |
+| `6420` | API, dashboard, and WebSocket traffic | Clients, workers, your backend | Yes, behind TLS |
+| `6421` | api-peer, the internal peer API, which also serves health checks | Other control plane nodes and regions, and your orchestrator's liveness and readiness probes | No |
+
+## 6420: API and WebSocket
+
+Everything that talks to the control plane uses this port: the dashboard at `/ui`, the HTTP API, and the WebSocket connections that carry both client traffic and envoy traffic.
+
+Put a reverse proxy or load balancer in front of it and terminate TLS there. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+
+### Raise the idle timeout
+
+This is the single most common self-hosting mistake. Rivet holds long-lived WebSocket connections open on this port, and the default idle timeout on most ingress controllers and cloud load balancers is 30 to 60 seconds. Those defaults sever live connections and cause reconnect storms.
+
+Raise the idle, read, and send timeouts to at least one hour (`3600` seconds) on **every** proxy in the path.
+
+- **NGINX Ingress**, as annotations on the Ingress:
+
+    ```yaml
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    ```
+
+- **AWS Load Balancer Controller (ALB)**:
+
+    ```yaml
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+    ```
+
+- **GCE Ingress (GKE)**: set `timeoutSec: 3600` on the `BackendConfig` referenced by the Service.
+
+The same requirement applies to any load balancer in front of your workers, because envoys connect to them over WebSocket too.
+
+## 6421: api-peer and health
+
+This is the api-peer service. Control plane nodes and other regions reach each other here, and it is the port a datacenter's `peer_url` points at. See <SelfHostLink to="control-plane/multi-region">Multi-Region</SelfHostLink>.
+
+Point liveness and readiness probes at `/health` on this port. A five second timeout is a reasonable default.
+
+```bash
+curl http://localhost:6421/health
+```
+
+`/health` is served on `6420` as well, which is the easier probe when you have not exposed `6421`.
+
+Keep this port internal to your cluster or VPC.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

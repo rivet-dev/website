@@ -3,39 +3,144 @@ title: "Vercel"
 description: "Run Rivet workers on Vercel."
 ---
 
+Vercel is a **serverless** platform: there is no long-lived process, so the control plane calls your `/api/rivet` endpoint to start actors. The deployment URL has to be public and registered.
+
 ## Requirements
 
+- A [Vercel account](https://vercel.com/)
+- A Next.js app with the Rivet route handler mounted
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Vercel, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Vercel:
+<Step title="Mount the route handler">
 
-Vercel builds your app for you, so there is no Dockerfile or image push step.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Vercel command.
-5. Verify, showing the output where the worker registers.
+The handler sets `maxDuration` so Vercel does not cut long-lived actor requests short.
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+```ts src/app/api/rivet/[...all]/route.ts @nocheck
+import { toNextHandler } from "@rivetkit/next-js";
+import { registry } from "@/rivet/registry";
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/vercel.mdx`
-</Warning>
+export const maxDuration = 300;
+
+export const { GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS } = toNextHandler(registry);
+```
+
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Set the environment variables">
+
+In your Vercel project settings:
+
+```
+RIVET_ENDPOINT=https://my-namespace:sk_****@api.rivet.dev
+RIVET_PUBLIC_ENDPOINT=https://my-namespace:pk_****@api.rivet.dev
+```
+
+`RIVET_ENDPOINT` carries the secret token for server-side access. `RIVET_PUBLIC_ENDPOINT` carries the publishable token and tells the metadata endpoint what to hand clients. See <SelfHostLink to="workers">Workers</SelfHostLink>.
+
+</Step>
+
+<Step title="Deploy">
+
+Connect your GitHub repository to Vercel and push. Vercel builds and deploys.
+
+</Step>
+
+<Step title="Register the URL">
+
+Set your deployment URL with the `/api/rivet` path as the serverless runner URL in the dashboard, for example `https://my-app.vercel.app/api/rivet`.
+
+</Step>
+
+<Step title="Tune the request lifespan">
+
+`requestLifespan` is how long a serverless request lives before actors migrate to a fresh instance. Set it just below your plan's hard timeout: `295` on Hobby, `3595` on Pro. See <SelfHostLink to="workers/production-checklist">the production checklist</SelfHostLink>.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Preview deployments
+
+A GitHub action creates an isolated namespace per pull request.
+
+1. Add two repository secrets:
+   - `RIVET_CLOUD_TOKEN` from the [dashboard](https://dashboard.rivet.dev) under Settings → Advanced → Cloud API Tokens
+   - `VERCEL_TOKEN` from [Vercel account settings](https://vercel.com/account/tokens)
+
+2. Add `.github/workflows/rivet-preview.yml`:
+
+```yaml
+name: Rivet Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: rivet-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rivet-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: rivet-dev/preview-namespace-action@v1
+        with:
+          platform: vercel
+          rivet-token: ${{ secrets.RIVET_CLOUD_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+<Accordion title="ENOENT: no such file or directory (rivetkit state)">
+
+```
+Error: ENOENT: no such file or directory, mkdir '.../rivetkit/.../state'
+```
+
+`RIVET_ENDPOINT` is not set, so the SDK fell back to the file system driver, which cannot write in Vercel's read-only environment. Set the variable. The [preview-namespace-action](https://github.com/rivet-dev/preview-namespace-action) configures it automatically.
+
+</Accordion>
+<Accordion title="Metadata endpoint missing clientEndpoint">
+
+`/api/rivet/metadata` responds, but `clientEndpoint`, `clientNamespace`, and `clientToken` are absent.
+
+`RIVET_PUBLIC_ENDPOINT` is not set. That variable is what tells the metadata endpoint which connection details to hand clients.
+
+</Accordion>
+<Accordion title="401 Authentication Required">
+
+[Vercel Deployment Protection](https://vercel.com/docs/security/deployment-protection) is blocking requests from Rivet.
+
+1. Create a bypass secret in your Vercel project settings.
+2. In the dashboard, go to **Settings → Providers**.
+3. Open the three-dot menu on your provider and select **Edit**.
+4. **Add Header**: `x-vercel-protection-bypass`, set to your bypass secret.
+
+</Accordion>
+</AccordionGroup>
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>

@@ -59,8 +59,3 @@ Once destroyed, the `onDestroy` hook will be called. This can be used to clean u
 ## Accessing Actor After Destroy
 
 Once an actor is destroyed, any subsequent requests to it will fail with an `actor.not_found` error (`{ group: "actor", code: "not_found" }`). The actor's state is permanently deleted.
-
-## API Reference
-
-- [`ActorHandle`](/typedoc/types/rivetkit.client_mod.ActorHandle.html) - Has destroy methods
-- [`ActorContext`](/typedoc/interfaces/rivetkit.mod.ActorContext.html) - Context during destruction

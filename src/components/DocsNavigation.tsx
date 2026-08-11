@@ -3,10 +3,40 @@ import { CollapsibleSidebarItem } from "@/components/CollapsibleSidebarItem";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import routes from "@/generated/routes.json";
 import type { SidebarItem } from "@/lib/sitemap";
+import { type ProductAccent, productAccent } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
 import { Icon, faArrowUpRight } from "@rivet-gg/icons";
 import clsx from "clsx";
-import { type PropsWithChildren, type ReactNode, useEffect, useRef } from "react";
+import {
+	createContext,
+	type PropsWithChildren,
+	type ReactNode,
+	useContext,
+	useEffect,
+	useRef,
+} from "react";
+
+/**
+ * Accent of the product vertical this sidebar belongs to.
+ *
+ * The tree is deep and the accent is only read by the leaf links, so it travels
+ * by context rather than through every intermediate node. Undefined outside a
+ * product vertical (the integrations sidebar), where the links stay pine.
+ */
+export const SidebarAccentContext = createContext<ProductAccent | undefined>(
+	undefined,
+);
+
+export function SidebarAccentProvider({
+	productId,
+	children,
+}: PropsWithChildren<{ productId?: string }>) {
+	return (
+		<SidebarAccentContext.Provider value={productAccent(productId)}>
+			{children}
+		</SidebarAccentContext.Provider>
+	);
+}
 
 interface TreeItemProps {
 	index: number;
@@ -157,13 +187,17 @@ export function NavLink({
 		}
 	};
 
+	const accent = useContext(SidebarAccentContext);
+
 	return (
 		<ActiveLink
 			strict
 			href={href}
 			target={external && "_blank"}
 			className={cn(
-				"group flex w-full items-center border-l-2 border-l-ink/15 py-2 text-sm text-ink-soft transition-colors hover:text-ink hover:border-l-ink/30 aria-current-page:text-ink aria-current-page:border-l-pine",
+				"group flex w-full items-center border-l-2 border-l-ink/15 py-2 text-sm text-ink-soft transition-colors hover:text-ink hover:border-l-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
+				accent?.activeBorderLeft ?? "aria-current-page:border-l-pine",
+				accent?.focusRing ?? "focus-visible:ring-pine",
 				getPaddingClass(level),
 				className,
 			)}
@@ -177,7 +211,14 @@ export function DocsNavigation({
 	sidebar,
 	tabKey,
 	currentPath = "",
-}: { sidebar: SidebarItem[]; tabKey?: string; currentPath?: string }) {
+	productId,
+}: {
+	sidebar: SidebarItem[];
+	tabKey?: string;
+	currentPath?: string;
+	/** Product vertical this sidebar belongs to; omitted for integrations. */
+	productId?: string;
+}) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const prevTabKey = useRef(tabKey);
 
@@ -195,14 +236,16 @@ export function DocsNavigation({
 
 	return (
 		<SsrPathnameContext.Provider value={currentPath}>
-			<NavigationStateProvider>
-				<div
-					ref={scrollRef}
-					className="sticky top-header max-h-content text-ink pl-8 pr-6 py-6 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)]"
-				>
-					<Tree pages={sidebar} />
-				</div>
-			</NavigationStateProvider>
+			<SidebarAccentProvider productId={productId}>
+				<NavigationStateProvider>
+					<div
+						ref={scrollRef}
+						className="sticky top-header max-h-content text-ink pl-8 pr-6 py-6 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)]"
+					>
+						<Tree pages={sidebar} />
+					</div>
+				</NavigationStateProvider>
+			</SidebarAccentProvider>
 		</SsrPathnameContext.Provider>
 	);
 }

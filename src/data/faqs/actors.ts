@@ -21,7 +21,7 @@ export const actorsFaqs: FaqItem[] = [
 	{
 		question: 'How do Rivet Actors compare to Cloudflare Durable Objects?',
 		answerHtml:
-			'Cloudflare Durable Objects provide stateful serverless computing tied to the Cloudflare platform. Rivet Actors give you the same actor model capabilities as open source software that works with your existing infrastructure, so you can deploy on Kubernetes, AWS, a VPS, or Rivet Cloud without vendor lock-in. See the full <a href="https://rivet.dev/compare/rivet-vs-cloudflare-durable-objects/">Rivet vs Cloudflare Durable Objects comparison</a>.',
+			'Cloudflare Durable Objects provide stateful serverless computing tied to the Cloudflare platform. Rivet Actors give you the same actor model capabilities as open source software that works with your existing infrastructure, so you can deploy on Kubernetes, AWS, a VPS, or Rivet Cloud without vendor lock-in. See the full <a href="https://rivet.dev/actors/compare/rivet-actors-vs-cloudflare-durable-objects/">Rivet Actors vs Cloudflare Durable Objects comparison</a>.',
 	},
 	{
 		question: 'What happens when an actor is idle?',

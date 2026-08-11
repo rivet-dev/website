@@ -84,13 +84,9 @@ The `state` constant defines the initial state of the actor. See [state document
 
 ### `onMigrate`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 The `onMigrate` hook runs on every actor start, before `createState`, `onCreate`, `createVars`, and `onWake`. Can be async. It runs early so that database migrations are applied before any other lifecycle hook accesses the database. The second parameter is `true` when the actor is being created for the first time.
 
 ### `createState`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 The `createState` function dynamically initializes state based on input. Called only once when the actor is first created. Can be async. See [state documentation](/actors/docs/state) for more information.
 
@@ -100,27 +96,19 @@ The `vars` constant defines ephemeral variables for the actor. These variables a
 
 ### `createVars`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 The `createVars` function dynamically initializes ephemeral variables. Can be async. Use this when you need to initialize values at runtime. See [ephemeral variables documentation](/actors/docs/state#ephemeral-variables) for more information.
 
 ### `onCreate`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 The `onCreate` hook is called when the actor is first created. Can be async. Use this hook for initialization logic that doesn't affect the initial state.
 
 ### `onDestroy`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 The `onDestroy` hook is called when the actor is being permanently destroyed. Can be async. Use this for final cleanup operations like closing external connections, releasing resources, or performing any last-minute state persistence.
 
 The actor is still fully functional when `onDestroy` runs. You can access the database, broadcast events, call `waitUntil`, send queue messages, and use `schedule.after`. State mutations made during `onDestroy` are persisted before the actor is torn down.
 
 ### `onWake`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 This hook is called any time the actor is started (e.g. after restarting, upgrading code, or crashing). Can be async.
 
@@ -129,8 +117,6 @@ This is called after the actor has been initialized but before any connections a
 Use this hook to set up any resources or start any background tasks, such as `setInterval`.
 
 ### `onSleep`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 This hook is called when the actor is going to sleep. Can be async. Use this to clean up resources, close connections, or perform any shutdown operations.
 
@@ -141,8 +127,6 @@ This hook may not always be called in situations like crashes or forced terminat
 Not supported on Cloudflare Workers.
 
 ### `run`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 The `run` hook is called after the actor starts and runs in the background without blocking actor startup. This is ideal for long-running background tasks like:
 
@@ -163,23 +147,17 @@ Finite `run` handlers leave the actor alive after they finish. If you want a one
 
 ### `onStateChange`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 Called whenever the actor's state changes. Cannot be async. This is often used to broadcast state updates.
 
 Do not mutate `c.state` inside `onStateChange`; re-entrant state mutation is rejected.
 
 ### `createConnState` and `connState`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 There are two ways to define the initial state for connections:
 1. `connState`: Define a constant object that will be used as the initial state for all connections
 2. `createConnState`: A function that dynamically creates initial connection state based on connection parameters. Can be async.
 
 ### `onBeforeConnect`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.BeforeConnectContext.html)
 
 The `onBeforeConnect` hook is called whenever a new client connects to the actor. Can be async. Clients can pass parameters when connecting, accessible via `params`. This hook is used for connection validation and can throw errors to reject connections.
 
@@ -189,15 +167,11 @@ Connections cannot interact with the actor until this method completes successfu
 
 ### `onConnect`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ConnectContext.html)
-
 Executed after the client has successfully connected. Can be async. Receives the connection object as a second parameter.
 
 Messages will not be processed for this actor until this hook succeeds. Errors thrown from this hook will cause the client to disconnect.
 
 ### `canPublish` and `canSubscribe`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 Use schema-level hooks to authorize queue publishes and event subscriptions. Both hooks can be async and must return booleans:
 
@@ -210,13 +184,9 @@ Use deny-by-default rules for each hook and return `false` unless explicitly all
 
 ### `onDisconnect`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
-
 Called when a client disconnects from the actor. Can be async. Receives the connection object as a second parameter. Use this to clean up any connection-specific resources.
 
 ### `onRequest`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.RequestContext.html)
 
 The `onRequest` hook handles HTTP requests sent to your actor at `/actors/{actorName}/http/*` endpoints. Can be async. It receives the request context and a standard `Request` object, and should return a `Response` object.
 
@@ -224,15 +194,11 @@ See [Request Handler](/actors/docs/request-handler) for more details.
 
 ### `onWebSocket`
 
-[API Reference](/typedoc/interfaces/rivetkit.mod.WebSocketContext.html)
-
 The `onWebSocket` hook handles WebSocket connections to your actor. Can be async. It receives the actor context and a `WebSocket` object. Use this to set up WebSocket event listeners and handle real-time communication.
 
 See [WebSocket Handler](/actors/docs/websocket-handler) for more details.
 
 ### `onBeforeActionResponse`
-
-[API Reference](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html)
 
 The `onBeforeActionResponse` hook is called before sending an action response to the client. Can be async. Use this hook to modify or transform the output of an action before it's sent to the client. This is useful for formatting responses, adding metadata, or applying transformations to the output.
 

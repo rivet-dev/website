@@ -2,10 +2,10 @@ import type { ReactNode } from 'react';
 import type { IconProp } from '@rivet-gg/icons';
 import type { FaqItem } from '@/data/faqs/types';
 
-// Shared types for the /compare/* pages. Each competitor gets one data module
+// Shared types for the comparison pages. Each competitor gets one data module
 // in this directory plus a line in the registry in index.ts; the dynamic route
-// at src/pages/compare/[slug].astro and the ComparePage island both read from
-// the registry.
+// at src/pages/[product]/compare/[slug].astro and the ComparePage island both
+// read from the registry.
 
 export type ComparisonStatus = 'yes' | 'no' | 'partial' | 'coming-soon';
 
@@ -36,10 +36,15 @@ export interface ChoicePoint {
 
 export interface CompareEntry {
 	slug: string;
+	// Product vertical this comparison lives under, e.g. `actors`. A competitor
+	// is always a competitor to one product, not to Rivet as a whole.
+	product: string;
 	competitorName: string;
 	rivetProductName: string;
 	competitorIcon?: IconProp;
-	// Page title, for example "Rivet vs X". BaseLayout auto-suffixes " - Rivet".
+	// Page title, for example "Rivet Actors vs X". BaseLayout auto-suffixes
+	// " - Rivet". Name the product, not the company: a competitor competes with
+	// one product.
 	title: string;
 	// Meta description, 150 to 160 characters.
 	description: string;

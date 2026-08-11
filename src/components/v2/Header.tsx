@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "@/hooks/usePathname";
 import { ActiveLink } from "@/components/ActiveLink";
-import { Tree } from "@/components/DocsNavigation";
+import { SidebarAccentProvider, Tree } from "@/components/DocsNavigation";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import type { SidebarItem } from "@/lib/sitemap";
 import logoUrl from "@/images/rivet-logos/icon-text-white.svg";
@@ -26,7 +26,12 @@ import { GitHubDropdown } from "./GitHubDropdown";
 import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";
 import { ProductBar, ProductMark } from "@/components/ProductBar";
-import { findProductForPath, products as productVerticals } from "@/sitemap/products";
+import { productAccent } from "@/lib/product-accent";
+import {
+	findProductForPath,
+	visibleProducts as productVerticals,
+	visibleTabs,
+} from "@/sitemap/products";
 
 interface TextNavItemProps {
 	href: string;
@@ -72,14 +77,17 @@ function ProductsDropdown({
 	const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isHoveringRef = useRef(false);
 
-	// The four product verticals, in registry order. Each entry links to its
-	// marketing page; the docs tabs hang off the product bar once you are inside
-	// a vertical.
+	// The product verticals, in registry order. These link to each product's
+	// documentation rather than its marketing page: this menu is how you reach a
+	// product's docs from anywhere on the site, and two of the three marketing
+	// pages are still placeholders. Marketing stays reachable from the hero and
+	// the footer.
 	const products = productVerticals.map((product) => ({
 		id: product.id,
 		label: product.name,
 		href: product.href,
 		description: product.description,
+		accent: productAccent(product.id),
 		product,
 	}));
 
@@ -176,15 +184,34 @@ function ProductsDropdown({
 							<a
 								key={product.href}
 								href={product.href}
-								className="group/product-row flex items-center gap-2.5 rounded-xl px-3 py-1 text-ink transition-colors hover:bg-ink/[0.07]"
+								className={cn(
+									"group/product-row flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-ink transition-colors",
+									product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
+								)}
 							>
-								<ProductMark
-									product={product.product}
-									className="h-[18px] w-[18px]"
-								/>
+								{/* The product color is the tile, not the mark. Tinting the
+								    mark itself fights the wordmark's own shape at this size. */}
+								<span
+									aria-hidden="true"
+									className={cn(
+										"flex size-7 shrink-0 items-center justify-center rounded-lg",
+										product.accent?.fill ?? "bg-ink/20",
+									)}
+								>
+									<ProductMark
+										product={product.product}
+										className="h-[15px] w-[15px]"
+										tone="cream"
+									/>
+								</span>
 								<div className="min-w-0 flex-1">
-									<div className="text-sm font-medium leading-tight text-ink">
+									<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
 										{product.label}
+										{product.product.badge && (
+											<span className="shrink-0 rounded-sm border border-ink/10 bg-ink/[0.06] px-1.5 py-px text-[10px] font-medium leading-[1.4] text-ink-soft whitespace-nowrap">
+												{product.product.badge}
+											</span>
+										)}
 									</div>
 									<div className="text-xs leading-tight text-ink-faint">
 										{product.description}
@@ -251,7 +278,7 @@ function ProductsDropdown({
 										lightTheme ? "hover:bg-zinc-100" : "hover:bg-white/5",
 									)}
 								>
-									<ProductMark product={product.product} className="h-6 w-6" />
+									<ProductMark product={product.product} className="h-6 w-6" tone="cream" />
 									<div className="flex flex-col">
 										<div className={cn(
 											"font-medium text-sm transition-colors",
@@ -462,9 +489,12 @@ export function Header({
 						lightTheme={isLightTheme}
 						breadcrumbs={
 							<div className="flex items-center font-v2 subpixel-antialiased [&_a]:!text-ink-soft [&_a:hover]:!text-ink [&_a[aria-current=page]]:!text-ink [&_button]:!text-ink-soft">
-								<ProductsDropdown active={active === "product"} lightTheme />
+								{/* Same anchored panel the other pages use. The floating header
+								    used to get a full-width centered sheet, which read as a
+								    different component. */}
+								<ProductsDropdown active={active === "product"} lightTheme align="start" />
 								<TextNavItem
-									href="/actors/docs"
+									href="/docs"
 									ariaCurrent={active === "docs" ? "page" : undefined}
 								>
 									Documentation
@@ -564,12 +594,17 @@ export function Header({
 					isLightTheme && "[&_a]:!text-ink-soft [&_a:hover]:!text-ink [&_a[aria-current=page]]:!text-ink [&_button]:!text-ink-soft",
 				)}>
 					<ProductsDropdown active={active === "product"} lightTheme={isLightTheme} align="start" />
-					<TextNavItem
-						href="/actors/docs"
-						ariaCurrent={active === "docs" ? "page" : undefined}
-					>
-						Documentation
-					</TextNavItem>
+					{/* Inside a product the second row carries that product's own
+					    Documentation tab, so the global one is dropped rather than
+					    repeated one line apart with a different destination. */}
+					{!showProductBar && (
+						<TextNavItem
+							href="/docs"
+							ariaCurrent={active === "docs" ? "page" : undefined}
+						>
+							Documentation
+						</TextNavItem>
+					)}
 					<TextNavItem href="/enterprise">
 						Enterprise
 					</TextNavItem>
@@ -602,7 +637,7 @@ function DocsMobileNavigation({
 	// lists the current product's three tabs, and the Products list switches
 	// verticals.
 	const sections = current
-		? current.product.tabs.map((tab) => ({
+		? visibleTabs(current.product).map((tab) => ({
 				id: tab.id,
 				label: tab.title,
 				href: tab.href,
@@ -610,7 +645,7 @@ function DocsMobileNavigation({
 		: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
 
 	const mainLinks = [
-		{ href: "/actors/docs", label: "Documentation" },
+		{ href: "/docs", label: "Documentation" },
 		{ href: "/enterprise", label: "Enterprise" },
 		{ href: "/cloud", label: "Pricing" },
 	];
@@ -696,11 +731,13 @@ function DocsMobileNavigation({
 						{/* Tree/sidebar content */}
 						{tree && <div className="mt-1">{tree}</div>}
 						{!tree && sidebarData && (
-							<NavigationStateProvider>
-								<div className="mt-1">
-									<Tree pages={sidebarData} />
-								</div>
-							</NavigationStateProvider>
+							<SidebarAccentProvider productId={current?.product.id}>
+								<NavigationStateProvider>
+									<div className="mt-1">
+										<Tree pages={sidebarData} />
+									</div>
+								</NavigationStateProvider>
+							</SidebarAccentProvider>
 						)}
 					</>
 				)}
@@ -750,7 +787,7 @@ function DocsMobileNavigation({
 					rel={product.external ? "noopener noreferrer" : undefined}
 					className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
 				>
-					<ProductMark product={product.product} className="h-4 w-4" />
+					<ProductMark product={product.product} className="h-4 w-4" tone="cream" />
 					{product.label}
 				</a>
 			))}

@@ -3,40 +3,19 @@ title: "AWS Lambda"
 description: "Run Rivet workers on AWS Lambda."
 ---
 
-## Requirements
+<Info>
+A Lambda guide is not published yet. Lambda is a serverless target, so the shape follows <SelfHostLink to="workers/vercel">Vercel</SelfHostLink> and <SelfHostLink to="workers/gcp-cloud-run">Cloud Run</SelfHostLink>: package the app, expose `/api/rivet` publicly through a Function URL or API Gateway, set `RIVETKIT_RUNTIME_MODE=serverless`, and register the URL in the dashboard.
 
+Two Lambda limits need attention before you commit to it. The maximum invocation duration is 15 minutes, so `requestLifespan` must sit below it and actors migrate at least that often. Reserved concurrency caps actors per function.
 
-<Warning>
-**TODO.** Hard prerequisites for AWS Lambda, with versions.
-</Warning>
+For help sizing a Lambda deployment, [contact us](/sales).
+</Info>
+
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
-## Steps
-
-
-<Warning>
-**TODO.** Canonical worker sequence for AWS Lambda:
-
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the AWS Lambda command.
-5. Verify, showing the output where the worker registers.
-
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
-
-**Source material:** `website/src/content/_pending-rewrite/deploy/aws-lambda.mdx`
-</Warning>
-<ProductSlot name="snippet" />
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
-
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/gcp-cloud-run">Google Cloud Run</SelfHostLink>
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>

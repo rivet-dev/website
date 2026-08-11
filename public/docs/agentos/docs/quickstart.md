@@ -42,6 +42,8 @@ Set up an agentOS actor, create a session, and run your first coding agent.
    npx tsx client.ts
    ```
 
+   With the server running, open http://localhost:6420/ui to watch the VM in the [inspector](/agentos/docs/inspector): the live transcript, the filesystem, and its processes.
+
 5. **Customize**
 
    Now that you have a working agent, customize it to fit your needs:
@@ -55,12 +57,13 @@ Set up an agentOS actor, create a session, and run your first coding agent.
 
    By default, agentOS runs locally with `npx rivetkit dev` — no infrastructure needed. To run in production, deploy to any of these targets:
 
-   See [Deployment](/agentos/docs/deployment) for managed, self-hosted, and agentOS Core options.
+   See [Deployment](/agentos/self-host) for managed, self-hosted, and direct VM options.
 
 agentOS is in preview and the API is subject to change. If you run into issues, please [report them on GitHub](https://github.com/rivet-dev/rivet/issues) or [join our Discord](https://rivet.dev/discord).
 
-## agentOS Core
+## Direct VM API
 
-The quickstart above uses `@rivet-dev/agentos`, which includes statefulness, multiplayer, and orchestration out of the box. If you only need direct VM control without those features, you can use the core package (`@rivet-dev/agentos-core`) standalone.
+The same `@rivet-dev/agentos` package also exports `AgentOs.create()` for direct
+VM control without the actor lifecycle, multiplayer, or orchestration layer.
 
-See [agentOS core documentation](/agentos/docs/core) for reference.
+See the [direct VM API documentation](/agentos/docs/core) for reference.

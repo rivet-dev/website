@@ -1,0 +1,60 @@
+---
+// Top-level Documentation landing: a product index. The header's "Documentation"
+// link lands here rather than jumping straight into one product's docs, so
+// choosing a product is an explicit step.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Header } from '@/components/v2/Header';
+import { DocsLanding } from '@/components/docs/DocsLanding';
+import { visibleProducts as products } from '@/sitemap/products';
+import { productLogos } from '@/sitemap/productLogos';
+import { productAccent } from '@/lib/product-accent';
+import { faSquareInfo } from '@rivet-gg/icons';
+
+const pathname = Astro.url.pathname;
+
+const landing = {
+	title: 'Documentation',
+	subtitle:
+		'Four products on one runtime. Pick the one you are building with.',
+	// Two columns: four products in a three-up grid leaves a ragged 3 + 1.
+	columns: 2 as const,
+	sections: [
+		{
+			title: 'Products',
+			items: products.map((product) => {
+				const accent = productAccent(product.id);
+				return {
+					title: product.name,
+					href: `/${product.id}/docs`,
+					icon: product.icon ?? faSquareInfo,
+					logoSrc: productLogos[product.id]?.src,
+					logoClassName: accent?.fill,
+					iconClassName: accent?.text,
+					hoverBorderClassName: accent?.borderHover,
+					description: product.description,
+				};
+			}),
+		},
+	],
+};
+---
+
+<BaseLayout
+	title="Documentation - Rivet"
+	description="Documentation for Rivet Actors, agentOS, Dynamic Apps, and Workflows."
+	canonicalUrl="https://rivet.dev/docs/"
+	themeColor="#EFEFEF"
+>
+	<Header variant="full-width" light={true} active="docs" initialPathname={pathname} client:load />
+	<main class="paper-grain selection-paper w-full relative z-10 font-sans">
+		<div class="mx-auto w-full min-h-content" style="--header-height: 4.5rem;">
+			<DocsLanding {...landing} />
+		</div>
+	</main>
+</BaseLayout>
+
+<style is:global>
+	body {
+		background-color: #efefef;
+	}
+</style>

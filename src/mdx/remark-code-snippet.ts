@@ -86,6 +86,33 @@ function extractRegion(
 	return stripTrailingBlank(body.map((l) => l.slice(dedent)).join("\n"));
 }
 
+/**
+ * Read a `<CodeSnippet>` target off disk.
+ *
+ * Shared with the static markdown mirror (`src/metadata/mdx-to-markdown.ts`), so
+ * `/actors/docs/state.md` inlines exactly the code `/actors/docs/state` renders.
+ */
+export function loadSnippet(
+	root: string,
+	file: string,
+	region?: string,
+): { lang: string; value: string } {
+	const abs = resolve(root, file);
+	let source: string;
+	try {
+		source = readFileSync(abs, "utf8");
+	} catch {
+		throw new Error(
+			`<CodeSnippet>: cannot read file "${file}" (resolved to ${abs})`,
+		);
+	}
+
+	return {
+		lang: LANG_BY_EXT[extname(abs).toLowerCase()] ?? "text",
+		value: extractRegion(source, region, file),
+	};
+}
+
 function getAttr(
 	node: {
 		attributes?: Array<{ type?: string; name?: string; value?: unknown }>;
@@ -142,15 +169,7 @@ export function remarkCodeSnippet(resolveRoot?: RootResolver) {
 				const title = getAttr(el, "title");
 				const lang = getAttr(el, "lang");
 
-				const abs = resolve(embedRoot, file);
-				let source: string;
-				try {
-					source = readFileSync(abs, "utf8");
-				} catch {
-					throw new Error(
-						`<CodeSnippet>: cannot read file "${file}" (resolved to ${abs})`,
-					);
-				}
+				const snippet = loadSnippet(embedRoot, file, region);
 
 				// `file=` in the meta drives the basename tab label + GitHub source
 				// link in the Code component; `title=` overrides the label.
@@ -159,9 +178,9 @@ export function remarkCodeSnippet(resolveRoot?: RootResolver) {
 
 				parent.children[index] = {
 					type: "code",
-					lang: lang ?? LANG_BY_EXT[extname(abs).toLowerCase()] ?? "text",
+					lang: lang ?? snippet.lang,
 					meta: meta.join(" "),
-					value: extractRegion(source, region, file),
+					value: snippet.value,
 				};
 			},
 		);

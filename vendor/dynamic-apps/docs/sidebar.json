@@ -11,36 +11,32 @@
 				{
 					"title": "Quickstart",
 					"href": "/dynamic-apps/docs/quickstart",
-					"icon": "faFastForward",
-					"badge": "TODO"
-				},
-				{
-					"title": "Concepts",
-					"href": "/dynamic-apps/docs/concepts",
-					"icon": "faShapes",
-					"badge": "TODO"
-				}
-			]
-		}
-	],
-	"tutorials": [
-		{
-			"title": "General",
-			"pages": [
-				{
-					"title": "Overview",
-					"href": "/dynamic-apps/tutorials",
-					"icon": "faSquareInfo"
+					"icon": "faForwardFast"
 				}
 			]
 		},
 		{
-			"title": "Guides",
+			"title": "Apps",
 			"pages": [
 				{
-					"title": "Getting Started",
-					"href": "/dynamic-apps/tutorials/getting-started",
-					"badge": "TODO"
+					"title": "Deploy App Reference",
+					"href": "/dynamic-apps/docs/deploy",
+					"icon": "faCloudArrowUp"
+				},
+				{
+					"title": "Route requests",
+					"href": "/dynamic-apps/docs/routing",
+					"icon": "faSitemap"
+				},
+				{
+					"title": "Add Capabilities to Apps",
+					"href": "/dynamic-apps/docs/capabilities",
+					"icon": "faPuzzlePiece"
+				},
+				{
+					"title": "Reference",
+					"href": "/dynamic-apps/docs/reference",
+					"icon": "faBook"
 				}
 			]
 		}

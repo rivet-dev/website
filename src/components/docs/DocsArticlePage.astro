@@ -14,6 +14,7 @@ import { Icon, faPencil } from '@rivet-gg/icons';
 import { sitemap } from '@/sitemap/mod';
 import { findActiveTab } from '@/lib/sitemap';
 import { getContentSlugPath } from '@/lib/content-path';
+import { productAccent } from '@/lib/product-accent';
 import * as mdxComponents from '@/components/mdx';
 
 const {
@@ -79,10 +80,18 @@ const parentPage =
 	rawParentPage && 'title' in rawParentPage && rawParentPage.title === title
 		? undefined
 		: rawParentPage;
+const hasSidebar = (foundTab?.tab?.sidebar?.length ?? 0) > 0;
 const canonicalUrl = canonicalUrlOverride ?? `https://rivet.dev${fullPath}`;
 
-// Create markdown path for the dropdown
-const markdownPath = entrySlugPath ? `docs/${entrySlugPath}` : 'docs';
+// Inside a product vertical, prose links carry that product's accent instead of
+// pine. Set as a CSS variable rather than a class because the typography plugin
+// reads the link color from `--tw-prose-links`, and because the hue is data.
+const accent = productAccent(productId);
+const proseStyle = accent ? { '--tw-prose-links': accent.hex } : undefined;
+
+// The Markdown mirror written by `pnpm gen:markdown` sits at the page's own
+// site path plus `.md`, so the dropdown's link is just this route unslashed.
+const markdownPath = fullPath.replace(/^\/|\/$/g, '');
 const componentSourcePath = entry.filePath
 	? entry.filePath.replace(/^.*?src\/content\//, '')
 	: `docs/${entry.id}.mdx`;
@@ -121,9 +130,11 @@ const breadcrumbSchema = {
 	sectionLabel={sectionLabel}
 >
 	<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
-	<aside class="hidden md:block border-r border-ink/10">
-		{foundTab?.tab?.sidebar && <DocsNavigation sidebar={foundTab.tab.sidebar} tabKey={foundTab.tab.title} currentPath={fullPath} client:load transition:persist="docs-sidebar" />}
-	</aside>
+	{hasSidebar && (
+		<aside class="hidden md:block border-r border-ink/10">
+			<DocsNavigation sidebar={foundTab.tab.sidebar} tabKey={foundTab.tab.title} currentPath={fullPath} productId={productId} client:load transition:persist="docs-sidebar" />
+		</aside>
+	)}
 	<div class="flex justify-center w-full min-w-0">
 		<div class="flex gap-8 max-w-6xl w-full min-w-0">
 			<main class:list={["w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0", landing ? "" : "py-8 max-w-prose-docs"]}>
@@ -141,9 +152,9 @@ const breadcrumbSchema = {
 								/>
 							</div>
 						</div>
-						<Prose as="article" surface="paper" className="docs-article max-w-prose-docs lg:max-w-prose-docs mx-auto prose-headings:font-medium prose-headings:tracking-tight [&>h1:first-of-type]:pr-44">
+						<Prose as="article" surface="paper" style={proseStyle} className="docs-article max-w-prose-docs lg:max-w-prose-docs mx-auto prose-headings:font-medium prose-headings:tracking-tight [&>h1:first-of-type]:pr-44">
 							{parentPage && (
-								<div class="eyebrow h-5 text-pine text-sm font-semibold">
+								<div class:list={["eyebrow h-5 text-sm font-semibold", accent?.text ?? "text-pine"]}>
 									{parentPage.title}
 								</div>
 							)}
@@ -172,7 +183,7 @@ const breadcrumbSchema = {
 			</main>
 			{!isLanding && tableOfContents.length > 0 && (
 				<aside class="hidden xl:block w-64 min-w-0 flex-shrink-0 pb-4">
-					<DocsTableOfContents className="lg:max-h-content" tableOfContents={tableOfContents} client:load />
+					<DocsTableOfContents className="lg:max-h-content" tableOfContents={tableOfContents} productId={productId} client:load />
 				</aside>
 			)}
 		</div>

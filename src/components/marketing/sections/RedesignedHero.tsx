@@ -1,5 +1,6 @@
 'use client';
 
+import { productAccent } from '@/lib/product-accent';
 import { useEffect, useRef, useState } from 'react';
 import { Terminal, ArrowRight, Check } from 'lucide-react';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
@@ -215,6 +216,27 @@ interface RedesignedHeroProps {
   thinkingImages: ThinkingImage[];
 }
 
+/**
+ * A verb in the tagline that links to the product it names. The product accent
+ * shows as an underline rather than colored text: three colored words in one
+ * line reads as decoration, an underline reads as a link.
+ */
+function ProductVerb({
+  href,
+  accent,
+  children,
+}: { href: string; accent: string; children: React.ReactNode }) {
+  const a = productAccent(accent);
+  return (
+    <a
+      href={href}
+      className={`font-medium text-ink underline decoration-2 underline-offset-4 transition-colors hover:text-ink ${a?.underline ?? ''}`}
+    >
+      {children}
+    </a>
+  );
+}
+
 export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thinkingImages }: RedesignedHeroProps) => {
   const heroRef = useRef<HTMLElement>(null);
   // Fade the hero out as it scrolls away. Anchored to the hero's own height
@@ -236,7 +258,7 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
     >
       <div className='relative mx-auto w-full max-w-7xl'>
         <div className='flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64'>
-          <div className='max-w-xl'>
+          <div className='max-w-2xl'>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -267,8 +289,8 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
               transition={{ duration: 0.5 }}
               className={`mb-5 ${HERO_H1_CLASS}`}
             >
-              Infrastructure for <br />
-              software that thinks.
+              The infrastructure stack <br />
+              for the AI era.
             </motion.h1>
 
             <motion.p
@@ -277,7 +299,9 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
               transition={{ duration: 0.5, delay: 0.05 }}
               className='mb-8 max-w-xl text-lg leading-relaxed text-ink-soft'
             >
-              Actors are the primitive for AI agents — and the realtime apps and workflows around them. They burst when traffic spikes, sleep when idle, and run anywhere: Rivet Cloud, your VPC, or fully air-gapped.
+              <ProductVerb href='/agentos/docs' accent='agentos'>Run</ProductVerb> agents.{' '}
+              <ProductVerb href='/workflows/docs' accent='workflows'>Automate</ProductVerb> workloads.{' '}
+              <ProductVerb href='/dynamic-apps/docs' accent='dynamic-apps'>Deploy</ProductVerb> what they build.
             </motion.p>
 
             <motion.div
@@ -286,7 +310,7 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
               transition={{ duration: 0.5, delay: 0.1 }}
               className='flex flex-col gap-3 sm:flex-row'
             >
-              <a href='/actors/docs'
+              <a href='/docs'
                 className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent'
               >
                 Start Building

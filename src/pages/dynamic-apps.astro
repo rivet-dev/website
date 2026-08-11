@@ -1,36 +1,26 @@
 ---
-// Placeholder marketing page for the Dynamic Apps vertical. Structure only: the
-// prototype needs every product in the header dropdown to land somewhere real.
+// Dynamic Apps overview. The Apps section is the page: its heading, features,
+// and code visualization are the hero.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
-import { getProduct } from '@/sitemap/products';
+import { AppsHero, APPS_CODE } from '@/components/marketing/dynamic-apps/AppsHero';
+import { highlightCodeHtml } from '@/lib/highlight-code';
 
-const tabs = getProduct('dynamic-apps')?.tabs ?? [];
+const appsHighlightedCode = await highlightCodeHtml(APPS_CODE, 'typescript');
 ---
 
-<MarketingLayout title="Dynamic Apps - Rivet" description="User-generated apps as isolated, durable instances." active="product">
-	<main class="mx-auto w-full max-w-3xl px-6 pb-28 pt-40">
-		<p class="font-mono text-xs uppercase tracking-[0.18em] text-pine">Product</p>
-		<h1 class={`${HERO_H1_CLASS} mt-4`}>Dynamic Apps</h1>
-		<p class={`${SUBTITLE_CLASS} mt-5`}>User-generated apps as isolated, durable instances.</p>
-
-		<div class="mt-10 rounded-2xl border border-ink/15 bg-white/55 p-6">
-			<p class="text-sm font-medium text-ink">TODO: marketing page</p>
-			<p class="mt-2 text-sm text-ink-soft">No marketing copy exists for Dynamic Apps yet.</p>
-		</div>
-
-		<div class="mt-10">
-			<p class="font-mono text-xs uppercase tracking-[0.18em] text-pine">Documentation</p>
-			<div class="mt-4 grid gap-3 sm:grid-cols-3">
-				{tabs.map((tab) => (
-					<a
-						href={tab.href}
-						class="rounded-xl border border-ink/15 bg-white/55 px-4 py-3 text-sm text-ink transition-colors hover:border-ink/30"
-					>
-						{tab.title}
-					</a>
-				))}
-			</div>
-		</div>
+<MarketingLayout
+	productId="dynamic-apps"
+	tabId="overview"
+	active="product"
+	title="Dynamic Apps - Rivet"
+	description="Deploy an AI-generated backend for every user, as isolated durable instances."
+>
+	<main class="paper-grain font-sans text-ink-soft">
+		<AppsHero
+			highlightedCode={appsHighlightedCode}
+			installCommand="npm install @rivet-dev/agentos-apps"
+			setupHref="/dynamic-apps/docs/quickstart"
+			client:load
+		/>
 	</main>
 </MarketingLayout>

@@ -1,0 +1,78 @@
+"use client";
+
+import { useState } from "react";
+
+/**
+ * The hero CTA pair, lifted from the agentOS hero so every product hero is
+ * visually identical: an install chip that copies itself, and a filled button
+ * that sends you into the product's setup.
+ *
+ * The styling is copied verbatim from `AgentOSPage`'s `CopyInstallCommand` and
+ * `SetupWithAgent`. Change it here and change it there, or better, move agentOS
+ * onto this component too.
+ */
+export function CopyInstallCommand({ command }: { command: string }) {
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = async () => {
+		await navigator.clipboard.writeText(command);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={handleCopy}
+			aria-label={copied ? "Install command copied" : `Copy ${command}`}
+			className="group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors hover:border-ink/30 hover:bg-white sm:w-auto"
+		>
+			<span aria-hidden="true" className="select-none text-pine">
+				$
+			</span>
+			<span className="whitespace-nowrap">{command}</span>
+			<span
+				aria-hidden="true"
+				className={`pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white shadow-sm transition-opacity ${copied ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"}`}
+			>
+				{copied ? "Copied" : "Copy"}
+			</span>
+		</button>
+	);
+}
+
+/** The filled companion to the install chip. Same styling as `SetupWithAgent`. */
+export function SetupProjectButton({
+	href,
+	label = "Set up project",
+}: {
+	href: string;
+	label?: string;
+}) {
+	return (
+		<a
+			href={href}
+			className="selection-dark inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:bg-accent sm:w-auto"
+		>
+			{label}
+		</a>
+	);
+}
+
+/** The row itself, so spacing matches the agentOS hero exactly. */
+export function ProductHeroCta({
+	command,
+	setupHref,
+	setupLabel,
+}: {
+	command: string;
+	setupHref: string;
+	setupLabel?: string;
+}) {
+	return (
+		<div className="flex w-full flex-col flex-wrap items-center gap-x-4 gap-y-3 sm:flex-row sm:justify-center">
+			<CopyInstallCommand command={command} />
+			<SetupProjectButton href={setupHref} label={setupLabel} />
+		</div>
+	);
+}

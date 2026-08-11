@@ -40,7 +40,7 @@ ENV PUBLIC_POSTHOG_HOST=${PUBLIC_POSTHOG_HOST}
 ENV PUBLIC_TYPESENSE_HOST=${PUBLIC_TYPESENSE_HOST}
 ENV PUBLIC_TYPESENSE_API_KEY=${PUBLIC_TYPESENSE_API_KEY}
 
-# Build the website (static export to 'dist'). prebuild runs scripts/assemble.mjs,
+# Build the website (static export to 'dist'). prebuild runs scripts/assemble.ts,
 # which has no sibling checkouts in the image and therefore links each product's
 # docs to its committed vendor/<product> bundle.
 RUN pnpm run build

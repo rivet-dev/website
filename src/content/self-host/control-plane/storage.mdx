@@ -3,8 +3,173 @@ title: "Storage"
 description: "Persistence backends for the control plane: file system, PostgreSQL, and FoundationDB."
 ---
 
-<Warning>
-**TODO.** Port and rewrite as the canonical storage reference. Platform guides link here instead of restating.
+The control plane is stateful. Pick a backend by how many control plane nodes you run.
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/{filesystem,postgres,foundationdb}.mdx`
-</Warning>
+| | File system (RocksDB) | PostgreSQL | FoundationDB |
+| --- | --- | --- | --- |
+| **Nodes** | Single node only | Multi-node | Multi-node |
+| **Scalability** | One node | Primary/replica failover | Linear horizontal scaling |
+| **Fault tolerance** | None | Primary/replica failover | Automatic recovery with no data loss |
+| **Suited to** | Development, single-node production, air-gapped hosts | Light-to-moderate multi-node workloads | Battle-tested at global scale |
+| **Availability** | Open source | Open source | [Enterprise](/sales) |
+
+Multi-node deployments also need a pub/sub backend so nodes can coordinate. See [Pub/sub](#pubsub-nats) below.
+
+## File system
+
+RocksDB on the local disk. It is local to one node and cannot be shared, so it is the right choice for exactly one control plane instance and the wrong choice for two.
+
+<CodeGroup>
+
+```json Configuration-file
+{
+  "file_system": {
+    "path": "/var/lib/rivet/data"
+  }
+}
+```
+
+```bash Environment-variables
+RIVET__FILE_SYSTEM__PATH="/var/lib/rivet/data"
+```
+
+</CodeGroup>
+
+With no path set, the engine uses a platform default:
+
+| Platform | Default path |
+| --- | --- |
+| Linux | `~/.local/share/rivet-engine/db` |
+| macOS | `~/Library/Application Support/rivet-engine/db` |
+| Windows | `%LOCALAPPDATA%\rivet-engine\db` |
+
+In a container or as a service the path defaults to `./data/db`, relative to the working directory. Always mount a volume at whatever path you choose.
+
+## PostgreSQL
+
+The recommended backend for multi-node deployments. It is production-ready for light-to-moderate workloads, up to roughly 1,000 concurrent actors. Past that, or for high-throughput realtime workloads, contact [enterprise support](/sales) about FoundationDB.
+
+<CodeGroup>
+
+```json Configuration-file
+{
+  "postgres": {
+    "url": "postgresql://user:password@host:5432/database"
+  }
+}
+```
+
+```bash Environment-variables
+RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database"
+```
+
+</CodeGroup>
+
+### Do not use a connection pooler
+
+The engine needs direct connections for session-level features. PgBouncer, Supavisor, and AWS RDS Proxy are not supported. Where a managed provider offers both, use the direct connection string, not the pooled one.
+
+### TLS
+
+Add `sslmode` to the connection URL:
+
+| Value | Behavior |
+| --- | --- |
+| `disable` | Never use TLS |
+| `prefer` | Use TLS if available (default) |
+| `require` | Require TLS, fail if unavailable |
+
+`require` encrypts the connection but does not verify the server certificate. To verify against a CA, or to authenticate with a client certificate, set the paths explicitly:
+
+<CodeGroup>
+
+```json Configuration-file
+{
+  "postgres": {
+    "url": "postgresql://user:password@host:5432/database?sslmode=require",
+    "ssl": {
+      "root_cert_path": "/path/to/root-ca.crt",
+      "client_cert_path": "/path/to/client.crt",
+      "client_key_path": "/path/to/client.key"
+    }
+  }
+}
+```
+
+```bash Environment-variables
+RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database?sslmode=require"
+RIVET__POSTGRES__SSL__ROOT_CERT_PATH="/path/to/root-ca.crt"
+RIVET__POSTGRES__SSL__CLIENT_CERT_PATH="/path/to/client.crt"
+RIVET__POSTGRES__SSL__CLIENT_KEY_PATH="/path/to/client.key"
+```
+
+</CodeGroup>
+
+| Parameter | Description | PostgreSQL equivalent |
+| --- | --- | --- |
+| `root_cert_path` | Root certificate used to verify the server | `sslrootcert` |
+| `client_cert_path` | Client certificate for client authentication | `sslcert` |
+| `client_key_path` | Client private key for client authentication | `sslkey` |
+
+All three are optional. Without them the engine uses the system root certificates.
+
+### Managed provider notes
+
+<Tabs>
+<Tab title="PlanetScale">
+
+Use the direct connection, not the connection pooler.
+
+```bash
+RIVET__POSTGRES__URL="postgresql://pscale_api_<username>.<unique-id>:<password>@<region>.pg.psdb.cloud:5432/postgres?sslmode=require"
+```
+
+</Tab>
+<Tab title="Supabase">
+
+Use the direct connection on port `5432`, not the pooler.
+
+Without SSL:
+
+```bash
+RIVET__POSTGRES__URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=disable"
+```
+
+With SSL, download the root certificate from your Supabase dashboard and point at it. See [Supabase SSL enforcement](https://supabase.com/docs/guides/platform/ssl-enforcement).
+
+```bash
+RIVET__POSTGRES__URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require"
+RIVET__POSTGRES__SSL__ROOT_CERT_PATH="/path/to/supabase-ca.crt"
+```
+
+</Tab>
+</Tabs>
+
+## FoundationDB
+
+A distributed, ordered key-value store originally built by Apple, and the backend behind iCloud, Snowflake's metadata layer, Datadog, and Tigris. Its strict serializability, fault tolerance, and linear scaling make it the right fit for large deployments.
+
+FoundationDB requires an enterprise license. Cluster setup is handled during onboarding. Contact [enterprise support](/sales) to get started.
+
+## Pub/sub (NATS)
+
+Multi-node deployments use NATS to coordinate realtime messaging between control plane nodes. Single-node deployments need no pub/sub configuration at all.
+
+```json
+{
+  "postgres": {
+    "url": "postgresql://user:password@host:5432/database"
+  },
+  "nats": {
+    "addresses": ["nats:4222"]
+  }
+}
+```
+
+Run at least two NATS replicas for high availability.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="control-plane/backups">Backups</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

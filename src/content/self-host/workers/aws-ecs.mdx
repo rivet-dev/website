@@ -1,42 +1,48 @@
 ---
 title: "AWS ECS"
-description: "Run Rivet workers on AWS ECS."
+description: "Run Rivet workers on Amazon ECS with Fargate."
 ---
+
+Workers run in **runner** mode here: the task opens a connection out to the control plane on startup. It needs no load balancer and no public address.
 
 ## Requirements
 
+- An AWS account with ECS and Fargate available
+- A container registry, typically ECR
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for AWS ECS, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+A reference deployment is published as the [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs), with two paths:
 
-<Warning>
-**TODO.** Canonical worker sequence for AWS ECS:
+- [Deploy with Terraform](https://github.com/rivet-dev/template-aws-ecs#option-a-deploy-with-terraform)
+- [Deploy with the AWS CLI](https://github.com/rivet-dev/template-aws-ecs#option-b-deploy-with-aws-cli)
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the AWS ECS command.
-5. Verify, showing the output where the worker registers.
-
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
-
-**Source material:** `website/src/content/_pending-rewrite/deploy/aws-ecs.mdx`
-</Warning>
 <ProductSlot name="snippet" />
 
+Whichever path you take, two things in the task definition are specific to Rivet:
+
+- **`stopTimeout`.** Actors drain for up to 30 minutes. Fargate caps `stopTimeout` at 120 seconds, so a worker cannot fully drain within a single task stop. Plan rollouts so old tasks overlap new ones, and keep `minimumHealthyPercent` at 100 so capacity is added before it is removed.
+- **The endpoint variables.** Set `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` through the `secrets` block, backed by Secrets Manager, rather than plain `environment` entries. Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
+
 <ProductSlot name="env" />
+
+## Verify
+
+```bash
+aws ecs describe-services --cluster <cluster> --services <service> \
+  --query 'services[0].runningCount'
+```
+
+Once tasks are running they appear under **Runners** in the dashboard. Nothing needs registering.
 
 <ProductSlot name="verify" />
 
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/aws-ecs">Run the control plane on AWS ECS</SelfHostLink>

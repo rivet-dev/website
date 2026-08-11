@@ -1,5 +1,6 @@
 import { Icon } from "@rivet-gg/icons";
 import actorsLogo from "@/images/products/actors-logo.svg";
+import { wordmarkMaskStyle } from "@/lib/product-accent";
 
 export interface DocsLandingItem {
 	title: string;
@@ -7,6 +8,14 @@ export interface DocsLandingItem {
 	icon: any;
 	description?: string;
 	badge?: string;
+	/** SVG wordmark shown instead of the glyph, e.g. a product logo. */
+	logoSrc?: string;
+	/** Tailwind text-color class for the glyph, e.g. a product accent. */
+	iconClassName?: string;
+	/** Tailwind background class that paints `logoSrc`, e.g. a product accent. */
+	logoClassName?: string;
+	/** Tailwind border class applied on hover, e.g. a product accent hairline. */
+	hoverBorderClassName?: string;
 }
 
 export interface DocsLandingSection {
@@ -17,6 +26,8 @@ export interface DocsLandingSection {
 export interface DocsLandingData {
 	title: string;
 	subtitle?: string;
+	/** Cards per row at `lg`. Defaults to 3. */
+	columns?: 2 | 3;
 	// Optional product logo shown above the title in the hero. "actors" renders
 	// the static actors logo.
 	logo?: "actors";
@@ -33,12 +44,12 @@ function HeroTitle({
 	if (logo === "actors") {
 		return (
 			<div className="mb-4 flex items-center justify-center gap-3">
-				{/* The actors mark is a solid-white SVG, so darken it to ink to read
-				    on the light porcelain background. */}
-				<img
-					src={actorsLogo.src}
-					alt=""
-					className="h-8 w-auto brightness-0 md:h-9"
+				{/* The mark is a solid-white SVG, so it is masked and refilled with
+				    the Actors accent rather than flattened to black. */}
+				<span
+					aria-hidden="true"
+					style={wordmarkMaskStyle(actorsLogo.src)}
+					className="inline-block h-8 w-8 bg-product-actors md:h-9 md:w-9"
 				/>
 				<h1 className="text-4xl font-medium tracking-tight text-ink">
 					{title}
@@ -69,14 +80,24 @@ function LandingCard({ item }: { item: DocsLandingItem }) {
 	return (
 		<a
 			href={item.href}
-			className="group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white/55 no-underline transition-colors hover:border-ink/25"
+			className={`group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white/55 no-underline transition-colors ${item.hoverBorderClassName ?? "hover:border-ink/25"}`}
 		>
 			<div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-ink/10">
 				<div className="absolute inset-0" style={gridStyle} />
-				<Icon
-					icon={item.icon}
-					className="relative text-6xl text-pine transition-transform duration-200 group-hover:scale-105"
-				/>
+				{item.logoSrc ? (
+					// Product wordmarks are white-on-transparent, so the SVG supplies
+					// the silhouette and the accent class supplies the hue.
+					<span
+						aria-hidden="true"
+						style={wordmarkMaskStyle(item.logoSrc)}
+						className={`relative inline-block h-14 w-14 transition-transform duration-200 group-hover:scale-105 ${item.logoClassName ?? "bg-ink"}`}
+					/>
+				) : (
+					<Icon
+						icon={item.icon}
+						className={`relative text-6xl transition-transform duration-200 group-hover:scale-105 ${item.iconClassName ?? "text-pine"}`}
+					/>
+				)}
 			</div>
 			<div className="flex flex-col gap-1.5 p-5">
 				<div className="flex items-center gap-2">
@@ -97,7 +118,7 @@ function LandingCard({ item }: { item: DocsLandingItem }) {
 	);
 }
 
-export function DocsLanding({ title, subtitle, logo, sections }: DocsLandingData) {
+export function DocsLanding({ title, subtitle, logo, sections, columns = 3 }: DocsLandingData) {
 	const showHeaders = sections.length > 1;
 
 	return (
@@ -116,7 +137,9 @@ export function DocsLanding({ title, subtitle, logo, sections }: DocsLandingData
 								{section.title}
 							</h2>
 						)}
-						<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+						<div
+							className={`grid gap-5 sm:grid-cols-2 ${columns === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
+						>
 							{section.items.map((item) => (
 								<LandingCard key={item.href} item={item} />
 							))}

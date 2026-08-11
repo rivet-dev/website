@@ -109,7 +109,7 @@ await agent.queue.send("hello!");`,
     title: 'Workflows',
     description: 'Multi-step operations with automatic retries, scheduling, and durable state across steps.',
     features: [
-      { icon: Workflow, label: 'Workflows', detail: 'Steps', href: '/actors/docs/workflows' },
+      { icon: Workflow, label: 'Workflows', detail: 'Steps', href: '/workflows/docs' },
       { icon: Clock, label: 'Scheduling', detail: 'Retry', href: '/actors/docs/schedule' },
       { icon: Database, label: 'SQLite or BYO database persistence', detail: 'State', href: '/actors/docs/state' },
     ],

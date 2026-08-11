@@ -3,6 +3,7 @@
 // use case built on it: AI agents, realtime, multiplayer, collaborative state,
 // and durable workflows. There is no separate agent solution page.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ProductHero } from '@/components/marketing/ProductHero';
 import { BuiltInFeatures } from '@/components/marketing/sections/BuiltInFeatures';
 import { ProblemSection } from '@/components/marketing/sections/ProblemSection';
 import { BenchmarksSection } from '@/components/marketing/sections/BenchmarksSection';
@@ -13,7 +14,20 @@ import { FaqSection } from '@/components/faq/FaqSection';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { actorsFaqs } from '@/data/faqs/actors';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
-import { HERO_H1_CLASS, SECTION_H2_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
+import {
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
+	SECTION_H2_CLASS,
+	SUBTITLE_CLASS,
+} from '@/components/marketing/typography';
+import { productAccent } from '@/lib/product-accent';
+
+const actorsAccent = productAccent('actors');
 
 const useCases = [
 	{
@@ -40,6 +54,7 @@ const useCases = [
 ---
 
 <MarketingLayout
+	productId="actors"
 	title="Rivet Actors - The Primitive for Stateful Workloads"
 	description="In-memory state, WebSockets, workflows, queues, scheduling, and more. One primitive that adapts to agents, collaboration, and durable execution."
 	canonicalUrl="https://rivet.dev/actors/"
@@ -49,49 +64,20 @@ const useCases = [
 	<ScrollObserver client:load>
 		<div class="paper-grain min-h-screen font-sans text-ink-soft">
 			<main>
-				<!-- Hero: full-bleed oil painting fading down into ink behind the copy -->
-				<section id="actors-hero" class="relative flex min-h-[100svh] flex-col justify-end overflow-hidden pt-32 pb-16 md:pb-24">
-					<!-- Painting backdrop, a fixed crop inside the clipping box
-					     (overflow-hidden). The dark gradients sit over it so the hero
-					     text reads against the artwork. -->
-					<div id="actors-hero-bg" class="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-						<img
-							src="https://assets.rivet.dev/website/images/textures/actors-hero-degas-orchestra.webp"
-							alt=""
-							loading="eager"
-							fetchpriority="high"
-							decoding="async"
-							class="absolute inset-x-0 -top-[18%] h-[136%] w-full object-cover object-[center_28%]"
-						/>
-						<!-- Fade to ink at the bottom so the hero text reads against the painting. -->
-						<div class="absolute inset-0 bg-gradient-to-t from-ink from-[18%] via-ink/70 via-[42%] to-transparent to-[78%]"></div>
-						<!-- Gentle left wash for extra legibility behind the copy -->
-						<div class="absolute inset-0 bg-gradient-to-r from-ink/60 via-ink/20 to-transparent"></div>
-					</div>
-					<div class="relative z-10 mx-auto w-full max-w-7xl px-6">
-						<div class="max-w-xl">
-							<h1 class={`mb-4 ${HERO_H1_CLASS} !text-cream`}>
-								The primitive for<br />stateful workloads.
-							</h1>
-							<p class="mb-8 max-w-lg text-lg text-cream/70 md:text-xl">
-								One Actor per agent, per session, per user. The same primitive powers realtime apps, multiplayer, and collaborative state.
-							</p>
-							<div class="flex flex-col gap-3 sm:flex-row">
-								<a href="/actors/docs" class="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-white px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/90">
-									Start Building
-								</a>
-								<a href="/actors/docs" class="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-cream/25 bg-cream/10 px-4 py-2 text-sm text-cream backdrop-blur-md backdrop-saturate-[1.3] transition-colors hover:border-cream/45 hover:bg-cream/20">
-									Quickstart Guide
-								</a>
-							</div>
-						</div>
-					</div>
-				</section>
+				<!-- Hero: heading, description, and the shared product CTA pair -->
+				<ProductHero
+					productId="actors"
+					subtitle="One Actor per agent, per session, per user. The same primitive powers realtime apps, multiplayer, and collaborative state."
+					installCommand="npm install rivetkit"
+					setupHref="/actors/docs/quickstart/backend"
+					client:load
+				/>
 
 				<!-- Use cases -->
 				<section class="bg-[#EAEAEA] px-6 py-16 md:py-32">
 					<div class="mx-auto w-full max-w-7xl">
 						<div class="mb-12 max-w-3xl">
+							<p class={`mb-3 font-mono text-xs uppercase tracking-[0.18em] ${actorsAccent?.text ?? 'text-pine'}`}>Actors</p>
 							<h2 class={SECTION_H2_CLASS}>One primitive, every stateful workload.</h2>
 							<p class={SUBTITLE_CLASS}>
 								The same Actor that holds an agent's memory holds a game lobby, a shared document, or a running workflow.

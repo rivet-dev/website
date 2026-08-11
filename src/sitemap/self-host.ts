@@ -1,4 +1,4 @@
-import { faSquareInfo, faClipboardListCheck, faSliders } from "@rivet-gg/icons";
+import { faSquareInfo, faClipboardListCheck, faSliders, faServer } from "@rivet-gg/icons";
 import type { SidebarItem } from "@/lib/sitemap";
 import {
 	CONTROL_PLANE_PAGES,
@@ -63,11 +63,16 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					href: `${base}/workers`,
 					icon: faSquareInfo,
 				},
-				...platformPage("worker"),
 				{
 					title: "Production Checklist",
 					href: `${base}/workers/production-checklist`,
 					icon: faClipboardListCheck,
+				},
+				{
+					title: "Platforms",
+					icon: faServer,
+					collapsible: true,
+					pages: platformPage("worker"),
 				},
 			],
 		},
@@ -79,7 +84,17 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					href: `${base}/control-plane`,
 					icon: faSquareInfo,
 				},
-				...platformPage("control-plane"),
+				{
+					title: "Production Checklist",
+					href: `${base}/control-plane/production-checklist`,
+					icon: faClipboardListCheck,
+				},
+				{
+					title: "Platforms",
+					icon: faServer,
+					collapsible: true,
+					pages: platformPage("control-plane"),
+				},
 				{
 					title: "Reference",
 					icon: faSliders,
@@ -90,11 +105,6 @@ export function deploySidebar(productId: string): SidebarItem[] {
 						title: PAGE_TITLES[page] ?? page,
 						href: `${base}/control-plane/${page}`,
 					})),
-				},
-				{
-					title: "Production Checklist",
-					href: `${base}/control-plane/production-checklist`,
-					icon: faClipboardListCheck,
 				},
 			],
 		},

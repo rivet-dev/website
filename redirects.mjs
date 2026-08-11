@@ -8,23 +8,41 @@
 // targets should end in `/` to match the site's canonical trailing-slash form
 // and avoid a second redirect hop.
 //
-// External redirects to the agentOS site (`https://agentos-sdk.dev`) are also
-// supported. agentOS was split out into its own site, so every `/agent-os` and
-// `/docs/agent-os` path redirects out to it. See `EXTERNAL_REDIRECT_HOST` and
-// `wildcardRedirects` below, and the matching handling in
-// `scripts/generate-caddy-redirects.mjs`.
+// Absolute targets are supported but restricted to a single allowed host, so a
+// bad entry can never point traffic at an arbitrary domain. See
+// `EXTERNAL_REDIRECT_HOST` below and the matching check in
+// `scripts/generate-caddy-redirects.mjs`. Nothing currently uses it: agentOS
+// briefly had its own site and is now a vertical here.
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 
 const explicitRedirects = {
-	'/docs': '/actors/docs/',
 	// Integrations moved out of the documentation URL hierarchy.
 	'/docs/integrations': '/integrations/',
 	'/docs/integrations/vercel-eve': '/integrations/vercel-eve/',
 	'/docs/integrations/vercel-workflow': '/integrations/vercel-workflows/',
 	'/integrations/vercel-workflow': '/integrations/vercel-workflows/',
+	// The Tutorials tab became Learn.
+	'/actors/tutorials': '/actors/learn/',
+	'/agentos/tutorials': '/agentos/docs/',
+	'/dynamic-apps/tutorials': '/dynamic-apps/docs/',
+	'/workflows/tutorials': '/workflows/docs/',
+	// Cookbook became the Actors Learn tab; integrations became per-product.
+	'/cookbook': '/actors/learn/',
+	'/integrations': '/actors/integrations/',
+	'/cookbook/ai-agent': '/actors/learn/ai-agent/',
+	'/cookbook/chat-room': '/actors/learn/chat-room/',
+	'/cookbook/collaborative-text-editor': '/actors/learn/collaborative-text-editor/',
+	'/cookbook/cron-jobs': '/actors/learn/cron-jobs/',
+	'/cookbook/live-cursors': '/actors/learn/live-cursors/',
+	'/cookbook/multiplayer-game': '/actors/learn/multiplayer-game/',
+	'/cookbook/per-tenant-database': '/actors/learn/per-tenant-database/',
+	'/cookbook/vpc-air-gapped': '/actors/learn/vpc-air-gapped/',
+	'/integrations/flue': '/actors/integrations/flue/',
+	'/integrations/vercel-eve': '/actors/integrations/vercel-eve/',
+	'/integrations/vercel-workflows': '/actors/integrations/vercel-workflows/',
 	// Documentation restructure
 	'/docs/setup': '/actors/docs/',
 	// Dead links inside dated changelog posts. Neither target ever existed, so
@@ -91,21 +109,76 @@ const explicitRedirects = {
 	'/solutions/workflows': '/',
 	// Changelog list view merged into the blog index
 	'/changelog': '/blog/',
-	// agentOS moved to its own site at https://agentos-sdk.dev.
-	// Marketing pages and the former "From Unix to Agents" essay all point at the
-	// new site root. Per-page marketing paths do not have a clean 1:1 mapping on
-	// the new site, so the whole `/agent-os` prefix collapses to the root.
-	'/agent-os': 'https://agentos-sdk.dev',
-	'/agent-os/pricing': 'https://agentos-sdk.dev',
-	'/agent-os/use-cases': 'https://agentos-sdk.dev',
-	'/agent-os/registry': 'https://agentos-sdk.dev',
-	'/from-unix-to-agents': 'https://agentos-sdk.dev',
-	'/install': 'https://agentos-sdk.dev',
-	'/registry': 'https://agentos-sdk.dev',
-	// agentOS docs collapse to the new site root.
-	'/docs/agent-os': 'https://agentos-sdk.dev',
-	// The agentOS workspace cookbook moved with the rest of agentOS.
-	'/cookbook/ai-agent-workspace': 'https://agentos-sdk.dev',
+	// agentOS briefly lived at https://agentos-sdk.dev and is now a product
+	// vertical on this site, so these land on `/agentos/*` rather than off-site.
+	'/agent-os': '/agentos',
+	'/agent-os/pricing': '/pricing',
+	'/agent-os/use-cases': '/agentos/use-cases',
+	'/agent-os/registry': '/agentos/registry',
+	'/registry': '/agentos/registry',
+	// The integrations pages live under the Actors vertical now. These two are
+	// not covered by legacyDocsRedirects because they moved tab, not just prefix.
+	'/docs/integrations': '/actors/integrations/',
+	'/docs/integrations/flue': '/actors/integrations/flue/',
+	'/docs/integrations/vercel-eve': '/actors/integrations/vercel-eve/',
+	'/docs/integrations/vercel-workflows': '/actors/integrations/vercel-workflows/',
+	// `/contact` was never a page here; sales is the live destination.
+	'/contact': '/sales/',
+
+	// Retired pages. These were live URLs, so they redirect rather than 404.
+	// `/pricing` was a page that did nothing but redirect; a real 301 here beats
+	// Astro's static redirect, which serves HTTP 200 with a meta refresh.
+	'/pricing': '/cloud/',
+	'/meme/wired-in': '/',
+	// Deployment folded into the shared Self-Host section.
+	'/agentos/docs/deployment': '/agentos/self-host/',
+	// Air-gapped deployment is a self-hosting topic, not an actors cookbook.
+	'/actors/learn/vpc-air-gapped': '/actors/self-host/control-plane/vm/',
+	'/cookbook/vpc-air-gapped': '/actors/self-host/control-plane/vm/',
+	// Rivet Compute is a Cloud feature, not a self-hosting target.
+	'/docs/deploy/rivet-compute': '/cloud/docs/compute/',
+	'/docs/deploy/freestyle': '/actors/self-host/workers/freestyle/',
+	'/docs/deploy/hetzner': '/actors/self-host/workers/vm/',
+	'/docs/self-hosting/render': '/actors/self-host/control-plane/render/',
+	// Comparison slugs name the product, not the company.
+	'/compare/rivet-vs-cloudflare-durable-objects':
+		'/actors/compare/rivet-actors-vs-cloudflare-durable-objects/',
+	'/compare/rivet-vs-temporal': '/workflows/compare/rivet-workflows-vs-temporal/',
+	'/actors/compare/rivet-vs-cloudflare-durable-objects':
+		'/actors/compare/rivet-actors-vs-cloudflare-durable-objects/',
+	'/workflows/compare/rivet-vs-temporal':
+		'/workflows/compare/rivet-workflows-vs-temporal/',
+	// The generated TypeDoc site and the hand-maintained config schema were
+	// retired; the Actors reference docs are the closest live destination.
+	'/typedoc': '/actors/docs/',
+	'/rivet.schema.json': '/actors/docs/',
+	// The standalone "Actors course" is now a guide in the Actors Learn tab.
+	'/learn': '/actors/learn/',
+	'/learn/act-1/scene-1-a-radically-simpler-architecture':
+		'/actors/learn/a-radically-simpler-architecture/',
+	'/docs/tools/actors': '/actors/docs/',
+	// The "append .md to any docs URL" feature was documented but never built.
+	// Its docs page and the hand-written markdown exports are both gone.
+	'/docs/general/docs-for-llms': '/actors/docs/general/skill/',
+	'/actors/docs/general/docs-for-llms': '/actors/docs/general/skill/',
+	'/install': '/agentos/docs/quickstart',
+	// The "From Unix to Agents" essay has no page on this site; the product
+	// overview is the closest surviving destination.
+	'/from-unix-to-agents': '/agentos',
+	'/docs/agent-os': '/agentos/docs',
+	// The agentOS workspace cookbook was never rewritten; land on its docs.
+	'/cookbook/ai-agent-workspace': '/agentos/docs/',
+	// Workflows became its own product vertical. The legacy `/docs/actors/...`
+	// entry is spelled out here because `legacyDocsRedirects()` derives from the
+	// Actors content tree, which no longer has the page.
+	'/actors/docs/workflows': '/workflows/docs/',
+	'/docs/actors/workflows': '/workflows/docs/',
+	// Dynamic Apps became its own product vertical. The page was a single
+	// agentOS doc and is now a whole docs section, so every legacy spelling of
+	// the old URL lands on the section overview.
+	'/agentos/docs/apps': '/dynamic-apps/docs/',
+	'/docs/agent-os/apps': '/dynamic-apps/docs/',
+	'/agent-os/docs/apps': '/dynamic-apps/docs/',
 };
 
 // Every docs page moved out of the flat `/docs/...` hierarchy when the site
@@ -176,11 +249,18 @@ export const redirects = { ...legacyDocsRedirects(), ...explicitRedirects };
 export const EXTERNAL_REDIRECT_HOST = 'agentos-sdk.dev';
 
 // Wildcard (prefix) redirects. Any request under `from` (at any depth) is sent
-// to `to`. agentOS moved to its own site as a single destination, so every
-// `/agent-os/*` and `/docs/agent-os/*` sub-path collapses to the new site root
-// rather than mapping its suffix through. The `/agent-os` prefix subsumes
-// `/agent-os/registry/*` and any other deep marketing path.
+// to `to`.
+//
+// When `to` ends with `from`, the rule is a pure re-parenting and the request's
+// suffix is carried through: `/registry/pi` -> `/agentos/registry/pi`. Otherwise
+// the suffix is dropped and every sub-path collapses onto `to`, which is what
+// the old marketing paths need since they have no 1:1 mapping.
 export const wildcardRedirects = [
-	{ from: '/agent-os', to: 'https://agentos-sdk.dev' },
-	{ from: '/docs/agent-os', to: 'https://agentos-sdk.dev' },
+	{ from: '/registry', to: '/agentos/registry' },
+	// Deep TypeDoc URLs are heavily linked from old docs and search results.
+	{ from: '/typedoc', to: '/actors/docs' },
+	{ from: '/learn', to: '/actors/learn' },
+	{ from: '/compare', to: '/actors/compare' },
+	{ from: '/docs/agent-os', to: '/agentos/docs' },
+	{ from: '/agent-os', to: '/agentos' },
 ];

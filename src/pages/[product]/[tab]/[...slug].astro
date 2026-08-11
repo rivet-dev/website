@@ -14,6 +14,8 @@ export async function getStaticPaths() {
 			// Self-Host has its own route: its guide bodies live in the shared
 			// `selfHost` collection, not in the product-scoped `docs` collection.
 			if (tab.id === 'self-host') continue;
+			// Overview is the product's marketing page, not docs content.
+			if (tab.id === 'overview') continue;
 			// The glob loader collapses `<dir>/index.mdx` to the directory id, so
 			// the tab's own overview page has the bare tab root as its id.
 			const root = `${product.id}/${tab.id}`;

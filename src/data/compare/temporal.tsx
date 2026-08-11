@@ -6,10 +6,11 @@ import type { CompareEntry } from './types';
 // seven GA SDKs plus a preview Rust SDK, MIT server license, and self-hosting requirements.
 // Re-verify pricing before major updates since pricing pages churn.
 export const temporal: CompareEntry = {
-	slug: 'rivet-vs-temporal',
+	slug: 'rivet-workflows-vs-temporal',
+	product: 'workflows',
 	competitorName: 'Temporal',
-	rivetProductName: 'Rivet',
-	title: 'Rivet vs Temporal',
+	rivetProductName: 'Rivet Workflows',
+	title: 'Rivet Workflows vs Temporal',
 	description:
 		'Compare Rivet and Temporal: stateful realtime actors with durable workflows in one runtime versus a dedicated durable execution platform for orchestration.',
 	heroSubtitle:
@@ -194,7 +195,7 @@ export const temporal: CompareEntry = {
 						text: (
 							<>
 								Replay-safe workflows with steps, timers, queue waits, and rollback.{' '}
-								<a href="https://rivet.dev/actors/docs/workflows/">Learn more</a>.
+								<a href="https://rivet.dev/workflows/docs/">Learn more</a>.
 							</>
 						),
 					},
@@ -329,12 +330,12 @@ export const temporal: CompareEntry = {
 		{
 			question: 'Is Rivet an alternative to Temporal?',
 			answerHtml:
-				'For many workloads, yes. Rivet provides durable, replayable workflows inside Rivet Actors, plus realtime serving that Temporal does not offer. If your workload is pure backend orchestration across many languages, Temporal is a strong choice. If it combines durable logic with stateful realtime serving, Rivet covers both in one runtime. See <a href="https://rivet.dev/actors/docs/workflows/">Rivet workflows</a>.',
+				'For many workloads, yes. Rivet provides durable, replayable workflows inside Rivet Actors, plus realtime serving that Temporal does not offer. If your workload is pure backend orchestration across many languages, Temporal is a strong choice. If it combines durable logic with stateful realtime serving, Rivet covers both in one runtime. See <a href="https://rivet.dev/workflows/docs/">Rivet workflows</a>.',
 		},
 		{
 			question: 'Does Rivet support durable execution like Temporal?',
 			answerHtml:
-				'Yes. Rivet workflows persist progress automatically, replay safely after restarts and crashes, and support steps, durable timers, queue waits, and rollback. They run inside Rivet Actors, so durable logic lives next to the state it operates on. See the <a href="https://rivet.dev/actors/docs/workflows/">workflow documentation</a>.',
+				'Yes. Rivet workflows persist progress automatically, replay safely after restarts and crashes, and support steps, durable timers, queue waits, and rollback. They run inside Rivet Actors, so durable logic lives next to the state it operates on. See the <a href="https://rivet.dev/workflows/docs/">workflow documentation</a>.',
 		},
 		{
 			question: 'Can Temporal serve WebSockets or user-facing traffic?',

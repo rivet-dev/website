@@ -5,35 +5,111 @@ description: "Run the Rivet control plane on Kubernetes."
 
 ## Requirements
 
+- A Kubernetes cluster with `kubectl` configured
+- [Metrics server](https://github.com/kubernetes-sigs/metrics-server), required for the HPA and included by default in k3d, GKE, EKS, and AKS
+- An Ingress controller you can raise timeouts on
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on Kubernetes, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for Kubernetes:
+<Step title="Download the manifests">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+```bash
+npx giget@latest gh:rivet-dev/rivet/self-host/k8s/engine rivet-k8s
+cd rivet-k8s
+```
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/kubernetes.mdx`
-</Warning>
+</Step>
+
+<Step title="Configure the engine">
+
+In `02-engine-configmap.yaml`, set `public_url` to the external URL the control plane will be reachable at.
+
+In `11-postgres-secret.yaml`, set the PostgreSQL password. To use a managed database instead, see [Managed PostgreSQL](#managed-postgresql) below.
+
+</Step>
+
+<Step title="Create the admin token">
+
+```bash
+openssl rand -hex 32
+```
+
+Save the value somewhere safe, then store it as a secret:
+
+```bash
+kubectl create namespace rivet-engine
+kubectl -n rivet-engine create secret generic rivet-secrets --from-literal=admin-token=YOUR_TOKEN_HERE
+```
+
+</Step>
+
+<Step title="Deploy">
+
+```bash
+kubectl apply -f .
+
+kubectl -n rivet-engine wait --for=condition=ready pod -l app=nats --timeout=300s
+kubectl -n rivet-engine wait --for=condition=ready pod -l app=postgres --timeout=300s
+kubectl -n rivet-engine wait --for=condition=ready pod -l app=rivet-engine --timeout=300s
+```
+
+</Step>
+
+<Step title="Raise the Ingress timeout">
+
+Long-lived WebSockets are dropped by the default 30 to 60 second idle timeout. On an NGINX Ingress:
+
+```yaml
+nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+```
+
+Other controllers are covered in <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>. Skipping this step produces reconnect storms under load rather than an obvious failure at deploy time.
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+kubectl -n rivet-engine get pods
+```
+
+Every pod should be `Running`. Visit `/ui` on your `public_url` and log in with the admin token.
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Managed PostgreSQL
+
+To use Amazon RDS, Cloud SQL, or Azure Database instead of the bundled Postgres:
+
+1. Point `postgres.url` in `02-engine-configmap.yaml` at your instance.
+2. Delete the bundled manifests: `10-postgres-configmap.yaml`, `11-postgres-secret.yaml`, `12-postgres-statefulset.yaml`, `13-postgres-service.yaml`.
+
+Use the direct connection string, not a pooled one. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
+## Applying configuration changes
+
+The ConfigMap is read at startup, so a change needs a restart:
+
+```bash
+kubectl apply -f 02-engine-configmap.yaml
+kubectl -n rivet-engine rollout restart deployment/rivet-engine
+```
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/kubernetes">Deploy workers on Kubernetes</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

@@ -1,0 +1,105 @@
+# Publishes the generated AI skills to https://github.com/rivet-dev/skills.
+#
+# There is nothing hand-written to publish. `pnpm gen:skills` derives one skill
+# per product straight from that product's docs, so this workflow is a build and
+# a copy: change the docs, and the skill changes on the next push to main.
+#
+# To test this workflow:
+#   1. Trigger manually: gh workflow run skills.yml --repo rivet-dev/rivet-website
+#   2. Watch execution:  gh run watch --repo rivet-dev/rivet-website
+#   3. Check failures:   gh run view --repo rivet-dev/rivet-website --log-failed
+#   4. Verify contents:  gh api repos/rivet-dev/skills/contents --jq '.[].name'
+#   5. Latest commit:    gh api repos/rivet-dev/skills/commits --jq '.[0].commit.message'
+
+name: Publish Skills
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: skills-publish
+  cancel-in-progress: true
+
+jobs:
+  publish-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the website
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Product docs are not authored here. With no sibling checkouts in CI,
+      # assemble links every product to its committed vendor/<product> bundle,
+      # which is what the skills are generated from.
+      - name: Assemble docs sources
+        run: pnpm assemble
+
+      # `prebuild` runs gen:markdown and gen:skills, so this writes both the
+      # Markdown mirror the skills link to and the skill directories themselves
+      # into dist/metadata/skills/<name>/.
+      - name: Build the website
+        run: pnpm build
+
+      - name: Check out the skills repo
+        uses: actions/checkout@v4
+        with:
+          repository: rivet-dev/skills
+          token: ${{ secrets.RIVET_GITHUB_PAT }}
+          path: skills-repo
+
+      # The skills repo is a publishing target, not a source: every file in it
+      # is generated here. Replace the tree rather than merging into it, so a
+      # renamed skill or a dropped example actually disappears downstream
+      # instead of lingering forever.
+      - name: Replace the skills tree
+        run: |
+          set -euo pipefail
+
+          src=dist/metadata/skills
+          [ -d "$src" ] || { echo "::error::$src missing; the build produced no skills"; exit 1; }
+          count=$(find "$src" -mindepth 1 -maxdepth 1 -type d | wc -l)
+          [ "$count" -gt 0 ] || { echo "::error::$src is empty"; exit 1; }
+
+          find skills-repo -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r "$src"/. skills-repo/
+
+          cat > skills-repo/README.md <<'EOF'
+          # Rivet Skills
+
+          One skill per Rivet product, plus the example projects its documentation
+          embeds. Every file here is generated from the docs by
+          [rivet-dev/rivet-website](https://github.com/rivet-dev/rivet-website)
+          (`.github/workflows/skills.yml`) and replaced wholesale on each publish.
+
+          Edits made here are overwritten. To change a skill, change the product's
+          documentation.
+          EOF
+
+          echo "published $count skills:"
+          find skills-repo -mindepth 1 -maxdepth 1 -type d ! -name .git -printf '  %f\n' | sort
+
+      - name: Commit and push
+        working-directory: skills-repo
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update skills from rivet-dev/rivet-website@${{ github.sha }}"
+            git push
+          fi

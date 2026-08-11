@@ -27,8 +27,3 @@ Region can be accessed from the context object via `c.region`.
 <Warning>`c.region` is only supported on Rivet at the moment.</Warning>
 
 ## Example Usage
-
-## API Reference
-
-- [`ActorDefinition`](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html) - Interface for defining metadata
-- [`CreateOptions`](/typedoc/interfaces/rivetkit.client_mod.CreateOptions.html) - Options for creating an actor, including `region` and `input`

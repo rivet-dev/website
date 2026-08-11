@@ -3,33 +3,58 @@ title: "Cloudflare Workers"
 description: "Run Rivet workers on Cloudflare Workers."
 ---
 
+Cloudflare Workers is a **serverless** platform: there is no long-lived process, so the control plane calls your `/api/rivet` endpoint to start actors. The Worker URL has to be public and registered.
+
 ## Requirements
 
+- A [Cloudflare account](https://dash.cloudflare.com/)
+- [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) configured for your account
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Cloudflare Workers, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Cloudflare Workers:
+<Step title="Configure wrangler">
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Cloudflare Workers command.
-5. Verify, showing the output where the worker registers.
+`nodejs_compat` is required.
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+```toml wrangler.toml
+name = "rivet-worker"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/cloudflare.mdx`
-</Warning>
+[vars]
+RIVET_ENDPOINT = "https://your-namespace:sk_...@api.rivet.dev"
+RIVET_PUBLIC_ENDPOINT = "https://your-namespace@api.rivet.dev"
+```
+
+Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. For a production deployment, set `RIVET_ENDPOINT` with `wrangler secret put` rather than committing it in `[vars]`.
+
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Deploy">
+
+```sh
+npx wrangler deploy
+```
+
+</Step>
+
+<Step title="Register the URL">
+
+Set the Worker URL with the `/api/rivet` path as the serverless runner URL in the dashboard.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
@@ -37,6 +62,5 @@ Every command shows its expected output. Six steps is the ceiling. Do not restat
 
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/supabase">Supabase Functions</SelfHostLink>, the other WebAssembly-runtime target

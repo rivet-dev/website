@@ -1,0 +1,18 @@
+# Route requests
+
+Mount deployed apps on your Hono server with appsRouter.
+
+Mount all deployed apps:
+
+```ts
+server.route("/apps", appsRouter);
+```
+
+This routes `/apps/:appId` and `/apps/:appId/*`. To use an explicit RivetKit
+client:
+
+```ts
+import { createAppsRouter } from "@rivet-dev/agentos-apps/advanced";
+
+server.route("/apps", createAppsRouter({ client }));
+```

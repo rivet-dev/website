@@ -1,39 +1,147 @@
 ---
 title: "Docker Compose"
-description: "Run the Rivet control plane on Docker Compose."
+description: "Run the Rivet control plane with Docker Compose."
 ---
 
 ## Requirements
 
+- Docker with the Compose plugin
+- A host with a persistent volume
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on Docker Compose, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for Docker Compose:
+<Step title="Create docker-compose.yaml">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+This is a single-node deployment on the file system backend. The named volume is what makes the data survive a restart.
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/docker-compose.mdx`
-</Warning>
+```yaml
+services:
+  rivet-engine:
+    image: rivetdev/engine:latest
+    ports:
+      - "6420:6420"
+    volumes:
+      - rivet-data:/data
+    environment:
+      RIVET__FILE_SYSTEM__PATH: "/data"
+      RIVET__AUTH__ADMIN_TOKEN: "${RIVET_ADMIN_TOKEN}"
+    restart: unless-stopped
+
+volumes:
+  rivet-data:
+```
+
+</Step>
+
+<Step title="Generate an admin token">
+
+```bash
+echo "RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)" >> .env
+```
+
+Without a token the API is unauthenticated. Keep `.env` out of version control.
+
+</Step>
+
+<Step title="Start it">
+
+```bash
+docker compose up -d
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+curl http://localhost:6420/health
+```
+
+Expect `ok`. The dashboard is at `http://localhost:6420/ui`; log in with the admin token.
+
+</Step>
+
+<Step title="Add a worker">
+
+Add your app to the same Compose file. Inside the Compose network it reaches the control plane at `rivet-engine:6420`.
+
+```yaml
+  my-app:
+    build: .
+    environment:
+      RIVET_ENDPOINT: "http://default:${RIVET_ADMIN_TOKEN}@rivet-engine:6420"
+    depends_on:
+      - rivet-engine
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+Confirm the worker appears under **Runners** in the dashboard.
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Using PostgreSQL
+
+Swap the file system backend for PostgreSQL when you outgrow one node.
+
+```yaml
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: rivet
+      POSTGRES_USER: rivet
+      POSTGRES_PASSWORD: rivet_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  rivet-engine:
+    image: rivetdev/engine:latest
+    ports:
+      - "6420:6420"
+    environment:
+      RIVET__POSTGRES__URL: postgresql://rivet:rivet_password@postgres:5432/rivet
+      RIVET__AUTH__ADMIN_TOKEN: "${RIVET_ADMIN_TOKEN}"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+```
+
+Multi-node deployments also need NATS. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
+## Using a config file
+
+Mount JSON instead of setting environment variables:
+
+```yaml
+    volumes:
+      - ./rivet-config.json:/etc/rivet/config.json:ro
+      - rivet-data:/data
+```
+
+See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink> for the full schema.
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers">Deploy your workers</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

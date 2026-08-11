@@ -1,42 +1,101 @@
 ---
-title: "Virtual Machine"
-description: "Run Rivet workers on Virtual Machine."
+title: "VM & Bare Metal"
+description: "Run Rivet workers on a Linux VM or bare metal host."
 ---
+
+Workers run in **runner** mode here: the process opens a connection out to the control plane on startup. The host needs no public URL, only outbound network access.
 
 ## Requirements
 
+- A Linux host with SSH access and Node.js installed. Hetzner, DigitalOcean, Linode, EC2, and bare metal all work the same way.
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Virtual Machine, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Virtual Machine:
+<Step title="Upload your build">
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Virtual Machine command.
-5. Verify, showing the output where the worker registers.
+Build locally, then copy the output somewhere readable by the service user:
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+```bash
+scp -r ./dist user@server:/opt/rivet-worker
+```
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/vm-and-bare-metal.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Create the systemd unit">
+
+`TimeoutStopSec` is the important line. Actors drain for up to 30 minutes, and systemd's default of 90 seconds cuts them off.
+
+```ini /etc/systemd/system/rivet-worker.service
+[Unit]
+Description=Rivet Worker
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/rivet-worker
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+TimeoutStopSec=2100
+Environment=RIVET_ENDPOINT=<your-rivet-endpoint>
+Environment=RIVET_PUBLIC_ENDPOINT=<your-rivet-public-endpoint>
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Both endpoint values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. For secrets, prefer `EnvironmentFile=` pointing at a root-owned file over inline `Environment=` lines.
+
+</Step>
+
+<Step title="Start the service">
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now rivet-worker.service
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+systemctl is-active rivet-worker.service
+```
+
+Expect `active`. The worker then appears under **Runners** in the dashboard.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Operating
+
+Restart after deploying a new build or changing environment variables:
+
+```bash
+sudo systemctl restart rivet-worker.service
+```
+
+Follow logs while debugging:
+
+```bash
+sudo journalctl -u rivet-worker.service -f
+```
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/vm">Run the control plane on a VM</SelfHostLink>

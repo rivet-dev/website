@@ -5,12 +5,78 @@ description: "Run your code on your own infrastructure, connected to a control p
 
 A worker is any process running your code with the Rivet SDK, whether that is a dedicated container or your existing web app. Workers connect outbound to a control plane, which can be Rivet Cloud or one you run yourself.
 
-<Warning>
-**TODO.** The shared 80% of every worker guide: the Dockerfile, the environment variables, and the tabbed Rivet Cloud / self-hosted connection step. Platform guides link here rather than restating it.
+Every worker guide is the same five steps with platform-specific commands. This page is the shared part; the platform guides only cover what differs.
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/`
+## Connecting
+
+Two environment variables connect a worker to a control plane.
+
+| Variable | Purpose |
+| --- | --- |
+| `RIVET_ENDPOINT` | Where your worker reaches the control plane. Carries the secret token, server-side only. |
+| `RIVET_PUBLIC_ENDPOINT` | What the metadata endpoint hands to browser clients. Carries the publishable token. |
+
+Both use URL auth: `https://<namespace>:<token>@<host>`.
+
+<Tabs>
+<Tab title="Rivet Cloud">
+
+Find both values in the [dashboard](https://dashboard.rivet.dev) under **Settings → Namespace → Advanced → Backend Configuration**.
+
+```bash
+RIVET_ENDPOINT=https://my-namespace:sk_****@api.rivet.dev
+RIVET_PUBLIC_ENDPOINT=https://my-namespace:pk_****@api.rivet.dev
+```
+
+</Tab>
+<Tab title="Self-hosted">
+
+Point at your own control plane, using the admin token you configured.
+
+```bash
+RIVET_ENDPOINT=http://default:<admin-token>@your-control-plane.example.com:6420
+RIVET_PUBLIC_ENDPOINT=https://default@your-control-plane.example.com:6420
+```
+
+Inside a Docker network, the host is the service name. From your laptop against a container, it is `localhost`.
+
+</Tab>
+</Tabs>
+
+<Warning>
+`RIVET_PUBLIC_ENDPOINT` is served to browsers. Never put the secret token in it.
 </Warning>
 
-<Warning>
-**TODO.** Shared worker diagram, included by the worker guide template so all platform guides inherit it and it cannot drift. Product-neutral.
-</Warning>
+## Runtime modes
+
+How a worker registers depends on how its platform runs it.
+
+- **Runner** is the default. Your process starts, opens an outbound connection to the control plane, and holds it. It needs no public URL, no ingress, and nothing pasted into the dashboard. Use this on Kubernetes, ECS, Railway, Render, VMs, and Docker Compose.
+- **Serverless** suits request-driven platforms that have no long-lived process. The control plane calls your `/api/rivet` endpoint to start actors, so the URL must be public and registered. Set `RIVETKIT_RUNTIME_MODE=serverless`. Use this on Vercel, Cloudflare Workers, Supabase Functions, Lambda, Cloud Run, and Freestyle.
+
+The platform guides say which mode applies and register the URL where one is needed.
+
+## Packaging
+
+Runner-mode platforms take a container. A minimal Node image:
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+ENV PORT=8080
+CMD ["node", "server.js"]
+```
+
+<ProductSlot name="snippet" />
+
+## Graceful shutdown
+
+Actors drain for up to 30 minutes when a worker stops. Give the process at least **35 minutes** between `SIGTERM` and `SIGKILL`, and make sure your process actually receives the signal: a wrapper such as `npm start` becomes PID 1 and swallows it. Invoke your binary directly, or run `dumb-init` or `tini` as PID 1.
+
+## Next steps
+
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>, or use [Rivet Cloud](https://dashboard.rivet.dev)

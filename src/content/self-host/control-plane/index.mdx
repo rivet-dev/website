@@ -5,12 +5,54 @@ description: "Run the service that routes, schedules, and persists on your own i
 
 The control plane is stateful. It needs persistent storage and a stable network identity, which is why it cannot run on serverless platforms.
 
-<Warning>
-**TODO.** Control plane diagram: routing, scheduling, the state backend, and workers connecting in.
-</Warning>
+<svg viewBox="0 0 760 210" role="img" aria-label="Two workers connecting outbound into the control plane, which routes, schedules, and persists to a storage backend." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="control-plane-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <g stroke="#1b1916" stroke-width="1.4">
+    <rect x="30" y="30" width="150" height="52" rx="7" fill="#ffffff"/><rect x="30" y="118" width="150" height="52" rx="7" fill="#ffffff"/>
+    <rect x="285" y="62" width="190" height="76" rx="7" fill="#e7ece7"/><rect x="575" y="62" width="155" height="76" rx="7" fill="#ffffff"/>
+  </g>
+  <g text-anchor="middle" fill="#1b1916">
+    <text x="105" y="61" font-size="13" font-weight="600">Worker</text><text x="105" y="149" font-size="13" font-weight="600">Worker</text>
+    <text x="380" y="94" font-size="14" font-weight="600">Control plane</text><text x="380" y="114" font-size="12" fill="#56524a">route, schedule, persist</text>
+    <text x="652" y="106" font-size="14" font-weight="600">Storage</text>
+  </g>
+  <g stroke="#2E4034" stroke-width="1.4">
+    <path d="M181 56 H235 V92 H284" fill="none" marker-end="url(#control-plane-arrow)"/>
+    <path d="M181 144 H235 V108 H284" fill="none" marker-end="url(#control-plane-arrow)"/>
+    <line x1="476" y1="100" x2="574" y2="100" marker-start="url(#control-plane-arrow)" marker-end="url(#control-plane-arrow)"/>
+  </g>
+</svg>
 
-<Warning>
-**TODO.** Overview of what standing up a control plane involves, and how to pick a platform. Docker Compose is the recommended entry point; Kubernetes is recommended for production.
+Standing one up is four decisions:
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/index.mdx`
-</Warning>
+1. **A platform to run the container on.** Pick from the guides below.
+2. **A storage backend.** File system for a single node, PostgreSQL for multi-node. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+3. **An admin token**, so the API and dashboard are not open. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
+4. **A reverse proxy that tolerates long-lived WebSockets.** See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+## Picking a platform
+
+| If you want | Use |
+| --- | --- |
+| The fastest path from nothing to running | <SelfHostLink to="control-plane/docker-compose">Docker Compose</SelfHostLink> |
+| A production deployment you will scale | <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> |
+| A managed platform with the least setup | <SelfHostLink to="control-plane/railway">Railway</SelfHostLink> |
+| AWS, on Fargate | <SelfHostLink to="control-plane/aws-ecs">AWS ECS</SelfHostLink> |
+| A Linux host you already own | <SelfHostLink to="control-plane/vm">VM & bare metal</SelfHostLink> |
+| Anything else | <SelfHostLink to="control-plane/custom">Custom platform</SelfHostLink> |
+
+## Trying it locally
+
+One command, no persistence, useful only for a look around:
+
+```bash
+docker run -p 6420:6420 rivetdev/engine
+```
+
+Open `http://localhost:6420/ui` for the dashboard. For anything you intend to keep, start from a platform guide instead: this container writes to a path inside itself that disappears when the container does.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers">Deploy your workers</SelfHostLink>

@@ -17,6 +17,28 @@ Rivet has two halves, and you can host either one yourself.
 
 Rivet can run the control plane for you at [dashboard.rivet.dev](https://dashboard.rivet.dev). Running your own workers against it is the middle cell, usually called BYOC, and it is documented in the Workers section below.
 
-<Warning>
-**TODO.** Architecture diagram: control plane and workers as two boxes, with the three valid configurations named. This is the canonical explanation every other surface links back to. Hand-authored inline SVG, pine (#2E4034) as the structural color.
-</Warning>
+<svg viewBox="0 0 760 150" role="img" aria-label="Your backend, running an envoy, connected bidirectionally to the control plane, which is connected bidirectionally to storage." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="self-host-overview-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <g stroke="#1b1916" stroke-width="1.4"><rect x="35" y="43" width="180" height="64" rx="7" fill="#ffffff"/><rect x="290" y="43" width="180" height="64" rx="7" fill="#e7ece7"/><rect x="545" y="43" width="180" height="64" rx="7" fill="#ffffff"/></g>
+  <g text-anchor="middle" fill="#1b1916"><text x="125" y="69" font-size="14" font-weight="600">Worker</text><text x="125" y="89" font-size="12" fill="#56524a">(your code)</text><text x="380" y="81" font-size="14" font-weight="600">Control plane</text><text x="635" y="69" font-size="14" font-weight="600">Storage</text><text x="635" y="89" font-size="12" fill="#56524a">(FS, PG, or FDB)</text></g>
+  <g stroke="#2E4034" stroke-width="1.4"><line x1="216" y1="75" x2="289" y2="75" marker-start="url(#self-host-overview-arrow)" marker-end="url(#self-host-overview-arrow)"/><line x1="471" y1="75" x2="544" y2="75" marker-start="url(#self-host-overview-arrow)" marker-end="url(#self-host-overview-arrow)"/></g>
+</svg>
+
+The worker opens the connection outbound to the control plane, so a worker never needs a public URL or an inbound firewall rule. It only needs to reach the control plane.
+
+## Choosing
+
+|  | Self-host both | BYOC |
+| --- | --- | --- |
+| **You manage** | Workers, control plane, and storage | Workers only |
+| **Complexity** | Higher | Lower |
+| **Cost** | Higher operational overhead | Usually lower usage-based cost |
+| **Serverless workers** | Requires the extra control plane infrastructure | Yes |
+| **Air-gapped** | Yes | No |
+| **Best for** | Air-gapped environments, strict compliance, custom security policies | Everything else |
+| **Support** | [Contact sales](/sales) or community | Community, Slack, and email, varying by plan |
+
+## Next steps
+
+- <SelfHostLink to="control-plane">Run a control plane</SelfHostLink>
+- <SelfHostLink to="workers">Run workers</SelfHostLink>

@@ -23,30 +23,11 @@ const selfHost = defineCollection({
 	}),
 });
 
-const cookbook = defineCollection({
-	loader: glob({ pattern: '**/*.mdx', base: './src/content/cookbook' }),
-	schema: z.object({
-		title: z.string(),
-		description: z.string(),
-		templates: z.array(z.string()).optional(),
-	}),
-});
-
 const guides = defineCollection({
 	loader: glob({ pattern: '**/*.mdx', base: './src/content/guides' }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
-	}),
-});
-
-const learn = defineCollection({
-	loader: glob({ pattern: '**/*.mdx', base: './src/content/learn' }),
-	schema: z.object({
-		title: z.string(),
-		description: z.string(),
-		act: z.string().optional(),
-		subtitle: z.string().optional(),
 	}),
 });
 
@@ -76,8 +57,6 @@ const posts = defineCollection({
 export const collections = {
 	docs,
 	selfHost,
-	cookbook,
 	guides,
-	learn,
 	posts,
 };

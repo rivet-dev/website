@@ -73,7 +73,7 @@ const features = [
     icon: GitBranch,
     title: 'Workflows',
     description: 'Multi-step operations with automatic retries.',
-    href: '/actors/docs/workflows',
+    href: '/workflows/docs',
   },
   {
     icon: ListOrdered,

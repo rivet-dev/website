@@ -4,6 +4,7 @@
  *
  * Resolution order for a product's repo root:
  *
+ *   0. an in-repo bundle (`localBundle`)                 — docs this repo owns
  *   1. an existing `src/content/docs/<product>` symlink — the manual override
  *   2. sibling checkout next to this repo (../<repo>)   — the local dev default
  *   3. `vendor/<product>`                                — CI, clone-website-only
@@ -45,10 +46,25 @@ function rootFromContentLink(productId: string): string | undefined {
 	}
 }
 
+/**
+ * Where a product's snippets come from. Usually its own repo, but a product can
+ * be split out before its `examples/` tree is; see `snippetFrom`.
+ */
+function snippetRoot(productId: string): string | undefined {
+	const from = DOCS_SOURCES[productId]?.snippetFrom;
+	return docsRoot(from ?? productId);
+}
+
 /** Absolute path to a product's repo root, or undefined if none resolves. */
 export function docsRoot(productId: string): string | undefined {
 	const source = DOCS_SOURCES[productId];
 	if (!source) return undefined;
+
+	// A bundle inside this repo is not overridable: there is no other checkout
+	// it could point at, so it wins outright.
+	if (source.localBundle) {
+		return path.resolve(REPO_ROOT, source.localBundle);
+	}
 
 	const linked = rootFromContentLink(productId);
 	if (linked) return linked;
@@ -96,12 +112,12 @@ export function snippetRootForContentPath(
 		for (const productId of Object.keys(DOCS_SOURCES)) {
 			const root = docsRoot(productId);
 			if (root && normalized.startsWith(`${path.resolve(root)}${path.sep}`)) {
-				return root;
+				return snippetRoot(productId) ?? root;
 			}
 		}
 
 		const product = productFromPath(contentPath);
-		if (product) return docsRoot(product);
+		if (product) return snippetRoot(product);
 	}
 
 	return docsRoot(SHARED_CONTENT_PRODUCT);

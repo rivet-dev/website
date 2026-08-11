@@ -1,39 +1,128 @@
 ---
-title: "Virtual Machine"
-description: "Run the Rivet control plane on Virtual Machine."
+title: "VM & Bare Metal"
+description: "Run the Rivet control plane on a Linux host with Docker."
 ---
 
 ## Requirements
 
+- A Linux host with SSH access and Docker installed
+- A persistent disk for the data volume
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on Virtual Machine, with versions.
-</Warning>
+This guide covers any Linux host: Hetzner, DigitalOcean, Linode, EC2, or hardware you own.
+
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for Virtual Machine:
+<Step title="Generate an admin token">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+```bash
+export RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)
+echo $RIVET_ADMIN_TOKEN
+```
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/docker-container.mdx`
-</Warning>
+Save it. Without a token the API is unauthenticated.
+
+</Step>
+
+<Step title="Start the control plane">
+
+```bash
+docker run -d \
+  --name rivet-engine \
+  --restart unless-stopped \
+  -p 6420:6420 \
+  -p 6421:6421 \
+  -v rivet-data:/data \
+  -e RIVET__FILE_SYSTEM__PATH="/data" \
+  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
+  rivetdev/engine:latest
+```
+
+The named volume is what makes data survive a container replacement. Pin the image tag for anything long-lived.
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+curl http://localhost:6421/health
+```
+
+Expect `ok`. The dashboard is at `http://<host>:6420/ui`.
+
+</Step>
+
+<Step title="Put TLS in front">
+
+Port `6420` should not be exposed directly to the internet. Terminate TLS at NGINX or Caddy and raise the idle timeout to `3600` seconds, or long-lived WebSockets will be cut. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+
+</Step>
+
+<Step title="Connect a worker">
+
+From another host, point the worker at this one:
+
+```bash
+RIVET_ENDPOINT="http://default:$RIVET_ADMIN_TOKEN@your-host.example.com:6420"
+```
+
+From a container on the same host, use `host.docker.internal` instead of the hostname. Confirm the worker appears under **Runners** in the dashboard.
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Using PostgreSQL
+
+```bash
+docker network create rivet-net
+
+docker run -d --name postgres --network rivet-net \
+  -e POSTGRES_DB=rivet -e POSTGRES_USER=rivet -e POSTGRES_PASSWORD=rivet_password \
+  -v postgres-data:/var/lib/postgresql/data \
+  postgres:15
+
+docker run -d --name rivet-engine --network rivet-net \
+  --restart unless-stopped \
+  -p 6420:6420 -p 6421:6421 \
+  -e RIVET__POSTGRES__URL="postgresql://rivet:rivet_password@postgres:5432/rivet" \
+  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
+  rivetdev/engine:latest
+```
+
+## Using a config file
+
+```bash
+docker run -d \
+  --name rivet-engine \
+  -p 6420:6420 \
+  -v rivet-data:/data \
+  -v $(pwd)/rivet-config.json:/etc/rivet/config.json:ro \
+  rivetdev/engine:latest
+```
+
+See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink> for the full schema.
+
+## Building from source
+
+```bash
+git clone https://github.com/rivet-dev/rivet.git
+cd rivet
+cargo build --release -p rivet-engine
+./target/release/rivet-engine
+```
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/docker-compose">Docker Compose</SelfHostLink> for multi-container setups
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

@@ -3,6 +3,60 @@ title: "Upgrades"
 description: "Version skew, rolling upgrades, and rollback."
 ---
 
+Upgrading a self-hosted deployment means upgrading two things on their own schedules: the control plane, and the workers running your code. They are separate deploys and they do not have to move together.
+
 <Warning>
-**TODO.** Upgrades has no existing source. Enterprise evaluators look for it, so write it rather than porting it.
+Take a backup before every control plane upgrade. See <SelfHostLink to="control-plane/backups">Backup & Restore</SelfHostLink>.
 </Warning>
+
+## Order
+
+Upgrade the control plane first, then workers. The control plane supports workers running an older protocol version; the reverse is not guaranteed. Upgrading workers ahead of the control plane can leave them unable to register.
+
+## Pin the image tag
+
+Do not run `rivetdev/engine:latest` in production. An unpinned tag means an unplanned upgrade the next time a node restarts or reschedules.
+
+```yaml
+image: rivetdev/engine:2.3.3
+```
+
+Pin the tag, upgrade by changing it, and keep the previous tag written down so a rollback is a one-line change.
+
+## Rolling the control plane
+
+With two or more control plane nodes behind a load balancer, replace them one at a time. Each node drains on `SIGTERM`, so the platform must give it time to finish in-flight work and flush state before `SIGKILL`.
+
+- **Kubernetes:** a `RollingUpdate` strategy with `maxUnavailable: 1` and a `terminationGracePeriodSeconds` long enough to cover the drain.
+- **Anywhere else:** confirm the platform sends `SIGTERM` and waits. Some platforms default to a zero-second grace window, which drops in-flight requests on every deploy.
+
+Single-node deployments cannot roll. The node goes down, comes back on the new version, and clients reconnect. Plan a maintenance window.
+
+## Rolling workers
+
+Workers need a much longer grace period than the control plane, because actors drain for up to 30 minutes.
+
+Set a graceful shutdown period of at least **35 minutes**. In Kubernetes that is `terminationGracePeriodSeconds: 2100` on the pod spec.
+
+Configure a runner version so old and new workers are distinguishable and actors drain onto the new version rather than being cut off.
+
+## Verify
+
+After each stage:
+
+```bash
+curl http://localhost:6421/health
+```
+
+Then open the dashboard and confirm your workers appear under **Runners** and are on the version you expect.
+
+## Rollback
+
+Roll back the same way you rolled forward: change the pinned tag to the previous version and redeploy. Roll workers back before the control plane, mirroring the upgrade order.
+
+If a control plane upgrade migrated the storage backend, rolling back the image is not sufficient on its own. This is what the pre-upgrade backup is for.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/backups">Backup & Restore</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

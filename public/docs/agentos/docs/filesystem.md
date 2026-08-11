@@ -22,13 +22,11 @@ Use the built-in `memory` plugin for an ephemeral mounted directory in the Rivet
 
 Use `mountFs()` with a serializable, sidecar-owned plugin descriptor. The same descriptor works through Core and RivetKit; the actor persists dynamic descriptors in SQLite and replays them on wake. `mountFs()` resolves only once the mount is visible to guest code, and `unmountFs(path)` removes it.
 
-Mount topology changes require the VM to have no running guest processes; stop and await them before retrying. For nested mounts, remove children before their parent. Rejected changes leave the previous mount state intact.
-
 The actor's durable root is handled separately: the sidecar connects directly to Rivet's actor SQLite UDS, so root filesystem reads and writes never pass through JavaScript. `listMounts()` returns live sanitized metadata without plugin configuration.
 
 ## File operations
 
-These operations are primarily what the agent uses inside the VM, and are also available from the client to seed inputs and read results. For large or read-only inputs (a repo, a dataset), a read-only [host mount](#mounts) is faster than copying files in. Programs that need stdin or live output use exec instead (see [Core](/agentos/docs/core)).
+These operations are primarily what the agent uses inside the VM, and are also available from the client to seed inputs and read results. For large or read-only inputs (a repo, a dataset), a read-only [host mount](#mounts) is faster than copying files in. Programs that need stdin or live output use exec instead (see the [Direct VM API](/agentos/docs/core)).
 
 ### Read and write
 
@@ -59,7 +57,7 @@ See [Permissions](/agentos/docs/permissions) for the full configuration.
 
 ## Sandboxes
 
-For heavier or untrusted workloads, run a full Linux [sandbox](/agentos/docs/sandbox) alongside the VM and mount its filesystem into agentOS. The agent then reads and writes the sandbox's files through the same `fs` APIs while the sandbox handles execution. See [Sandbox Mounting](/agentos/docs/sandbox) for setup.
+For heavier workloads, run a full Linux [external sandbox](/agentos/docs/sandboxes) alongside the VM and mount its filesystem into agentOS. The agent then reads and writes the sandbox's files through the same `fs` APIs while the sandbox handles execution.
 
 ## Default layout
 

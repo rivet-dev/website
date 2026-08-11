@@ -11,14 +11,35 @@ interface Props {
 	keywords?: string[];
 	active?: ComponentProps<typeof Header>['active'];
 	robots?: string;
+	/**
+	 * Set on a product's Overview page. Switches from the floating pill header to
+	 * the same two-row header the docs use, so the secondary nav is identical
+	 * whichever tab of a product you are on.
+	 */
+	productId?: string;
+	/** Which tab of the product bar to mark active. Defaults to Overview. */
+	tabId?: string;
 }
 
-const { title, description, canonicalUrl, ogImage, keywords, active, robots } = Astro.props;
+const { title, description, canonicalUrl, ogImage, keywords, active, robots, productId, tabId = 'overview' } = Astro.props;
 const pathname = Astro.url.pathname;
 ---
 
 <BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} ogImage={ogImage} keywords={keywords} robots={robots}>
-	<Header variant="floating" initialPathname={pathname} active={active} client:load />
+	{productId ? (
+		<Header
+			variant="full-width"
+			light={true}
+			showProductBar={true}
+			productId={productId}
+			tabId={tabId}
+			initialPathname={pathname}
+			active={active}
+			client:load
+		/>
+	) : (
+		<Header variant="floating" initialPathname={pathname} active={active} client:load />
+	)}
 	<slot />
 </BaseLayout>
 

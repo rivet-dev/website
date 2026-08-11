@@ -9,9 +9,8 @@ export const GET: APIRoute = async ({ site }) => {
 	const siteUrl = site?.toString().replace(/\/$/, '') || 'https://rivet.dev';
 
 	// Get all content collections
-	const [docs, guides, posts] = await Promise.all([
+	const [docs, posts] = await Promise.all([
 		getCollection('docs'),
-		getCollection('guides'),
 		getCollection('posts'),
 	]);
 
@@ -24,21 +23,19 @@ export const GET: APIRoute = async ({ site }) => {
 		})
 		.sort();
 
-	// Build guides URLs
-	const guidesUrls = guides
-		.map(guide => `${siteUrl}/guides/${guide.id}/`)
-		.sort();
-
-	// Build blog URLs (filter out unpublished)
+	// Build blog URLs. A post is published at exactly one path: changelog
+	// entries under /changelog/, everything else under /blog/. Listing a post
+	// under both emits a URL that 404s. Mirrors the filters in
+	// src/pages/blog/[...slug].astro and src/pages/changelog/[...slug].astro.
 	const blogUrls = posts
-		.filter(post => !post.data.unpublished)
+		.filter(post => post.data.category !== 'changelog' && !post.data.unpublished)
 		.map(post => {
 			const slug = post.id.replace(/\/page$/, '');
 			return `${siteUrl}/blog/${slug}/`;
 		})
 		.sort();
 
-	// Build changelog URLs (same posts, different path, filter out unpublished)
+	// Build changelog URLs
 	const changelogUrls = posts
 		.filter(post => post.data.category === 'changelog' && !post.data.unpublished)
 		.map(post => {
@@ -47,12 +44,18 @@ export const GET: APIRoute = async ({ site }) => {
 		})
 		.sort();
 
-	// Static site pages
+	// Static site pages. Every entry must be a page this build emits: a URL that
+	// 301s or 404s is worse than a missing one, because the reader cannot tell.
 	const staticUrls = [
 		`${siteUrl}/`,
 		`${siteUrl}/docs/`,
+		`${siteUrl}/actors/`,
+		`${siteUrl}/agentos/`,
+		`${siteUrl}/dynamic-apps/`,
+		`${siteUrl}/workflows/`,
 		`${siteUrl}/cloud/`,
-		`${siteUrl}/pricing/`,
+		`${siteUrl}/enterprise/`,
+		`${siteUrl}/startups/`,
 		`${siteUrl}/changelog/`,
 		`${siteUrl}/blog/`,
 		`${siteUrl}/support/`,
@@ -70,7 +73,6 @@ export const GET: APIRoute = async ({ site }) => {
 	const allUrls = [...new Set([
 		...staticUrls,
 		...docsUrls,
-		...guidesUrls,
 		...blogUrls,
 		...changelogUrls,
 	])].sort();

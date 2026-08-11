@@ -1,10 +1,39 @@
 ---
-title: "TLS & Certificates"
-description: "Terminate TLS in front of the control plane and rotate certificates."
+title: "TLS"
+description: "Terminating TLS in front of the control plane, and trusting a private CA."
 ---
 
-<Warning>
-**TODO.** Port and rewrite as the canonical tls & certificates reference. Platform guides link here instead of restating.
+## Terminating TLS
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/tls.mdx`
-</Warning>
+The control plane speaks plain HTTP and expects a reverse proxy or load balancer in front of it to terminate TLS. Every platform guide in this section covers how its own load balancer does that.
+
+Whatever sits in front must also tolerate long-lived WebSocket connections. Both client traffic and envoy traffic use them, and a default idle timeout of 30 to 60 seconds will drop those connections and cause reconnect storms. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink> for the timeout you need.
+
+## Trusting a private CA
+
+Public CAs such as Let's Encrypt and AWS ACM work with no configuration. You only need this section if the control plane makes outbound HTTPS calls to something signed by a corporate or private CA.
+
+Rivet reads the operating system trust store for all outbound HTTPS:
+
+| Platform | Trust store |
+| --- | --- |
+| Linux | `/etc/ssl/certs` |
+| macOS | Keychain |
+| Windows | Schannel |
+
+Operator-installed corporate CAs already live there and are honored automatically.
+
+To trust a private CA inside the official `rivetdev/engine` image, extend it the standard Debian way:
+
+```dockerfile
+FROM rivetdev/engine:latest
+COPY my-corp-ca.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+```
+
+Rebuild and redeploy. The same approach works for any machine running a Rivet client: install the CA into the OS trust store and Rivet picks it up.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

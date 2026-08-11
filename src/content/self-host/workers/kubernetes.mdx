@@ -3,40 +3,125 @@ title: "Kubernetes"
 description: "Run Rivet workers on Kubernetes."
 ---
 
+Workers run in **runner** mode here: the pod opens a connection out to the control plane on startup. It needs no `Service`, no Ingress, and no public URL, only outbound network access.
+
 ## Requirements
 
+- A Kubernetes cluster with `kubectl` access
+- Container registry credentials
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Kubernetes, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Kubernetes:
+<Step title="Package your app">
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Kubernetes command.
-5. Verify, showing the output where the worker registers.
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+ENV PORT=8080
+CMD ["node", "server.js"]
+```
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
-
-**Source material:** `website/src/content/_pending-rewrite/deploy/kubernetes.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Build and push">
+
+```bash
+docker build -t registry.example.com/your-team/rivet-worker:latest .
+docker push registry.example.com/your-team/rivet-worker:latest
+```
+
+</Step>
+
+<Step title="Configure the connection">
+
+```yaml rivet-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rivet-secrets
+type: Opaque
+stringData:
+  RIVET_ENDPOINT: <your-rivet-endpoint>
+  RIVET_PUBLIC_ENDPOINT: <your-rivet-public-endpoint>
+```
+
+Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
+
+</Step>
+
+<Step title="Deploy">
+
+`terminationGracePeriodSeconds` matters here. Actors drain for up to 30 minutes, and `2100` covers that plus shutdown overhead. The Kubernetes default of 30 seconds cuts actors off mid-drain.
+
+```yaml deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rivet-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rivet-worker
+  template:
+    metadata:
+      labels:
+        app: rivet-worker
+    spec:
+      terminationGracePeriodSeconds: 2100
+      containers:
+        - name: rivet-worker
+          image: registry.example.com/your-team/rivet-worker:latest
+          envFrom:
+            - secretRef:
+                name: rivet-secrets
+```
+
+```bash
+kubectl apply -f rivet-secrets.yaml
+kubectl apply -f deployment.yaml
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+kubectl get pods -l app=rivet-worker
+```
+
+```
+NAME                            READY   STATUS    RESTARTS   AGE
+rivet-worker-7d4c8b9f5d-x2klm   1/1     Running   0          20s
+```
+
+Once the pod is ready it appears under **Runners** in the dashboard. Nothing needs registering.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## If you expose the worker
+
+A worker does not need an Ingress to run actors. If you add one anyway, raise its idle timeout to `3600` seconds: workers connect over WebSocket and the defaults will sever them. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/kubernetes">Run the control plane on Kubernetes</SelfHostLink>

@@ -159,7 +159,7 @@ The boundary protects the host from the guest. It does **not** harden your host 
 - Hardening the host process and deployment environment. For internet-facing workloads that take untrusted input, run your host inside an already-hardened environment (for example AWS Lambda, Google Cloud Run, or a similar sandboxed platform).
 - Validating authentication tokens in `onBeforeConnect`.
 - Scoping [permissions](/agentos/docs/permissions) appropriately for your use case.
-- Managing API keys and secrets on the host side (use the [LLM gateway](/agentos/docs/llm-gateway) to avoid passing keys into the VM).
+- Managing API keys and secrets on the host side (see [Models & Credentials](/agentos/docs/models-and-credentials)).
 - Configuring [resource limits and network controls](/agentos/docs/security-model) to match your threat model.
 - Choosing your blast radius: prefer a fresh VM per untrusted or high-risk task so an escape attempt cannot outlive a single VM.
 

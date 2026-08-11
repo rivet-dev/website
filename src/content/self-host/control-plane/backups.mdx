@@ -3,6 +3,63 @@ title: "Backup & Restore"
 description: "Back up control plane state and restore it, with a tested restore path."
 ---
 
-<Warning>
-**TODO.** Backup & Restore has no existing source. Enterprise evaluators look for it, so write it rather than porting it.
-</Warning>
+Everything the control plane persists lives in its storage backend, so backing up the control plane means backing up that backend. The engine itself is stateless between restarts and needs no separate backup.
+
+What you must be able to restore:
+
+- **The storage backend.** Actor state, namespaces, and runner configuration.
+- **Your configuration.** The config file or environment variables, including the admin token. Losing the admin token locks you out of the dashboard and the API.
+
+## By backend
+
+<Tabs>
+<Tab title="PostgreSQL">
+
+Use your provider's automated backups, or `pg_dump` on a schedule. Point-in-time recovery is worth enabling if your provider offers it.
+
+```bash
+pg_dump "postgresql://user:password@host:5432/rivet" --format=custom --file=rivet-$(date +%F).dump
+```
+
+Restore into an empty database, then start the control plane against it:
+
+```bash
+pg_restore --dbname="postgresql://user:password@host:5432/rivet" --clean --if-exists rivet-2026-01-01.dump
+```
+
+Managed providers generally do this better than you will. Prefer their automated backups plus a standby replica over a cron job.
+
+</Tab>
+<Tab title="File system">
+
+Stop the control plane before copying the data directory. RocksDB is not safe to copy while a process holds it open, and a copy taken from a running node can restore into a corrupt state.
+
+```bash
+# Stop the control plane first
+tar czf rivet-data-$(date +%F).tar.gz -C /var/lib/rivet data
+```
+
+Restore by extracting into the same path and starting the control plane again. If you cannot tolerate the downtime this implies, that is a signal to move to PostgreSQL.
+
+</Tab>
+<Tab title="FoundationDB">
+
+FoundationDB has its own backup agent and continuous backup support. Backup topology is covered during enterprise onboarding. Contact [enterprise support](/sales).
+
+</Tab>
+</Tabs>
+
+## Test the restore
+
+A backup you have never restored is not a backup. Restore into a scratch environment on a schedule and confirm:
+
+1. The control plane starts and reports healthy on `/health`.
+2. The dashboard loads and your namespaces are present.
+3. A worker connects and appears under **Runners**.
+4. An actor created before the backup still resolves and reads its state.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/storage">Storage backends</SelfHostLink>
+- <SelfHostLink to="control-plane/upgrades">Upgrades</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

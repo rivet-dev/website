@@ -11,36 +11,27 @@
 				{
 					"title": "Quickstart",
 					"href": "/workflows/docs/quickstart",
-					"icon": "faFastForward",
-					"badge": "TODO"
-				},
-				{
-					"title": "Concepts",
-					"href": "/workflows/docs/concepts",
-					"icon": "faShapes",
-					"badge": "TODO"
-				}
-			]
-		}
-	],
-	"tutorials": [
-		{
-			"title": "General",
-			"pages": [
-				{
-					"title": "Overview",
-					"href": "/workflows/tutorials",
-					"icon": "faSquareInfo"
+					"icon": "faFastForward"
 				}
 			]
 		},
 		{
-			"title": "Guides",
+			"title": "Building",
 			"pages": [
 				{
-					"title": "Getting Started",
-					"href": "/workflows/tutorials/getting-started",
-					"badge": "TODO"
+					"title": "Features",
+					"href": "/workflows/docs/features",
+					"icon": "faListCheck"
+				},
+				{
+					"title": "Patterns",
+					"href": "/workflows/docs/patterns",
+					"icon": "faShapes"
+				},
+				{
+					"title": "Reference",
+					"href": "/workflows/docs/reference",
+					"icon": "faBook"
 				}
 			]
 		}

@@ -1,42 +1,86 @@
 ---
 title: "Custom Platform"
-description: "Run Rivet workers on Custom Platform."
+description: "Run Rivet workers on any platform that can run your app."
 ---
+
+A worker is your app plus two environment variables. Any platform that can run your app and reach the control plane can host it.
 
 ## Requirements
 
+Your platform must provide:
 
-<Warning>
-**TODO.** Hard prerequisites for Custom Platform, with versions.
-</Warning>
+- **A way to run your app**, as a container, a process, or a serverless function.
+- **Environment variables**, to carry the connection.
+- **Outbound network access** to the control plane.
+- For serverless platforms only, **a public HTTP endpoint** so the control plane can reach `/api/rivet`.
+
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
+
+<Step title="Pick a runtime mode">
+
+- **Runner**, the default, for anything that keeps a process alive: containers, VMs, managed app platforms. The worker dials out, so it needs no public URL.
+- **Serverless**, set with `RIVETKIT_RUNTIME_MODE=serverless`, for request-driven platforms with no long-lived process. The control plane calls in, so the URL must be public.
+
+See <SelfHostLink to="workers">Workers</SelfHostLink> for how the two differ.
+
+</Step>
+
+<Step title="Deploy your app">
+
+Deploy however your platform expects. If you are in serverless mode, confirm `/api/rivet` is publicly reachable and returns a valid response.
+
+<ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Set the environment variables">
+
+```bash
+RIVET_ENDPOINT=https://<namespace>:<secret-token>@<control-plane-host>
+RIVET_PUBLIC_ENDPOINT=https://<namespace>:<publishable-token>@<control-plane-host>
+```
 
 <Warning>
-**TODO.** Canonical worker sequence for Custom Platform:
-
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Custom Platform command.
-5. Verify, showing the output where the worker registers.
-
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
-
-**Source material:** `website/src/content/_pending-rewrite/deploy/custom.mdx`
+`RIVET_PUBLIC_ENDPOINT` is served to browsers. Never put the secret token in it.
 </Warning>
-<ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Connect">
+
+In runner mode there is nothing to register: the worker appears under **Runners** in the dashboard once it starts.
+
+In serverless mode, select **Custom** as your provider and paste your URL with the `/api/rivet` path into the connect form, for example `https://my-app.example.com/api/rivet`.
+
+</Step>
+
+<Step title="Configure graceful shutdown">
+
+Actors drain for up to 30 minutes. Give the process at least 35 minutes between `SIGTERM` and `SIGKILL`, and make sure the signal reaches it: a wrapper such as `npm start` becomes PID 1 and swallows it.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Troubleshooting
+
+**The worker never appears under Runners.** In runner mode, check outbound network access and that `RIVET_ENDPOINT` carries the right namespace and token. In serverless mode, check that the registered URL is reachable from the public internet.
+
+**Actors do not respond.** Confirm both `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` are set. Missing the public one leaves clients with no connection details.
+
+**The connection drops every 30 to 60 seconds.** A proxy in front of your worker is timing out idle WebSockets. Raise its idle timeout to `3600` seconds. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>

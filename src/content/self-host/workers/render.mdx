@@ -1,0 +1,77 @@
+---
+title: "Render"
+description: "Run Rivet workers on Render."
+---
+
+Workers run in **runner** mode here: the service opens a connection out to the control plane on startup. It needs no public URL, so a Render Background Worker suits it as well as a Web Service.
+
+## Requirements
+
+- A [Render account](https://render.com)
+- A GitHub repository containing your app
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
+
+<ProductSlot name="requirements" />
+
+<ProductSlot name="caveats" />
+
+## Steps
+
+<Steps>
+
+<Step title="Add the service">
+
+```yaml render.yaml
+services:
+  - type: worker
+    name: rivet-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    envVars:
+      - key: RIVET_ENDPOINT
+        sync: false
+      - key: RIVET_PUBLIC_ENDPOINT
+        sync: false
+```
+
+`type: worker` is a Background Worker: no public URL and no HTTP port, which is exactly what runner mode needs. Use `type: web` instead only if the same service also serves your application traffic.
+
+`sync: false` keeps both values out of the blueprint so you set them as secrets in the dashboard.
+
+<ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Set the endpoints">
+
+Set `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` on the service in the Render dashboard. Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
+
+</Step>
+
+<Step title="Deploy">
+
+Push to the connected branch, or click **Manual Deploy**.
+
+</Step>
+
+<Step title="Verify">
+
+The service log should show the worker connecting. Open the dashboard and confirm it appears under **Runners**.
+
+</Step>
+
+</Steps>
+
+<ProductSlot name="env" />
+
+<ProductSlot name="verify" />
+
+## Graceful shutdown
+
+Actors drain for up to 30 minutes, which is longer than Render waits between `SIGTERM` and `SIGKILL`. Plan deploys so a new instance is up before the old one goes away, and keep the process itself signal-aware: a wrapper such as `npm start` becomes PID 1 and swallows `SIGTERM`. Invoke the binary directly, or use `dumb-init` or `tini`.
+
+## Next steps
+
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/render">Run the control plane on Render</SelfHostLink>

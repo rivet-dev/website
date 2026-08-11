@@ -3,6 +3,7 @@ import { usePathname } from "@/hooks/usePathname";
 import { Button } from "@/components/Button";
 import routes from "@/generated/routes.json";
 import clsx from "clsx";
+import { VISIBLE_PRODUCTS } from "@/sitemap/product-metadata";
 
 import imgLogo from "@/images/rivet-logos/icon-white.svg";
 import imgYC from "@/images/logos/yc.svg";
@@ -18,35 +19,33 @@ import {
 } from "@rivet-gg/icons";
 
 const footer = {
-	product: [
-		{ name: "Actors", href: "/actors/docs" },
-		{ name: "agentOS", href: "https://agentos-sdk.dev", target: "_blank" },
-		{ name: "Sandbox Agent SDK", href: "https://sandboxagent.dev" },
-		{ name: "Secure Exec SDK", href: "https://secureexec.dev" },
+	// Derived so the footer cannot drift from the product registry. Each entry
+	// points at the product's Overview page, matching the header switcher.
+	product: VISIBLE_PRODUCTS.map((item) => ({ name: item.name, href: `/${item.id}` })),
+	company: [
 		{ name: "Cloud Pricing", href: "/cloud#pricing" },
 		{ name: "Enterprise", href: "/enterprise" },
-		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },
 		{ name: "Sales", href: "/sales" },
+		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },
+		{ name: "YC & Speedrun Deal", href: "/startups" },
 	],
 	devs: [
-		{ name: "Documentation", href: "/actors/docs" },
-		// { name: "Integrations", href: "/integrations" },
-		// { name: "API Reference", href: "/docs/api" },
+		{ name: "Documentation", href: "/docs" },
 		{ name: "Changelog", href: "/changelog" },
 		{ name: "Status Page", href: "https://rivet.betteruptime.com/" },
 	],
 	resources: [
 		{ name: "Blog", href: "/blog" },
-		{ name: "YC & Speedrun Deal", href: "/startups" },
 		{ name: "Open-Source Friends", href: "/oss-friends" },
 		{ name: "Press Kit", href: "https://releases.rivet.dev/press-kit.zip" },
-	],
-	compare: [
 		{
-			name: "Cloudflare Durable Objects",
-			href: "/compare/rivet-vs-cloudflare-durable-objects",
+			name: "Actors vs Durable Objects",
+			href: "/actors/compare/rivet-actors-vs-cloudflare-durable-objects",
 		},
-		{ name: "Temporal", href: "/compare/rivet-vs-temporal" },
+		{
+			name: "Workflows vs Temporal",
+			href: "/workflows/compare/rivet-workflows-vs-temporal",
+		},
 	],
 	legal: [
 		{ name: "Terms", href: "/terms" },
@@ -215,11 +214,11 @@ function SmallPrint() {
 					</ul>
 				</div>
 
-				{/* Compare */}
+				{/* Company */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Compare</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Company</h3>
 					<ul className="space-y-3">
-						{footer.compare.map((item) => (
+						{footer.company.map((item) => (
 							<li key={item.name}>
 								<a
 									href={item.href}

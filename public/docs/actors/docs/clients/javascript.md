@@ -110,6 +110,3 @@ Requests can still return transient lifecycle or gateway errors. Retry once the 
 **Package:** [rivetkit](https://www.npmjs.com/package/rivetkit)
 
 See the [RivetKit client overview](/actors/docs/clients).
-
-- [`createClient`](/typedoc/functions/rivetkit.client_mod.createClient.html) - Create a client
-- [`Client`](/typedoc/types/rivetkit.mod.Client.html) - Client type

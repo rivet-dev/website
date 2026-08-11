@@ -2,7 +2,7 @@ import { Icon, faArrowRight, faRivet, faServer } from '@rivet-gg/icons';
 import type { ReactNode } from 'react';
 import { FaqList } from '@/components/faq/FaqSection';
 import { formatTimestamp } from '@/lib/formatDate';
-import { compareEntries, getCompareEntry } from '@/data/compare';
+import { compareEntries, compareHref, getCompareEntry } from '@/data/compare';
 import type { CompareEntry } from '@/data/compare/types';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
 import { Spirograph } from '@/components/marketing/art/Spirograph';
@@ -281,7 +281,7 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 					{others.map((other) => (
 						<CatalogCard
 							key={other.slug}
-							href={`/compare/${other.slug}/`}
+							href={`${compareHref(other)}/`}
 							title={other.title}
 							linkLabel="Read the comparison"
 						>

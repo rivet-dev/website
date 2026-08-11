@@ -3,8 +3,78 @@ title: "Multi-Region"
 description: "Run the control plane across more than one region."
 ---
 
-<Warning>
-**TODO.** Port and rewrite as the canonical multi-region reference. Platform guides link here instead of restating.
+A multi-region deployment runs a control plane in each region and connects them into one topology. Actors are placed in a region and reached through that region's endpoint; your application does not have to route between them by hand.
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/multi-region.mdx`
+## Requirements
+
+Multi-region is multi-node, so every multi-node requirement applies first:
+
+- **A shared database.** The file system backend is single-node and cannot be used. Use PostgreSQL, or FoundationDB at larger scale. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+- **NATS for pub/sub**, with at least two replicas.
+- **Network reachability** between every region's control plane, and from each control plane to the database and NATS.
+
+## Topology
+
+Each control plane node is configured with the full topology and told which datacenter it is. `topology.datacenter_label` identifies this node's datacenter and must appear as an entry in `topology.datacenters`.
+
+```json
+{
+  "topology": {
+    "datacenter_label": 1,
+    "datacenters": {
+      "us-east": {
+        "datacenter_label": 1,
+        "is_leader": true,
+        "public_url": "https://us-east.rivet.example.com",
+        "peer_url": "http://rivet-engine.us-east.internal:6421",
+        "valid_hosts": ["us-east.rivet.example.com"]
+      },
+      "eu-central": {
+        "datacenter_label": 2,
+        "is_leader": false,
+        "public_url": "https://eu-central.rivet.example.com",
+        "peer_url": "http://rivet-engine.eu-central.internal:6421",
+        "valid_hosts": ["eu-central.rivet.example.com"]
+      }
+    }
+  }
+}
+```
+
+The same `datacenters` map goes on every node. Only `datacenter_label` at the top level differs between them.
+
+### Datacenter fields
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| `datacenter_label` | Yes | Stable numeric ID for the datacenter |
+| `is_leader` | Yes | Exactly one datacenter is the leader |
+| `public_url` | Yes | Public origin clients use to reach this region |
+| `peer_url` | Yes | Address of this region's api-peer service, used by other regions |
+| `proxy_url` | No | Private address of this region's guard service, used by other regions |
+| `valid_hosts` | No | Hostnames accepted as region-specific endpoints for this region |
+| `name` | No | Derived from the map key. Only needed with the deprecated list form |
+
+Configure `datacenters` as a map keyed by name. The list form is deprecated.
+
+<Warning>
+Never point `public_url` or `valid_hosts` at a global origin that load-balances across regions. Regional endpoints exist so a request for a specific region lands in that region. A shared origin makes routing unpredictable, because a request meant for `eu-central` can be answered by `us-east`.
 </Warning>
+
+Give every region its own hostname, and resolve each to that region's load balancer only.
+
+## Rollout order
+
+1. Stand up the database and NATS so every region can reach them.
+2. Deploy the leader region first, with `is_leader: true` in its own entry.
+3. Deploy the remaining regions with the same `datacenters` map and their own `datacenter_label`.
+4. Give each region a distinct public hostname and terminate TLS there. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+5. Point workers in each region at that region's endpoint.
+
+Adding a region later means updating the `datacenters` map on **every** existing node and restarting them, since the topology is read at startup.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="control-plane/storage">Storage backends</SelfHostLink>
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

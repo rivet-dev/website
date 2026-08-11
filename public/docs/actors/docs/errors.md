@@ -45,8 +45,3 @@ The client receives only a generic "Internal error" message for security, but yo
 For faster debugging during development, you can expose internal error details to clients by setting `RIVET_EXPOSE_ERRORS=1`.
 
 With error exposure enabled, clients will see the full error message instead of the generic "Internal error" response:
-
-## API Reference
-
-- [`UserError`](/typedoc/classes/rivetkit.actor_errors.UserError.html) - User-facing error class
-- [`ActorError`](/typedoc/classes/rivetkit.client_mod.ActorError.html) - Errors received by the client

@@ -68,13 +68,20 @@ for (const [from, to] of Object.entries(redirects)) {
 }
 
 // Wildcard prefix redirects. Caddy matches every path under the prefix with a
-// `*` path matcher and sends it to the external target root. The captured suffix
-// is intentionally dropped so all sub-paths collapse to the same destination
-// (e.g. `/docs/agent-os/quickstart` -> `https://agentos-sdk.dev/`).
+// `*` path matcher.
+//
+// A rule whose target ends with its own source is a re-parenting: the whole
+// request path is kept and only the new parent is prepended, so
+// `/registry/pi` -> `/agentos/registry/pi`. Every other rule drops the captured
+// suffix and collapses all sub-paths onto the target.
 for (const { from, to } of wildcardRedirects) {
 	assertSafe(from, 'source');
 	assertSafeTarget(to);
-	lines.push(`redir ${from}/* ${to}${PREFIXED_QUERY} 301`);
+	const target =
+		to !== from && to.endsWith(from)
+			? `${to.slice(0, -from.length)}{http.request.uri.path}`
+			: to;
+	lines.push(`redir ${from}/* ${target}${PREFIXED_QUERY} 301`);
 }
 
 const outPath = fileURLToPath(new URL('../redirects.caddy', import.meta.url));

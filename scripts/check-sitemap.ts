@@ -50,8 +50,13 @@ function contentFileExists(base: string, slug: string) {
 	);
 }
 
+/** Products that actually render the Self-Host tab. Must match the route. */
+const selfHostProducts = products.filter((product) =>
+	product.tabs.some((tab) => tab.id === "self-host"),
+);
+
 // 1. Every guide the matrix promises has a source file.
-for (const product of products) {
+for (const product of selfHostProducts) {
 	for (const guide of guidesFor(product.id)) {
 		if (!contentFileExists(SELF_HOST_CONTENT, guide.slug)) {
 			errors.push(
@@ -111,7 +116,7 @@ if (errors.length > 0) {
 	process.exit(1);
 }
 
-const guideCount = products.reduce(
+const guideCount = selfHostProducts.reduce(
 	(total, product) => total + guidesFor(product.id).length,
 	0,
 );

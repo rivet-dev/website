@@ -1,0 +1,165 @@
+---
+title: "Rivet Compute"
+description: "Deploy your backend as a container and let Rivet run it."
+---
+
+Rivet Compute runs your backend for you. You supply a container image; Rivet builds it, pushes it to its own registry, provisions a managed pool, and gives you a URL.
+
+<Note>
+Using an AI coding agent? Open **Connect** on the [Rivet dashboard](https://dashboard.rivet.dev), select **Rivet Cloud**, and paste the one-shot prompt into your agent to have it connect for you.
+</Note>
+
+## Requirements
+
+- A [Rivet Cloud](https://dashboard.rivet.dev) account and project
+- Docker running locally
+- Your app. If you do not have one yet, start from the [Quickstart](/actors/docs/quickstart/backend).
+
+## Steps
+
+<Steps>
+<Step title="Add a Dockerfile">
+
+At your project root:
+
+```dockerfile @nocheck
+FROM node:24-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+CMD ["node", "src/server.js"]
+```
+
+Your server must listen on the port in `RIVET_PORT`, which defaults to `3000`.
+
+</Step>
+<Step title="Get your cloud token">
+
+1. Open the [dashboard](https://dashboard.rivet.dev) and go to your project.
+2. Click **Connect**, then **Rivet Cloud**.
+3. Copy `RIVET_CLOUD_TOKEN`.
+
+This is a `cloud_api_*` management token, not a `pk_*` publishable key. See [Tokens](/cloud/docs#tokens).
+
+</Step>
+<Step title="Deploy">
+
+```bash
+npx @rivetkit/cli deploy --token cloud_api_xxxxx
+```
+
+The token is written to `~/.rivet/credentials`, so later deploys can omit the flag. The CLI resolves your project from the token, builds and pushes the image, upserts the managed pool, and prints the deployment URL once the pool is ready.
+
+</Step>
+<Step title="Watch the rollout">
+
+The dashboard shows live status:
+
+| Status | Meaning |
+| --- | --- |
+| Initializing | Starting the runtime environment |
+| Deploying | Pulling and launching your container |
+| Binding | Connecting the runner to the network |
+| Ready | Live, and accepting actor connections |
+
+<LLMOnly>
+
+If you are an agent polling the API rather than watching the dashboard, use the managed-pool endpoint on the Cloud API.
+
+`RIVET_CLOUD_TOKEN` is a `cloud_api_*` token scoped to `cloud-api.rivet.dev`. Send it as `Authorization: Bearer ...`. A `pk_*` publishable key is scoped to the Engine API at `api.rivet.dev` and will 401 here.
+
+Substitute `$CLOUD_API_URL` (usually `https://cloud-api.rivet.dev`), `$PROJECT`, `$ORG`, `$CLOUD_NAMESPACE`, and `$CLOUD_TOKEN`. Poll every 5 seconds until `status` is `ready`. Stop and investigate if `status` is `error`.
+
+```bash
+curl -s "$CLOUD_API_URL/projects/$PROJECT/namespaces/$CLOUD_NAMESPACE/managed-pools/default?org=$ORG" -H "Authorization: Bearer $CLOUD_TOKEN"
+```
+
+</LLMOnly>
+
+</Step>
+<Step title="Add CI">
+
+Once local deploys work, install the GitHub Actions workflow:
+
+```bash
+npx @rivetkit/cli setup-ci
+```
+
+This writes `.github/workflows/rivet-deploy.yml`. Add the token as a repository secret:
+
+```bash
+gh secret set RIVET_CLOUD_TOKEN
+```
+
+The workflow deploys production on push to your default branch and creates an isolated namespace per pull request. See [Preview Deployments](/cloud/docs/preview-deployments).
+
+</Step>
+</Steps>
+
+## Logs
+
+`rivet logs` prints the last 100 lines from the `default` pool in the `production` namespace, oldest first, then exits.
+
+```bash
+npx @rivetkit/cli logs
+```
+
+Token resolution matches `deploy`: the `--token` flag, then `RIVET_CLOUD_TOKEN`, then `~/.rivet/credentials`.
+
+Add `--follow` (`-f`) to stream instead of fetching history:
+
+```bash
+npx @rivetkit/cli logs --follow
+```
+
+Each line is `<timestamp> [<SEVERITY>] <region> <message>`:
+
+```
+2026-06-16T18:26:51.160Z [INFO] eu-central-1 server listening on port 3000
+2026-06-17T11:24:20.425Z [ERROR] us-east-1 failed to connect to upstream
+```
+
+More examples:
+
+```bash
+# Last 200 lines from a specific namespace
+npx @rivetkit/cli logs --namespace production -n 200
+
+# A specific compute pool
+npx @rivetkit/cli logs --pool my-pool
+
+# Live tail, filtered
+npx @rivetkit/cli logs --follow --contains error
+
+# JSON, piped to jq
+npx @rivetkit/cli logs -n 50 --json | jq .
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+<Accordion title="Stuck in Initializing">
+
+If the status stays in **Initializing** for more than a few minutes:
+
+- Check that `RIVET_CLOUD_TOKEN` is set correctly as a repository secret.
+- Check the GitHub Actions run logs for a failed step.
+
+</Accordion>
+<Accordion title="Status shows Error">
+
+The container is failing to start or exiting immediately. Test the image locally with `docker run` first. Common causes:
+
+- The server file never calls `registry.start()`.
+- A runtime crash on startup.
+- The server is not listening on `RIVET_PORT` (default `3000`).
+
+</Accordion>
+</AccordionGroup>
+
+## Pricing
+
+You are billed for the compute your deployment uses while it is running.
+
+<ComputePricing />

@@ -90,7 +90,7 @@ Use queues to process durable messages in order inside a `run` loop.
 
 Use workflows when your `run` logic needs durable, replayable multi-step execution.
 
-[Documentation](/actors/docs/workflows)
+[Documentation](/workflows/docs)
 
 ### Actor-to-Actor Communication
 
@@ -182,7 +182,7 @@ Use a `run` loop for continuous background work inside an actor. Process queue m
 
 Use this pattern for long-lived, durable workflows that initialize resources, process commands in a loop, then clean up.
 
-[Documentation](/actors/docs/workflows)
+[Documentation](/workflows/docs)
 
 ### Actions vs Queues
 

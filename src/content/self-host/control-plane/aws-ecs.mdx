@@ -1,39 +1,137 @@
 ---
 title: "AWS ECS"
-description: "Run the Rivet control plane on AWS ECS."
+description: "Run the Rivet control plane on AWS ECS with Fargate."
 ---
 
 ## Requirements
 
+- An AWS account with ECS and Fargate available
+- An EFS file system, or an RDS PostgreSQL instance, for persistence
+- An Application Load Balancer in front of the service
+- AWS Secrets Manager, or SSM Parameter Store, for the admin token
 
-<Warning>
-**TODO.** Hard prerequisites for running the control plane on AWS ECS, with versions.
-</Warning>
+<Note>
+A published Terraform module for the control plane does not exist yet. The [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs) covers workers, not the control plane. The steps below are the generic container requirements mapped onto ECS.
+</Note>
+
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical control plane sequence for AWS ECS:
+<Step title="Provision storage">
 
-1. Provision storage: volume, PVC, or disk.
-2. Run the control plane with a pinned image tag.
-3. Configure the minimum viable environment, linking the configuration reference.
-4. Open ports, linking the ports reference.
-5. Verify with a health check and its expected output.
-6. Connect a worker, linking the matching worker guide.
+Fargate task storage is ephemeral, so the data directory must live outside the task.
 
-**Source material:** `website/src/content/_pending-rewrite/self-hosting/aws-ecs.mdx`
-</Warning>
+- **Single node:** create an EFS file system and mount it into the task at `/data`.
+- **Multi-node:** create an RDS PostgreSQL instance instead and skip the volume. Use the direct endpoint, not RDS Proxy, which is not supported. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
+</Step>
+
+<Step title="Store the admin token">
+
+```bash
+aws secretsmanager create-secret \
+  --name rivet/admin-token \
+  --secret-string "$(openssl rand -hex 32)"
+```
+
+Reference it from the task definition's `secrets` block rather than putting it in `environment`.
+
+</Step>
+
+<Step title="Define the task">
+
+Use a pinned image tag, expose both ports, and mount the volume.
+
+```json
+{
+  "family": "rivet-engine",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "1024",
+  "memory": "2048",
+  "containerDefinitions": [
+    {
+      "name": "rivet-engine",
+      "image": "rivetdev/engine:2.3.3",
+      "portMappings": [
+        { "containerPort": 6420 },
+        { "containerPort": 6421 }
+      ],
+      "environment": [
+        { "name": "RIVET__FILE_SYSTEM__PATH", "value": "/data" }
+      ],
+      "secrets": [
+        {
+          "name": "RIVET__AUTH__ADMIN_TOKEN",
+          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:rivet/admin-token"
+        }
+      ],
+      "mountPoints": [
+        { "sourceVolume": "rivet-data", "containerPath": "/data" }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "rivet-data",
+      "efsVolumeConfiguration": { "fileSystemId": "fs-XXXXXXXX" }
+    }
+  ]
+}
+```
+
+1 CPU and 2 GB of RAM is the recommended minimum per instance.
+
+</Step>
+
+<Step title="Raise the ALB idle timeout">
+
+The ALB default is 60 seconds, which severs long-lived WebSockets and causes reconnect storms.
+
+```bash
+aws elbv2 modify-load-balancer-attributes \
+  --load-balancer-arn <arn> \
+  --attributes Key=idle_timeout.timeout_seconds,Value=3600
+```
+
+Point the target group at container port `6420` and terminate TLS on the listener. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+</Step>
+
+<Step title="Configure health checks">
+
+Set the target group health check path to `/health` on port `6421`, with a five second timeout.
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+aws ecs describe-services --cluster <cluster> --services rivet-engine \
+  --query 'services[0].deployments[0].rolloutState'
+```
+
+Expect `COMPLETED`. Then open `/ui` on the load balancer hostname and log in with the admin token.
+
+</Step>
+
+</Steps>
+
 <ProductSlot name="env" />
 
 <ProductSlot name="verify" />
 
+## Scaling past one task
+
+EFS-backed file system storage is single-node: RocksDB cannot be shared between tasks. Before raising the desired count above one, move to RDS PostgreSQL and add NATS for pub/sub. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+
 ## Next steps
 
-- [Production checklist](../control-plane/production-checklist)
-- [Deploy your workers](../workers)
-- [Configuration reference](../control-plane/configuration)
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="workers/aws-ecs">Deploy workers on AWS ECS</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

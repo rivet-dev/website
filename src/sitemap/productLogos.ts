@@ -2,7 +2,9 @@
 // Asset imports are Vite-only, and the sitemap consistency check
 // (`pnpm check:sitemap`) loads the registry under plain tsx.
 //
-// The SVGs are white-on-transparent and get inverted on the porcelain field.
+// The SVGs are white-on-transparent, so their alpha channel is the shape of the
+// mark. Consumers mask an element with them and fill it with the product accent
+// (see `wordmarkMaskStyle` in `src/lib/product-accent.ts`).
 import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
 

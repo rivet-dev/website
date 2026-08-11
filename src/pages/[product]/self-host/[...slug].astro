@@ -7,6 +7,7 @@
 import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { createProductSlot } from '@/components/docs/ProductSlot';
+import { createSelfHostLink } from '@/components/docs/SelfHostLink';
 import { products } from '@/sitemap/products';
 import { guidesFor } from '@/sitemap/deployMatrix';
 import { slotsFor } from '@/sitemap/selfHostSlots';
@@ -21,6 +22,8 @@ export async function getStaticPaths() {
 	const paths = [];
 
 	for (const product of products) {
+		// Rivet Cloud is managed, so it has no Self-Host tab and no guides.
+		if (!product.tabs.some((tab) => tab.id === 'self-host')) continue;
 		for (const guide of guidesFor(product.id)) {
 			// `index` collapses to the section root in the glob loader, so
 			// `workers/index.mdx` has the id `workers`.
@@ -64,5 +67,8 @@ const canonicalPath = guideSlug === 'index'
 	productId={productId}
 	tabId="self-host"
 	canonicalUrl={`https://rivet.dev${canonicalPath}`}
-	extraComponents={{ ProductSlot: createProductSlot(slotsFor(productId, guideSlug)) }}
+	extraComponents={{
+		ProductSlot: createProductSlot(slotsFor(productId, guideSlug)),
+		SelfHostLink: createSelfHostLink(`/${productId}/self-host`),
+	}}
 />

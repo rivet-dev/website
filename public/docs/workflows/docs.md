@@ -1,7 +1,13 @@
 # Introduction
 
-Workflows: durable, replayable multi-step operations.
+Build durable, replayable run loops in Rivet Actors with steps, queue waits, timers, and rollback.
 
-**TODO.** Product overview for Workflows. Explain what it is, when to reach for it, and how it relates to the other Rivet products.
+Use workflows for durable, multi-step execution with replay safety.
 
-**Source material:** `website/src/content/docs/actors/docs/workflows.mdx`
+## What are workflows?
+
+A workflow is a durable, replayable run handler for a Rivet Actor.
+
+- Survives restarts: workflow progress is saved automatically.
+- Re-runs safely: replay follows the same recorded steps.
+- Event-driven: workflows can pause for queue messages, then continue.

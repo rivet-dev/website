@@ -17,12 +17,22 @@ interface Props {
 
 const { title, description, canonicalUrl, sidebar, productId, tabId, sectionLabel } = Astro.props;
 const pathname = Astro.url.pathname;
+// Some tabs are a single page rather than a section (Use Cases). Without a
+// sidebar the two-column docs grid would leave an empty gutter, so the content
+// gets the full width instead.
+const hasSidebar = (sidebar?.length ?? 0) > 0;
 ---
 
 <BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} themeColor="#EFEFEF">
 	<Header variant="full-width" showProductBar={true} light={true} active="docs" sidebarData={sidebar} initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} client:load />
 	<div class="paper-grain selection-paper w-full relative z-10 font-sans">
-		<div class="mx-auto w-full min-h-content flex flex-col md:grid md:grid-cols-docs" style="--header-height: 8.0625rem;">
+		<div
+			class:list={[
+				'mx-auto w-full min-h-content flex flex-col',
+				hasSidebar && 'md:grid md:grid-cols-docs',
+			]}
+			style="--header-height: 8.0625rem;"
+		>
 			<slot />
 		</div>
 	</div>

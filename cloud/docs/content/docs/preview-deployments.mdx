@@ -1,0 +1,76 @@
+---
+title: "Preview Deployments"
+description: "An isolated Rivet namespace for every pull request."
+---
+
+A preview deployment gives each pull request its own Rivet namespace, so branch work never touches production state. The namespace is created when the PR opens and destroyed when it closes.
+
+Which setup you use depends on where your workers run.
+
+## With Rivet Compute
+
+`setup-ci` writes a workflow that already does this:
+
+```bash
+npx @rivetkit/cli setup-ci
+gh secret set RIVET_CLOUD_TOKEN
+```
+
+The generated `.github/workflows/rivet-deploy.yml` deploys production on push to your default branch, creates a namespace per pull request, posts the preview link as a comment, and cleans the namespace up on close. See [Rivet Compute](/cloud/docs/compute).
+
+## With Vercel
+
+Use the [preview-namespace-action](https://github.com/rivet-dev/preview-namespace-action). It creates the namespace and writes `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` into the Vercel preview environment, so the deployment picks them up with no manual configuration.
+
+<Steps>
+<Step title="Add the repository secrets">
+
+- `RIVET_CLOUD_TOKEN` from the [dashboard](https://dashboard.rivet.dev) under **Settings → Advanced → Cloud API Tokens**
+- `VERCEL_TOKEN` from [Vercel account settings](https://vercel.com/account/tokens)
+
+</Step>
+<Step title="Add the workflow">
+
+```yaml .github/workflows/rivet-preview.yml
+name: Rivet Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: rivet-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rivet-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: rivet-dev/preview-namespace-action@v1
+        with:
+          platform: vercel
+          rivet-token: ${{ secrets.RIVET_CLOUD_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+```
+
+</Step>
+</Steps>
+
+The action also configures the Vercel Deployment Protection bypass header, which is otherwise a common source of `401`s from Rivet into preview deployments. See [Vercel](/actors/self-host/workers/vercel).
+
+## On other platforms
+
+Any platform works, as long as the pull-request build gets endpoint values for a fresh namespace instead of production's. Create the namespace with the Cloud API using a `cloud_api_*` token, inject the resulting endpoints as build-time environment variables, and delete the namespace when the pull request closes.
+
+<Warning>
+Never point a preview build at your production namespace. Previews create and destroy actors freely, and that state is shared with whatever else uses the namespace.
+</Warning>
+
+## Next steps
+
+- [Rivet Compute](/cloud/docs/compute)
+- [Tokens](/cloud/docs#tokens)

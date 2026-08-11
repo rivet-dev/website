@@ -1,30 +1,43 @@
 "use client";
 
 import { usePathname } from "@/hooks/usePathname";
-import { findProductForPath, products, type Product } from "@/sitemap/products";
+import { Icon } from "@rivet-gg/icons";
+import {
+	findProductForPath,
+	products,
+	visibleTabs,
+	type Product,
+} from "@/sitemap/products";
 import { productLogos } from "@/sitemap/productLogos";
+import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
-import { Icon, faCheck, faChevronDown } from "@rivet-gg/icons";
-import { useEffect, useRef, useState } from "react";
 
-// Product wordmarks are white-on-transparent, so they need inverting on the
-// porcelain field. Glyph fallbacks already inherit the ink color.
+/**
+ * A product's mark, carrying that product's accent color.
+ *
+ * The wordmarks are white-on-transparent SVGs, so they are painted as a masked
+ * element rather than an `<img>`: the SVG supplies the silhouette and a
+ * Tailwind background class supplies the hue. Glyph fallbacks take the same
+ * accent as a text color. `tone="cream"` is for the dark Learn shell and the
+ * dark mobile sheet, where the muted accents would sink into the background.
+ */
 export function ProductMark({
 	product,
 	className,
-}: { product: Product; className?: string }) {
+	tone = "accent",
+}: { product: Product; className?: string; tone?: "accent" | "cream" }) {
+	const accent = productAccent(product.id);
 	const logo = productLogos[product.id];
 	if (logo) {
 		return (
-			<img
-				src={logo.src}
-				alt=""
+			<span
 				aria-hidden="true"
-				width={18}
-				height={18}
-				className={cn("shrink-0 invert opacity-85", className)}
-				loading="lazy"
-				decoding="async"
+				style={wordmarkMaskStyle(logo.src)}
+				className={cn(
+					"inline-block shrink-0",
+					tone === "cream" ? "bg-cream" : (accent?.fill ?? "bg-ink"),
+					className,
+				)}
 			/>
 		);
 	}
@@ -33,111 +46,59 @@ export function ProductMark({
 			<Icon
 				icon={product.icon}
 				aria-hidden="true"
-				className={cn("shrink-0 text-ink-soft", className)}
+				className={cn(
+					"shrink-0",
+					tone === "cream" ? "text-cream" : (accent?.text ?? "text-ink-soft"),
+					className,
+				)}
 			/>
 		);
 	}
 	return null;
 }
 
-function ProductSwitcher({
+/**
+ * Which product the subnav belongs to.
+ *
+ * Not a switcher: `Products` in the top row is the one place products are
+ * chosen, so a second control here was the same menu twice, one line apart.
+ */
+function ProductLabel({
 	current,
-	currentTabId,
 	label,
 }: {
 	current?: Product;
-	currentTabId: string;
 	/** Used by docs sections that are not a product vertical (integrations). */
 	label?: string;
 }) {
-	const [isOpen, setIsOpen] = useState(false);
-	const containerRef = useRef<HTMLDivElement>(null);
+	const accent = current ? productAccent(current.id) : undefined;
 
-	useEffect(() => {
-		if (!isOpen) return;
-		const onPointerDown = (event: PointerEvent) => {
-			if (!containerRef.current?.contains(event.target as Node)) {
-				setIsOpen(false);
-			}
-		};
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "Escape") setIsOpen(false);
-		};
-		document.addEventListener("pointerdown", onPointerDown);
-		document.addEventListener("keydown", onKeyDown);
-		return () => {
-			document.removeEventListener("pointerdown", onPointerDown);
-			document.removeEventListener("keydown", onKeyDown);
-		};
-	}, [isOpen]);
-
+	// Same treatment as the Products dropdown: the color is the tile behind the
+	// mark, and the mark and name are left uncolored.
 	return (
-		<div ref={containerRef} className="relative">
-			<button
-				type="button"
-				aria-expanded={isOpen}
-				aria-haspopup="menu"
-				onClick={() => setIsOpen((prev) => !prev)}
-				className="flex h-9 items-center gap-2 rounded-lg border border-ink/15 bg-white/55 pl-2.5 pr-2 text-sm text-ink transition-colors hover:border-ink/30"
-			>
-				{current && (
-					<ProductMark product={current} className="h-[18px] w-[18px]" />
-				)}
-				<span className="font-medium">{current?.name ?? label}</span>
-				<Icon
-					icon={faChevronDown}
+		<span className="flex h-9 items-center gap-2 pr-1 text-sm text-ink">
+			{current && (
+				<span
 					aria-hidden="true"
 					className={cn(
-						"h-3 w-3 text-ink-faint transition-transform duration-150",
-						isOpen && "rotate-180",
+						"flex size-7 shrink-0 items-center justify-center rounded-lg",
+						accent?.fill ?? "bg-ink/20",
 					)}
-				/>
-			</button>
-
-			<div
-				role="menu"
-				className={cn(
-					"absolute left-0 top-full z-50 mt-2 w-[24rem] overflow-hidden rounded-2xl border border-ink/10 bg-paper/95 p-1.5 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition-all duration-150",
-					isOpen
-						? "pointer-events-auto translate-y-0 opacity-100"
-						: "pointer-events-none -translate-y-1 opacity-0",
-				)}
-			>
-				{products.map((product) => {
-					const isCurrent = product.id === current?.id;
-					// Switching products keeps you on the same tab, which is the
-					// whole point of the switcher: compare Deploy to Deploy.
-					const target =
-						product.tabs.find((tab) => tab.id === currentTabId)?.href ??
-						product.tabs[0].href;
-					return (
-						<a
-							key={product.id}
-							href={target}
-							role="menuitem"
-							className="flex items-center gap-2.5 rounded-xl px-3 py-2 transition-colors hover:bg-ink/[0.07]"
-						>
-							<ProductMark product={product} className="h-[18px] w-[18px]" />
-							<div className="min-w-0 flex-1">
-								<div className="text-sm font-medium leading-tight text-ink">
-									{product.name}
-								</div>
-								<div className="text-xs leading-tight text-ink-faint">
-									{product.description}
-								</div>
-							</div>
-							{isCurrent && (
-								<Icon
-									icon={faCheck}
-									aria-hidden="true"
-									className="h-3 w-3 text-pine"
-								/>
-							)}
-						</a>
-					);
-				})}
-			</div>
-		</div>
+				>
+					<ProductMark
+						product={current}
+						className="h-[15px] w-[15px]"
+						tone="cream"
+					/>
+				</span>
+			)}
+			<span className="font-medium">{current?.name ?? label}</span>
+			{current?.badge && (
+				<span className="px-[6px] py-0 text-[10px] font-medium bg-ink/[0.06] border border-ink/10 text-ink-soft rounded-sm whitespace-nowrap">
+					{current.badge}
+				</span>
+			)}
+		</span>
 	);
 }
 
@@ -171,22 +132,25 @@ export function ProductBar({
 
 	return (
 		<div className="-mx-8 hidden h-14 items-center gap-5 bg-[#e9e9eb] px-8 md:flex">
-			<ProductSwitcher
-				current={product}
-				currentTabId={activeTabId ?? "docs"}
-				label={sectionLabel}
-			/>
+			<ProductLabel current={product} label={sectionLabel} />
 			<div className="flex h-full items-center gap-4">
-				{product?.tabs.map((tab) => (
-					<a
-						key={tab.id}
-						href={tab.href}
-						aria-current={tab.id === activeTabId ? "page" : undefined}
-						className="flex h-full items-center rounded-none border-b-2 border-transparent px-0 text-sm text-ink-faint transition-colors hover:text-ink-soft aria-[current=page]:border-pine aria-[current=page]:text-ink"
-					>
-						{tab.title}
-					</a>
-				))}
+				{product && visibleTabs(product).map((tab) => {
+					const accent = productAccent(product.id);
+					return (
+						<a
+							key={tab.id}
+							href={tab.href}
+							aria-current={tab.id === activeTabId ? "page" : undefined}
+							className={cn(
+								"flex h-full items-center rounded-none border-b-2 border-transparent px-0 text-sm text-ink-faint transition-colors hover:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e9e9eb]",
+									accent?.activeBorder ?? "aria-current-page:border-pine",
+								accent?.focusRing ?? "focus-visible:ring-pine",
+							)}
+						>
+							{tab.title}
+						</a>
+					);
+				})}
 			</div>
 		</div>
 	);

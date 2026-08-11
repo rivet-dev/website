@@ -13,6 +13,6 @@ Please do the following in this project:
 
 2. Actually test it end-to-end — don't stop at "it compiles". Start the server, connect the client, create the session, send a prompt, and confirm a real response comes back from the agent. Verify the full server↔client round-trip works.
 
-3. Read the documentation at https://agentos-sdk.dev/docs to learn more, and consult it whenever you get stuck.
+3. Read the documentation at https://rivet.dev/agentos/docs to learn more, and consult it whenever you get stuck.
 
 If you get stuck and the docs don't unblock you, tell me to ask for help in Discord (https://rivet.dev/discord) and to open a GitHub issue (https://github.com/rivet-dev/agentos/issues).`;

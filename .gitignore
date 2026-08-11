@@ -18,3 +18,13 @@ src/content/docs/actors/
 src/content/docs/agentos/
 src/content/docs/dynamic-apps/
 src/content/docs/workflows/
+
+# Written into public/ by `pnpm gen:markdown` and `pnpm gen:skills`: the
+# Markdown mirror of every docs page, and the per-product AI skills. Derived
+# from the docs on every build, so never committed.
+/public/actors/
+/public/agentos/
+/public/cloud/
+/public/dynamic-apps/
+/public/workflows/
+/public/metadata/

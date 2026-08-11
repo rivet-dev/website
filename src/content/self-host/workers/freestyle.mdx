@@ -1,0 +1,126 @@
+---
+title: "Freestyle"
+description: "Run Rivet workers on Freestyle."
+---
+
+[Freestyle](https://freestyle.sh) runs untrusted code in a sandboxed Deno runtime, which makes it a natural host for AI-generated backends. Workers run in **serverless** mode: the control plane calls your deployment to start actors.
+
+<CardGroup>
+<Card title="Freestyle + Rivet example" href="https://github.com/rivet-dev/rivet/tree/main/examples/ai-and-user-generated-actors-freestyle" target="_blank">
+A complete deployment, end to end.
+</Card>
+</CardGroup>
+
+## Requirements
+
+- A [Freestyle](https://freestyle.sh) account
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
+
+<ProductSlot name="requirements" />
+
+<ProductSlot name="caveats" />
+
+## Steps
+
+<Steps>
+
+<Step title="Add a Deno entrypoint">
+
+Freestyle serves web deployments with Deno, so the entrypoint hands requests to the registry handler.
+
+```typescript server.ts @nocheck
+import { registry } from "./index";
+
+// Deno is provided by Freestyle's runtime.
+// @ts-ignore
+Deno.serve((request: Request) => registry.handler(request));
+```
+
+<ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Deploy">
+
+```typescript @nocheck
+const FREESTYLE_DOMAIN = "my-domain.style.dev";
+
+const res = await freestyle.deployWeb(buildDir, {
+  envVars: {
+    FREESTYLE_ENDPOINT: `https://${FREESTYLE_DOMAIN}`,
+    RIVETKIT_RUNTIME_MODE: "serverless",
+    RIVET_ENDPOINT: "https://your-namespace:sk_...@api.rivet.dev",
+  },
+  timeout: 60 * 5,
+  entrypoint: "server.ts",
+  domains: [FREESTYLE_DOMAIN],
+  build: false,
+});
+```
+
+| Setting | Why |
+| --- | --- |
+| `timeout` | Maximum request lifetime. Actors live inside a request, so keep this high. Five minutes is a reasonable floor. |
+| `entrypoint` | The file that starts the serverless handler |
+| `domains` | Your Freestyle domain |
+| `build: false` | Skip Freestyle's build if you pre-build your assets |
+
+`RIVETKIT_RUNTIME_MODE=serverless` is required. Without it the app defaults to runner mode, which does not fit Freestyle's request-driven model. See [Freestyle's web docs](https://docs.freestyle.sh/web/web) for `buildDir` and the other options.
+
+</Step>
+
+<Step title="Register the runner">
+
+Point the control plane at the deployment. `requestLifespan` must be shorter than Freestyle's `timeout`, or the platform kills the request before actors migrate.
+
+```typescript @nocheck
+import { RivetClient } from "@rivetkit/engine-api-full";
+
+const rivet = new RivetClient({
+  environment: "https://api.rivet.dev",
+  token: process.env.RIVET_API_TOKEN,
+});
+
+await rivet.runnerConfigsUpsert("freestyle-runner", {
+  namespace: "my-rivet-namespace",
+  datacenters: {
+    default: {
+      serverless: {
+        url: `https://${FREESTYLE_DOMAIN}/api/rivet`,
+        runnersMargin: 1,
+        minRunners: 1,
+        maxRunners: 1,
+        slotsPerRunner: 1,
+        requestLifespan: 60 * 5 - 5,
+      },
+    },
+  },
+});
+```
+
+| Field | Meaning |
+| --- | --- |
+| `url` | The deployment's `/api/rivet` base path. The control plane appends `/start` itself. |
+| `runnersMargin` | Spare runners kept warm |
+| `minRunners` / `maxRunners` | Scaling bounds |
+| `slotsPerRunner` | Concurrent actors per runner |
+| `requestLifespan` | Request lifetime, kept just under Freestyle's `timeout` |
+
+</Step>
+
+<Step title="Verify">
+
+Once the runner config is applied, the deployment appears as connected in the dashboard.
+
+</Step>
+
+</Steps>
+
+<ProductSlot name="env" />
+
+<ProductSlot name="verify" />
+
+## Next steps
+
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>

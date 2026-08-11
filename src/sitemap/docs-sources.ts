@@ -18,17 +18,30 @@
  * Note `actors` -> `rivet`: the Actors product lives in the main Rivet repo, so
  * the mapping cannot be derived from the product id.
  */
+import { PRODUCTS } from "./product-metadata";
+
 export interface DocsSource {
 	/** Repository (and sibling directory) name. */
 	repo: string;
+	/**
+	 * Bundle path inside this repo, for products with no sibling repository.
+	 * Takes precedence over `repo`.
+	 */
+	localBundle?: string;
+	/** Product whose repo owns this one's snippets, if not its own. */
+	snippetFrom?: string;
 }
 
-export const DOCS_SOURCES: Record<string, DocsSource> = {
-	actors: { repo: "rivet" },
-	agentos: { repo: "agentos" },
-	"dynamic-apps": { repo: "dynamic-apps" },
-	workflows: { repo: "workflows" },
-};
+export const DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
+	PRODUCTS.map((product) => [
+		product.id,
+		{
+			repo: product.repo,
+			localBundle: product.localBundle,
+			snippetFrom: product.snippetFrom,
+		},
+	]),
+);
 
 export const DOCS_PRODUCT_IDS = Object.keys(DOCS_SOURCES);
 

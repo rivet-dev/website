@@ -1,6 +1,7 @@
 "use client";
 
 import { remToPx } from "@/lib/remToPx";
+import { type ProductAccent, productAccent } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
 import { motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
@@ -86,13 +87,14 @@ function useCurrentSection(tableOfContents = []) {
 	return currentSection;
 }
 
-function NavLink({ id, isActive, children }) {
+function NavLink({ id, isActive, accent, children }) {
 	return (
 		<>
 			<a href={`#${id}`}
 				aria-current={isActive ? "page" : undefined}
 				className={cn(
-					"group flex w-full items-center rounded-md border border-transparent px-2 py-1 text-sm text-ink-soft hover:text-ink aria-current-page:text-ink",
+					"group flex w-full items-center rounded-md border border-transparent px-2 py-1 text-sm text-ink-soft transition-colors hover:text-ink",
+					accent?.activeText ?? "aria-current-page:text-ink",
 				)}
 			>
 				<span className="truncate">{children}</span>
@@ -123,7 +125,7 @@ export function ActiveSectionMarker({ prefix }) {
 	);
 }
 
-function Tree({ sections, isActive, depth = 0 }) {
+function Tree({ sections, isActive, accent, depth = 0 }) {
 	return (
 		<>
 			<ul>
@@ -136,6 +138,7 @@ function Tree({ sections, isActive, depth = 0 }) {
 									key={section.id}
 									id={section.id}
 									isActive={isCurrentSectionActive}
+									accent={accent}
 								>
 									{section.title}
 								</NavLink>
@@ -146,6 +149,7 @@ function Tree({ sections, isActive, depth = 0 }) {
 									<Tree
 										sections={section.children}
 										isActive={isActive}
+										accent={accent}
 										depth={depth + 1}
 									/>
 								</div>
@@ -162,12 +166,16 @@ interface DocsTableOfContentsProps {
 	// biome-ignore lint/suspicious/noExplicitAny: FIXME
 	tableOfContents: any;
 	className?: string;
+	/** Product vertical this page belongs to; omitted for integrations. */
+	productId?: string;
 }
 export function DocsTableOfContents({
 	tableOfContents: providedToc,
 	className,
+	productId,
 }: DocsTableOfContentsProps) {
 	const tableOfContents = providedToc;
+	const accent: ProductAccent | undefined = productAccent(productId);
 
 	const currentSection = useCurrentSection(tableOfContents);
 	const ref = useScrollToActiveLink(currentSection);
@@ -196,7 +204,7 @@ export function DocsTableOfContents({
 		>
 			<div className="relative">
 				<div className="relative">
-					<Tree sections={tableOfContents} isActive={isActive} />
+					<Tree sections={tableOfContents} isActive={isActive} accent={accent} />
 				</div>
 			</div>
 		</div>

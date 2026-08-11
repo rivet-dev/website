@@ -2,7 +2,9 @@
 
 import { Blocks, LayoutGrid, Terminal, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { integrations } from '@/data/integrations';
+import { integrationsFor } from '@/data/integrations';
+
+const integrations = integrationsFor('actors');
 import { SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
 import { GLOW_PILL_CLASS, handleGlowPillMouseMove } from '../glowPill';
 
@@ -98,8 +100,7 @@ export const IntegrationsSection = () => (
               { name: 'Pino', href: '/actors/docs/general/logging' },
               { name: 'AI SDK', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/ai-agent', external: true },
               { name: 'OpenAPI', href: 'https://github.com/rivet-dev/rivet/tree/main/rivetkit-openapi', external: true },
-              { name: 'AsyncAPI', href: 'https://github.com/rivet-dev/rivet/tree/main/rivetkit-asyncapi', external: true },
-              { name: 'TypeDoc', href: '/typedoc', external: true }
+              { name: 'AsyncAPI', href: 'https://github.com/rivet-dev/rivet/tree/main/rivetkit-asyncapi', external: true }
             ].map(tech => (
               <a
                 key={tech.name}
@@ -124,7 +125,7 @@ export const IntegrationsSection = () => (
           {integrations.map(integration => (
             <a
               key={integration.title}
-              href={integration.href}
+              href={`/actors/integrations/${integration.slug}`}
               onMouseMove={handleGlowPillMouseMove}
               className={STACK_LINK_CLASS}
             >

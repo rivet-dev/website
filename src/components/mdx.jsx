@@ -73,7 +73,7 @@ export const Lead = ({ children }) => {
 };
 
 // Content wrapped in <LLMOnly>...</LLMOnly> is hidden from the rendered page but
-// preserved in /llms-full.txt for LLM consumers. See llms-full.txt.ts for the
+// preserved in /llms.txt for LLM consumers. See llms.txt.ts for the
 // build-time unwrap step.
 export const LLMOnly = () => null;
 
@@ -137,3 +137,4 @@ export const Tooltip = ({ tip, children }) => {
     </span>
   );
 };
+export { IntegrationCards } from '@/components/docs/IntegrationCards';

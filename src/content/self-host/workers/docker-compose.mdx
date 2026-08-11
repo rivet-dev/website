@@ -1,35 +1,97 @@
 ---
 title: "Docker Compose"
-description: "Run Rivet workers on Docker Compose."
+description: "Run Rivet workers with Docker Compose."
 ---
+
+Workers run in **runner** mode here: the container opens a connection out to the control plane on startup. It needs no published port.
 
 ## Requirements
 
+- Docker with the Compose plugin
+- A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<Warning>
-**TODO.** Hard prerequisites for Docker Compose, with versions.
-</Warning>
 <ProductSlot name="requirements" />
 
 <ProductSlot name="caveats" />
 
 ## Steps
 
+<Steps>
 
-<Warning>
-**TODO.** Canonical worker sequence for Docker Compose:
+<Step title="Package your app">
 
-1. Package your app with a Dockerfile.
-2. Build and push the image.
-3. Configure the connection. Environment variables, tabbed Rivet Cloud / self-hosted.
-4. Deploy using the Docker Compose command.
-5. Verify, showing the output where the worker registers.
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+CMD ["node", "server.js"]
+```
 
-Every command shows its expected output. Six steps is the ceiling. Do not restate the ports or configuration references.
+`CMD` invokes the binary directly rather than `npm start`, so the process receives `SIGTERM` and can drain.
 
-**Source material:** `website/src/content/_pending-rewrite/deploy/docker-compose.mdx`
-</Warning>
 <ProductSlot name="snippet" />
+
+</Step>
+
+<Step title="Add the service">
+
+`stop_grace_period` matters here. Actors drain for up to 30 minutes, and Compose's default of 10 seconds cuts them off.
+
+```yaml
+services:
+  my-app:
+    build: .
+    environment:
+      RIVET_ENDPOINT: "${RIVET_ENDPOINT}"
+      RIVET_PUBLIC_ENDPOINT: "${RIVET_PUBLIC_ENDPOINT}"
+    stop_grace_period: 35m
+    restart: unless-stopped
+```
+
+Both endpoint values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. Put them in a `.env` file next to the Compose file and keep it out of version control.
+
+</Step>
+
+<Step title="Run alongside a self-hosted control plane">
+
+When both halves live in the same Compose file, the worker reaches the control plane by service name over the Compose network:
+
+```yaml
+  my-app:
+    build: .
+    environment:
+      RIVET_ENDPOINT: "http://default:${RIVET_ADMIN_TOKEN}@rivet-engine:6420"
+    depends_on:
+      - rivet-engine
+    stop_grace_period: 35m
+    restart: unless-stopped
+```
+
+See <SelfHostLink to="control-plane/docker-compose">the control plane guide</SelfHostLink> for the other half of this file.
+
+</Step>
+
+<Step title="Start it">
+
+```bash
+docker compose up -d
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+docker compose ps
+```
+
+The service should be `running`. It then appears under **Runners** in the dashboard.
+
+</Step>
+
+</Steps>
 
 <ProductSlot name="env" />
 
@@ -37,6 +99,5 @@ Every command shows its expected output. Six steps is the ceiling. Do not restat
 
 ## Next steps
 
-- [Production checklist](../workers/production-checklist)
-- [Deploy the control plane](../control-plane) or use [Rivet Cloud](https://dashboard.rivet.dev)
-- Observability: logging and metrics for your product
+- <SelfHostLink to="workers/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/docker-compose">Run the control plane with Docker Compose</SelfHostLink>

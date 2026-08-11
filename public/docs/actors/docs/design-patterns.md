@@ -126,9 +126,3 @@ Actors are designed to maintain state across multiple requests. Creating a new a
 **Problem:**
 
 **Solution:** Use actors for entities that persist (users, sessions, documents), not for one-off operations. For stateless request handling, use regular functions.
-
-## API Reference
-
-- [`ActorDefinition`](/typedoc/interfaces/rivetkit.mod.ActorDefinition.html) - Interface for pattern examples
-- [`ActorContext`](/typedoc/interfaces/rivetkit.mod.ActorContext.html) - Context usage patterns
-- [`ActionContext`](/typedoc/interfaces/rivetkit.mod.ActionContext.html) - Action patterns
