@@ -1,14 +1,7 @@
 ---
 title: "Reference"
-description: "Step-only access to actor APIs, workflow history debugging, and recommendations."
-skill: true
+description: "Workflow history debugging and recommendations."
 ---
-
-## Step-only access to actor APIs
-
-`state`, `vars`, `db`, `client()`, and connection/event APIs are only valid inside `ctx.step(...)` callbacks.
-
-Use non-step workflow code for orchestration only: queue waits, sleeps, loops, joins, races, and rollback boundaries. Keep actor-local side effects in steps.
 
 ## Debugging
 

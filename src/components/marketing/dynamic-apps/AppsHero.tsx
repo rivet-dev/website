@@ -204,8 +204,9 @@ export const AppsHero = ({
 	const product = getProduct('dynamic-apps');
 
 	return (
+	<>
 	<section className='relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20'>
-		<div className='mx-auto w-full max-w-7xl'>
+		<div className='mx-auto w-full max-w-5xl'>
 			<div className='mx-auto flex max-w-5xl flex-col items-center text-center'>
 				{product && (
 					<div className='mb-7 flex'>
@@ -231,8 +232,12 @@ export const AppsHero = ({
 					</a>
 				</div>
 			</div>
+		</div>
+	</section>
 
-			<div className='mt-14 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
+	<section className='border-t border-ink/10 bg-paper px-6 py-20 md:py-28'>
+		<div className='mx-auto w-full max-w-7xl'>
+			<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 				<div>
 					<ul className='space-y-4'>
 						{appsFeatures.map((feature) => {
@@ -257,6 +262,7 @@ export const AppsHero = ({
 			</div>
 		</div>
 	</section>
+	</>
 	);
 };
 

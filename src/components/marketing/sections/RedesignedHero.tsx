@@ -289,8 +289,8 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
               transition={{ duration: 0.5 }}
               className={`mb-5 ${HERO_H1_CLASS}`}
             >
-              The infrastructure stack <br />
-              for the AI era.
+              Infrastructure for the <br />
+              agentic era.
             </motion.h1>
 
             <motion.p

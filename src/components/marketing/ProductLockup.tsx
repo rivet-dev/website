@@ -28,7 +28,7 @@ export function ProductLockup({ product }: { product: Product }) {
 				<Icon
 					icon={product.icon}
 					aria-hidden="true"
-					className="shrink-0 text-[2.25rem] leading-none text-ink md:text-[2.5rem]"
+					className="shrink-0 text-[1.75rem] leading-none text-ink md:text-[2rem]"
 				/>
 			) : null}
 			<span className="text-2xl font-medium tracking-[-0.01em] text-ink md:text-3xl">

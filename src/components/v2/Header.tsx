@@ -185,7 +185,7 @@ function ProductsDropdown({
 								key={product.href}
 								href={product.href}
 								className={cn(
-									"group/product-row flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-ink transition-colors",
+									"group/product-row flex min-h-[3.25rem] items-center gap-2.5 rounded-xl px-3 py-1.5 text-ink transition-colors",
 									product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
 								)}
 							>

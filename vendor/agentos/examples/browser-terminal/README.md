@@ -22,12 +22,13 @@ Agent OS actor (`agentOS()` from `@rivet-dev/agentos`) over its live
 ```
 Browser (React + xterm.js)                Node (server.ts)
   ├─ useActor({ name:"shellVm", key })      ├─ agentOS({ software:[…] })
-  ├─ openShell / writeShell / resize ──────▶│    setup({ use:{ shellVm } })
-  ├─ closeShell                             │    registry.start()
-  └─ conn.on("shellData"|"shellExit") ◀────┘  openShell ─▶ broadcast events
+  ├─ terminal.open/write/resize ───────────▶│    setup({ use:{ shellVm } })
+  ├─ terminal.close                         │    registry.start()
+  └─ conn.on("shellData"|"shellExit") ◀────┘  terminal.open ─▶ broadcast events
 ```
 
-The browser opens a shell with `openShell`, sends keystrokes with `writeShell`,
+The browser opens a shell with `terminal.open`, sends keystrokes with
+`terminal.write`,
 and renders the ordered stdout/stderr bytes delivered by the `shellData` broadcast
 **event** (routed to the right tab by `shellId`, with a small buffer for output
 that arrives before a tab subscribes). `shellStderr` remains available as an
@@ -70,10 +71,11 @@ Override the web→server endpoint with `VITE_AGENTOS_ENDPOINT` (default
 - Software: `@agentos-software/common` (provides `sh` + coreutils) plus `git`,
   `curl`, `ripgrep`, `jq`, and `sqlite3`. Agent OS has no vim/editor package, so
   there is no in-VM editor.
-- The shipped actor has no `listShells` action and keeps no server-side
-  scrollback, so reconnect re-adopts saved shell ids and resumes **live** output
-  only (history from before the reload is not replayed). Stale ids (VM recreated)
-  are dropped after a liveness probe.
+- This client predates the actor's `listShells` and `shellSnapshot` actions: it
+  re-adopts saved shell ids on reconnect and resumes **live** output only, so
+  history from before the reload is not replayed. Stale ids (VM recreated) are
+  dropped after a liveness probe. The dashboard Terminal tab uses the
+  server-owned list and server-rendered repaint instead.
 - The VM shell is line-buffered (it only echoes a line on Enter), so the client
   does **local echo + line editing** (printable chars, Backspace, Ctrl-C) and
   suppresses the shell's own echo of the submitted line to avoid double display.
