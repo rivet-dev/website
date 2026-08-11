@@ -22,8 +22,16 @@ COPY . .
 ARG FONTAWESOME_PACKAGE_TOKEN=""
 ENV FONTAWESOME_PACKAGE_TOKEN=${FONTAWESOME_PACKAGE_TOKEN}
 
-# Install dependencies (with pnpm store cache)
-RUN --mount=type=cache,id=s/3e31e381-166e-4a85-983a-a49830a88b96-/pnpm/store,target=/pnpm/store \
+# Install dependencies (with pnpm store cache).
+#
+# Railway scopes build caches per service and rejects any cache mount whose id
+# is not prefixed with that service's own key, so the uuid below is this
+# service's id and not a value that can be shared or invented. Recreating the
+# Railway service changes it, and the build then fails at parse time with
+# "missing the cacheKey prefix from its id". Read the current one from the
+# service's RAILWAY_SERVICE_ID variable and update this line to match. Other
+# builders ignore the id, so it is inert outside Railway.
+RUN --mount=type=cache,id=s/d133ea35-d9c8-4da7-a34c-b115adf85a9e-/pnpm/store,target=/pnpm/store \
     pnpm install --no-frozen-lockfile
 
 # Build arguments for PUBLIC_* environment variables
