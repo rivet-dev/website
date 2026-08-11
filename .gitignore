@@ -14,10 +14,14 @@ src/generated/
 # Assembled by scripts/assemble.mjs — each product's docs are symlinked in from
 # its own repo (sibling checkout) or from vendor/ as a fallback. Never commit
 # these; edit the source repo instead.
-src/content/docs/actors/
-src/content/docs/agentos/
-src/content/docs/dynamic-apps/
-src/content/docs/workflows/
+# No trailing slashes: these are symlinks, not directories, and a trailing
+# slash matches only directories. With one, git happily tracks the link itself
+# and a developer's local target path ends up committed.
+src/content/docs/actors
+src/content/docs/agentos
+src/content/docs/cloud
+src/content/docs/dynamic-apps
+src/content/docs/workflows
 
 # Written into public/ by `pnpm gen:markdown` and `pnpm gen:skills`: the
 # Markdown mirror of every docs page, and the per-product AI skills. Derived
