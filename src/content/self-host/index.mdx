@@ -3,40 +3,59 @@ title: "Self-Host"
 description: "Run your workers, the control plane, or both on your own infrastructure."
 ---
 
-Rivet has two halves, and you can host either one yourself.
+## Self-Host vs BYOC
 
-- The **control plane** routes, schedules, and persists. It is stateful.
-- A **worker** is a process running your code with the Rivet SDK. Workers connect outbound to a control plane.
+Rivet provides two deployment models.
 
-## Deployment models
+**Self-Host**: You manage the complete stack, including your workers, the control plane, and storage. This has higher complexity but enables air-gapped deployments and custom security policies.
 
-| | Control plane: Rivet | Control plane: yours |
-| --- | --- | --- |
-| **Workers: Rivet** | Fully managed | Not available |
-| **Workers: yours** | BYOC | Full self-hosting |
-
-Rivet can run the control plane for you at [dashboard.rivet.dev](https://dashboard.rivet.dev). Running your own workers against it is the middle cell, usually called BYOC, and it is documented in the Workers section below.
-
-<svg viewBox="0 0 760 150" role="img" aria-label="Your backend, running an envoy, connected bidirectionally to the control plane, which is connected bidirectionally to storage." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
-  <defs><marker id="self-host-overview-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
-  <g stroke="#1b1916" stroke-width="1.4"><rect x="35" y="43" width="180" height="64" rx="7" fill="#ffffff"/><rect x="290" y="43" width="180" height="64" rx="7" fill="#e7ece7"/><rect x="545" y="43" width="180" height="64" rx="7" fill="#ffffff"/></g>
-  <g text-anchor="middle" fill="#1b1916"><text x="125" y="69" font-size="14" font-weight="600">Worker</text><text x="125" y="89" font-size="12" fill="#56524a">(your code)</text><text x="380" y="81" font-size="14" font-weight="600">Control plane</text><text x="635" y="69" font-size="14" font-weight="600">Storage</text><text x="635" y="89" font-size="12" fill="#56524a">(FS, PG, or FDB)</text></g>
-  <g stroke="#2E4034" stroke-width="1.4"><line x1="216" y1="75" x2="289" y2="75" marker-start="url(#self-host-overview-arrow)" marker-end="url(#self-host-overview-arrow)"/><line x1="471" y1="75" x2="544" y2="75" marker-start="url(#self-host-overview-arrow)" marker-end="url(#self-host-overview-arrow)"/></g>
+<svg viewBox="0 0 760 210" role="img" aria-label="Self-hosted architecture with a worker, the control plane, and storage connected bidirectionally inside your infrastructure." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <rect x="20" y="25" width="720" height="160" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="42" y="51" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">YOUR INFRASTRUCTURE</text>
+  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="82" width="170" height="64" rx="7" fill="#ffffff"/><rect x="295" y="82" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="520" y="82" width="170" height="64" rx="7" fill="#ffffff"/></g>
+  <g text-anchor="middle" fill="#1b1916"><text x="155" y="108" font-size="14" font-weight="600">Worker</text><text x="155" y="128" font-size="12" fill="#56524a">(your code)</text><text x="380" y="120" font-size="14" font-weight="600">Control plane</text><text x="605" y="120" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="#2E4034" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
 </svg>
 
-The worker opens the connection outbound to the control plane, so a worker never needs a public URL or an inbound firewall rule. It only needs to reach the control plane.
+**BYOC with Rivet Cloud**: You only manage your workers while Rivet Cloud runs the control plane and storage. This typically has lower operational overhead and supports serverless workers.
 
-## Choosing
+<svg viewBox="0 0 760 230" role="img" aria-label="BYOC architecture with a worker in your infrastructure connected bidirectionally to the control plane and storage in Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="byoc-cloud-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <rect x="20" y="25" width="230" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/><rect x="290" y="25" width="450" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034"><text x="42" y="51">YOUR INFRASTRUCTURE</text><text x="312" y="51">RIVET CLOUD</text></g>
+  <g stroke="#1b1916" stroke-width="1.4"><rect x="50" y="88" width="170" height="64" rx="7" fill="#ffffff"/><rect x="325" y="88" width="160" height="64" rx="7" fill="#e7ece7"/><rect x="550" y="88" width="155" height="64" rx="7" fill="#ffffff"/></g>
+  <g text-anchor="middle" fill="#1b1916"><text x="135" y="114" font-size="14" font-weight="600">Worker</text><text x="135" y="134" font-size="12" fill="#56524a">(your code)</text><text x="405" y="126" font-size="14" font-weight="600">Control plane</text><text x="627" y="126" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="#2E4034" stroke-width="1.4"><line x1="221" y1="120" x2="324" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/><line x1="486" y1="120" x2="549" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/></g>
+</svg>
 
-|  | Self-host both | BYOC |
+| | Self-Host | BYOC with Rivet Cloud |
 | --- | --- | --- |
 | **You manage** | Workers, control plane, and storage | Workers only |
 | **Complexity** | Higher | Lower |
 | **Cost** | Higher operational overhead | Usually lower usage-based cost |
 | **Serverless workers** | Requires the extra control plane infrastructure | Yes |
-| **Air-gapped** | Yes | No |
-| **Best for** | Air-gapped environments, strict compliance, custom security policies | Everything else |
+| **Air-gapped deployments** | Yes | No |
+| **Best for** | Air-gapped environments, strict compliance, custom security policies | All other production deployments |
 | **Support** | [Contact sales](/sales) or community | Community, Slack, and email, varying by plan |
+
+Rivet runs the control plane for you at [dashboard.rivet.dev](https://dashboard.rivet.dev). Running your own workers against it is BYOC, documented in the Workers section.
+
+## Architecture
+
+Rivet has 3 core components:
+
+- **Worker**: A process running your code with the Rivet SDK. It connects outbound to the control plane, so it never needs a public URL or an inbound firewall rule.
+- **Control plane**: The orchestration service that manages actor lifecycle, routes messages, and serves the API.
+- **Storage**: The persistence layer for actor state and the messaging infrastructure for real-time communication.
+
+## Storage backends
+
+- **File system**: Recommended for single-node deployments
+- **PostgreSQL**: Recommended for multi-node deployments; production-ready for light-to-moderate workloads, not built for enterprise scale
+- **FoundationDB**: Best scalability and performance for production deployments ([requires enterprise](/sales))
+
+See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for configuration.
 
 ## Next steps
 

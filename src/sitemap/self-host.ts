@@ -1,10 +1,6 @@
 import { faSquareInfo, faClipboardListCheck, faSliders, faServer } from "@rivet-gg/icons";
 import type { SidebarItem } from "@/lib/sitemap";
-import {
-	CONTROL_PLANE_PAGES,
-	platformSupport,
-	platformsFor,
-} from "./deployMatrix";
+import { CONTROL_PLANE_PAGES, platformsFor } from "./deployMatrix";
 
 const REFERENCE_PAGES = new Set([
 	"configuration",
@@ -38,10 +34,6 @@ export function deploySidebar(productId: string): SidebarItem[] {
 			title: platform.shortTitle ?? platform.displayName,
 			href: `${base}/${role === "worker" ? "workers" : "control-plane"}/${platform.slug}`,
 			icon: platform.icon,
-			badge:
-				platformSupport(productId, role, platform) === "recommended"
-					? "Recommended"
-					: undefined,
 		}));
 
 	return [
@@ -52,27 +44,6 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					title: "Overview",
 					href: base,
 					icon: faSquareInfo,
-				},
-			],
-		},
-		{
-			title: "Workers",
-			pages: [
-				{
-					title: "Overview",
-					href: `${base}/workers`,
-					icon: faSquareInfo,
-				},
-				{
-					title: "Production Checklist",
-					href: `${base}/workers/production-checklist`,
-					icon: faClipboardListCheck,
-				},
-				{
-					title: "Platforms",
-					icon: faServer,
-					collapsible: true,
-					pages: platformPage("worker"),
 				},
 			],
 		},
@@ -105,6 +76,27 @@ export function deploySidebar(productId: string): SidebarItem[] {
 						title: PAGE_TITLES[page] ?? page,
 						href: `${base}/control-plane/${page}`,
 					})),
+				},
+			],
+		},
+		{
+			title: "Workers",
+			pages: [
+				{
+					title: "Overview",
+					href: `${base}/workers`,
+					icon: faSquareInfo,
+				},
+				{
+					title: "Production Checklist",
+					href: `${base}/workers/production-checklist`,
+					icon: faClipboardListCheck,
+				},
+				{
+					title: "Platforms",
+					icon: faServer,
+					collapsible: true,
+					pages: platformPage("worker"),
 				},
 			],
 		},
