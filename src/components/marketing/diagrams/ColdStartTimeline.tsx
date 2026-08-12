@@ -49,8 +49,7 @@ const Gridlines = () => (
 );
 
 const CARD_CLASS =
-	'rounded-2xl bg-gradient-to-b from-white to-[#f9f9fa] ring-1 ring-ink/[0.08] ' +
-	'shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_-1px_rgba(20,20,22,0.10),0_8px_24px_-14px_rgba(20,20,22,0.20)]';
+	'rounded-2xl bg-white/55 ring-1 ring-ink/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]';
 
 export const ColdStartTimeline = ({ onClose }: { onClose?: () => void }) => {
 	const reduced = useReducedMotion();

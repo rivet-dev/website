@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { HERO_H1_CLASS } from '@/components/marketing/typography';
 
 // Fetch OSS friends data at build time
 let items: any[] = [];
@@ -21,7 +22,7 @@ try {
 		<div class="relative overflow-hidden pb-12 pt-32 md:pt-48">
 			<div class="mx-auto max-w-7xl px-6">
 				<div class="max-w-2xl">
-					<h1 class="mb-6 text-4xl font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-6xl">
+					<h1 class={`mb-6 ${HERO_H1_CLASS}`}>
 						Open Source Friends
 					</h1>
 					<p class="text-base leading-relaxed text-ink-soft">
@@ -39,7 +40,7 @@ try {
 							href={friend.href}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="group flex flex-col border border-ink/10 bg-white/55 p-6 transition-colors hover:border-ink/25"
+							class="group flex flex-col border border-ink/10 bg-white/55 p-7 transition-colors hover:border-ink/25"
 						>
 							<h3 class="mb-2 text-base font-medium text-ink">
 								{friend.name}

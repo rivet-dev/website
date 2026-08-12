@@ -2,6 +2,7 @@
 // Workflows overview. Hero only until the rest of the marketing page is written.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { ProductHero } from '@/components/marketing/ProductHero';
+import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
 ---
 
 <MarketingLayout
@@ -18,5 +19,6 @@ import { ProductHero } from '@/components/marketing/ProductHero';
 			docsHref="/workflows/docs"
 			client:load
 		/>
+		<RedesignedCTA client:visible />
 	</main>
 </MarketingLayout>

@@ -47,7 +47,7 @@ export const PerimeterDiagram = ({
 				vectorEffect='non-scaling-stroke'
 			/>
 		</svg>
-		<span className='absolute -top-2.5 left-6 z-10 bg-paper px-2 font-mono text-[11px] uppercase tracking-[0.14em] text-pine'>
+		<span className='absolute -top-2.5 left-6 z-10 bg-paper px-2 font-mono text-[11px] uppercase tracking-[0.18em] text-pine'>
 			{label}
 		</span>
 		<div className='relative z-10 flex flex-col items-stretch'>

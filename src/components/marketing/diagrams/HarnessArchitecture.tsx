@@ -67,7 +67,7 @@ const DiagramCard = ({
 	accent?: boolean;
 }) => (
 	<div
-		className={`flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white/75 shadow-[0_1px_3px_rgba(27,25,22,0.05)] ${
+		className={`flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white/75 ${
 			accent ? 'border-accent/40 ring-1 ring-accent/15' : 'border-ink/10'
 		}`}
 	>
@@ -321,11 +321,11 @@ export const HarnessArchitecture = ({ footer }: { footer?: ReactNode }) => {
 	const reduced = useReducedMotion();
 	return (
 		<div
-			className='relative rounded-3xl border border-ink/10 bg-gradient-to-b from-white/45 to-white/5 p-4 sm:p-6'
+			className='relative rounded-3xl border border-ink/10 bg-white/55 p-4 sm:p-6'
 			role='img'
 			aria-label='agentOS architecture: the agent sits at the center of the OS, which routes requests and responses out to Tools and Resources over MCP, Session state, the Sandbox where code runs, and the Orchestration layer.'
 		>
-			<span className='absolute -top-3 left-5 inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-paper px-2.5 py-1 text-[11px] font-medium text-ink shadow-sm'>
+			<span className='absolute -top-3 left-5 inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-paper px-2.5 py-1 text-[11px] font-medium text-ink'>
 				<img src={AGENTOS_MARK} alt='' aria-hidden='true' className='h-3.5 w-3.5' />
 				agentOS
 			</span>

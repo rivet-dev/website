@@ -8,6 +8,9 @@ interface CatalogCardProps {
 	linkLabel?: ReactNode;
 	children?: ReactNode;
 	className?: string;
+	// Pine frame for the one emphasized entry in a set (e.g. the Rivet plate on
+	// compare pages).
+	highlight?: boolean;
 }
 
 export const CatalogCard = ({
@@ -16,6 +19,7 @@ export const CatalogCard = ({
 	linkLabel,
 	children,
 	className,
+	highlight = false,
 }: CatalogCardProps) => {
 	const body = (
 		<>
@@ -36,8 +40,10 @@ export const CatalogCard = ({
 		</>
 	);
 
-	const cardClass = `group block border border-ink/10 bg-white/55 p-7 transition-colors duration-200 ${
-		href ? 'hover:border-ink/25' : ''
+	const cardClass = `group block border ${
+		highlight ? 'border-pine/60' : 'border-ink/10'
+	} bg-white/55 p-7 transition-colors duration-200 ${
+		href && !highlight ? 'hover:border-ink/25' : ''
 	} ${className ?? ''}`;
 
 	return href ? (

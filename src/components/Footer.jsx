@@ -162,7 +162,7 @@ function SmallPrint() {
 
 				{/* Product */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Product</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Product</h3>
 					<ul className="space-y-3">
 						{footer.product.map((item) => (
 							<li key={item.name}>
@@ -180,7 +180,7 @@ function SmallPrint() {
 
 				{/* Developers */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Developers</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Developers</h3>
 					<ul className="space-y-3">
 						{footer.devs.map((item) => (
 							<li key={item.name}>
@@ -198,7 +198,7 @@ function SmallPrint() {
 
 				{/* Resources */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Resources</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Resources</h3>
 					<ul className="space-y-3">
 						{footer.resources.map((item) => (
 							<li key={item.name}>
@@ -216,7 +216,7 @@ function SmallPrint() {
 
 				{/* Company */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Company</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Company</h3>
 					<ul className="space-y-3">
 						{footer.company.map((item) => (
 							<li key={item.name}>
@@ -233,7 +233,7 @@ function SmallPrint() {
 
 				{/* Legal */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint mb-4">Legal</h3>
+					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Legal</h3>
 					<ul className="space-y-3">
 						{footer.legal.map((item) => (
 							<li key={item.name}>

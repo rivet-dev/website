@@ -9,13 +9,11 @@ interface NotFoundPageProps {
 }
 
 const colors = [
-  '#FF4500', // orange (accent)
-  '#60a5fa', // blue
-  '#4ade80', // green
-  '#c084fc', // purple
-  '#f472b6', // pink
-  '#fbbf24', // yellow
-  '#2dd4bf', // teal
+  '#CB5A33', // accent
+  '#2E4034', // pine
+  '#93A286', // sage
+  '#AB451F', // accent-deep
+  '#56524A', // ink-soft
 ];
 
 const BouncingPill = () => {

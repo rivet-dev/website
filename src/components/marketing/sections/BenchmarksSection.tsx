@@ -146,7 +146,7 @@ const benchmarks: BenchmarkCard[] = [
 
 export const BenchmarksSection = () => {
 	return (
-		<section className='border-t border-ink/10 px-6 py-16 lg:py-24'>
+		<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
 			<div className='mx-auto w-full max-w-7xl'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}

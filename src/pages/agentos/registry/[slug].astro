@@ -235,14 +235,14 @@ const ribbon: MetaCell[] = [
 							{isComingSoon ? (
 								<span
 									aria-disabled="true"
-									class="inline-flex items-center justify-center rounded-md border border-ink/15 px-6 py-2 text-sm font-medium text-ink-faint"
+									class="inline-flex items-center justify-center rounded-md border border-ink/15 px-4 py-2 text-sm font-medium text-ink-faint"
 								>
 									Coming soon
 								</span>
 							) : (
 								<a
 									href={docsHref!}
-									class="selection-dark inline-flex items-center justify-center rounded-md bg-ink px-6 py-2 text-sm font-medium text-cream no-underline transition-colors hover:bg-ink/85"
+									class="selection-dark inline-flex items-center justify-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream no-underline transition-colors hover:bg-ink/85"
 								>
 									View docs
 								</a>
@@ -282,7 +282,7 @@ const ribbon: MetaCell[] = [
 
 		<div class="mx-auto max-w-4xl px-6 pb-24 lg:px-8">
 			{isComingSoon ? (
-				<div class="mt-12 rounded-2xl border border-dashed border-ink/15 bg-white/40 p-10 text-center">
+				<div class="mt-12 rounded-2xl border border-dashed border-ink/10 bg-white/55 p-10 text-center">
 					<p class="text-lg text-ink-faint">This integration is coming soon.</p>
 					<a
 						href="https://github.com/rivet-dev/agentos/issues"

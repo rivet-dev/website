@@ -30,7 +30,7 @@ const stats = [
 ];
 
 export const AgentOSSection = () => (
-	<section className='relative border-t border-ink/10 px-6 py-16 lg:py-24'>
+	<section className='relative border-t border-ink/10 px-6 py-16 md:py-32'>
 		<div className='mx-auto w-full max-w-7xl'>
 			<div className='mb-12 max-w-3xl'>
 				<motion.div

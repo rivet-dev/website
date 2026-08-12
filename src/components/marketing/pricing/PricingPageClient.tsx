@@ -13,7 +13,13 @@ import {
 import rivetLogoWhite from '@/images/rivet-logos/icon-white.svg';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
-import { SECTION_H2_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
+import {
+  PRIMARY_INK_BUTTON_CLASS,
+  PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+  PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+  SECTION_H2_CLASS,
+  SUBTITLE_CLASS
+} from '@/components/marketing/typography';
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
 
 // --- Page Sections ---
@@ -65,77 +71,73 @@ const SelfHostingComparison = () => {
                   <div className="flex-grow font-mono text-sm">
                       {cloudSpecs.map(({ label, value }) => (
                           <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
-                              <span className="text-[11px] uppercase tracking-[0.16em] text-ink-faint">{label}</span>
+                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
                               <span className="text-right text-ink">{value}</span>
                           </div>
                       ))}
                   </div>
 
                   <a href="https://dashboard.rivet.dev"
-                      className="mt-8 w-full rounded-md bg-ink py-3 text-center text-sm font-medium text-cream transition-colors hover:bg-ink/85"
+                      className={`mt-8 ${PRIMARY_INK_BUTTON_CLASS}`}
                   >
                       Get Started
                   </a>
               </div>
 
               {/* Self-Hosted Card */}
-              <InkPanel className="flex flex-col [&>div:first-child]:flex-grow">
-                  <div className="flex h-full flex-col p-7">
-                      <div className="mb-6 flex items-center gap-3">
-                           <Server className="h-6 w-6 text-cream" />
-                           <h3 className="text-lg font-medium text-cream">Self-Hosted</h3>
-                      </div>
-                      <p className="mb-8 text-sm leading-relaxed text-cream/60">
-                          Run the open-source version of Rivet on your own infrastructure. Apache 2.0, no usage limits, full source access.
-                      </p>
-
-                      <div className="flex-grow font-mono text-sm">
-                          {selfHostedSpecs.map(({ label, value }) => (
-                              <div key={label} className="flex items-center justify-between gap-4 border-b border-cream/10 py-3.5">
-                                  <span className="text-[11px] uppercase tracking-[0.16em] text-cream/50">{label}</span>
-                                  <span className="text-right text-cream">{value}</span>
-                              </div>
-                          ))}
-                      </div>
-
-                      <a href="https://github.com/rivet-dev/rivet"
-                          className="mt-8 w-full rounded-md border border-cream/20 py-3 text-center text-sm text-cream/85 transition-colors hover:border-cream/40 hover:text-cream"
-                      >
-                          View on GitHub
-                      </a>
-                      <p className="mt-4 text-center text-xs text-cream/50">
-                          High-touch deployment? <a href="/enterprise" className="text-cream/80 transition-colors hover:text-cream">Rivet for Enterprise</a>
-                      </p>
+              <div className="flex flex-col border border-ink/10 bg-white/55 p-7">
+                  <div className="mb-6 flex items-center gap-3">
+                       <Server className="h-6 w-6 text-ink" />
+                       <h3 className="text-lg font-medium text-ink">Self-Hosted</h3>
                   </div>
-              </InkPanel>
+                  <p className="mb-8 text-sm leading-relaxed text-ink-soft">
+                      Run the open-source version of Rivet on your own infrastructure. Apache 2.0, no usage limits, full source access.
+                  </p>
+
+                  <div className="flex-grow font-mono text-sm">
+                      {selfHostedSpecs.map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
+                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
+                              <span className="text-right text-ink">{value}</span>
+                          </div>
+                      ))}
+                  </div>
+
+                  <a href="https://github.com/rivet-dev/rivet"
+                      className={`mt-8 ${PRODUCT_HERO_SECONDARY_BUTTON_CLASS}`}
+                  >
+                      View on GitHub
+                  </a>
+                  <p className="mt-4 text-center text-xs text-ink-faint">
+                      High-touch deployment? <a href="/enterprise" className="text-ink-soft transition-colors hover:text-ink">Rivet for Enterprise</a>
+                  </p>
+              </div>
 
               {/* Enterprise Edition Card */}
-              <InkPanel className="flex flex-col [&>div:first-child]:flex-grow">
-                  <div className="flex h-full flex-col p-7">
-                      <div className="mb-6 flex items-center gap-3">
-                           <ShieldCheck className="h-6 w-6 text-cream" />
-                           <h3 className="text-lg font-medium text-cream">Enterprise Edition</h3>
-                      </div>
-                      <p className="mb-8 text-sm leading-relaxed text-cream/60">
-                          Production-grade closed-source features on top of open-source Rivet. Orchestration, multi-tenancy, and compliance to run at enterprise scale.
-                      </p>
-
-                      <div className="flex-grow font-mono text-sm">
-                          {enterpriseSpecs.map(({ label, value }) => (
-                              <div key={label} className="flex items-center justify-between gap-4 border-b border-cream/10 py-3.5">
-                                  <span className="text-[11px] uppercase tracking-[0.16em] text-cream/50">{label}</span>
-                                  <span className="text-right text-cream">{value}</span>
-                              </div>
-                          ))}
-                      </div>
-
-                      <a href="/sales"
-                          className="mt-8 w-full rounded-md border border-cream/20 py-3 text-center text-sm text-cream/85 transition-colors hover:border-cream/40 hover:text-cream"
-                      >
-                          Contact Sales
-                      </a>
+              <div className="flex flex-col border border-ink/10 bg-white/55 p-7">
+                  <div className="mb-6 flex items-center gap-3">
+                       <ShieldCheck className="h-6 w-6 text-ink" />
+                       <h3 className="text-lg font-medium text-ink">Enterprise Edition</h3>
                   </div>
-              </InkPanel>
+                  <p className="mb-8 text-sm leading-relaxed text-ink-soft">
+                      Production-grade closed-source features on top of open-source Rivet. Orchestration, multi-tenancy, and compliance to run at enterprise scale.
+                  </p>
+
+                  <div className="flex-grow font-mono text-sm">
+                      {enterpriseSpecs.map(({ label, value }) => (
+                          <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
+                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
+                              <span className="text-right text-ink">{value}</span>
+                          </div>
+                      ))}
+                  </div>
+
+                  <a href="/sales"
+                      className={`mt-8 ${PRODUCT_HERO_SECONDARY_BUTTON_CLASS}`}
+                  >
+                      Contact Sales
+                  </a>
+              </div>
           </div>
         </div>
       </div>
@@ -172,7 +174,7 @@ const ComparisonTable = () => {
                 <table className="w-full min-w-[800px] border-collapse">
                     <thead>
                         <tr className="border-b border-ink/15">
-                            <th className="w-1/4 p-4 text-left font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint">Feature</th>
+                            <th className="w-1/4 p-4 text-left font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">Feature</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Free</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-pine">Hobby</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Team</th>
@@ -241,7 +243,7 @@ const ComputeCalculator = () => {
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Controls sit on porcelain: this is interactive input UI. */}
-                <div className="space-y-8 border border-ink/10 bg-white/55 p-8">
+                <div className="space-y-8 border border-ink/10 bg-white/55 p-7">
                     {/* vCPU */}
                     <div>
                         <div className="mb-3 flex items-center justify-between">
@@ -312,7 +314,7 @@ const ComputeCalculator = () => {
                 {/* Result is the data moment: render it on the ink plate so the
                     estimate reads as output, mirroring the Self-Hosted panel. */}
                 <InkPanel className="flex flex-col p-8">
-                    <span className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-sage">Estimated compute</span>
+                    <span className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-sage">Estimated compute</span>
                     <div className="mt-2 flex items-baseline gap-2">
                         <span className="text-4xl font-medium tracking-[-0.015em] text-cream">{usd(monthly)}</span>
                         <span className="font-mono text-xs text-cream/50">/mo</span>
@@ -479,7 +481,7 @@ const Pricing = () => {
                                         {plan.inkHeader ? (
                                             <div className="selection-paper flex items-center justify-between gap-4 bg-ink px-7 py-3">
                                                 <span className="text-sm font-medium text-cream">{plan.name}</span>
-                                                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-cream/60">On-Prem</span>
+                                                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-cream/60">On-Prem</span>
                                             </div>
                                         ) : null}
                                         <div className="flex flex-grow flex-col p-7">
@@ -488,7 +490,7 @@ const Pricing = () => {
                                             ) : null}
 
                                             <div className="mb-6">
-                                                {plan.prefix && <span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">{plan.prefix}</span>}
+                                                {plan.prefix && <span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{plan.prefix}</span>}
                                                 <div className="flex items-baseline gap-1">
                                                     <span className="text-3xl font-medium tracking-[-0.015em] text-ink">{plan.price}</span>
                                                     {plan.period && <span className="ml-1 font-mono text-xs text-ink-faint">{plan.period}</span>}
@@ -509,10 +511,10 @@ const Pricing = () => {
                                             </div>
 
                                             <a href={plan.cta === "Contact Sales" ? "/sales" : "https://dashboard.rivet.dev"}
-                                                className={`mt-auto w-full rounded-md py-3 text-center text-sm font-medium transition-colors ${
+                                                className={`mt-auto ${
                                                     plan.highlight
-                                                    ? 'bg-accent-deep text-white hover:bg-accent'
-                                                    : 'border border-ink/20 text-ink-soft hover:border-ink/40 hover:text-ink'
+                                                    ? PRODUCT_HERO_PRIMARY_BUTTON_CLASS
+                                                    : PRODUCT_HERO_SECONDARY_BUTTON_CLASS
                                                 }`}
                                             >
                                                 {plan.cta}
@@ -523,7 +525,7 @@ const Pricing = () => {
                             </div>
 
                             {/* YC & a16z Speedrun Callout */}
-                            <div className="rounded-lg border border-ink/10 bg-white/55 p-6">
+                            <div className="border border-ink/10 bg-white/55 p-6">
                                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                                         <div>
                                             <p className="mb-2 text-base font-medium text-ink">Startup Deal: 50% off for 12 months</p>
@@ -543,7 +545,7 @@ const Pricing = () => {
                                         </div>
                                         <a
                                             href="/startups"
-                                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/20 px-4 py-2 text-sm text-ink-soft transition-colors hover:border-ink/40 hover:text-ink"
+                                            className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
                                         >
                                             Claim the deal
                                             <ArrowRight className="h-4 w-4" />
@@ -561,8 +563,8 @@ const Pricing = () => {
                                         <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
                                             {usagePricing.map((item, i) => (
                                                 <div key={i} className="border-t border-ink/10 pt-6">
-                                                    <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">{item.resource}</div>
-                                                    {item.prefix && <span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">{item.prefix}</span>}
+                                                    <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{item.resource}</div>
+                                                    {item.prefix && <span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">{item.prefix}</span>}
                                                     <div className="mb-1 font-mono text-2xl text-ink">{item.price}</div>
                                                     <div className="text-xs text-ink-faint">{item.unit}</div>
                                                 </div>

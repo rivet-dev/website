@@ -7,8 +7,8 @@ const FOOTER_PAINTING_SRC =
   'https://assets.rivet.dev/website/images/textures/footer-abstract.webp';
 
 export const RedesignedCTA = () => (
-  <section className='selection-paper bg-paper px-4 py-14 text-center text-cream md:px-6 md:py-24'>
-    <div className='relative mx-auto flex min-h-[26rem] max-w-screen-2xl items-center justify-center overflow-hidden px-6 py-20 md:min-h-[34rem] md:px-10 lg:aspect-[2563/1440] lg:min-h-0'>
+  <section className='bg-paper px-4 py-14 text-center md:px-6 md:py-24'>
+    <div className='selection-paper relative mx-auto flex min-h-[26rem] max-w-screen-2xl items-center justify-center overflow-hidden px-6 py-20 text-cream md:min-h-[34rem] md:px-10 lg:aspect-[2563/1440] lg:min-h-0'>
       <img
         aria-hidden='true'
         src={FOOTER_PAINTING_SRC}

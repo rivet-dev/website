@@ -63,7 +63,9 @@ const articleSchema = {
 >
 	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
 	<Header active="blog" variant="floating" client:load />
-	<slot />
+	<div class="paper-grain selection-paper relative z-10 w-full font-sans">
+		<slot />
+	</div>
 </BaseLayout>
 
 <!-- Blog and changelog pages sit on the porcelain field. -->

@@ -269,11 +269,11 @@ const HighlightedCode = ({ code, title }: { code: string; title: string }) => {
 
   return (
     <div>
-      <div className='px-4 py-2 border-b border-zinc-200 text-xs text-zinc-500 font-mono'>
+      <div className='px-4 py-2 border-b border-ink/10 text-xs text-ink-faint font-mono'>
         {title}
       </div>
       {!html ? (
-        <pre className='p-4 font-mono text-xs md:text-sm leading-6 text-zinc-600 overflow-x-auto'>
+        <pre className='p-4 font-mono text-xs md:text-sm leading-6 text-ink-soft overflow-x-auto'>
           <code>{code}</code>
         </pre>
       ) : (
@@ -290,7 +290,7 @@ const HighlightedCode = ({ code, title }: { code: string; title: string }) => {
 const UseCaseCode = ({ config }: { config: UseCaseConfig }) => (
   <div>
     <HighlightedCode code={config.serverCode} title='backend.ts' />
-    <div className='border-t border-zinc-200'>
+    <div className='border-t border-ink/10'>
       <HighlightedCode code={config.clientCode} title='client.ts' />
     </div>
   </div>
@@ -359,7 +359,7 @@ export const ProblemSection = () => {
   }, []);
 
   return (
-    <section id='problem' className='relative px-4 lg:px-6 py-16 md:py-32'>
+    <section id='problem' className='relative px-6 py-16 md:py-32'>
       <div className='mx-auto w-full max-w-7xl'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -385,12 +385,12 @@ export const ProblemSection = () => {
           transition={{ duration: 0.5, delay: 0.05 }}
           className='grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-14'
         >
-          <div className='order-2 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 lg:order-1'>
+          <div className='order-2 overflow-hidden rounded-xl border border-ink/10 bg-white/55 lg:order-1'>
             {/* File-tab strip */}
             <div className='relative'>
               <div
                 ref={tabsScrollRef}
-                className='flex w-full overflow-x-auto scrollbar-hide border-b border-zinc-200'
+                className='flex w-full overflow-x-auto scrollbar-hide border-b border-ink/10'
               >
                 {useCaseOrder.map((useCase) => {
                   const Icon = useCaseIcons[useCase];
@@ -417,8 +417,8 @@ export const ProblemSection = () => {
                   showScrollHint ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <div className='absolute inset-y-0 right-0 w-14 bg-gradient-to-l from-zinc-50 to-transparent' />
-                <span className='relative inline-flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50'>
+                <div className='absolute inset-y-0 right-0 w-14 bg-gradient-to-l from-paper to-transparent' />
+                <span className='relative inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink/10 bg-white/55'>
                   <ArrowRight className='h-3.5 w-3.5 text-ink-soft' />
                 </span>
               </div>

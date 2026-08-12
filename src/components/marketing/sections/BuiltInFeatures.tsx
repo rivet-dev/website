@@ -91,7 +91,7 @@ const features = [
 
 export const BuiltInFeatures = () => {
   return (
-    <section className='relative border-y border-ink/10 bg-paper-deep/40 px-6 py-16 lg:py-24'>
+    <section className='relative border-y border-ink/10 bg-paper-deep/40 px-6 py-16 md:py-32'>
       <div className='mx-auto w-full max-w-7xl'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

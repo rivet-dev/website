@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { HERO_H1_CLASS } from '@/components/marketing/typography';
 import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 ---
 
@@ -11,7 +12,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 	<main class="paper-grain min-h-screen w-full flex flex-col items-center justify-center">
 		<div class="relative isolate overflow-hidden pt-40">
 			<div class="mx-auto max-w-4xl px-6 lg:px-8 text-center">
-				<h1 class="text-4xl font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-6xl">
+				<h1 class={HERO_H1_CLASS}>
 					Support
 				</h1>
 				<p class="mt-6 max-w-3xl mx-auto text-base leading-relaxed text-ink-soft">
@@ -26,12 +27,12 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 				<!-- Email Tile -->
 				<a
 					href="mailto:support@rivet.dev"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-all duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center px-8"
+					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faEnvelope}
-							className="text-3xl text-olive mb-2"
+							className="text-3xl text-pine mb-2"
 						/>
 						<span class="font-medium text-ink text-lg mb-1">
 							Email
@@ -46,12 +47,12 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/discord"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-all duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center px-8"
+					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faComments}
-							className="text-3xl text-olive mb-2"
+							className="text-3xl text-pine mb-2"
 						/>
 						<span class="font-medium text-ink text-lg mb-1">
 							Discord
@@ -66,12 +67,12 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/actors/docs"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-all duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center px-8"
+					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faBook}
-							className="text-3xl text-olive mb-2"
+							className="text-3xl text-pine mb-2"
 						/>
 						<span class="font-medium text-ink text-lg mb-1">
 							Docs

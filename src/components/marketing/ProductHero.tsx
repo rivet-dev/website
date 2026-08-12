@@ -2,8 +2,10 @@ import { ProductLockup } from "./ProductLockup";
 import { getProduct } from "@/sitemap/products";
 import {
 	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
 } from "./typography";
 
 /**
@@ -29,7 +31,7 @@ export function ProductHero({
 	const heading = title ?? product?.description ?? "";
 
 	return (
-		<section className="relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20">
+		<section className={PRODUCT_HERO_SECTION_CLASS}>
 			<div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
 				{product && (
 					<div className="mb-7 flex">
@@ -37,7 +39,7 @@ export function ProductHero({
 					</div>
 				)}
 
-				<h1 className="mb-4 max-w-4xl text-balance text-4xl font-medium leading-[1.06] tracking-[-0.02em] text-ink md:text-5xl">
+				<h1 className={PRODUCT_HERO_H1_CLASS}>
 					{heading}
 				</h1>
 

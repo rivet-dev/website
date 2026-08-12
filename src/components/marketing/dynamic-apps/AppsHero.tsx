@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
 	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
 } from '@/components/marketing/typography';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { getProduct } from '@/sitemap/products';
@@ -59,7 +61,7 @@ const AppsSourceStack = () => (
 	<div className='flex flex-col items-center justify-center'>
 		<p className='mb-2 text-[10px] font-medium text-ink'>Generated files</p>
 		<div className='relative h-36 w-full max-w-[9.5rem]'>
-			<div className='absolute top-1 right-6 left-0 z-10 h-24 -rotate-6 rounded-lg border border-ink/10 bg-white p-2 shadow-[0_8px_20px_-14px_rgba(20,20,22,0.4)]'>
+			<div className='absolute top-1 right-6 left-0 z-10 h-24 -rotate-6 rounded-lg border border-ink/10 bg-white p-2'>
 				<div className='flex items-center gap-1.5'>
 					<span className='flex h-5 w-5 items-end justify-end rounded bg-[#f7df1e] p-0.5 text-[7px] font-bold leading-none text-black'>JS</span>
 					<span className='font-mono text-[8px] text-ink-soft'>server.js</span>
@@ -70,7 +72,7 @@ const AppsSourceStack = () => (
 				</div>
 			</div>
 
-			<div className='absolute top-4 right-0 left-6 z-20 h-24 rotate-6 rounded-lg border border-ink/10 bg-white p-2 shadow-[0_8px_20px_-14px_rgba(20,20,22,0.4)]'>
+			<div className='absolute top-4 right-0 left-6 z-20 h-24 rotate-6 rounded-lg border border-ink/10 bg-white p-2'>
 				<div className='flex items-center gap-1.5'>
 					<span className='flex h-5 w-5 items-center justify-center rounded bg-[#eef7ed]'>
 						<img src='/images/registry/nodejs.svg' alt='' aria-hidden='true' className='h-3.5 w-3.5 object-contain' />
@@ -83,7 +85,7 @@ const AppsSourceStack = () => (
 				</div>
 			</div>
 
-			<div className='absolute top-7 right-3 left-3 z-30 h-24 rounded-lg border border-ink/10 bg-white p-2 shadow-[0_10px_24px_-15px_rgba(20,20,22,0.48)]'>
+			<div className='absolute top-7 right-3 left-3 z-30 h-24 rounded-lg border border-ink/10 bg-white p-2'>
 				<div className='flex items-center gap-1.5'>
 					<span className='flex h-5 w-5 items-center justify-center rounded bg-[#eaf8fc] text-sm leading-none text-[#149eca]'>⚛</span>
 					<span className='font-mono text-[8px] text-ink-soft'>App.tsx</span>
@@ -102,12 +104,12 @@ const AppsVisualization = ({ highlightedCode }: { highlightedCode: string }) => 
 	const [showCode, setShowCode] = useState(false);
 
 	return (
-		<div className='overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50'>
-			<div className='flex items-center gap-2 border-b border-zinc-200 px-4 py-3'>
-				<div className='h-3 w-3 rounded-full bg-zinc-200' />
-				<div className='h-3 w-3 rounded-full bg-zinc-200' />
-				<div className='h-3 w-3 rounded-full bg-zinc-200' />
-				<span className={`ml-2 hidden text-xs text-zinc-700 sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? 'server.ts' : 'Deploy an AI-generated app'}</span>
+		<div className='overflow-hidden rounded-xl border border-ink/10 bg-white/55'>
+			<div className='flex items-center gap-2 border-b border-ink/10 px-4 py-3'>
+				<div className='h-3 w-3 rounded-full bg-ink/10' />
+				<div className='h-3 w-3 rounded-full bg-ink/10' />
+				<div className='h-3 w-3 rounded-full bg-ink/10' />
+				<span className={`ml-2 hidden text-xs text-ink-soft sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? 'server.ts' : 'Deploy an AI-generated app'}</span>
 				<button
 					type='button'
 					onClick={() => setShowCode((visible) => !visible)}
@@ -121,7 +123,7 @@ const AppsVisualization = ({ highlightedCode }: { highlightedCode: string }) => 
 
 			<AnimatePresence mode='wait' initial={false}>
 				{showCode ? (
-					<motion.div key='apps-code' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className='h-[302px] overflow-auto p-6 font-code text-sm leading-relaxed text-zinc-600 sm:h-[318px] [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'>
+					<motion.div key='apps-code' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className='h-[302px] overflow-auto p-6 font-code text-sm leading-relaxed text-ink-soft sm:h-[318px] [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'>
 						<span
 							className='not-prose code'
 							// biome-ignore lint/security/noDangerouslySetInnerHtml: generated at Astro render time
@@ -137,7 +139,7 @@ const AppsVisualization = ({ highlightedCode }: { highlightedCode: string }) => 
 					<ArrowRight className='h-6 w-8 rotate-90 md:rotate-0' />
 				</div>
 
-				<div className='min-w-28 rounded-xl border border-pine/20 bg-white px-4 py-4 text-center ring-1 ring-pine/[0.04] shadow-[0_12px_28px_-18px_rgba(20,20,22,0.5)]'>
+				<div className='min-w-28 rounded-xl border border-pine/20 bg-white px-4 py-4 text-center ring-1 ring-pine/[0.04]'>
 					<Rocket className='mx-auto h-5 w-5 text-pine' />
 					<p className='mt-2 text-[9px] font-medium uppercase tracking-[0.1em] text-ink-soft'>Deploy app</p>
 					<p className='mt-1 font-mono text-[11px] font-medium text-ink'>deployApp()</p>
@@ -147,7 +149,7 @@ const AppsVisualization = ({ highlightedCode }: { highlightedCode: string }) => 
 					<ArrowRight className='h-6 w-8 rotate-90 md:rotate-0' />
 				</div>
 
-				<div className='mx-auto w-full max-w-[12rem] overflow-hidden rounded-lg border border-ink/10 bg-white shadow-[0_10px_26px_-18px_rgba(20,20,22,0.45)]'>
+				<div className='mx-auto w-full max-w-[12rem] overflow-hidden rounded-lg border border-ink/10 bg-white'>
 					<div className='flex items-center gap-1.5 border-b border-ink/10 bg-ink/[0.025] px-2 py-1.5'>
 						<div className='flex shrink-0 items-center gap-1' aria-hidden='true'>
 							<span className='h-1.5 w-1.5 rounded-full bg-ink/15' />
@@ -205,7 +207,7 @@ export const AppsHero = ({
 
 	return (
 	<>
-	<section className='relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20'>
+	<section className={PRODUCT_HERO_SECTION_CLASS}>
 		<div className='mx-auto w-full max-w-5xl'>
 			<div className='mx-auto flex max-w-5xl flex-col items-center text-center'>
 				{product && (
@@ -213,7 +215,7 @@ export const AppsHero = ({
 						<ProductLockup product={product} />
 					</div>
 				)}
-				<h1 className='mb-4 max-w-4xl text-balance text-4xl font-medium leading-[1.06] tracking-[-0.02em] text-ink md:text-5xl'>
+				<h1 className={PRODUCT_HERO_H1_CLASS}>
 					{product?.description}
 				</h1>
 				<p className='mb-7 max-w-3xl text-base leading-relaxed text-ink-soft md:text-lg'>
@@ -235,7 +237,7 @@ export const AppsHero = ({
 		</div>
 	</section>
 
-	<section className='border-t border-ink/10 bg-paper px-6 py-20 md:py-28'>
+	<section className='border-t border-ink/10 bg-paper px-6 py-16 md:py-32'>
 		<div className='mx-auto w-full max-w-7xl'>
 			<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 				<div>

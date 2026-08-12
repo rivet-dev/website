@@ -22,7 +22,7 @@ export function ComparisonTable({
 			<table className="w-full min-w-[760px] border-collapse [&_a]:text-pine [&_a]:underline [&_a]:decoration-pine/40 [&_a]:underline-offset-2 [&_a:hover]:text-ink">
 				<thead>
 					<tr className="border-b border-ink/15">
-						<th className="w-[18%] py-4 pl-0 pr-4 text-left font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint">
+						<th className="w-[18%] py-4 pl-0 pr-4 text-left font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">
 							Feature
 						</th>
 						<th className="w-[28%] px-4 py-4 text-left">
@@ -39,7 +39,7 @@ export function ComparisonTable({
 								{competitorName}
 							</div>
 						</th>
-						<th className="w-[26%] py-4 pl-4 pr-0 text-left font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint">
+						<th className="w-[26%] py-4 pl-4 pr-0 text-left font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">
 							Why it matters
 						</th>
 					</tr>
@@ -50,7 +50,7 @@ export function ComparisonTable({
 							<tr className="border-b border-ink/10">
 								<td
 									colSpan={4}
-									className="pb-3 pl-0 pt-12 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-pine"
+									className="pb-3 pl-0 pt-12 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine"
 								>
 									{group.title}
 								</td>
