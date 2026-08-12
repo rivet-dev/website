@@ -113,7 +113,7 @@ const otherArticles = allPosts
 					</nav>
 				)}
 
-				<Prose as="div" className="blog-prose w-full max-w-none">
+				<Prose as="div" surface="paper" className="blog-prose w-full max-w-none">
 					<Content components={mdxComponents} />
 				</Prose>
 
@@ -154,7 +154,7 @@ const otherArticles = allPosts
 		<!-- Read next -->
 		{otherArticles.length > 0 && (
 			<div class="mx-auto mt-24 w-full max-w-[62rem] border-t border-ink/10 pt-10">
-				<h2 class="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-pine">Read next</h2>
+				<h2 class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">Read next</h2>
 				<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
 					{otherArticles.map((article) => (
 						<a href={`${readNextBase}${article.slug}/`} class="group flex flex-col">
@@ -170,7 +170,7 @@ const otherArticles = allPosts
 								/>
 							)}
 							<div class="mt-3 flex items-center gap-x-3 text-xs">
-								<span class="font-medium uppercase tracking-[0.1em] text-pine">{article.category.name}</span>
+								<span class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">{article.category.name}</span>
 								<time datetime={article.published.toISOString()} class="text-ink-faint">
 									{formatTimestamp(article.published)}
 								</time>

@@ -91,7 +91,7 @@ export const ExecutionDensity = ({ workload, onWorkloadChange }: { workload: Wor
 			>
 				{/* Header: eyebrow + workload toggle */}
 				<div className='flex flex-wrap items-start justify-between gap-3'>
-					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint'>Cost Per Execution-Second</span>
+					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Cost Per Execution-Second</span>
 					<div className='w-64 max-sm:w-full'>
 						<BenchToggle
 							options={WORKLOAD_KEYS.map((k) => benchWorkloads[k].label)}

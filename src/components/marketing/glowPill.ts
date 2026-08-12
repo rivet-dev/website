@@ -7,6 +7,12 @@ import type { MouseEvent } from 'react';
 // pill's existing className.
 export const GLOW_PILL_CLASS = 'glow-pill relative';
 
+// The full porcelain pill surface: structural glow classes plus the hairline
+// ring, paper fill, and compact metric shared by the hero, integrations, and
+// hosting pills. Depth comes from the hairline alone — no drop shadow.
+export const GLOW_PILL_SURFACE_CLASS =
+	`${GLOW_PILL_CLASS} inline-flex items-center rounded-full border border-ink/12 bg-paper/45 px-2.5 py-1 text-[13px] text-ink-soft transition-colors hover:border-ink/25 hover:text-ink`;
+
 // Feeds the pointer position (relative to the hovered pill) into the
 // --pill-x / --pill-y custom properties the .glow-pill ::after reads. Mirrors
 // the changelog pill handler; no rAF needed since it only fires on the small

@@ -16,9 +16,13 @@ export const SECTION_H2_CLASS =
 export const SUBTITLE_CLASS = 'mt-4 text-base leading-relaxed text-ink-soft';
 
 // Letter-spaced mono eyebrow, the museum-catalog section label. Pine on
-// porcelain; use text-sage when the eyebrow sits inside an ink panel.
+// porcelain; use EYEBROW_ON_INK_CLASS when the eyebrow sits inside an ink panel.
 export const EYEBROW_CLASS =
 	'font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine';
+
+// The same eyebrow in sage, for labels inside dark ink panels.
+export const EYEBROW_ON_INK_CLASS =
+	'font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-sage';
 
 // Printed catalog caption, e.g. "Fig. 02 — Rivet Inspector".
 export const CAPTION_CLASS = 'font-mono text-xs text-ink-faint';
@@ -27,7 +31,7 @@ export const CAPTION_CLASS = 'font-mono text-xs text-ink-faint';
 // field, viewport-tied height, with a single heading, one description
 // paragraph, and the shared CTA pair below it.
 export const PRODUCT_HERO_SECTION_CLASS =
-	'relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20';
+	'depth-wash relative flex min-h-[68svh] flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 md:py-20';
 export const PRODUCT_HERO_INNER_CLASS =
 	'mx-auto flex w-full max-w-5xl flex-col items-center text-center';
 export const PRODUCT_HERO_H1_CLASS =
@@ -45,6 +49,11 @@ export const PRODUCT_HERO_PRIMARY_BUTTON_CLASS =
 	`${PRODUCT_HERO_BUTTON_BASE} selection-dark bg-accent-deep text-white hover:bg-accent`;
 export const PRODUCT_HERO_SECONDARY_BUTTON_CLASS =
 	`${PRODUCT_HERO_BUTTON_BASE} border border-ink/15 bg-white/55 text-ink-soft hover:border-ink/30 hover:bg-white hover:text-ink`;
+
+// Solid warm-black primary for pages whose single accent ember is spent
+// elsewhere. Same metric as the hero pair.
+export const PRIMARY_INK_BUTTON_CLASS =
+	`${PRODUCT_HERO_BUTTON_BASE} selection-paper bg-ink text-cream hover:bg-ink/85`;
 
 interface SectionHeadingProps {
 	title: ReactNode;

@@ -1,5 +1,6 @@
 import { Icon } from "@rivet-gg/icons";
 import actorsLogo from "@/images/products/actors-logo.svg";
+import { EYEBROW_CLASS } from "@/components/marketing/typography";
 import { wordmarkMaskStyle } from "@/lib/product-accent";
 
 export interface DocsLandingItem {
@@ -51,14 +52,14 @@ function HeroTitle({
 					style={wordmarkMaskStyle(actorsLogo.src)}
 					className="inline-block h-8 w-8 bg-ink md:h-9 md:w-9"
 				/>
-				<h1 className="text-4xl font-medium tracking-tight text-ink">
+				<h1 className="text-4xl font-medium tracking-[-0.015em] text-ink">
 					{title}
 				</h1>
 			</div>
 		);
 	}
 	return (
-		<h1 className="mb-4 text-4xl font-medium tracking-tight text-ink">
+		<h1 className="mb-4 text-4xl font-medium tracking-[-0.015em] text-ink">
 			{title}
 		</h1>
 	);
@@ -133,7 +134,7 @@ export function DocsLanding({ title, subtitle, logo, sections, columns = 3 }: Do
 				{sections.map((section) => (
 					<section key={section.title}>
 						{showHeaders && (
-							<h2 className="mb-5 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+							<h2 className={`mb-5 ${EYEBROW_CLASS}`}>
 								{section.title}
 							</h2>
 						)}

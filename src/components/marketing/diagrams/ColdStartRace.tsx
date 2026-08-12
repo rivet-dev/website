@@ -69,7 +69,7 @@ const ContainerBox = ({ progress, lo, hi, logo }: { progress: MotionValue<number
 		<div className='flex w-16 flex-col items-center gap-1'>
 			<motion.div
 				style={{ borderColor: border }}
-				className='flex h-12 w-full items-center justify-center rounded-lg border-2 bg-white/85 shadow-[0_1px_2px_rgba(27,25,22,0.05)]'
+				className='flex h-12 w-full items-center justify-center rounded-lg border-2 bg-white/85'
 			>
 				<img src={logo} alt='' aria-hidden='true' className='h-6 w-6 object-contain' />
 			</motion.div>
@@ -178,7 +178,7 @@ export const ColdStartRace = () => {
 			<div ref={ref} className='rounded-2xl border border-ink/10 bg-white/55 p-5 md:p-7'>
 				<div className='mb-5 flex flex-wrap items-center justify-between gap-3'>
 					<div className='flex items-center gap-2.5'>
-						<span className='font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-ink'>Cold start</span>
+						<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Cold start</span>
 						<span className='rounded-full bg-ink/[0.06] px-2 py-0.5 text-[10px] font-semibold text-ink-soft'>{slowdownPill(containerMs)}</span>
 					</div>
 					<div className='w-44 max-sm:w-full'>

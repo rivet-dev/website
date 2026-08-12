@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Check, ArrowRight, ChevronDown } from 'lucide-react';
+import {
+	HERO_H1_CLASS,
+	PRIMARY_INK_BUTTON_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	SECTION_H2_CLASS,
+} from '@/components/marketing/typography';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
 
@@ -134,7 +140,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: Collapsibl
 					onClick={() => setIsOpen(!isOpen)}
 					className="flex h-28 w-full items-center justify-between text-left"
 				>
-					<h2 className="text-2xl font-medium tracking-[-0.015em] text-ink md:text-4xl">
+					<h2 className={SECTION_H2_CLASS}>
 						{title}
 					</h2>
 					<ChevronDown
@@ -190,7 +196,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 					<div className="mx-auto w-full max-w-7xl">
 						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-20">
 							<div className="max-w-xl">
-								<h1 className="mb-6 text-4xl font-medium leading-[1.1] tracking-[-0.015em] text-ink md:text-6xl">
+								<h1 className={`mb-6 ${HERO_H1_CLASS}`}>
 									Built for Demo Day and Beyond
 								</h1>
 								<p className="text-base leading-relaxed text-ink-soft">
@@ -262,7 +268,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 								href="https://forms.gle/J8USsTND8NAKJ18W9"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent"
+								className={PRIMARY_INK_BUTTON_CLASS}
 							>
 								Claim the deal
 								<ArrowRight className="h-4 w-4" />
@@ -319,7 +325,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			{/* CTA */}
 			<div className="border-t border-ink/10 py-24 px-6">
 				<div className="mx-auto w-full max-w-7xl text-center">
-					<h2 className="mb-6 text-2xl font-medium tracking-[-0.015em] text-ink md:text-4xl">
+					<h2 className={`mb-6 ${SECTION_H2_CLASS}`}>
 						Ready to build?
 					</h2>
 					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -327,7 +333,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 							href="https://forms.gle/J8USsTND8NAKJ18W9"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent"
+							className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}
 						>
 							Claim the deal
 							<ArrowRight className="h-4 w-4" />

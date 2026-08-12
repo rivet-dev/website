@@ -57,7 +57,7 @@ export const AgentOsTopologyCell = () => {
 						whileInView={reduced ? undefined : { opacity: 1, scale: 1 }}
 						viewport={VIEWPORT}
 						transition={{ duration: 0.28, delay: 0.1 + i * 0.035, ease: [...EASE] }}
-						className='relative flex aspect-square min-w-0 items-center justify-center overflow-hidden rounded-md border border-pine/20 bg-white/80 shadow-[0_1px_2px_rgba(46,64,52,0.06)]'
+						className='relative flex aspect-square min-w-0 items-center justify-center overflow-hidden rounded-md border border-pine/20 bg-white/80'
 						aria-label='Isolated WebAssembly agentOS instance'
 					>
 						<PerlinBackground index={i} reduced={reduced} />

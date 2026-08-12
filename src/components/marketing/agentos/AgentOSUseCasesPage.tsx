@@ -14,7 +14,12 @@ import {
 	Check,
 	Copy,
 } from 'lucide-react';
-import { HERO_H1_CLASS, SECTION_H2_CLASS } from '@/components/marketing/typography';
+import {
+	HERO_H1_CLASS,
+	PRIMARY_INK_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	SECTION_H2_CLASS,
+} from '@/components/marketing/typography';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
 
 // --- Copy Agent Prompt Button ---
@@ -32,10 +37,7 @@ const CopyAgentPromptButton = () => {
 	};
 
 	return (
-		<button
-			onClick={handleCopy}
-			className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/20 px-6 py-3 text-sm font-medium text-ink-soft transition-colors hover:border-ink/40 hover:text-ink'
-		>
+		<button onClick={handleCopy} className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
 			{copied ? <Check className='h-4 w-4 text-ink' /> : <Copy className='h-4 w-4' />}
 			{copied ? 'Copied' : 'Set up with your agent'}
 		</button>
@@ -74,7 +76,7 @@ const UseCase = ({ icon: Icon, title, description, benefits, example, delay = 0 
 		</ul>
 		{example && (
 			<div className='mt-auto border-t border-ink/10 pt-4'>
-				<span className='font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint'>Example</span>
+				<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint'>Example</span>
 				<p className='mt-1.5 text-sm leading-relaxed text-ink-soft'>{example}</p>
 			</div>
 		)}
@@ -233,10 +235,7 @@ export default function AgentOSUseCasesPage() {
 							transition={{ duration: 0.5, delay: 0.2 }}
 							className='flex flex-col items-center justify-center gap-4 sm:flex-row'
 						>
-							<a
-								href='/agentos/docs'
-								className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-ink px-6 py-3 text-sm font-medium text-cream transition-colors hover:bg-ink/85'
-							>
+							<a href='/agentos/docs' className={PRIMARY_INK_BUTTON_CLASS}>
 								Read the Docs
 								<ArrowRight className='h-4 w-4' />
 							</a>

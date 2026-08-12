@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Terminal, ArrowRight, Check } from 'lucide-react';
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { HERO_H1_CLASS } from '../typography';
-import { GLOW_PILL_CLASS, handleGlowPillMouseMove } from '../glowPill';
+import { GLOW_PILL_SURFACE_CLASS, handleGlowPillMouseMove } from '../glowPill';
 
 interface ThinkingImage {
   src: string;
@@ -198,7 +198,7 @@ const CopyInstallButton = () => {
     <div className='relative group w-full sm:w-auto'>
       <button
         onClick={handleCopy}
-        className='w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/20 px-4 py-2 font-mono text-[13px] text-ink-soft transition-colors hover:border-ink/40 hover:text-ink'
+        className='w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-4 py-2 font-mono text-[13px] text-ink-soft transition-colors hover:border-ink/30 hover:bg-white hover:text-ink'
       >
         {copied ? <Check className='h-4 w-4 text-pine' /> : <Terminal className='h-4 w-4' />}
         npx skills add rivet-dev/skills
@@ -267,7 +267,7 @@ export const RedesignedHero = ({ latestChangelogTitle, latestChangelogHref, thin
             >
               <a
                 href={latestChangelogHref}
-                className={`${GLOW_PILL_CLASS} group inline-flex items-center gap-2 rounded-full border border-ink/12 bg-paper/45 px-2.5 py-1 text-[13px] text-ink-soft shadow-[0_8px_22px_-20px_rgba(27,25,22,0.45)] transition-colors hover:border-ink/25 hover:text-ink`}
+                className={`${GLOW_PILL_SURFACE_CLASS} group gap-2`}
                 onMouseMove={handleGlowPillMouseMove}
               >
                 <span

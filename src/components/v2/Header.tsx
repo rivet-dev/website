@@ -146,8 +146,8 @@ function ProductsDropdown({
 						aria-expanded={isOpen}
 						className={cn(
 							"cursor-default flex items-center gap-1 relative transition-colors duration-200",
-							"!text-zinc-600 hover:!text-zinc-900",
-							active && "!text-zinc-900",
+							"!text-ink-soft hover:!text-ink",
+							active && "!text-ink",
 							// Invisible hover bridge spanning the visual gap down to the
 							// dropdown panel so moving the mouse from the trigger to the
 							// panel does not cross a dead zone and close the menu.
@@ -242,7 +242,7 @@ function ProductsDropdown({
 							type="button"
 							className={cn(
 								"cursor-pointer flex items-center gap-1 relative transition-colors duration-200",
-								lightTheme ? "!text-zinc-600 hover:!text-zinc-900" : "!text-zinc-400 hover:!text-white",
+								lightTheme ? "!text-ink-soft hover:!text-ink" : "!text-zinc-400 hover:!text-white",
 								active && !lightTheme && "!text-white",
 								"after:absolute after:left-0 after:right-0 after:top-full after:h-4 after:content-['']",
 							)}
@@ -259,7 +259,7 @@ function ProductsDropdown({
 					className={cn(
 						"min-w-[280px] p-4 rounded-xl shadow-xl",
 						lightTheme
-							? "bg-white/95 backdrop-blur-lg border border-zinc-200"
+							? "bg-white/95 backdrop-blur-lg border border-ink/10"
 							: "bg-black/95 backdrop-blur-lg border border-white/10",
 					)}
 					onMouseEnter={handleMouseEnter}
@@ -275,20 +275,20 @@ function ProductsDropdown({
 									href={product.href}
 									className={cn(
 										"group flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer",
-										lightTheme ? "hover:bg-zinc-100" : "hover:bg-white/5",
+										lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
 									)}
 								>
 									<ProductMark product={product.product} className="h-6 w-6" tone="cream" />
 									<div className="flex flex-col">
 										<div className={cn(
 											"font-medium text-sm transition-colors",
-											lightTheme ? "text-zinc-900" : "text-white group-hover:text-white",
+											lightTheme ? "text-ink" : "text-white group-hover:text-white",
 										)}>
 											{product.label}
 										</div>
 										<div className={cn(
 											"text-xs transition-colors leading-relaxed",
-											lightTheme ? "text-zinc-500 group-hover:text-zinc-700" : "text-zinc-400 group-hover:text-zinc-300",
+											lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
 										)}>
 											{product.description}
 										</div>
@@ -300,19 +300,19 @@ function ProductsDropdown({
 										href={sub.href}
 										className={cn(
 											"group flex items-center gap-2.5 py-1.5 pl-12 pr-3 rounded-lg transition-colors cursor-pointer",
-											lightTheme ? "hover:bg-zinc-100" : "hover:bg-white/5",
+											lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
 										)}
 									>
 										<sub.icon
 											className={cn(
 												"h-3.5 w-3.5 transition-colors",
-												lightTheme ? "text-zinc-500 group-hover:text-zinc-700" : "text-zinc-500 group-hover:text-zinc-300",
+												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-500 group-hover:text-zinc-300",
 											)}
 										/>
 										<span
 											className={cn(
 												"text-xs transition-colors",
-												lightTheme ? "text-zinc-500 group-hover:text-zinc-700" : "text-zinc-400 group-hover:text-zinc-300",
+												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
 											)}
 										>
 											{sub.label}
@@ -848,7 +848,7 @@ function DocsMobileNavigation({
 			<div className="mt-4 pt-4 border-t border-white/10">
 				<a
 					href="https://dashboard.rivet.dev/"
-					className="flex items-center justify-center w-full rounded-md bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-zinc-200"
+					className="flex items-center justify-center w-full rounded-md bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90"
 				>
 					Dashboard
 				</a>

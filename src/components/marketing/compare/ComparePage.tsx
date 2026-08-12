@@ -9,6 +9,7 @@ import { Spirograph } from '@/components/marketing/art/Spirograph';
 import {
 	CAPTION_CLASS,
 	HERO_H1_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 	SUBTITLE_CLASS,
 } from '@/components/marketing/typography';
@@ -63,7 +64,7 @@ function HeroSection({ entry }: { entry: CompareEntry }) {
 						</a>
 						<a
 							href="/talk-to-an-engineer"
-							className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-ink/20 px-4 py-2 text-sm text-ink-soft transition-colors hover:border-ink/40 hover:text-ink"
+							className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
 						>
 							Talk to an engineer
 						</a>
@@ -89,7 +90,7 @@ function ChoiceList({
 	return (
 		<div>
 			<div
-				className={`font-mono text-[11px] font-medium uppercase tracking-[0.16em] ${
+				className={`font-mono text-[11px] font-medium uppercase tracking-[0.18em] ${
 					headingTone === 'pine' ? 'text-pine' : 'text-ink-faint'
 				}`}
 			>
@@ -107,9 +108,8 @@ function ChoiceList({
 	);
 }
 
-// Catalog-card treatment for the two overview plates. The Rivet plate is
-// highlighted with a pine frame, so this stays local markup rather than the
-// shared CatalogCard, whose hairline border is fixed.
+// Catalog-card treatment for the two overview plates. The Rivet plate uses
+// CatalogCard's highlight prop for its pine frame.
 function OverviewPanel({
 	icon,
 	name,
@@ -124,19 +124,19 @@ function OverviewPanel({
 	highlight?: boolean;
 }) {
 	return (
-		<div
-			className={`flex flex-col border bg-white/55 p-8 ${
-				highlight ? 'border-pine/60' : 'border-ink/10'
-			}`}
+		<CatalogCard
+			highlight={highlight}
+			title={
+				<span className="flex items-center gap-3">
+					<span className="text-pine">{icon}</span>
+					{name}
+				</span>
+			}
 		>
-			<div className="flex items-center gap-3">
-				<span className={highlight ? 'text-pine' : 'text-olive'}>{icon}</span>
-				<h3 className="text-lg font-medium tracking-[-0.01em] text-ink">{name}</h3>
-			</div>
 			<p className="mt-4 text-sm leading-relaxed text-ink-soft">{summary}</p>
 			<div className="my-7 h-px bg-ink/10" />
 			{children}
-		</div>
+		</CatalogCard>
 	);
 }
 
@@ -244,7 +244,7 @@ function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['
 				<div className="mt-8">
 					<a
 						href="/talk-to-an-engineer"
-						className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-ink/20 px-4 py-2 text-sm text-ink-soft transition-colors hover:border-ink/40 hover:text-ink"
+						className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
 					>
 						Talk to an engineer
 					</a>
@@ -296,8 +296,8 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 
 function CTASection() {
 	return (
-		<section className="selection-paper bg-paper px-4 py-14 text-center text-cream md:px-6 md:py-24">
-			<div className="relative mx-auto flex min-h-[26rem] max-w-screen-2xl items-center justify-center overflow-hidden px-6 py-20 md:min-h-[34rem] md:px-10 lg:aspect-[2563/1440] lg:min-h-0">
+		<section className="selection-paper bg-paper px-4 py-14 text-center md:px-6 md:py-24">
+			<div className="relative mx-auto flex min-h-[26rem] max-w-screen-2xl items-center justify-center overflow-hidden px-6 py-20 text-cream md:min-h-[34rem] md:px-10 lg:aspect-[2563/1440] lg:min-h-0">
 				<img
 					aria-hidden="true"
 					src={FOOTER_PAINTING_SRC}
@@ -334,7 +334,7 @@ function CTASection() {
 					<div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
 						<a
 							href="/actors/docs"
-							className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-cream px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white"
+							className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-white px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/90"
 						>
 							Start Building
 						</a>

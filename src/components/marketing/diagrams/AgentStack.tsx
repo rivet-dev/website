@@ -68,7 +68,7 @@ export const AgentStack = () => {
 		<div
 			role='img'
 			aria-label='agentOS architecture: inside your backend, your code drives sessions into per-agent agentOS VMs. In each VM an agent, such as Pi or one you build with a framework like Eve or Flue, runs Node, Python, and shell on WebAssembly, and every syscall is served by that VM&apos;s own virtual kernel: file system, processes, sockets, and deny-by-default permissions. There is no hypervisor or container in the path.'
-			className='rounded-2xl bg-white/45 p-4 ring-1 ring-ink/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_24px_-14px_rgba(20,20,22,0.20)] md:p-5'
+			className='rounded-2xl bg-white/45 p-4 ring-1 ring-ink/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] md:p-5'
 		>
 			{/* Outer box: your backend */}
 			<div className='mb-3'>
@@ -77,7 +77,7 @@ export const AgentStack = () => {
 
 			{/* The driver: your code holds the sessions */}
 			<Appear at={0.05} reduced={reduced}>
-				<div className='rounded-xl bg-white px-3 py-2.5 text-center ring-1 ring-ink/[0.09] shadow-[0_1px_2px_rgba(20,20,22,0.06),0_4px_10px_-6px_rgba(20,20,22,0.12)]'>
+				<div className='rounded-xl bg-white px-3 py-2.5 text-center ring-1 ring-ink/[0.09]'>
 					<span className='text-[13px] font-medium text-ink'>your code</span>
 				</div>
 			</Appear>
@@ -94,7 +94,7 @@ export const AgentStack = () => {
 			{/* Per-agent agentOS VMs */}
 			<div className='grid grid-cols-2 gap-3'>
 				{VMS.map((vm, i) => (
-					<Appear key={vm.agent} at={0.15 + i * 0.12} reduced={reduced} className='rounded-xl bg-white p-3 ring-1 ring-ink/[0.09] shadow-[0_1px_2px_rgba(20,20,22,0.06),0_4px_10px_-6px_rgba(20,20,22,0.12)]'>
+					<Appear key={vm.agent} at={0.15 + i * 0.12} reduced={reduced} className='rounded-xl bg-white p-3 ring-1 ring-ink/[0.09]'>
 						<p className='mb-2 text-center font-mono text-[10px]'>
 							<span className='text-ink/80'>agentOS</span> <span className='text-ink-faint'>vm</span>
 						</p>

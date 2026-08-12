@@ -3,6 +3,7 @@
 // and code visualization are the hero.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { AppsHero, APPS_CODE } from '@/components/marketing/dynamic-apps/AppsHero';
+import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
 import { highlightCodeHtml } from '@/lib/highlight-code';
 
 const appsHighlightedCode = await highlightCodeHtml(APPS_CODE, 'typescript');
@@ -21,5 +22,6 @@ const appsHighlightedCode = await highlightCodeHtml(APPS_CODE, 'typescript');
 			docsHref="/dynamic-apps/docs"
 			client:load
 		/>
+		<RedesignedCTA client:visible />
 	</main>
 </MarketingLayout>

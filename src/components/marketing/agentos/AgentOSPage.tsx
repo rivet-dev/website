@@ -36,21 +36,28 @@ import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
 import { DEPLOY_TARGETS } from '@/data/deploy-targets';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
-import { SectionHeading } from '@/components/marketing/typography';
+import {
+	DEPLOY_CARD_CLASS,
+	DEPLOY_CARD_TITLE_CLASS,
+	DEPLOY_GHOST_BUTTON_CLASS,
+	DEPLOY_WHITE_BUTTON_CLASS,
+} from '@/components/marketing/deployKit';
+import { CopyInstallCommand } from '@/components/marketing/ProductHeroCta';
+import { EYEBROW_CLASS, PRODUCT_HERO_H1_CLASS, SECTION_H2_CLASS, SectionHeading } from '@/components/marketing/typography';
 import { ColdStartTimeline } from '@/components/marketing/diagrams/ColdStartTimeline';
 import { AgentSessionDemo } from '@/components/marketing/diagrams/AgentSessionDemo';
 import { AgentOsTopologyCell, SandboxTopologyCell } from '@/components/marketing/diagrams/TopologyCells';
 import { Reveal } from '@/components/marketing/motion';
 
 // Premium porcelain card surface, shared by the architecture cards and the
-// feature bento: a single top-down gradient, a hairline ring, an inset top
-// edge-light, and a soft layered drop shadow. Hover deepens the shadow and
-// lightens the ring with no transform, so it stays reduced-motion safe.
+// feature bento: a flat card fill, a hairline ring, and an inset top
+// edge-light. Hover lightens the fill and deepens the ring with no transform,
+// so it stays reduced-motion safe.
 const CARD_SURFACE =
-	'rounded-2xl bg-gradient-to-b from-white to-[#f9f9fa] ring-1 ring-ink/[0.08] ' +
-	'shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_-1px_rgba(20,20,22,0.10),0_8px_24px_-14px_rgba(20,20,22,0.20)] ' +
-	'transition-[box-shadow,--tw-ring-color] duration-300 ' +
-	'hover:ring-ink/[0.14] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_4px_-1px_rgba(20,20,22,0.12),0_12px_30px_-12px_rgba(20,20,22,0.26)] ' +
+	'rounded-2xl bg-white/55 ring-1 ring-ink/[0.08] ' +
+	'shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] ' +
+	'transition-[background-color,--tw-ring-color] duration-300 ' +
+	'hover:bg-white hover:ring-ink/[0.14] ' +
 	'motion-reduce:transition-none';
 
 // The page reads best at ~90% browser zoom, so it ships that density: zoom
@@ -312,37 +319,6 @@ const SetupWithAgent = () => {
 	);
 };
 
-// The install command itself is the CTA: clicking anywhere on the chip copies
-// it, with an inline confirmation that does not replace the command text.
-const CopyInstallCommand = () => {
-	const [copied, setCopied] = useState(false);
-	const command = 'npm install @rivet-dev/agentos';
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(command);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
-
-	return (
-		<button
-			type='button'
-			onClick={handleCopy}
-			aria-label={copied ? 'Install command copied' : `Copy ${command}`}
-			className='group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors hover:border-ink/30 hover:bg-white sm:w-auto'
-		>
-			<span aria-hidden='true' className='select-none text-pine'>$</span>
-			<span className='whitespace-nowrap'>{command}</span>
-			<span
-				aria-hidden='true'
-				className={`pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white shadow-sm transition-opacity ${copied ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}
-			>
-				{copied ? 'Copied' : 'Copy'}
-			</span>
-		</button>
-	);
-};
-
 // --- Hero Tabs (scrollable with fade + arrows) ---
 interface HeroTabEntry {
 	key: string;
@@ -571,7 +547,7 @@ const Hero = () => {
 	return (
 		// Keep the hero height tied to the viewport, as on the main landing page,
 		// while preserving enough room below the foundation tiles.
-		<section className='relative flex min-h-[92svh] flex-col justify-center bg-paper px-6 pt-44 pb-28 md:pt-52 md:pb-32'>
+		<section className='depth-wash relative flex min-h-[92svh] flex-col justify-center overflow-hidden bg-paper px-6 pt-44 pb-28 md:pt-52 md:pb-32'>
 			<div className='mx-auto flex w-full max-w-5xl flex-col items-center text-center'>
 				{/* Centered single-column hero */}
 				<div className='flex w-full flex-col items-center text-center'>
@@ -595,7 +571,7 @@ const Hero = () => {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5, delay: HERO_INTRO_STAGGER * 2 }}
-						className='mb-4 max-w-5xl text-balance text-4xl font-medium leading-[1.06] tracking-[-0.02em] text-ink md:text-5xl'
+						className={PRODUCT_HERO_H1_CLASS}
 					>
 						{HERO_COPY.heading.split('\n').map((line) => (
 							<span key={line} className='block'>
@@ -643,7 +619,7 @@ const Hero = () => {
 						transition={{ duration: 0.5, delay: HERO_INTRO_STAGGER * 5 }}
 						className='flex w-full flex-col flex-wrap items-center gap-x-4 gap-y-3 sm:flex-row sm:justify-center'
 					>
-						<CopyInstallCommand />
+						<CopyInstallCommand command='npm install @rivet-dev/agentos' />
 						<SetupWithAgent />
 					</motion.div>
 
@@ -658,7 +634,7 @@ const Hero = () => {
 
 
 const DiagramNode = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-	<div className={`z-10 flex items-center justify-center rounded-xl border border-ink/10 bg-white text-center shadow-[0_8px_24px_-20px_rgba(20,20,22,0.45)] ${className}`}>
+	<div className={`z-10 flex items-center justify-center rounded-xl border border-ink/10 bg-white text-center ${className}`}>
 		{children}
 	</div>
 );
@@ -704,7 +680,7 @@ const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
 						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Rejected</span>
 					</DiagramNode>
 				</div>
-				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-3 py-1.5 text-xs text-ink-soft'>
+				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
 					<RefreshCw className='h-3.5 w-3.5 text-pine' />
 					RivetKit checkpoints each step, decision, and retry.
 				</div>
@@ -748,7 +724,7 @@ const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
 						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Return feedback</span>
 					</DiagramNode>
 				</div>
-				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-3 py-1.5 text-xs text-ink-soft'>
+				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
 					<Moon className='h-3.5 w-3.5 text-olive' />
 					The session waits durably for a human decision.
 				</div>
@@ -824,7 +800,7 @@ const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
 				<div className='relative flex justify-between'>
 					{['09:00', '09:05', '09:10'].map((time) => (
 						<div key={time} className='flex w-[30%] max-w-32 flex-col items-center'>
-							<span className='relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-pine/25 bg-white shadow-sm'>
+							<span className='relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-pine/25 bg-white'>
 								<span className='h-2 w-2 rounded-full bg-pine' />
 							</span>
 							<DiagramNode className='mt-4 h-24 w-full flex-col px-2'>
@@ -837,7 +813,7 @@ const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
 			</div>
 			</div>
 
-			<div className='mt-7 flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-3 py-1.5 text-xs text-ink-soft'>
+			<div className='mt-7 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
 				<Moon className='h-3.5 w-3.5 text-olive' />
 				The agent sleeps between scheduled runs.
 		</div>
@@ -861,12 +837,12 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 		<div>
 			<HeroTabs tabs={tabs} activeTab={activeTab} onTabChange={selectTab} />
 
-			<div className='overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50'>
-				<div className='flex items-center gap-2 border-b border-zinc-200 px-4 py-3'>
-					<div className='h-3 w-3 rounded-full bg-zinc-200' />
-					<div className='h-3 w-3 rounded-full bg-zinc-200' />
-					<div className='h-3 w-3 rounded-full bg-zinc-200' />
-					<span className={`ml-2 hidden text-xs text-zinc-700 sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? active?.fileName ?? 'index.ts' : active?.label ?? 'Loops & Crons'}</span>
+			<div className='overflow-hidden rounded-xl border border-ink/10 bg-white/55'>
+				<div className='flex items-center gap-2 border-b border-ink/10 px-4 py-3'>
+					<div className='h-3 w-3 rounded-full bg-ink/10' />
+					<div className='h-3 w-3 rounded-full bg-ink/10' />
+					<div className='h-3 w-3 rounded-full bg-ink/10' />
+					<span className={`ml-2 hidden text-xs text-ink sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? active?.fileName ?? 'index.ts' : active?.label ?? 'Loops & Crons'}</span>
 					<button
 						type='button'
 						onClick={() => setShowCode((visible) => !visible)}
@@ -886,7 +862,7 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
 							transition={{ duration: 0.2 }}
-							className='absolute inset-0 overflow-auto p-6 font-code text-sm leading-relaxed text-zinc-600 [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'
+							className='absolute inset-0 overflow-auto p-6 font-code text-sm leading-relaxed text-ink-soft [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'
 						>
 							<span
 								className='not-prose code'
@@ -904,7 +880,7 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 			</div>
 			{active && (
 				<div className='mt-4 flex justify-end'>
-					<a href={active.docsHref} className='whitespace-nowrap text-sm text-accent-deep underline underline-offset-2 transition-colors hover:text-accent'>
+					<a href={active.docsHref} className='whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
 						{active.docsLabel ?? `${active.label} docs`} <span aria-hidden='true'>→</span>
 					</a>
 				</div>
@@ -919,7 +895,7 @@ const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
 			<Reveal>
 				<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 					<div>
-						<h2 className='text-balance text-4xl font-medium leading-[1.04] tracking-[-0.035em] text-ink md:text-6xl'>Orchestration</h2>
+						<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Orchestration</h2>
 						<p className='mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg'>Schedule recurring agent jobs, build durable RivetKit workflows, connect agents, and share live sessions with ordinary application code.</p>
 						<ActorsAttribution />
 					</div>
@@ -1008,7 +984,7 @@ const FilesystemMap = () => (
 			<div className='space-y-3'>
 				{filesystemConnections.map((connection) => (
 					<div key={connection.path} className='grid grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1.1fr)] items-center sm:grid-cols-[minmax(0,1fr)_4.5rem_minmax(0,1.15fr)]'>
-						<div className='flex h-14 min-w-0 items-center gap-2.5 rounded-xl border border-ink/10 bg-white px-3 shadow-[0_5px_18px_-16px_rgba(20,20,22,0.4)] sm:gap-3 sm:px-4'>
+						<div className='flex h-14 min-w-0 items-center gap-2.5 rounded-xl border border-ink/10 bg-white px-3 sm:gap-3 sm:px-4'>
 							{connection.icon}
 							<span className='min-w-0 text-xs font-medium leading-tight text-ink sm:text-sm'>{connection.label}</span>
 						</div>
@@ -1016,7 +992,7 @@ const FilesystemMap = () => (
 							<span className='h-px flex-1 bg-ink/15' />
 							<ArrowRight className='-ml-px h-3.5 w-3.5 shrink-0' />
 						</div>
-						<div className='flex h-14 min-w-0 items-center rounded-xl border border-ink/10 bg-white px-3 font-mono text-[11px] text-ink-soft shadow-[0_5px_18px_-16px_rgba(20,20,22,0.4)] sm:px-4 sm:text-sm'>
+						<div className='flex h-14 min-w-0 items-center rounded-xl border border-ink/10 bg-white px-3 font-mono text-[11px] text-ink-soft sm:px-4 sm:text-sm'>
 							{connection.path}
 						</div>
 					</div>
@@ -1028,7 +1004,7 @@ const FilesystemMap = () => (
 );
 
 const FilesystemCodeView = ({ highlightedCode }: { highlightedCode: string }) => (
-	<div className='h-[360px] overflow-auto p-6 font-code text-sm leading-relaxed text-zinc-600 sm:h-[430px] [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'>
+	<div className='h-[360px] overflow-auto p-6 font-code text-sm leading-relaxed text-ink-soft sm:h-[430px] [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'>
 		<span
 			className='not-prose code'
 			// biome-ignore lint/security/noDangerouslySetInnerHtml: generated at Astro render time
@@ -1046,20 +1022,20 @@ const FilesystemSection = ({ highlightedCode }: { highlightedCode: string }) => 
 				<Reveal>
 					<div className='grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16'>
 						<div className='lg:order-2'>
-							<h2 className='text-balance text-4xl font-medium leading-[1.04] tracking-[-0.035em] text-ink md:text-6xl'>Filesystem</h2>
+							<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Filesystem</h2>
 							<p className='mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg'>Every agent gets its own persistent POSIX filesystem. Mount S3, Google Drive, host directories, or a full sandbox at a normal path, then use familiar files and shell tools everywhere.</p>
-							<a href='/agentos/docs/filesystem' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent-deep underline underline-offset-4 transition-colors hover:text-accent'>
+							<a href='/agentos/docs/filesystem' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
 								Explore the filesystem
 								<ArrowRight className='h-3.5 w-3.5' />
 							</a>
 						</div>
 
-						<div className='min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 lg:order-1'>
-							<div className='flex items-center gap-2 border-b border-zinc-200 px-4 py-3'>
-								<div className='h-3 w-3 rounded-full bg-zinc-200' />
-								<div className='h-3 w-3 rounded-full bg-zinc-200' />
-								<div className='h-3 w-3 rounded-full bg-zinc-200' />
-								<span className={`ml-2 hidden text-xs text-zinc-700 sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? 'filesystem.ts' : 'agentOS VM Mounts'}</span>
+						<div className='min-w-0 overflow-hidden rounded-xl border border-ink/10 bg-white/55 lg:order-1'>
+							<div className='flex items-center gap-2 border-b border-ink/10 px-4 py-3'>
+								<div className='h-3 w-3 rounded-full bg-ink/10' />
+								<div className='h-3 w-3 rounded-full bg-ink/10' />
+								<div className='h-3 w-3 rounded-full bg-ink/10' />
+								<span className={`ml-2 hidden text-xs text-ink sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? 'filesystem.ts' : 'agentOS VM Mounts'}</span>
 								<button
 									type='button'
 									onClick={() => setShowCode((visible) => !visible)}
@@ -1114,7 +1090,7 @@ const ExecutionSection = () => (
 			<Reveal>
 				<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 					<div>
-						<h2 className='text-balance text-4xl font-medium leading-[1.04] tracking-[-0.035em] text-ink md:text-6xl'>Execution</h2>
+						<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Execution</h2>
 						<p className='mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg'>Run Bash, Node.js, Python, and registry software inside the same isolated VM.</p>
 						<div className='mt-7 max-w-md border-t border-ink/10 pt-6'>
 							<ul className='space-y-4'>
@@ -1133,7 +1109,7 @@ const ExecutionSection = () => (
 									);
 								})}
 							</ul>
-							<a href='/agentos/docs/processes' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent-deep underline underline-offset-4 transition-colors hover:text-accent'>
+							<a href='/agentos/docs/processes' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
 								Explore execution docs
 								<ArrowRight className='h-3.5 w-3.5' />
 							</a>
@@ -1181,7 +1157,7 @@ const RegistryAppTile = ({ entry, hidden }: { entry: (typeof registry)[number]; 
       rel={external ? 'noopener noreferrer' : undefined}
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : undefined}
-      className='group/tile flex w-64 shrink-0 items-center gap-3.5 rounded-xl border border-ink/10 bg-white/55 p-3 transition-colors hover:border-ink/25 hover:bg-white/80'
+      className='group/tile flex w-64 shrink-0 items-center gap-3.5 rounded-xl border border-ink/10 bg-white/55 p-3 transition-colors hover:border-ink/25 hover:bg-white'
     >
       <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-ink/5'>
         {entry.image ? (
@@ -1236,7 +1212,7 @@ const RegistrySection = () => (
 		<div className='mx-auto max-w-7xl'>
 			<Reveal>
 				<div className='mx-auto max-w-5xl text-center'>
-					<h2 className='text-balance text-4xl font-medium leading-[1.05] tracking-[-0.035em] text-ink md:text-6xl'>Whatever the workload, there&apos;s a package for it.</h2>
+					<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Whatever the workload, there&apos;s a package for it.</h2>
 					<p className='mx-auto mt-5 max-w-3xl text-balance text-base leading-relaxed text-ink-soft md:text-lg'>Extend agentOS with agents, filesystems, browsers, and software from one registry.</p>
 				</div>
 			</Reveal>
@@ -1720,7 +1696,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 			whileInView={{ opacity: 1, y: 0 }}
 			viewport={{ once: true }}
 			transition={{ duration: 0.5, delay }}
-			className='group relative block min-h-[24rem] cursor-pointer overflow-hidden rounded-2xl bg-white/75 ring-1 ring-ink/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_5px_-2px_rgba(20,20,22,0.12),0_18px_40px_-28px_rgba(20,20,22,0.30)] transition-[background-color,--tw-ring-color,box-shadow] duration-300 hover:bg-white hover:ring-ink/[0.18] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),0_4px_9px_-3px_rgba(20,20,22,0.14),0_22px_48px_-24px_rgba(20,20,22,0.34)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none lg:aspect-square lg:min-h-0'
+			className='group relative block min-h-[24rem] cursor-pointer overflow-hidden rounded-2xl bg-white/55 ring-1 ring-ink/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)] transition-[background-color,--tw-ring-color] duration-300 hover:bg-white hover:ring-ink/[0.18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none lg:aspect-square lg:min-h-0'
 		>
 			<div aria-hidden='true' className='absolute inset-0'>
 				{card.bubbles.map((bubble) => {
@@ -1738,7 +1714,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 											transition: { duration: bubble.duration * 0.62, delay: bubble.delay * 0.3, repeat: Infinity, ease: 'easeInOut' },
 										},
 								}}
-								className='flex flex-col items-center justify-center rounded-2xl bg-ink/[0.035] opacity-65 grayscale ring-1 ring-ink/[0.08] shadow-none transition-[filter,opacity,box-shadow,background-color,--tw-ring-color] duration-300 group-hover:bg-gradient-to-b group-hover:from-white group-hover:to-[#ededf0] group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 group-hover:shadow-[0_2px_6px_-1px_rgba(20,20,22,0.10),0_16px_34px_-12px_rgba(20,20,22,0.26)] motion-reduce:transition-none'
+								className='flex flex-col items-center justify-center rounded-2xl bg-ink/[0.035] opacity-65 grayscale ring-1 ring-ink/[0.08] transition-[filter,opacity,background-color,--tw-ring-color] duration-300 group-hover:bg-white group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 motion-reduce:transition-none'
 								style={{ width: bubble.size, height: bubble.size, rotate: bubble.rotation }}
 							>
 								{bubble.src ? <img src={bubble.src} alt='' className='h-7 w-7 object-contain' /> : Icon ? <Icon className='h-7 w-7 text-ink-faint transition-colors duration-300 group-hover:text-pine' /> : <span className='text-2xl font-medium leading-none text-ink-faint transition-colors duration-300 group-hover:text-pine'>{bubble.glyph}</span>}
@@ -1788,7 +1764,7 @@ const AgentCompatibilitySection = () => (
 		<div className='mx-auto max-w-7xl'>
 			<Reveal>
 				<div className='mx-auto max-w-4xl text-center'>
-					<h2 className='text-balance text-3xl font-medium leading-[1.08] tracking-[-0.025em] text-ink md:text-5xl'>Bring any agent or framework.</h2>
+					<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Bring any agent or framework.</h2>
 					<p className='mx-auto mt-5 max-w-3xl text-balance text-base leading-relaxed text-ink-soft md:text-lg'>Pi, Claude Code, Codex, and OpenCode on the same virtual operating system—with native Rivet orchestration and integrations for Eve and Flue.</p>
 				</div>
 			</Reveal>
@@ -1810,7 +1786,7 @@ const AgentCompatibilitySection = () => (
 									}}
 									transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
 									style={{ zIndex: i }}
-									className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white shadow-[0_3px_10px_-2px_rgba(20,20,22,0.16)] md:h-16 md:w-16'
+									className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white md:h-16 md:w-16'
 								>
 									<img src={agent.src} alt='' aria-hidden='true' className='h-8 w-8 object-contain md:h-9 md:w-9' />
 									<span className='pointer-events-none absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-soft opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'>
@@ -1839,7 +1815,7 @@ const AgentCompatibilitySection = () => (
 									}}
 									transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
 									style={{ zIndex: i }}
-									className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white shadow-[0_3px_10px_-2px_rgba(20,20,22,0.16)] md:h-16 md:w-16'
+									className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white md:h-16 md:w-16'
 								>
 									<img
 										src={framework.src}
@@ -1847,7 +1823,7 @@ const AgentCompatibilitySection = () => (
 										aria-hidden='true'
 										className={framework.wordmark ? 'w-9 object-contain opacity-90 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:w-10' : 'h-8 w-8 object-contain opacity-90 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:h-9 md:w-9'}
 									/>
-									{framework.comingSoon && <span className='pointer-events-none absolute -bottom-2 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full border border-ink/10 bg-paper px-1.5 py-0.5 text-[6px] font-medium uppercase tracking-[0.04em] text-ink/55 shadow-[0_1px_4px_rgba(20,20,22,0.08)] md:text-[7px]'>Coming soon</span>}
+									{framework.comingSoon && <span className='pointer-events-none absolute -bottom-2 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full border border-ink/10 bg-paper px-1.5 py-0.5 text-[6px] font-medium uppercase tracking-[0.04em] text-ink/55 md:text-[7px]'>Coming soon</span>}
 									<span className='pointer-events-none absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-soft opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'>
 										{framework.name}
 									</span>
@@ -2020,7 +1996,7 @@ function RuntimeCostMeter() {
 			className='mt-auto pt-7'
 			aria-label={`Modeled live cost for ${runtimeMeterVmCount.toLocaleString('en-US')} concurrent VMs: agentOS accrues $${runtimeAgentOSMeterRate.toFixed(4)} per second and a sandbox accrues $${runtimeSandboxMeterRate.toFixed(2)} per second`}
 		>
-			<p className='mb-4 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint'>
+			<p className={`mb-4 ${EYEBROW_CLASS}`}>
 				Metering {runtimeMeterVmCount.toLocaleString('en-US')} concurrent VMs
 			</p>
 			<div className='border-y border-ink/10'>
@@ -2075,7 +2051,7 @@ const RuntimeArgumentSection = () => (
 		<div className='mx-auto max-w-7xl'>
 			<Reveal>
 				<div className='mx-auto mb-12 max-w-5xl text-center md:mb-16'>
-					<h2 className='text-balance text-4xl font-medium leading-[1.05] tracking-[-0.035em] text-ink md:text-6xl'>
+					<h2 className={`text-balance ${SECTION_H2_CLASS}`}>
 						Tiny runtime.
 						<br />
 						Battle-tested security.
@@ -2135,7 +2111,7 @@ const RuntimeArgumentSection = () => (
 						<p className='mt-2 text-base font-medium text-pine'>{runtimeMemory.agentOS} per instance</p>
 						<div className='mt-auto flex h-40 items-end justify-center gap-12 pt-8' aria-label={`agentOS uses ${runtimeMemory.agentOS}; a sandbox uses ${runtimeMemory.sandbox}`}>
 							<div className='flex flex-col items-center gap-3'>
-								<div className='flex h-24 w-24 items-end justify-center'><span className='h-4 w-4 bg-pine/75 shadow-[0_5px_16px_-6px_rgba(48,91,70,0.75)]' /></div>
+								<div className='flex h-24 w-24 items-end justify-center'><span className='h-4 w-4 bg-pine/75' /></div>
 								<p className='text-center text-xs font-medium text-pine'>agentOS<br />{runtimeMemory.agentOS}</p>
 							</div>
 							<div className='flex flex-col items-center gap-3'>
@@ -2156,7 +2132,7 @@ const RuntimeArgumentSection = () => (
 					</article>
 
 					{runtimeFeatures.map((feature) => (
-						<article key={feature.title} className='flex min-h-48 flex-col border-b border-r border-ink/10 bg-white/35 p-6 md:p-8'>
+						<article key={feature.title} className='flex min-h-48 flex-col border-b border-r border-ink/10 bg-white/55 p-6 md:p-8'>
 							<h3 className='text-xl font-medium leading-snug tracking-[-0.02em] text-ink'>
 								{feature.title}<span className='text-ink-faint'>, {feature.contrast}</span>
 							</h3>
@@ -2257,7 +2233,7 @@ const SecondaryFeaturesSection = () => (
 		<div className='mx-auto max-w-7xl'>
 			<Reveal>
 				<div className='mx-auto max-w-4xl text-center'>
-					<h2 className='text-balance text-3xl font-medium leading-[1.08] tracking-[-0.025em] text-ink md:text-5xl'>Built for flexible, production-grade agents.</h2>
+					<h2 className={`text-balance ${SECTION_H2_CLASS}`}>Built for flexible, production-grade agents.</h2>
 					<p className='mx-auto mt-5 max-w-3xl text-balance text-base leading-relaxed text-ink-soft md:text-lg'>Persist agent state, expose backend functions, review tool calls, route models, and attach a full sandbox only when a workload needs one.</p>
 				</div>
 			</Reveal>
@@ -2267,7 +2243,7 @@ const SecondaryFeaturesSection = () => (
 					{secondaryFeatures.map((feature) => {
 						const Icon = feature.icon;
 						return (
-							<a key={feature.title} href={feature.docsHref} className='group -m-4 block cursor-pointer rounded-xl p-4 transition-[background-color,box-shadow] duration-200 hover:bg-white/60 hover:shadow-[inset_0_0_0_1px_rgba(20,20,22,0.08),0_8px_24px_-20px_rgba(20,20,22,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50'>
+							<a key={feature.title} href={feature.docsHref} className='group -m-4 block cursor-pointer rounded-xl p-4 transition-[background-color,box-shadow] duration-200 hover:bg-white/60 hover:shadow-[inset_0_0_0_1px_rgba(20,20,22,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50'>
 								<span className='flex items-center gap-3'>
 									<Icon className='h-5 w-5 text-ink-soft transition-colors group-hover:text-ink' />
 									<span className='text-lg font-medium tracking-[-0.015em] text-ink'>{feature.title}</span>
@@ -2377,12 +2353,12 @@ const BenchmarksSection = () => {
 				<div className='mx-auto max-w-7xl'>
 					<Reveal>
 						<div className='mb-8 flex items-baseline justify-between gap-4'>
-							<h2 className='text-2xl font-medium tracking-[-0.015em] text-ink md:text-3xl'>
+							<h2 className={SECTION_H2_CLASS}>
 								What staying in-process saves.
 							</h2>
 							<a
 								href='/agentos/docs/performance'
-								className='inline-flex shrink-0 items-center gap-1 text-sm text-accent-deep underline underline-offset-2 transition-colors hover:text-accent'
+								className='inline-flex shrink-0 items-center gap-1 text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'
 							>
 								Benchmark document
 								<ExternalLink className='h-3 w-3' />
@@ -2403,14 +2379,9 @@ const BenchmarksSection = () => {
 // a three-card local -> managed -> self-host story, with deploy targets in the
 // self-host card.
 // Content is grounded in /docs/deployment (agentOS runs as Rivet Actors).
-
-const DEPLOY_CARD_CLASS =
-	'relative flex h-full flex-col border border-ink/10 bg-white/55 p-6 md:p-8';
-const DEPLOY_CARD_TITLE_CLASS = 'text-base font-medium tracking-tight text-ink';
-const DEPLOY_BUTTON_BASE =
-	'inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 text-sm font-medium transition-colors';
-const DEPLOY_GHOST_BUTTON_CLASS = `${DEPLOY_BUTTON_BASE} border border-ink/15 text-ink-soft hover:border-ink/40 hover:text-ink`;
-const DEPLOY_PRIMARY_BUTTON_CLASS = `${DEPLOY_BUTTON_BASE} selection-dark bg-ink text-cream hover:bg-ink/85`;
+// Card and button classes come from the shared deploy kit in
+// '@/components/marketing/deployKit' so this section cannot drift from the
+// home HostingSection.
 
 const DeploymentSection = () => (
 	<section className='border-t border-ink/10 bg-paper-mid py-16 md:py-32'>
@@ -2421,7 +2392,7 @@ const DeploymentSection = () => (
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.5 }}
-					className='mb-2 text-3xl font-medium tracking-[-0.015em] text-ink md:text-5xl'
+					className={`mb-2 ${SECTION_H2_CLASS}`}
 				>
 					Ships wherever your backend ships.
 				</motion.h2>
@@ -2472,7 +2443,7 @@ const DeploymentSection = () => (
 						href='https://dashboard.rivet.dev'
 						target='_blank'
 						rel='noopener noreferrer'
-						className={`mt-6 ${DEPLOY_PRIMARY_BUTTON_CLASS}`}
+						className={`mt-6 ${DEPLOY_WHITE_BUTTON_CLASS}`}
 					>
 						Sign Up
 					</a>
@@ -2523,7 +2494,7 @@ const ClosingCta = () => (
 			<Reveal>
 				<InkPanel>
 					<div className='flex flex-col items-center px-6 py-16 text-center md:py-24'>
-						<h2 className='mb-3 max-w-2xl text-balance text-3xl font-medium tracking-[-0.015em] text-cream md:text-5xl'>
+						<h2 className='mb-3 max-w-2xl text-balance text-3xl font-medium tracking-[-0.015em] text-cream md:text-4xl'>
 							Turn your backend into the agent platform.
 						</h2>
 						<p className='mb-8 text-base leading-relaxed text-cream/70'>

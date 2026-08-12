@@ -28,14 +28,14 @@ const WIDE_IMAGES = new Set([
 // placeholders.
 const MONOGRAM_TINTS = [
 	"bg-pine/[0.08] text-pine",
-	"bg-olive/10 text-olive",
-	"bg-sage/25 text-pine",
+	"bg-pine/[0.14] text-pine",
+	"bg-ink/[0.06] text-ink-soft",
 ] as const;
 
 const TILE_SURFACE =
 	"relative flex shrink-0 items-center justify-center overflow-hidden " +
 	"ring-1 ring-ink/[0.08] " +
-	"shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_-1px_rgba(20,20,22,0.10)]";
+	"shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
 
 function monogramTint(title: string) {
 	let hash = 0;
@@ -80,7 +80,7 @@ export function RegistryIconTile({
 		}
 		return (
 			<div
-				className={`${TILE_SURFACE} bg-gradient-to-b from-white to-[#f9f9fa] ${className ?? ""}`}
+				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
 				style={frame}
 			>
 				<img
@@ -101,7 +101,7 @@ export function RegistryIconTile({
 		const IconComponent = REGISTRY_ICONS[icon];
 		return (
 			<div
-				className={`${TILE_SURFACE} bg-gradient-to-b from-white to-[#f9f9fa] ${className ?? ""}`}
+				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
 				style={frame}
 			>
 				<IconComponent

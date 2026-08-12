@@ -2,7 +2,12 @@
 
 import { Database, Globe, Infinity, Layers, Wifi, GitBranch, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
+import {
+	PRIMARY_INK_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	SECTION_H2_CLASS,
+	SUBTITLE_CLASS,
+} from '../typography';
 
 const actorFeatures = [
 	{
@@ -38,7 +43,7 @@ const actorFeatures = [
 ];
 
 export const ActorsPrimitiveSection = () => (
-	<section className='relative border-t border-ink/10 px-6 py-16 lg:py-24'>
+	<section className='relative border-t border-ink/10 px-6 py-16 md:py-32'>
 		<div className='mx-auto w-full max-w-7xl'>
 			<div className='max-w-3xl'>
 				<motion.div
@@ -65,16 +70,10 @@ export const ActorsPrimitiveSection = () => (
 					transition={{ duration: 0.5, delay: 0.1 }}
 					className='mt-6 flex flex-wrap gap-3'
 				>
-					<a
-						href='/actors/docs'
-						className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-ink/85'
-					>
+					<a href='/actors/docs' className={PRIMARY_INK_BUTTON_CLASS}>
 						Documentation
 					</a>
-					<a
-						href='/actors'
-						className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/20 px-4 py-2 text-sm text-ink-soft transition-colors hover:border-ink/40 hover:text-ink'
-					>
+					<a href='/actors' className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
 						Details
 						<ArrowRight className='h-3.5 w-3.5' />
 					</a>

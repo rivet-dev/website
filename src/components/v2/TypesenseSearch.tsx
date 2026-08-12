@@ -148,7 +148,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 					"relative h-8 w-full justify-start rounded-[0.5rem] text-sm font-normal shadow-none hidden md:flex md:w-24 lg:w-40",
 					light
 						? "bg-white/60 border-ink/15 text-ink-soft hover:bg-white/70 hover:text-ink"
-						: "bg-background text-muted-foreground",
+						: "bg-paper text-ink-faint",
 				)}
 			>
 				<span className="hidden lg:inline-flex">Search...</span>
@@ -165,34 +165,34 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 			<Dialog open={isOpen}>
 				<DialogPortal>
 					<div
-						className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+						className="fixed inset-0 z-50 bg-paper/80 backdrop-blur-sm"
 						onClick={() => setIsOpen(false)}
 					>
 						<div
-							className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-background shadow-lg"
+							className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-ink/10 bg-paper shadow-lg"
 							onClick={(e) => e.stopPropagation()}
 						>
-							<div className="flex items-center border-b px-3">
+							<div className="flex items-center border-b border-ink/10 px-3">
 								<input
 									value={query}
 									onChange={(e) => setQuery(e.target.value)}
 									onFocus={() => setInputFocused(true)}
 									onBlur={() => setInputFocused(false)}
-									className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+									className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-ink-faint"
 									placeholder="Search documentation..."
 									autoFocus
 								/>
 							</div>
 							<div className="max-h-[300px] overflow-y-auto">
 								{isLoading && (
-									<div className="p-4 text-center text-sm text-muted-foreground">
+									<div className="p-4 text-center text-sm text-ink-faint">
 										Searching...
 									</div>
 								)}
 								{!isLoading &&
 									query &&
 									results.length === 0 && (
-										<div className="p-4 text-center text-sm text-muted-foreground">
+										<div className="p-4 text-center text-sm text-ink-faint">
 											No results found for "{query}"
 										</div>
 									)}
@@ -201,9 +201,9 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 										<div
 											key={result.id}
 											className={cn(
-												"p-3 hover:bg-muted cursor-pointer border-b border-border last:border-b-0",
+												"p-3 hover:bg-ink/[0.04] cursor-pointer border-b border-ink/10 last:border-b-0",
 												index === selectedIndex &&
-													"bg-muted",
+													"bg-ink/[0.04]",
 											)}
 											onClick={() =>
 												handleResultClick(result)
@@ -217,7 +217,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 													{result.hierarchy.lvl1}
 												</div>
 											)}
-											<div className="text-xs text-muted-foreground line-clamp-2">
+											<div className="text-xs text-ink-faint line-clamp-2">
 												{result.content?.substring(
 													0,
 													150,
@@ -227,10 +227,10 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 										</div>
 									))}
 							</div>
-							<div className="flex items-center justify-between p-3 pt-2 border-t">
-								<p className="text-xs text-muted-foreground">
+							<div className="flex items-center justify-between p-3 pt-2 border-t border-ink/10">
+								<p className="text-xs text-ink-faint">
 									Press{" "}
-									<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">
+									<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-ink/10 bg-paper-mid px-1.5 font-mono text-[10px] font-medium">
 										⌘K
 									</kbd>{" "}
 									to search

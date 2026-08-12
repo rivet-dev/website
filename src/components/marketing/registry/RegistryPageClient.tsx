@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import type { RegistryEntryBase } from "../../../data/registry";
 import type { RegistryIconName } from "../../../data/registry-icons";
+import { PRODUCT_HERO_SECONDARY_BUTTON_CLASS } from "../typography";
 import { RegistryIconTile } from "./RegistryIconTile";
 
 // The slim, serializable slice of a RegistryEntry the storefront renders. The
@@ -75,11 +76,11 @@ const CATEGORY_ORDER: {
 const MAX_SHELF_ITEMS = 6;
 const CAROUSEL_INTERVAL = 6000;
 
-// The featured banner's editorial card surface: the site's premium porcelain
-// card treatment with a deeper resting shadow for the storefront hero moment.
+// The featured banner's editorial card surface: the site's flat porcelain
+// card treatment with an inset edge-light for the storefront hero moment.
 const BANNER_SURFACE =
-	"rounded-3xl bg-gradient-to-b from-white to-[#f9f9fa] ring-1 ring-ink/[0.08] " +
-	"shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_2px_-1px_rgba(20,20,22,0.10),0_16px_40px_-20px_rgba(20,20,22,0.25)]";
+	"rounded-3xl bg-white/55 ring-1 ring-ink/[0.08] " +
+	"shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
 
 function entryHref(hrefBase: string, entry: RegistryCardEntry) {
 	// External entries (deploy targets) link straight to their guide; there is
@@ -98,7 +99,7 @@ function categoryLabelFor(entry: RegistryCardEntry) {
 const PILL_BASE =
 	"inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-md px-3 text-[13px] font-medium transition-colors duration-200 motion-reduce:transition-none";
 const PILL_ACTIVE =
-	"border border-ink/15 bg-white/45 text-ink-soft group-hover:border-ink/40 group-hover:text-ink";
+	"border border-ink/15 bg-white/55 text-ink-soft group-hover:border-ink/40 group-hover:text-ink";
 
 // The trailing App Store-style action affordance, in the site's ghost-button
 // language. Rendered as a span because the whole row is the link; nesting an
@@ -414,7 +415,7 @@ function FooterCta() {
 					href="https://github.com/rivet-dev/agentos/blob/main/software/CONTRIBUTING.md"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="selection-dark inline-flex items-center gap-2 rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-cream no-underline transition-colors hover:bg-ink/85"
+					className="selection-dark inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream no-underline transition-colors hover:bg-ink/85"
 				>
 					Publish a Package
 					<ArrowUpRight className="h-3.5 w-3.5" />
@@ -423,7 +424,7 @@ function FooterCta() {
 					href="https://github.com/rivet-dev/agentos/issues"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="inline-flex items-center gap-2 rounded-lg border border-ink/20 px-5 py-2.5 text-sm font-medium text-ink-soft no-underline transition-colors hover:border-ink/40 hover:text-ink"
+					className={`${PRODUCT_HERO_SECONDARY_BUTTON_CLASS} no-underline`}
 				>
 					Request an Extension
 					<ArrowUpRight className="h-3.5 w-3.5" />

@@ -54,7 +54,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 			>
 				{/* Header: eyebrow + workload toggle */}
 				<div className='flex flex-wrap items-start justify-between gap-3'>
-					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint'>Memory Per Instance</span>
+					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Memory Per Instance</span>
 					<div className='w-64 max-sm:w-full'>
 						<BenchToggle
 							options={WORKLOAD_KEYS.map((k) => benchWorkloads[k].label)}
@@ -120,7 +120,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 									animate={{ bottom: inView ? targetSide : '0%' }}
 									transition={{ duration: reduced ? 0 : 0.6, ease: [...S_CURVE] }}
 								>
-									<span className='mx-auto block w-fit whitespace-nowrap rounded bg-accent px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums text-cream'>
+									<span className='mx-auto block w-fit whitespace-nowrap rounded bg-accent-deep px-1.5 py-0.5 font-mono text-[10px] font-semibold tabular-nums text-white'>
 										<CountUpStat text={mem.agentOS} active={inView} />
 									</span>
 								</motion.div>
@@ -130,8 +130,8 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 									animate={{ height: inView ? targetSide : '0%' }}
 									transition={{ duration: reduced ? 0 : 0.6, ease: [...S_CURVE] }}
 								>
-									<div className='absolute inset-0 [background-image:repeating-linear-gradient(0deg,rgba(244,241,231,0.18)_0,rgba(244,241,231,0.18)_1px,transparent_1px,transparent_8px)]' />
-									<div className='absolute inset-x-0 top-0 h-px bg-cream/50' />
+									<div className='absolute inset-0 [background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.18)_1px,transparent_1px,transparent_8px)]' />
+									<div className='absolute inset-x-0 top-0 h-px bg-white/50' />
 								</motion.div>
 							</div>
 							<span className='font-mono text-[11px] font-medium text-accent-deep'>agentOS</span>

@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { integrationsFor } from '@/data/integrations';
 
 const integrations = integrationsFor('actors');
-import { SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
-import { GLOW_PILL_CLASS, handleGlowPillMouseMove } from '../glowPill';
+import { EYEBROW_CLASS, SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
+import { GLOW_PILL_SURFACE_CLASS, handleGlowPillMouseMove } from '../glowPill';
 
 const frameworks = [
   { name: 'React', href: '/actors/docs/clients/react' },
@@ -18,10 +18,9 @@ const frameworks = [
   { name: 'tRPC', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/trpc', external: true },
 ];
 
-// Matches DEPLOY_PILL_CLASS in HostingSection so the two index rows read as
-// one vocabulary.
-const STACK_LINK_CLASS =
-  `${GLOW_PILL_CLASS} inline-flex items-center rounded-full border border-ink/12 bg-paper/45 px-2.5 py-1 text-[13px] text-ink-soft shadow-[0_8px_22px_-20px_rgba(27,25,22,0.45)] transition-colors hover:border-ink/25 hover:text-ink`;
+// Shares GLOW_PILL_SURFACE_CLASS with HostingSection so the two index rows
+// read as one vocabulary.
+const STACK_LINK_CLASS = GLOW_PILL_SURFACE_CLASS;
 
 export const IntegrationsSection = () => (
   <section className='relative overflow-hidden border-t border-ink/10 py-16 md:py-32'>
@@ -46,7 +45,7 @@ export const IntegrationsSection = () => (
         <div className='border-t border-ink/10 pt-6'>
           <div className='mb-4 flex items-center gap-3'>
             <LayoutGrid className='h-4 w-4 text-olive' />
-            <h4 className='font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint'>Frameworks</h4>
+            <h4 className={EYEBROW_CLASS}>Frameworks</h4>
           </div>
           <div className='flex flex-wrap gap-2'>
             {frameworks.map(tech => (
@@ -67,7 +66,7 @@ export const IntegrationsSection = () => (
         <div className='border-t border-ink/10 pt-6'>
           <div className='mb-4 flex items-center gap-3'>
             <Terminal className='h-4 w-4 text-olive' />
-            <h4 className='font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint'>Runtimes</h4>
+            <h4 className={EYEBROW_CLASS}>Runtimes</h4>
           </div>
           <div className='flex flex-wrap gap-2'>
             {[
@@ -92,7 +91,7 @@ export const IntegrationsSection = () => (
         <div className='border-t border-ink/10 pt-6'>
           <div className='mb-4 flex items-center gap-3'>
             <Wrench className='h-4 w-4 text-olive' />
-            <h4 className='font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint'>Tools</h4>
+            <h4 className={EYEBROW_CLASS}>Tools</h4>
           </div>
           <div className='flex flex-wrap gap-2'>
             {[
@@ -119,7 +118,7 @@ export const IntegrationsSection = () => (
       <div className='mt-8 border-t border-ink/10 pt-6'>
         <div className='mb-4 flex items-center gap-3'>
           <Blocks className='h-4 w-4 text-olive' />
-          <h4 className='font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink-faint'>Integrations</h4>
+          <h4 className={EYEBROW_CLASS}>Integrations</h4>
         </div>
         <div className='flex flex-wrap gap-2'>
           {integrations.map(integration => (
