@@ -7,8 +7,12 @@
 // (see `wordmarkMaskStyle` in `src/lib/product-accent.ts`).
 import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
+import dynamicAppsLogoUrl from "@/images/products/dynamic-apps-logo.svg";
+import workflowsLogoUrl from "@/images/products/workflows-logo.svg";
 
 export const productLogos: Record<string, { src: string }> = {
 	actors: actorsLogoUrl,
 	agentos: agentosLogoUrl,
+	workflows: workflowsLogoUrl,
+	"dynamic-apps": dynamicAppsLogoUrl,
 };

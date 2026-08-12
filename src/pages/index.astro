@@ -3,8 +3,7 @@ import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { RedesignedHero } from '@/components/marketing/sections/RedesignedHero';
-import { ActorsPrimitiveSection } from '@/components/marketing/sections/ActorsPrimitiveSection';
-import { AgentOSSection } from '@/components/marketing/sections/AgentOSSection';
+import { StackSection } from '@/components/marketing/sections/StackSection';
 import { ObservabilitySection } from '@/components/marketing/sections/ObservabilitySection';
 import { IntegrationsSection } from '@/components/marketing/sections/IntegrationsSection';
 import { HostingSection } from '@/components/marketing/sections/HostingSection';
@@ -94,8 +93,7 @@ const latestChangelogHref = latest
 		<div class="paper-grain min-h-screen font-sans text-ink-soft">
 			<main>
 				<RedesignedHero latestChangelogTitle={latestChangelogTitle} latestChangelogHref={latestChangelogHref} thinkingImages={thinkingImages} client:load />
-				<ActorsPrimitiveSection client:visible />
-				<AgentOSSection client:visible />
+				<StackSection client:visible />
 				<ObservabilitySection client:visible />
 				<IntegrationsSection client:visible />
 				<HostingSection client:visible />
