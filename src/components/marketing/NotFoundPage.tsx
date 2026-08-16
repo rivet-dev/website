@@ -109,7 +109,7 @@ export const NotFoundPage = ({ thinkingImage }: NotFoundPageProps) => {
           <div className="absolute inset-0 overflow-hidden border border-ink/15 bg-paper-mid p-2.5">
             <img
               src={thinkingImage}
-              alt="Classical artwork depicting contemplation"
+              alt="Paul Delaroche, Napoleon at Fontainebleau (1845)"
               className="h-full w-full object-cover outline outline-1 outline-ink/10"
             />
           </div>
