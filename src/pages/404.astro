@@ -2,10 +2,11 @@
 import { getImage } from 'astro:assets';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { NotFoundPage } from '@/components/marketing/NotFoundPage';
-const imgThinker = { src: "https://assets.rivet.dev/website/images/thinking/thinker-rodin-closeup.jpg", width: 2673, height: 3722, format: "jpg" };
+// Paul Delaroche, "Napoleon I at Fontainebleau on March 31, 1814" (1845). Public domain.
+const imgNapoleon = { src: "https://assets.rivet.dev/website/images/thinking/napoleon-fontainebleau-delaroche.jpg", width: 602, height: 800, format: "jpg" };
 const optimizedImage = await getImage({
-  src: imgThinker,
-  width: 800,
+  src: imgNapoleon,
+  width: 600,
   format: 'webp',
   quality: 80
 });
