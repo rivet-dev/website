@@ -25,6 +25,7 @@ const footer = {
 	company: [
 		{ name: "Cloud Pricing", href: "/cloud#pricing" },
 		{ name: "Enterprise", href: "/enterprise" },
+		{ name: "Careers", href: "/careers" },
 		{ name: "Sales", href: "/sales" },
 		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },
 		{ name: "YC & Speedrun Deal", href: "/startups" },
