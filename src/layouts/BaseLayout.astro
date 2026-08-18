@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { ViewTransitions } from 'astro:transitions';
 import { EmbedDetector } from '@/components/EmbedDetector';
 import { Footer } from '@/components/Footer';
+import { fetchOpeningsCount } from '@/lib/careers';
 import { Providers } from '@/components/Providers';
 import { TooltipProvider } from '@rivet-gg/components';
 import CopyCodeScript from '@/components/CopyCodeScript.astro';
@@ -68,6 +69,13 @@ const effectiveCanonicalUrl = canonicalUrl || `https://rivet.dev${ensureTrailing
 
 // RSS feed is only relevant for blog and changelog pages
 const showRssFeed = currentPath.startsWith('/blog') || currentPath.startsWith('/changelog');
+
+// Open-role count for the footer Careers pill, fetched server-side so the pill
+// is baked into the HTML and does not depend on the visitor's browser reaching
+// workatastartup.com. Bounded so a slow feed cannot stall the response; a null
+// result (timeout/error) simply renders no pill. The Footer refreshes this
+// client-side to keep statically-built pages current.
+const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 ---
 
 <!DOCTYPE html>
@@ -201,7 +209,7 @@ const showRssFeed = currentPath.startsWith('/blog') || currentPath.startsWith('/
 			</Providers>
 		</TooltipProvider>
 		<EmbedDetector client:load />
-		<Footer client:load initialPathname={Astro.url.pathname} />
+		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} />
 		<CopyCodeScript />
 		<TabsScript />
 		<MermaidScript />
