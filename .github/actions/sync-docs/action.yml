@@ -100,9 +100,16 @@ runs:
         git checkout -B "$branch"
         git add -A "vendor/$product"
         git commit -m "docs($product): sync from ${GITHUB_REPOSITORY}@${short}"
-        git push --force-with-lease origin "$branch"
+        # The branch is rebuilt from the product repo every run, so its previous
+        # contents are never a base to preserve. A lease would compare against a
+        # remote-tracking ref this shallow checkout never fetched, which rejects
+        # every run after the branch first exists.
+        git push --force origin "$branch"
 
-        if ! gh pr view "$branch" --json number >/dev/null 2>&1; then
+        # Match only an open PR. `gh pr view <branch>` also resolves closed and
+        # merged ones, so once the first sync PR merges the create is skipped
+        # forever and each run pushes a branch nobody reviews.
+        if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')" ]; then
           # Build the body with printf rather than a literal newline in the YAML.
           # A continuation line starting at column 1 would close this block
           # scalar, and indenting it instead would put four or more leading

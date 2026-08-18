@@ -53,10 +53,18 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
           AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           case "$AUTHOR" in
             *"[bot]"|rivet-docs-sync*) echo "sync bot; skipping"; exit 0 ;;
+          esac
+
+          # The sync force-pushes docs-sync/* from scratch every run, so nothing
+          # written there by hand survives regardless. Exempt the branch as well
+          # as the bot, or a sync PR reopened by a human fails this guard.
+          case "$HEAD_REF" in
+            docs-sync/*) echo "sync branch; skipping"; exit 0 ;;
           esac
 
           changed=$(git diff --name-only "$BASE" "$HEAD" -- vendor/ || true)
