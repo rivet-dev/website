@@ -1,5 +1,7 @@
 "use client";
+import { useEffect, useState } from "react";
 import { usePathname } from "@/hooks/usePathname";
+import { fetchOpeningsCount } from "@/lib/careers";
 import { Button } from "@/components/Button";
 import routes from "@/generated/routes.json";
 import clsx from "clsx";
@@ -137,7 +139,28 @@ export function PageNextPrevious({ navigation }) {
 	);
 }
 
-function SmallPrint() {
+// Live opening count for the Careers pill. `initialOpenings` is fetched
+// server-side (BaseLayout) so the pill is in the initial HTML — no dependency on
+// the visitor's browser reaching workatastartup.com. The client refresh keeps a
+// statically-built page current; a blocked or failed refresh keeps the seed.
+const CAREERS_HREF = "/careers";
+
+function useOpeningsCount(initial) {
+	const [count, setCount] = useState(initial ?? null);
+
+	useEffect(() => {
+		const controller = new AbortController();
+		fetchOpeningsCount(controller.signal).then((next) => {
+			if (next !== null) setCount(next);
+		});
+		return () => controller.abort();
+	}, []);
+
+	return count;
+}
+
+function SmallPrint({ initialOpenings }) {
+	const openings = useOpeningsCount(initialOpenings);
 	return (
 		<div className="mx-auto max-w-7xl w-full py-16">
 			<div className="grid grid-cols-1 min-[440px]:grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
@@ -220,13 +243,21 @@ function SmallPrint() {
 					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Company</h3>
 					<ul className="space-y-3">
 						{footer.company.map((item) => (
-							<li key={item.name}>
+							<li key={item.name} className="flex items-center gap-2">
 								<a
 									href={item.href}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
 									{item.name}
 								</a>
+								{item.href === CAREERS_HREF && openings > 0 && (
+									<span
+										className="rounded-full border border-pine/25 bg-pine/[0.06] px-1.5 py-0.5 font-mono text-[10px] font-medium leading-none text-pine"
+										aria-label={`${openings} open ${openings === 1 ? "position" : "positions"}`}
+									>
+										{openings}
+									</span>
+								)}
 							</li>
 						))}
 					</ul>
@@ -308,7 +339,7 @@ function SmallPrint() {
 // a dark override wrapper instead.
 const DARK_THEMED_PATH_PREFIXES = ['/learn'];
 
-export function Footer({ initialPathname = "" }) {
+export function Footer({ initialPathname = "", initialOpenings = null }) {
 	// usePathname returns "" during SSR; fall back to the server-provided path
 	// so docs pages do not flash a light footer before hydration.
 	const pathname = usePathname() || initialPathname;
@@ -331,7 +362,7 @@ export function Footer({ initialPathname = "" }) {
 				<h2 id="footer-heading" className="sr-only">
 					Footer
 				</h2>
-				<SmallPrint />
+				<SmallPrint initialOpenings={initialOpenings} />
 			</footer>
 		</div>
 	);
