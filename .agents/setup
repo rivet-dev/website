@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+NODE_VERSION="22.23.2"
+NODE_SHA256="d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307"
+PNPM_VERSION="10.13.1"
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+local_bin="$HOME/.local/bin"
+node_dir="$HOME/.local/share/nodejs/node-v${NODE_VERSION}-linux-x64"
+pnpm_dir="$HOME/.local/share/pnpm-${PNPM_VERSION}"
+
+timed() {
+	local label="$1"
+	shift
+	local started=$SECONDS
+	printf '\n==> %s\n' "$label"
+	"$@"
+	printf '<== %s (%ss)\n' "$label" "$((SECONDS - started))"
+}
+
+install_system_packages() {
+	local packages=()
+	command -v curl >/dev/null 2>&1 || packages+=(curl ca-certificates)
+	command -v git >/dev/null 2>&1 || packages+=(git)
+	command -v tar >/dev/null 2>&1 || packages+=(tar)
+	command -v xz >/dev/null 2>&1 || packages+=(xz-utils)
+
+	if ((${#packages[@]} == 0)); then
+		echo "System prerequisites already installed."
+		return
+	fi
+
+	local apt=(apt-get)
+	if ((EUID != 0)); then
+		command -v sudo >/dev/null 2>&1 || {
+			echo "Missing system packages and sudo is unavailable: ${packages[*]}" >&2
+			return 1
+		}
+		apt=(sudo apt-get)
+	fi
+
+	DEBIAN_FRONTEND=noninteractive "${apt[@]}" update
+	DEBIAN_FRONTEND=noninteractive "${apt[@]}" install -y --no-install-recommends "${packages[@]}"
+}
+
+install_node() {
+	if [[ -x "$node_dir/bin/node" ]] && [[ "$($node_dir/bin/node --version)" == "v${NODE_VERSION}" ]]; then
+		echo "Node.js v${NODE_VERSION} already installed."
+		return
+	fi
+
+	local archive="node-v${NODE_VERSION}-linux-x64.tar.xz"
+	local cache_dir="$HOME/.cache/rivet-website-orb"
+	local archive_path="$cache_dir/$archive"
+	local unpack_dir="${node_dir}.tmp"
+
+	mkdir -p "$cache_dir" "$(dirname "$node_dir")"
+	if [[ ! -f "$archive_path" ]] || ! echo "$NODE_SHA256  $archive_path" | sha256sum --check --status; then
+		rm -f "$archive_path"
+		curl --fail --location --retry 3 --output "$archive_path" \
+			"https://nodejs.org/dist/v${NODE_VERSION}/${archive}"
+	fi
+	echo "$NODE_SHA256  $archive_path" | sha256sum --check --status
+
+	rm -rf "$unpack_dir"
+	mkdir -p "$unpack_dir"
+	tar -xJf "$archive_path" --strip-components=1 -C "$unpack_dir"
+	rm -rf "$node_dir"
+	mv "$unpack_dir" "$node_dir"
+}
+
+install_pnpm() {
+	if [[ -x "$pnpm_dir/bin/pnpm" ]] && [[ "$($pnpm_dir/bin/pnpm --version)" == "$PNPM_VERSION" ]]; then
+		echo "pnpm ${PNPM_VERSION} already installed."
+		return
+	fi
+
+	local install_dir="${pnpm_dir}.tmp"
+	rm -rf "$install_dir"
+	"$node_dir/bin/npm" install --global --prefix "$install_dir" "pnpm@${PNPM_VERSION}"
+	rm -rf "$pnpm_dir"
+	mv "$install_dir" "$pnpm_dir"
+}
+
+persist_toolchain() {
+	mkdir -p "$local_bin"
+	for tool in node npm npx corepack; do
+		if [[ -e "$node_dir/bin/$tool" ]]; then
+			ln -sfn "$node_dir/bin/$tool" "$local_bin/$tool"
+		fi
+	done
+	ln -sfn "$pnpm_dir/bin/pnpm" "$local_bin/pnpm"
+	if [[ -e "$pnpm_dir/bin/pnpx" ]]; then
+		ln -sfn "$pnpm_dir/bin/pnpx" "$local_bin/pnpx"
+	fi
+
+	local profile="$HOME/.bash_profile"
+	local marker="# rivet-website orb toolchain"
+	touch "$profile"
+	if ! grep -Fqx "$marker" "$profile"; then
+		cat >>"$profile" <<'EOF'
+
+# rivet-website orb toolchain
+case ":${PATH}:" in
+	*":${HOME}/.local/bin:"*) ;;
+	*) export PATH="${HOME}/.local/bin:${PATH}" ;;
+esac
+EOF
+	fi
+}
+
+timed "Check system prerequisites" install_system_packages
+timed "Install Node.js v${NODE_VERSION}" install_node
+
+mkdir -p "$local_bin"
+export PATH="$local_bin:$node_dir/bin:$PATH"
+hash -r
+
+timed "Install pnpm ${PNPM_VERSION}" install_pnpm
+timed "Persist the toolchain" persist_toolchain
+hash -r
+
+[[ "$(node --version)" == "v${NODE_VERSION}" ]]
+[[ "$(pnpm --version)" == "$PNPM_VERSION" ]]
+
+cd "$repo_root"
+timed "Install workspace dependencies" pnpm install --frozen-lockfile
+timed "Assemble documentation sources" pnpm assemble
+
+printf '\nOrb setup complete (Node.js %s, pnpm %s).\n' "$(node --version)" "$(pnpm --version)"

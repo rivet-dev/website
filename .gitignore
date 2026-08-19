@@ -32,3 +32,6 @@ src/content/docs/workflows
 /public/dynamic-apps/
 /public/workflows/
 /public/metadata/
+
+# Local manifests for orb service portals.
+/.amp/portals/
