@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { HERO_H1_CLASS } from '@/components/marketing/typography';
+import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
 
 // Fetch OSS friends data at build time
 let items: any[] = [];
@@ -18,8 +19,8 @@ try {
 	description="Other companies whose code & culture mirrors that at Rivet."
 	canonicalUrl="https://rivet.dev/oss-friends/"
 >
-	<div class="paper-grain min-h-screen font-sans text-ink-soft">
-		<div class="relative overflow-hidden pb-12 pt-32 md:pt-48">
+	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
+		<div class="depth-wash relative overflow-hidden pb-12 pt-32 md:pt-48">
 			<div class="mx-auto max-w-7xl px-6">
 				<div class="max-w-2xl">
 					<h1 class={`mb-6 ${HERO_H1_CLASS}`}>
@@ -32,26 +33,18 @@ try {
 			</div>
 		</div>
 
-		<div class="border-t border-ink/10 py-16">
+		<div class="border-t border-ink/10 py-16 md:py-24">
 			<div class="mx-auto max-w-7xl px-6">
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{items.map((friend: any) => (
-						<a
-							href={friend.href}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="group flex flex-col border border-ink/10 bg-white/55 p-7 transition-colors hover:border-ink/25"
-						>
-							<h3 class="mb-2 text-base font-medium text-ink">
-								{friend.name}
-							</h3>
-							<p class="text-sm leading-relaxed text-ink-soft">
+						<CatalogCard href={friend.href} external title={friend.name}>
+							<p class="mt-2 text-sm leading-relaxed text-ink-soft">
 								{friend.description}
 							</p>
-						</a>
+						</CatalogCard>
 					))}
 				</div>
 			</div>
 		</div>
-	</div>
+	</main>
 </MarketingLayout>

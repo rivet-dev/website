@@ -9,7 +9,6 @@ import { IntegrationsSection } from '@/components/marketing/sections/Integration
 import { HostingSection } from '@/components/marketing/sections/HostingSection';
 import { OnPremSection } from '@/components/marketing/sections/OnPremSection';
 import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
-import { ScrollObserver } from '@/components/ScrollObserver';
 
 // Import thinking images
 const imgThinker = { src: "https://assets.rivet.dev/website/images/thinking/thinker-rodin-closeup.jpg", width: 2673, height: 3722, format: "jpg" };
@@ -89,17 +88,13 @@ const latestChangelogHref = latest
 	canonicalUrl="https://rivet.dev/"
 	keywords={["agentic infrastructure", "AI agents", "actors", "stateful", "workflows", "long-lived processes", "on-prem", "air-gapped", "self-hosted", "agentOS", "durable execution", "VPC", "agent sandbox"]}
 >
-	<ScrollObserver client:load>
-		<div class="paper-grain min-h-screen font-sans text-ink-soft">
-			<main>
-				<RedesignedHero latestChangelogTitle={latestChangelogTitle} latestChangelogHref={latestChangelogHref} thinkingImages={thinkingImages} client:load />
-				<StackSection client:visible />
-				<ObservabilitySection client:visible />
-				<IntegrationsSection client:visible />
-				<HostingSection client:visible />
-				<OnPremSection client:visible />
-				<RedesignedCTA client:visible />
-			</main>
-		</div>
-	</ScrollObserver>
+	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
+		<RedesignedHero latestChangelogTitle={latestChangelogTitle} latestChangelogHref={latestChangelogHref} thinkingImages={thinkingImages} client:load />
+		<StackSection />
+		<ObservabilitySection />
+		<IntegrationsSection />
+		<HostingSection />
+		<OnPremSection />
+		<RedesignedCTA client:visible />
+	</main>
 </MarketingLayout>

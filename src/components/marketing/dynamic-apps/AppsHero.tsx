@@ -219,7 +219,7 @@ export const AppsHero = ({
 					{product?.description}
 				</h1>
 				<p className='mb-7 max-w-3xl text-base leading-relaxed text-ink-soft md:text-lg'>
-					Scales to 0, scales to millions. Dirt cheap, just 22 MB per app. Deploy on any cloud.
+					Scales to 0, scales to millions. Cheap, just 22 MB per app. Deploy on any cloud.
 				</p>
 				<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
 					<a href={docsHref} className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>

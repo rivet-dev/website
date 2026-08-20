@@ -2,6 +2,7 @@
 import type { ComponentProps } from 'react';
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
+import { MARKETING_PAGE_ZOOM } from '@/components/marketing/typography';
 
 interface Props {
 	title: string;
@@ -40,7 +41,12 @@ const pathname = Astro.url.pathname;
 	) : (
 		<Header variant="floating" initialPathname={pathname} active={active} client:load />
 	)}
-	<slot />
+	{/* Marketing pages ship at ~90% density, matching the agentOS reference
+	    page. zoom scales layout (unlike transform) and Header/Footer sit
+	    outside this wrapper, so both stay at 100%. */}
+	<div style={`zoom: ${MARKETING_PAGE_ZOOM}; overflow-x: clip;`}>
+		<slot />
+	</div>
 </BaseLayout>
 
 <!-- Marketing pages sit on the porcelain field. The body itself is painted

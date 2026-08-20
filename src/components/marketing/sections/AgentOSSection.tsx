@@ -53,7 +53,7 @@ export const AgentOSSection = () => (
 				<AnimatedAgentOSLogo className='h-10 w-auto md:h-11' drawDurationSec={2} />
 				<p className='mt-6 max-w-2xl text-sm leading-relaxed text-ink-soft md:text-base'>
 					<span className='block'>A lightweight library that gives agents a file system, networking, bash, Python, and Node.</span>
-					<span className='mt-2 block'>No containers, no VMs. Powered by Rivet Actors.</span>
+					<span className='mt-2 block'>No separate microVM fleet. Powered by Rivet Actors.</span>
 					<span className='mt-2 block'>Isolated with Wasm. Runs in your own backend.</span>
 				</p>
 
@@ -76,9 +76,7 @@ export const AgentOSSection = () => (
 				</div>
 
 				<a
-					href='https://agentos-sdk.dev'
-					target='_blank'
-					rel='noopener noreferrer'
+					href='/agentos'
 					className='group mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-pine'
 				>
 					Explore agentOS

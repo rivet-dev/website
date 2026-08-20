@@ -4,6 +4,10 @@ import { registry } from "@/data/registry";
 import { InkPanel } from "@/components/marketing/editorial/InkPanel";
 import { RegistryIconTile } from "@/components/marketing/registry/RegistryIconTile";
 import InstallRow from "@/components/marketing/registry/InstallRow.astro";
+import {
+	HERO_H1_CLASS,
+	PRIMARY_INK_BUTTON_CLASS,
+} from "@/components/marketing/typography";
 // Share the docs highlighter so registry code matches the docs code blocks
 // exactly (ayu-dark), instead of a separate light palette.
 import { highlightCodeHtml } from "@/lib/highlight-code";
@@ -205,12 +209,12 @@ const ribbon: MetaCell[] = [
 	description={entry.description}
 	canonicalUrl={`https://rivet.dev/agentos/registry/${entry.slug}/`}
 >
-	<main class="paper-grain min-h-screen w-full overflow-x-hidden font-sans text-ink-soft">
+	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen w-full overflow-x-hidden bg-paper font-sans text-ink-soft">
 		<div class="relative isolate overflow-hidden pt-16">
 			<div class="mx-auto max-w-4xl px-6 lg:px-8">
 				<a
 					href="/agentos/registry"
-					class="mb-8 inline-flex items-center text-sm text-ink-faint no-underline transition-colors hover:text-ink"
+					class="mb-8 inline-flex items-center rounded-sm text-sm text-ink-faint no-underline transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 				>
 					&larr; Back to Registry
 				</a>
@@ -223,7 +227,7 @@ const ribbon: MetaCell[] = [
 						size={96}
 					/>
 					<div class="min-w-0 flex-1">
-						<h1 class="text-3xl font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-4xl">
+						<h1 class={HERO_H1_CLASS}>
 							{entry.title}
 						</h1>
 						<p class="mt-3 max-w-2xl text-lg leading-relaxed text-ink-soft">
@@ -242,7 +246,7 @@ const ribbon: MetaCell[] = [
 							) : (
 								<a
 									href={docsHref!}
-									class="selection-dark inline-flex items-center justify-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream no-underline transition-colors hover:bg-ink/85"
+									class={`${PRIMARY_INK_BUTTON_CLASS} no-underline`}
 								>
 									View docs
 								</a>
@@ -261,7 +265,7 @@ const ribbon: MetaCell[] = [
 									{...(cell.external
 										? { target: "_blank", rel: "noopener noreferrer" }
 										: {})}
-									class={`mt-1 block truncate text-sm font-medium text-ink no-underline hover:underline ${cell.mono ? "font-mono text-[13px]" : ""}`}
+									class={`mt-1 block truncate rounded-sm text-sm font-medium text-ink no-underline hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${cell.mono ? "font-mono text-[13px]" : ""}`}
 									title={cell.value}
 								>
 									{cell.value}
@@ -288,7 +292,7 @@ const ribbon: MetaCell[] = [
 						href="https://github.com/rivet-dev/agentos/issues"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="mt-3 inline-block text-sm font-medium text-pine no-underline hover:underline"
+						class="mt-3 inline-block rounded-sm text-sm font-medium text-pine no-underline hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 					>
 						Request an Extension
 					</a>

@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { cn } from "../lib/utils";
 
 interface KbdProps {
@@ -25,13 +25,17 @@ interface KbdKeyProps {
 }
 
 Kbd.Key = function Key({ className }: KbdKeyProps) {
+	// Server-render ⌘ and correct to Ctrl after mount; suppressHydrationWarning
+	// alone leaves the server text unpatched, which dropped the symbol entirely.
+	const [label, setLabel] = useState("⌘");
+	useEffect(() => {
+		if (!navigator.userAgent.includes("Mac")) {
+			setLabel("Ctrl");
+		}
+	}, []);
 	return (
 		<span className={cn("text-xs", className)} suppressHydrationWarning>
-			{typeof window === "undefined"
-				? " "
-				: navigator?.userAgent?.includes("Mac")
-					? "⌘"
-					: "Ctrl"}
+			{label}
 		</span>
 	);
 };

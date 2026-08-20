@@ -13,7 +13,7 @@ const actorFeatures = [
 	{
 		icon: Database,
 		title: 'In-memory state',
-		description: 'Co-located with compute for instant reads and writes.',
+		description: 'State lives with the Actor for local reads and writes.',
 	},
 	{
 		icon: Infinity,
@@ -61,7 +61,7 @@ export const ActorsPrimitiveSection = () => (
 					transition={{ duration: 0.5, delay: 0.05 }}
 					className={SUBTITLE_CLASS}
 				>
-					Rivet Actors give agents and realtime apps durable, stateful compute in your existing Node.js or Bun backend.
+					Rivet Actors give agents and realtime apps durable, stateful processes in your existing Node.js or Bun backend.
 				</motion.p>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}

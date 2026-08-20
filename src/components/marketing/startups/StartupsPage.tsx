@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Check, ArrowRight, ChevronDown } from 'lucide-react';
+import { useReducedMotion } from 'framer-motion';
 import {
 	HERO_H1_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
-	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 } from '@/components/marketing/typography';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
 
@@ -15,6 +17,7 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [showFan, setShowFan] = useState(false);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const reduceMotion = useReducedMotion() ?? false;
 
 	useEffect(() => {
 		return () => {
@@ -23,6 +26,16 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 			}
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!reduceMotion) return;
+
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+		setShowFan(false);
+	}, [reduceMotion]);
 
 	const handleClick = () => {
 		if (timeoutRef.current) {
@@ -34,6 +47,8 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 	};
 
 	const handleMouseEnter = () => {
+		if (reduceMotion) return;
+
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current);
 		}
@@ -53,7 +68,7 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 	};
 
 	const getNextIndices = (count: number) => {
-		const indices = [];
+		const indices: number[] = [];
 		for (let i = 1; i <= count; i++) {
 			indices.push((currentIndex + i) % images.length);
 		}
@@ -63,11 +78,15 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 	const fanCards = getNextIndices(1);
 
 	return (
-		<div
-			className="relative w-[280px] sm:w-[320px] md:w-[400px] aspect-[3/4] sm:aspect-[4/3] cursor-pointer mx-auto"
+		<button
+			type="button"
+			aria-label={images[currentIndex].alt}
+			className="relative mx-auto block aspect-[3/4] w-[280px] cursor-pointer appearance-none border-0 bg-transparent p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper sm:aspect-[4/3] sm:w-[320px] md:w-[400px]"
 			onClick={handleClick}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
+			onFocus={handleMouseEnter}
+			onBlur={handleMouseLeave}
 		>
 			{/* Fanned card behind */}
 			{fanCards.map((imageIndex, i) => {
@@ -79,7 +98,8 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 				return (
 					<div
 						key={`fan-${i}`}
-						className="absolute inset-0 overflow-hidden border border-ink/15 transition-all duration-300 ease-out"
+						aria-hidden="true"
+						className="absolute inset-0 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 transition-all duration-300 ease-out motion-reduce:transition-none sm:p-3"
 						style={{
 							transform: `rotate(${rotation}deg) translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
 							zIndex: 3 - i,
@@ -91,7 +111,7 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 							alt={images[imageIndex].alt}
 							loading="lazy"
 							decoding="async"
-							className="w-full h-full object-cover select-none pointer-events-none"
+							className="w-full h-full rounded-md border border-ink/10 object-cover select-none pointer-events-none"
 							style={images[imageIndex].mobileObjectPosition ? { objectPosition: images[imageIndex].mobileObjectPosition } : undefined}
 						/>
 					</div>
@@ -100,27 +120,30 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 
 			{/* Main card */}
 			<div
-				className="absolute inset-0 overflow-hidden border border-ink/15 transition-transform duration-300 ease-out"
+				className="absolute inset-0 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 transition-transform duration-300 ease-out motion-reduce:transition-none sm:p-3"
 				style={{
 					zIndex: 10,
 					transform: showFan ? 'rotate(-3deg) translateX(-10px)' : 'rotate(0deg) translateX(0px)',
 				}}
 			>
-				{images.map((image, index) => (
-					<img
-						key={image.src}
-						src={image.src}
-						alt={image.alt}
-						loading={index === 0 ? 'eager' : 'lazy'}
-						decoding="async"
-						className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 select-none pointer-events-none ${
-							index === currentIndex ? 'opacity-100' : 'opacity-0'
-						}`}
-						style={image.mobileObjectPosition ? { objectPosition: image.mobileObjectPosition } : undefined}
-					/>
-				))}
+				<div className="relative h-full w-full overflow-hidden rounded-md border border-ink/10">
+					{images.map((image, index) => (
+						<img
+							key={image.src}
+							src={image.src}
+							alt={image.alt}
+							loading={index === 0 ? 'eager' : 'lazy'}
+							decoding="async"
+							aria-hidden={index !== currentIndex}
+							className={`pointer-events-none absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-300 motion-reduce:transition-none ${
+								index === currentIndex ? 'opacity-100' : 'opacity-0'
+							}`}
+							style={image.mobileObjectPosition ? { objectPosition: image.mobileObjectPosition } : undefined}
+						/>
+					))}
+				</div>
 			</div>
-		</div>
+		</button>
 	);
 };
 
@@ -128,29 +151,42 @@ interface CollapsibleSectionProps {
 	title: string;
 	children: React.ReactNode;
 	defaultOpen?: boolean;
+	background?: 'paper' | 'paper-mid';
 }
 
-function CollapsibleSection({ title, children, defaultOpen = false }: CollapsibleSectionProps) {
+function CollapsibleSection({ title, children, defaultOpen = false, background = 'paper' }: CollapsibleSectionProps) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
+	const sectionId = useId();
+	const triggerId = `${sectionId}-trigger`;
+	const panelId = `${sectionId}-panel`;
 
 	return (
-		<div className="border-t border-ink/10 px-6">
+		<div className={`border-t border-ink/10 px-6 ${background === 'paper-mid' ? 'bg-paper-mid' : 'bg-paper'}`}>
 			<div className="mx-auto w-full max-w-7xl">
-				<button
-					onClick={() => setIsOpen(!isOpen)}
-					className="flex h-28 w-full items-center justify-between text-left"
-				>
-					<h2 className={SECTION_H2_CLASS}>
-						{title}
-					</h2>
-					<ChevronDown
-						className={`h-6 w-6 text-ink-faint transition-transform duration-200 ${
-							isOpen ? 'rotate-180' : ''
-						}`}
-					/>
-				</button>
+				<h2 className="text-balance">
+					<button
+						id={triggerId}
+						type="button"
+						aria-controls={panelId}
+						aria-expanded={isOpen}
+						onClick={() => setIsOpen(!isOpen)}
+						className={`flex h-28 w-full items-center justify-between text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine ${SECTION_H2_CLASS}`}
+					>
+						<span>{title}</span>
+						<ChevronDown
+							aria-hidden="true"
+							className={`h-6 w-6 text-ink-faint transition-transform duration-200 motion-reduce:transition-none ${
+								isOpen ? 'rotate-180' : ''
+							}`}
+						/>
+					</button>
+				</h2>
 				<div
-					className={`grid transition-all duration-300 ease-in-out ${
+					id={panelId}
+					role="region"
+					aria-labelledby={triggerId}
+					hidden={!isOpen}
+					className={`grid transition-all duration-300 ease-in-out motion-reduce:transition-none ${
 						isOpen ? 'grid-rows-[1fr] opacity-100 pb-16' : 'grid-rows-[0fr] opacity-0'
 					}`}
 				>
@@ -188,9 +224,9 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 	];
 
 	return (
-		<div className="paper-grain min-h-screen font-sans text-ink-soft">
+		<main id="main-content" tabIndex={-1} className="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
 			{/* Hero Section */}
-			<section className="relative flex flex-col overflow-hidden lg:min-h-screen">
+			<section className="depth-wash relative flex flex-col overflow-hidden lg:min-h-screen">
 				{/* Centered content */}
 				<div className="flex flex-1 flex-col justify-start pt-32 lg:justify-center lg:pt-0 px-6">
 					<div className="mx-auto w-full max-w-7xl">
@@ -215,7 +251,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 							</div>
 							{/* Desktop: Overlapping photos */}
 							<div className="hidden lg:block flex-shrink-0 relative w-[500px] h-[400px]">
-								<div className="absolute top-0 left-0 w-[320px] h-[240px] overflow-hidden border border-ink/15">
+								<div className="absolute top-0 left-0 w-[320px] h-[240px] overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
 									<img
 										src={foundersImage}
 										alt="Rivet founders Nathan Flurry and Nicholas Kissel at Y Combinator W23 Demo Day"
@@ -223,10 +259,10 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 										height={240}
 										loading="eager"
 										decoding="async"
-										className="w-full h-full object-cover"
+										className="w-full h-full rounded-md border border-ink/10 object-cover"
 									/>
 								</div>
-								<div className="absolute bottom-0 right-0 w-[320px] h-[240px] overflow-hidden border border-ink/15">
+								<div className="absolute bottom-0 right-0 w-[320px] h-[240px] overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
 									<img
 										src={speedrunImage}
 										alt="Andreessen Horowitz a16z Speedrun SR002 cohort presentation"
@@ -234,7 +270,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 										height={240}
 										loading="lazy"
 										decoding="async"
-										className="w-full h-full object-cover"
+										className="w-full h-full rounded-md border border-ink/10 object-cover"
 									/>
 								</div>
 							</div>
@@ -279,7 +315,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			</section>
 
 			{/* What You Get */}
-			<CollapsibleSection title="What you get">
+			<CollapsibleSection title="What you get" background="paper-mid">
 				<p className="mb-12 max-w-xl text-base leading-relaxed text-ink-soft">
 					Everything you need to build and scale stateful workloads at startup speed.
 				</p>
@@ -297,7 +333,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			<CollapsibleSection title="Eligibility">
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 					{eligibility.map((item, idx) => (
-						<div key={idx} className="flex items-center gap-3 rounded-md border border-ink/10 bg-white/55 p-4">
+						<div key={idx} className="flex items-center gap-3 rounded-2xl border border-ink/10 bg-white/55 p-4">
 							<div className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
 								<Check className="h-4 w-4 text-pine" />
 							</div>
@@ -308,7 +344,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			</CollapsibleSection>
 
 			{/* How to Claim */}
-			<CollapsibleSection title="How to claim">
+			<CollapsibleSection title="How to claim" background="paper-mid">
 				<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
 					{steps.map((step, idx) => (
 						<div key={idx} className="flex flex-col border-t border-ink/10 pt-6">
@@ -323,30 +359,30 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			</CollapsibleSection>
 
 			{/* CTA */}
-			<div className="border-t border-ink/10 py-24 px-6">
-				<div className="mx-auto w-full max-w-7xl text-center">
-					<h2 className={`mb-6 ${SECTION_H2_CLASS}`}>
-						Ready to build?
-					</h2>
-					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<a
-							href="https://forms.gle/J8USsTND8NAKJ18W9"
-							target="_blank"
-							rel="noopener noreferrer"
-							className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}
-						>
-							Claim the deal
-							<ArrowRight className="h-4 w-4" />
-						</a>
-					</div>
-					<p className="mt-8 text-sm text-ink-soft">
+			<ClosingCtaPanel
+				title="Ready to build?"
+				footnote={
+					<>
 						Questions?{' '}
-						<a href="/support" className="text-pine transition-colors hover:text-ink">
+						<a
+							href="/support"
+							className="rounded-sm text-cream underline underline-offset-2 transition-colors motion-reduce:transition-none hover:text-cream/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+						>
 							Contact us
 						</a>
-					</p>
-				</div>
-			</div>
-		</div>
+					</>
+				}
+			>
+				<a
+					href="https://forms.gle/J8USsTND8NAKJ18W9"
+					target="_blank"
+					rel="noopener noreferrer"
+					className={INK_PANEL_LIGHT_BUTTON_CLASS}
+				>
+					Claim the deal
+					<ArrowRight className="h-4 w-4" />
+				</a>
+			</ClosingCtaPanel>
+		</main>
 	);
 }

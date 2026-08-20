@@ -178,7 +178,7 @@ export const ColdStartRace = () => {
 			<div ref={ref} className='rounded-2xl border border-ink/10 bg-white/55 p-5 md:p-7'>
 				<div className='mb-5 flex flex-wrap items-center justify-between gap-3'>
 					<div className='flex items-center gap-2.5'>
-						<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Cold start</span>
+						<span className='text-sm font-medium text-ink-faint'>Cold start</span>
 						<span className='rounded-full bg-ink/[0.06] px-2 py-0.5 text-[10px] font-semibold text-ink-soft'>{slowdownPill(containerMs)}</span>
 					</div>
 					<div className='w-44 max-sm:w-full'>
@@ -231,7 +231,7 @@ export const ColdStartRace = () => {
 					/>
 				</div>
 
-				<p className='mt-4 font-mono text-[11px] leading-relaxed text-ink-faint'>
+				<p className='mt-4 text-xs leading-relaxed text-ink-faint'>
 					Each container is its own process that boots on its own; agentOS packs every agent into one shared process that boots once. Real {cold.label} cold start: ~{aosMs} ms vs ~{containerMs.toLocaleString()} ms ({speedup}&times; faster) &mdash; container boot shown {slowdownLabel(containerMs)}.
 				</p>
 			</div>

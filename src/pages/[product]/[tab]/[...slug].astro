@@ -29,7 +29,14 @@ export async function getStaticPaths() {
 						tab: tab.id,
 						slug: isRoot ? undefined : getContentParamSlug(entry.id.slice(prefix.length)),
 					},
-					props: { entry, productId: product.id, tabId: tab.id, productName: product.name, tabTitle: tab.title },
+					props: {
+						entry,
+						productId: product.id,
+						tabId: tab.id,
+						productName: product.name,
+						tabTitle: tab.title,
+						robots: tab.hidden ? 'noindex, follow' : undefined,
+					},
 				});
 			}
 		}
@@ -38,7 +45,7 @@ export async function getStaticPaths() {
 	return paths;
 }
 
-const { entry, productId, tabId, productName, tabTitle } = Astro.props;
+const { entry, productId, tabId, productName, tabTitle, robots } = Astro.props;
 ---
 
 <DocsArticlePage
@@ -48,4 +55,5 @@ const { entry, productId, tabId, productName, tabTitle } = Astro.props;
 	breadcrumbName={`${productName} ${tabTitle}`}
 	productId={productId}
 	tabId={tabId}
+	robots={robots}
 />

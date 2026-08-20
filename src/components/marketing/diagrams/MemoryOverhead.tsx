@@ -24,7 +24,7 @@ const S_CURVE = [0.65, 0, 0.35, 1] as const;
 
 const Row = ({ label, value, highlight }: { label: React.ReactNode; value: string; highlight?: boolean }) => (
 	<div className='flex items-baseline justify-between gap-4 py-2.5'>
-		<span className={`inline-flex min-w-0 items-baseline font-mono text-[13px] ${highlight ? 'font-medium text-ink' : 'font-normal text-ink-faint'}`}>
+		<span className={`inline-flex min-w-0 items-baseline text-sm ${highlight ? 'font-medium text-ink' : 'font-normal text-ink-faint'}`}>
 			{label}
 		</span>
 		<span className={`whitespace-nowrap font-mono text-[15px] tabular-nums ${highlight ? 'font-medium text-accent-deep' : 'font-normal text-ink-faint'}`}>
@@ -54,7 +54,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 			>
 				{/* Header: eyebrow + workload toggle */}
 				<div className='flex flex-wrap items-start justify-between gap-3'>
-					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Memory Per Instance</span>
+					<span className='text-sm font-medium text-ink-faint'>Memory per instance</span>
 					<div className='w-64 max-sm:w-full'>
 						<BenchToggle
 							options={WORKLOAD_KEYS.map((k) => benchWorkloads[k].label)}
@@ -98,7 +98,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 							<Row label='Cheapest sandbox' value={mem.sandbox} />
 						</div>
 
-						<p className='mt-4 font-mono text-[10px] leading-relaxed text-ink-faint'>Sandboxes reserve idle RAM per agent; agentOS isolates share the host.</p>
+						<p className='mt-4 text-xs leading-relaxed text-ink-faint'>Sandboxes reserve idle RAM per agent; agentOS isolates share the host.</p>
 					</div>
 
 					{/* Visual: two squares, bottom-aligned, area ∝ memory */}
@@ -108,7 +108,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 							<div className='relative h-44 w-44 max-sm:h-36 max-sm:w-36 overflow-hidden rounded-xl border border-dashed border-ink/15 bg-ink/[0.04]'>
 								<span className='absolute inset-0 flex items-center justify-center font-mono text-[13px] tabular-nums text-ink-soft'>{mem.sandbox}</span>
 							</div>
-							<span className='font-mono text-[11px] font-medium text-ink-soft'>Sandbox</span>
+							<span className='text-xs font-medium text-ink-soft'>Sandbox</span>
 						</div>
 
 						{/* agentOS — proportional square, animated */}
@@ -134,7 +134,7 @@ export function MemoryOverhead({ workload, onWorkloadChange }: { workload: Workl
 									<div className='absolute inset-x-0 top-0 h-px bg-white/50' />
 								</motion.div>
 							</div>
-							<span className='font-mono text-[11px] font-medium text-accent-deep'>agentOS</span>
+							<span className='text-xs font-medium text-accent-deep'>agentOS</span>
 						</div>
 					</div>
 				</div>

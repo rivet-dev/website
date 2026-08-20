@@ -4,12 +4,17 @@ import { Header } from '@/components/v2/Header';
 import { Prose } from '@/components/Prose';
 
 interface Props {
-	title: string;
+	title?: string;
 	description?: string;
 	canonicalUrl?: string;
+	frontmatter?: { title?: string; description?: string; canonicalUrl?: string };
 }
 
-const { title, description, canonicalUrl } = Astro.props;
+// MDX pages deliver frontmatter under Astro.props.frontmatter, not as top-level props.
+const { frontmatter } = Astro.props;
+const title = Astro.props.title ?? frontmatter?.title;
+const description = Astro.props.description ?? frontmatter?.description;
+const canonicalUrl = Astro.props.canonicalUrl ?? frontmatter?.canonicalUrl;
 ---
 
 <BaseLayout title={title} description={description} canonicalUrl={canonicalUrl}>

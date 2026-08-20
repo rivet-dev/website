@@ -145,9 +145,9 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 				onClick={() => setIsOpen(true)}
 				variant="outline"
 				className={cn(
-					"relative h-8 w-full justify-start rounded-[0.5rem] text-sm font-normal shadow-none hidden md:flex md:w-24 lg:w-40",
+					"relative h-8 w-full justify-start rounded-md text-sm font-normal shadow-none hidden md:flex md:w-24 lg:w-40",
 					light
-						? "bg-white/60 border-ink/15 text-ink-soft hover:bg-white/70 hover:text-ink"
+						? "border-ink/15 bg-white/55 text-ink-faint hover:border-ink/30 hover:bg-white hover:text-ink"
 						: "bg-paper text-ink-faint",
 				)}
 			>
@@ -155,7 +155,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 				<span className="inline-flex lg:hidden">Search...</span>
 				<Kbd
 					className={cn(
-						"absolute right-[0.3rem] top-1/2 -translate-y-1/2 hidden sm:flex",
+						"absolute right-1.5 top-1/2 -translate-y-1/2 hidden sm:flex",
 						light && "!border-ink/20 !bg-ink/[0.06] !text-ink-soft",
 					)}
 				>
@@ -169,7 +169,10 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 						onClick={() => setIsOpen(false)}
 					>
 						<div
-							className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-ink/10 bg-paper shadow-lg"
+							role="dialog"
+							aria-modal="true"
+							aria-label="Search documentation"
+							className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-ink/10 bg-paper text-ink shadow-lg"
 							onClick={(e) => e.stopPropagation()}
 						>
 							<div className="flex items-center border-b border-ink/10 px-3">
@@ -178,7 +181,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 									onChange={(e) => setQuery(e.target.value)}
 									onFocus={() => setInputFocused(true)}
 									onBlur={() => setInputFocused(false)}
-									className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-ink-faint"
+									className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset"
 									placeholder="Search documentation..."
 									autoFocus
 								/>
@@ -209,11 +212,11 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 												handleResultClick(result)
 											}
 										>
-											<div className="font-medium text-sm">
+											<div className="text-sm font-medium text-ink">
 												{result.title}
 											</div>
 											{result.hierarchy?.lvl1 && (
-												<div className="text-xs text-primary mb-1">
+												<div className="mb-1 text-xs text-pine">
 													{result.hierarchy.lvl1}
 												</div>
 											)}
@@ -239,7 +242,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 									variant="ghost"
 									size="sm"
 									onClick={() => setIsOpen(false)}
-									className="h-auto p-1 text-xs"
+									className="h-auto p-1 text-xs text-ink hover:bg-ink/[0.06] hover:text-ink focus-visible:ring-2 focus-visible:ring-pine"
 								>
 									ESC
 								</Button>

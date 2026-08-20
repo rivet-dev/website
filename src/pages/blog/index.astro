@@ -75,13 +75,13 @@ for (const entry of changelogPosts) {
 			<aside class="order-last lg:order-none">
 				<div class="lg:sticky lg:top-32">
 					<div class="border-b border-ink/10 pb-3">
-						<h2 class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">Changelog</h2>
+						<h2 class="text-sm font-medium text-ink-faint">Changelog</h2>
 					</div>
 					<div class="relative">
 						<div class="mt-5 max-h-[calc(100vh-14rem)] space-y-6 overflow-y-auto pb-6 pr-1">
 							{changelogMonths.map((month) => (
 							<div>
-								<p class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">{month.label}</p>
+								<p class="text-xs font-medium text-ink-faint">{month.label}</p>
 								<ul class="mt-2">
 									{month.items.map((item) => (
 										<li>
@@ -131,7 +131,7 @@ for (const entry of changelogPosts) {
 								)}
 								<div class="mt-4 flex items-center gap-x-3 text-xs">
 									{CATEGORIES[article.data.category] && (
-										<span class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">
+										<span class="text-xs font-medium text-ink-faint">
 											{CATEGORIES[article.data.category].name}
 										</span>
 									)}

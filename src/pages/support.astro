@@ -9,25 +9,26 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 	description="Get help with Rivet Actors via email, Discord community, or documentation. Troubleshoot issues, request features, and connect with our team."
 	canonicalUrl="https://rivet.dev/support/"
 >
-	<main class="paper-grain min-h-screen w-full flex flex-col items-center justify-center">
-		<div class="relative isolate overflow-hidden pt-40">
-			<div class="mx-auto max-w-4xl px-6 lg:px-8 text-center">
+	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen w-full bg-paper font-sans text-ink-soft">
+		<section class="depth-wash relative isolate overflow-hidden px-6 pt-40 pb-16 text-center">
+			<div class="mx-auto max-w-4xl">
 				<h1 class={HERO_H1_CLASS}>
 					Support
 				</h1>
-				<p class="mt-6 max-w-3xl mx-auto text-base leading-relaxed text-ink-soft">
+				<p class="mt-6 max-w-3xl mx-auto text-base leading-relaxed text-ink-soft md:text-lg">
 					Get help with Rivet, from troubleshooting to feature
 					requests.
 				</p>
 			</div>
-		</div>
+		</section>
 
-		<div class="mx-auto max-w-2xl px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
-			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+		<section class="border-t border-ink/10 px-6 py-16 md:py-24">
+			<div class="mx-auto max-w-7xl">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
 				<!-- Email Tile -->
 				<a
 					href="mailto:support@rivet.dev"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
+					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
@@ -47,7 +48,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/discord"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
+					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
@@ -67,7 +68,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/actors/docs"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group border border-ink/10 bg-white/55 hover:border-ink/25 transition-colors duration-200 relative overflow-hidden h-[180px] flex flex-col items-center justify-center p-7"
+					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
 				>
 					<div class="flex flex-col items-center">
 						<Icon
@@ -82,7 +83,8 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 						</span>
 					</div>
 				</a>
+				</div>
 			</div>
-		</div>
+		</section>
 	</main>
 </MarketingLayout>

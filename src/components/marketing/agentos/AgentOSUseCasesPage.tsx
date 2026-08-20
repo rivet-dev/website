@@ -76,7 +76,7 @@ const UseCase = ({ icon: Icon, title, description, benefits, example, delay = 0 
 		</ul>
 		{example && (
 			<div className='mt-auto border-t border-ink/10 pt-4'>
-				<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint'>Example</span>
+				<span className='text-sm font-medium text-ink-faint'>Example</span>
 				<p className='mt-1.5 text-sm leading-relaxed text-ink-soft'>{example}</p>
 			</div>
 		)}
@@ -116,9 +116,9 @@ export const useCases: UseCaseProps[] = [
 			'Low memory per instance compared to sandboxes',
 			'Near-zero cold starts for rapid iteration',
 			'Deterministic replay for debugging',
-			'Cost-effective at thousands of runs',
+			'Parallel runs on independently addressed Actors',
 		],
-		example: 'Evaluating 10,000 agent responses in parallel to measure performance across different prompts.',
+		example: 'Evaluating agent responses in parallel to compare performance across prompts.',
 	},
 	{
 		icon: Users,
@@ -127,7 +127,7 @@ export const useCases: UseCaseProps[] = [
 		benefits: [
 			'Shared file systems between agents',
 			'Real-time inter-agent messaging',
-			'Workflow orchestration primitives',
+			'Optional durable Workflows layer',
 			'Centralized observability',
 		],
 		example: 'A team of agents where one researches, one writes, and one reviews, all collaborating on a document.',

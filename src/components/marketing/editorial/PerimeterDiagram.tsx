@@ -9,48 +9,29 @@ export interface PerimeterDiagramNode {
 
 const DEFAULT_NODES: PerimeterDiagramNode[] = [
 	{ title: 'Your backend', detail: 'Actors run in your Node.js or Bun process' },
-	{ title: 'Rivet control plane', detail: 'Single binary for orchestration and routing' },
+	{ title: 'Rivet control plane', detail: 'Can start as one binary for scheduling and routing' },
 	{ title: 'Your storage', detail: 'File system, Postgres, or FoundationDB' },
 ];
 
 interface PerimeterDiagramProps {
 	nodes?: PerimeterDiagramNode[];
 	label?: string;
-	footer?: string;
+	/** Pass null to omit the footer when the surrounding copy carries the claim. */
+	footer?: string | null;
 	className?: string;
 }
 
 export const PerimeterDiagram = ({
 	nodes = DEFAULT_NODES,
 	label = 'Your perimeter',
-	footer = 'No outbound connections. No telemetry.',
+	footer = 'No outbound connections required. Telemetry off with one flag.',
 	className,
 }: PerimeterDiagramProps) => (
-	<div className={`relative rounded-xl p-6 md:p-8 ${className ?? ''}`}>
-		<svg
-			aria-hidden='true'
-			className='pointer-events-none absolute inset-0 h-full w-full overflow-visible'
-			viewBox='0 0 100 100'
-			preserveAspectRatio='none'
-		>
-			<rect
-				x='0.75'
-				y='0.75'
-				width='98.5'
-				height='98.5'
-				rx='3.5'
-				fill='none'
-				stroke='currentColor'
-				strokeWidth='1'
-				strokeDasharray='4 3.2'
-				className='perimeter-dash-rect text-ink/30'
-				vectorEffect='non-scaling-stroke'
-			/>
-		</svg>
-		<span className='absolute -top-2.5 left-6 z-10 bg-paper px-2 font-mono text-[11px] uppercase tracking-[0.18em] text-pine'>
-			{label}
-		</span>
-		<div className='relative z-10 flex flex-col items-stretch'>
+	<div
+		className={`rounded-xl border border-dashed border-ink/30 p-6 md:p-8 ${className ?? ''}`}
+	>
+		<p className='text-sm font-medium text-ink-faint'>{label}</p>
+		<div className='mt-5 flex flex-col items-stretch'>
 			{nodes.map((node, idx) => (
 				<div key={node.title} className='flex flex-col'>
 					{idx > 0 && <div className='mx-auto h-5 w-px bg-pine/40' />}
@@ -61,9 +42,11 @@ export const PerimeterDiagram = ({
 				</div>
 			))}
 		</div>
-		<div className='relative z-10 mt-6 flex items-center gap-2 border-t border-ink/10 pt-4 font-mono text-[11px] text-pine'>
-			<Ban className='h-3.5 w-3.5 text-pine/60' />
-			{footer}
-		</div>
+		{footer ? (
+			<div className='mt-6 flex items-center gap-2 border-t border-ink/10 pt-4 text-xs text-pine'>
+				<Ban className='h-3.5 w-3.5 text-pine/60' />
+				{footer}
+			</div>
+		) : null}
 	</div>
 );

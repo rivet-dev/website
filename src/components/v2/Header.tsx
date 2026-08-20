@@ -9,8 +9,14 @@ import logoTextBlackUrl from "@/images/rivet-logos/icon-text-black.svg";
 import logoIconUrl from "@/images/rivet-logos/icon-white.svg";
 import { cn } from "@rivet-gg/components";
 import { Header as RivetHeader } from "@rivet-gg/components/header";
-import { Icon, faDiscord } from "@rivet-gg/icons";
-import React, { type ReactNode, useEffect, useRef, useState } from "react";
+import { Icon } from "@rivet-gg/icons";
+import {
+	EYEBROW_CLASS,
+	EYEBROW_ON_INK_CLASS,
+	HEADER_PRIMARY_INK_BUTTON_CLASS,
+	HEADER_SECONDARY_BUTTON_CLASS,
+} from "@/components/marketing/typography";
+import React, { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
 	Button,
 	DropdownMenu,
@@ -75,13 +81,14 @@ function ProductsDropdown({
 }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const isHoveringRef = useRef(false);
+	const lightDropdownRef = useRef<HTMLDivElement>(null);
+	const lightTriggerRef = useRef<HTMLButtonElement>(null);
+	const focusFromPointerRef = useRef(false);
+	const openAtTriggerPointerDownRef = useRef<boolean | null>(null);
+	const lightDropdownId = useId();
 
-	// The product verticals, in registry order. These link to each product's
-	// documentation rather than its marketing page: this menu is how you reach a
-	// product's docs from anywhere on the site, and two of the three marketing
-	// pages are still placeholders. Marketing stays reachable from the hero and
-	// the footer.
+	// The product verticals, in registry order. Each item opens the product's
+	// overview; its product bar then exposes the documentation and other sections.
 	const products = productVerticals.map((product) => ({
 		id: product.id,
 		label: product.name,
@@ -101,18 +108,23 @@ function ProductsDropdown({
 	const scheduleClose = () => {
 		cancelClose();
 		closeTimeoutRef.current = setTimeout(() => {
+			if (
+				lightTheme &&
+				document.activeElement instanceof Node &&
+				lightDropdownRef.current?.contains(document.activeElement)
+			) {
+				return;
+			}
 			setIsOpen(false);
 		}, 150);
 	};
 
 	const handleMouseEnter = () => {
-		isHoveringRef.current = true;
 		cancelClose();
 		setIsOpen(true);
 	};
 
 	const handleMouseLeave = () => {
-		isHoveringRef.current = false;
 		scheduleClose();
 	};
 
@@ -133,19 +145,76 @@ function ProductsDropdown({
 		return () => cancelClose();
 	}, []);
 
+	useEffect(() => {
+		if (!lightTheme || !isOpen) return;
+
+		const closeOnOutsidePointer = (event: PointerEvent) => {
+			if (lightDropdownRef.current?.contains(event.target as Node)) return;
+			if (closeTimeoutRef.current) {
+				clearTimeout(closeTimeoutRef.current);
+				closeTimeoutRef.current = null;
+			}
+			setIsOpen(false);
+		};
+
+		document.addEventListener("pointerdown", closeOnOutsidePointer, true);
+		return () => {
+			document.removeEventListener("pointerdown", closeOnOutsidePointer, true);
+		};
+	}, [isOpen, lightTheme]);
+
 	if (lightTheme) {
 		return (
 			<div
+				ref={lightDropdownRef}
 				className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
+				onPointerDownCapture={(event) => {
+					// Pointer activation focuses the button before `click`. Let `click`
+					// perform the toggle so touch users do not immediately reopen it.
+					focusFromPointerRef.current = true;
+					openAtTriggerPointerDownRef.current =
+						event.target instanceof Node &&
+						lightTriggerRef.current?.contains(event.target)
+							? isOpen
+							: null;
+					queueMicrotask(() => {
+						focusFromPointerRef.current = false;
+					});
+				}}
+				onFocusCapture={() => {
+					if (focusFromPointerRef.current) return;
+					cancelClose();
+					setIsOpen(true);
+				}}
+				onBlurCapture={(event) => {
+					if (
+						event.relatedTarget instanceof Node &&
+						event.currentTarget.contains(event.relatedTarget)
+					) {
+						return;
+					}
+					cancelClose();
+					setIsOpen(false);
+				}}
+				onKeyDown={(event) => {
+					if (event.key !== "Escape" || !isOpen) return;
+					event.preventDefault();
+					event.stopPropagation();
+					cancelClose();
+					lightTriggerRef.current?.focus();
+					setIsOpen(false);
+				}}
 			>
 				<RivetHeader.NavItem asChild>
 					<button
+						ref={lightTriggerRef}
 						type="button"
 						aria-expanded={isOpen}
+						aria-controls={lightDropdownId}
 						className={cn(
-							"cursor-default flex items-center gap-1 relative transition-colors duration-200",
+							"cursor-pointer flex items-center gap-1 relative rounded-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 							"!text-ink-soft hover:!text-ink",
 							active && "!text-ink",
 							// Invisible hover bridge spanning the visual gap down to the
@@ -154,6 +223,14 @@ function ProductsDropdown({
 							"after:absolute after:left-0 after:right-0 after:top-full after:h-7 after:content-['']",
 						)}
 						onMouseEnter={handleMouseEnter}
+						onClick={() => {
+							cancelClose();
+							const openAtPointerDown = openAtTriggerPointerDownRef.current;
+							openAtTriggerPointerDownRef.current = null;
+							setIsOpen((open) =>
+								openAtPointerDown === null ? !open : !openAtPointerDown,
+							);
+						}}
 					>
 						Products
 						<Icon
@@ -167,11 +244,16 @@ function ProductsDropdown({
 					</button>
 				</RivetHeader.NavItem>
 				<div
+					id={lightDropdownId}
+					inert={!isOpen}
+					aria-hidden={!isOpen}
 					className={cn(
-						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-paper/80 p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition-all duration-150 pointer-events-none group-hover/products:pointer-events-auto group-hover/products:translate-y-0 group-hover/products:opacity-100",
+						// bg-paper/95: at /80 the product bar's 2px accent tab underline
+						// ghosted through the frosted panel as a colored smudge.
+						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-paper/95 p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition-all duration-150 pointer-events-none",
 						align === "start"
-							? "absolute left-0 top-full mt-3 w-80"
-							: "fixed left-1/2 top-[63px] w-[min(912px,calc(100vw-3rem))] -translate-x-1/2",
+							? "fixed left-1/2 top-[63px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-3 lg:translate-x-0"
+							: "fixed left-1/2 top-[63px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
 						isOpen
 							? "pointer-events-auto translate-y-0 opacity-100"
 							: "pointer-events-none -translate-y-1 opacity-0",
@@ -179,48 +261,58 @@ function ProductsDropdown({
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}
 				>
-					<div className="flex flex-col">
+					{/* Verb-led premise grid: Run / Operate on the runtime row,
+					    Automate / Deploy on the outcome row. Order comes from the
+					    registry, which is kept in this lifecycle order. */}
+					<div className="grid gap-1 sm:grid-cols-2">
 						{products.map((product) => (
 							<a
 								key={product.href}
 								href={product.href}
 								className={cn(
-									"group/product-row flex min-h-[3.25rem] items-center gap-2.5 rounded-xl px-3 py-1.5 text-ink transition-colors",
+									"group/product-row relative flex flex-col rounded-xl px-3 py-3 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
 									product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
 								)}
 							>
-								{/* The product color is the tile, not the mark. Tinting the
-								    mark itself fights the wordmark's own shape at this size. */}
-								<span
-									aria-hidden="true"
-									className={cn(
-										"flex size-7 shrink-0 items-center justify-center rounded-lg",
-										product.accent?.fill ?? "bg-ink/20",
-									)}
-								>
-									<ProductMark
-										product={product.product}
-										className="h-[15px] w-[15px]"
-										tone="cream"
-									/>
-								</span>
-								<div className="min-w-0 flex-1">
-									<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
-										{product.label}
-										{product.product.badge && (
-											<span className="shrink-0 rounded-sm border border-ink/10 bg-ink/[0.06] px-1.5 py-px text-[10px] font-medium leading-[1.4] text-ink-soft whitespace-nowrap">
-												{product.product.badge}
-											</span>
-										)}
-									</div>
-									<div className="text-xs leading-tight text-ink-faint">
-										{product.description}
-									</div>
-								</div>
 								<ArrowRight
 									aria-hidden="true"
-									className="invisible h-4 w-4 text-ink-faint opacity-0 transition-all duration-150 group-hover/product-row:visible group-hover/product-row:translate-x-0.5 group-hover/product-row:opacity-100 group-hover/product-row:text-ink"
+									className="invisible absolute right-3 top-3 h-4 w-4 text-ink-faint opacity-0 transition-all duration-150 motion-reduce:transition-none group-hover/product-row:visible group-hover/product-row:translate-x-0.5 group-hover/product-row:opacity-100 group-hover/product-row:text-ink"
 								/>
+								{product.product.verb && (
+									<div className={`${EYEBROW_CLASS} mb-2`}>
+										{product.product.verb}
+									</div>
+								)}
+								<div className="flex items-center gap-3">
+									{/* The product color is the tile, not the mark. Tinting the
+									    mark itself fights the wordmark's own shape at this size. */}
+									<span
+										aria-hidden="true"
+										className={cn(
+											"flex size-8 shrink-0 items-center justify-center rounded-lg",
+											product.accent?.fill ?? "bg-ink/20",
+										)}
+									>
+										<ProductMark
+											product={product.product}
+											className="h-4 w-4"
+											tone="cream"
+										/>
+									</span>
+									<div className="min-w-0 flex-1">
+										<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
+											{product.label}
+											{product.product.badge && (
+												<span className="shrink-0 rounded-sm border border-ink/10 bg-ink/[0.06] px-1.5 py-px text-[10px] font-medium leading-[1.4] text-ink-soft whitespace-nowrap">
+													{product.product.badge}
+												</span>
+											)}
+										</div>
+										<div className="mt-0.5 text-pretty text-xs leading-snug text-ink-soft">
+											{product.product.premise ?? product.description}
+										</div>
+									</div>
+								</div>
 							</a>
 						))}
 					</div>
@@ -462,17 +554,11 @@ export function Header({
 						subnav={effectiveSubnav}
 						support={null}
 						links={
-							<div className="flex flex-row items-center">
-								{variant === "full-width" && <HeaderSearch />}
-								<RivetHeader.NavItem asChild className="p-2 mr-4 hidden md:flex">
-									<a href="https://rivet.dev/discord" className="!text-ink-soft hover:!text-ink transition-colors">
-										<Icon icon={faDiscord} />
-									</a>
-								</RivetHeader.NavItem>
-								<GitHubDropdown className="hidden md:inline-flex items-center justify-center whitespace-nowrap rounded-md border px-4 py-2 h-10 text-sm mr-2 transition-colors border-ink/15 text-ink-soft hover:border-ink/30 hover:text-ink" />
+							<div className="flex flex-row items-center gap-2">
+								<GitHubDropdown className={cn("hidden md:inline-flex", HEADER_SECONDARY_BUTTON_CLASS)} />
 								<a
 									href="https://dashboard.rivet.dev"
-									className="font-v2 subpixel-antialiased inline-flex items-center justify-center whitespace-nowrap rounded-md bg-ink px-4 py-2 text-sm text-cream hover:bg-ink/85 transition-colors"
+									className={cn("font-v2 subpixel-antialiased", HEADER_PRIMARY_INK_BUTTON_CLASS)}
 								>
 									Sign In
 								</a>
@@ -520,10 +606,13 @@ export function Header({
 	return (
 		<RivetHeader
 			className={cn(
-				"sticky top-0 z-50 backdrop-blur-lg",
+				"sticky top-0 z-50",
+				// Same glass recipe as the floating pill so both headers read as one
+				// material: frosted white fill, soft top sheen, one closing hairline.
+				// bg-paper/90 is the fallback when backdrop-filter is unsupported.
 				isLightTheme
-					? "bg-paper/95 border-b border-ink/10 [&_button[data-mobile-menu-trigger]]:text-ink"
-					: "bg-neutral-950/80",
+					? "border-b border-ink/10 bg-paper/90 supports-[backdrop-filter]:bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4] [&_button[data-mobile-menu-trigger]]:text-ink"
+					: "bg-neutral-950/80 backdrop-blur-lg",
 				"[&>div:first-child]:px-3 md:[&>div:first-child]:max-w-none md:[&>div:first-child]:px-0 md:px-8",
 				// 0 padding on bottom for larger screens when subnav is showing
 				effectiveSubnav ? "pb-2 md:pb-0 md:pt-3 md:[&>div:first-child>div:first-child]:min-h-12 md:[&>div:first-child>div:first-child]:mb-3" : "md:py-4",
@@ -538,7 +627,7 @@ export function Header({
 								src={isLightTheme ? logoTextBlackUrl.src : logoUrl.src}
 								width={80}
 								height={24}
-								className="ml-1 w-20 shrink-0"
+								className="w-20 shrink-0"
 								alt="Rivet logo"
 								loading="eager"
 								decoding="async"
@@ -550,35 +639,22 @@ export function Header({
 			subnav={effectiveSubnav}
 			support={<></>}
 			links={
-				<div className="flex flex-row items-center">
-					{!learnMode && (
-						<div className="mr-4">
-							<HeaderSearch light={isLightTheme} />
-						</div>
-					)}
-					<RivetHeader.NavItem asChild className="p-2 mr-4">
-						<a
-							href="https://rivet.dev/discord"
-							className={isLightTheme ? "!text-ink-soft hover:!text-ink transition-colors" : "text-white/90"}
-						>
-							<Icon icon={faDiscord} className="drop-shadow-md" />
-						</a>
-					</RivetHeader.NavItem>
+				<div className="flex flex-row items-center gap-2">
+					{!learnMode && <HeaderSearch light={isLightTheme} />}
 					<GitHubDropdown
-						className={cn(
-							"inline-flex items-center justify-center whitespace-nowrap rounded-md border px-4 py-2 h-10 text-sm mr-2 transition-colors",
+						className={
 							isLightTheme
-								? "border-ink/15 text-ink-soft hover:border-ink/30 hover:text-ink"
-								: "border-white/10 hover:border-white/20 text-white/90 hover:text-white",
-						)}
+								? HEADER_SECONDARY_BUTTON_CLASS
+								: "inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-white/10 bg-white/5 px-3 text-sm font-medium text-white/90 transition-colors hover:border-white/20 hover:text-white"
+						}
 					/>
 					<a
 						href="https://dashboard.rivet.dev"
 						className={cn(
-							"font-v2 subpixel-antialiased inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm transition-colors",
+							"font-v2 subpixel-antialiased",
 							isLightTheme
-								? "bg-ink text-cream hover:bg-ink/85"
-								: "border border-white/10 bg-white/5 text-white shadow-sm hover:border-white/20",
+								? HEADER_PRIMARY_INK_BUTTON_CLASS
+								: "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md border border-white/10 bg-white/5 px-3 text-sm font-medium text-white transition-colors hover:border-white/20",
 						)}
 					>
 						Sign In
@@ -689,6 +765,11 @@ function DocsMobileNavigation({
 					>
 						<ProductMark product={product.product} className="h-4 w-4" />
 						{product.label}
+						{product.product.verb && (
+							<span className={`${EYEBROW_CLASS} ml-auto`}>
+								{product.product.verb}
+							</span>
+						)}
 					</a>
 				))}
 
@@ -789,6 +870,11 @@ function DocsMobileNavigation({
 				>
 					<ProductMark product={product.product} className="h-4 w-4" tone="cream" />
 					{product.label}
+					{product.product.verb && (
+						<span className={`${EYEBROW_ON_INK_CLASS} ml-auto`}>
+							{product.product.verb}
+						</span>
+					)}
 				</a>
 			))}
 

@@ -77,19 +77,6 @@
   color: inherit;
 }
 
-/* Code blocks need a light selection against their dark surface. */
-.docs-article pre::selection,
-.docs-article pre ::selection {
-  background-color: #f4f1e7;
-  color: #1b1916;
-}
-
-.docs-article pre::-moz-selection,
-.docs-article pre ::-moz-selection {
-  background-color: #f4f1e7;
-  color: #1b1916;
-}
-
 .shiki .line {
   @apply break-all;
 }
@@ -177,12 +164,8 @@
     }
   }
 
-  .perimeter-dash-rect {
-    animation: perimeter-dash-rotate 10s linear infinite;
-  }
-
-  /* Registry storefront marquees. Track content is duplicated, so a -50%
-     shift loops seamlessly. Two directions for the opposing rows. */
+  /* Registry storefront marquees. Each track contains two equally padded
+     copies, so a -50% shift lands exactly on the duplicate. */
   @keyframes registry-marquee-left {
     from {
       transform: translateX(0);
@@ -252,12 +235,6 @@
     }
     50% {
       stroke-dasharray: 220 408;
-    }
-  }
-
-  @keyframes perimeter-dash-rotate {
-    to {
-      stroke-dashoffset: -36;
     }
   }
 
@@ -620,12 +597,11 @@
 
 /* Decorative animations stop entirely under reduced motion */
 @media (prefers-reduced-motion: reduce) {
-	.animate-spin-slow,
-	.animate-infinite-scroll,
-	.animate-pulse-slow,
-	.perimeter-dash-rect {
-		animation: none;
-	}
+  .animate-spin-slow,
+  .animate-infinite-scroll,
+  .animate-pulse-slow {
+    animation: none;
+  }
 }
 
 /* MDX callouts (Note / Info / Tip / Warning). The body text inherits the

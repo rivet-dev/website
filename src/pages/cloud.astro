@@ -4,14 +4,28 @@ import PricingPageClient from '@/components/marketing/pricing/PricingPageClient'
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { FaqSection } from '@/components/faq/FaqSection';
 import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
+import { ProductLockup } from '@/components/marketing/ProductLockup';
+import {
+	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
+} from '@/components/marketing/typography';
+import { getProduct } from '@/sitemap/products';
 import { cloudFaqs } from '@/data/faqs/cloud';
+
+const cloudProduct = getProduct('cloud');
+
+if (!cloudProduct) {
+	throw new Error('Missing Cloud product metadata');
+}
 
 // Product schema with pricing tiers
 const productSchema = {
 	"@context": "https://schema.org",
 	"@type": "Product",
 	"name": "Rivet Cloud",
-	"description": "Managed cloud solution for stateful backends. Global infrastructure, persistent state, and seamless orchestration for your actors.",
+	"description": "Managed control plane for stateful backends, with Actor routing, persistence, and operational tooling.",
 	"brand": {
 		"@type": "Brand",
 		"name": "Rivet"
@@ -64,11 +78,23 @@ const productSchema = {
 >
 	<script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
 	<FaqJsonLd items={cloudFaqs} />
-	<PricingPageClient client:load />
-	{/* Hydrated on scroll so the accordion animates; content is still SSR'd
-	    into the HTML (and JSON-LD) for crawlers. */}
-	<div class="paper-grain font-sans text-ink-soft">
-		<FaqSection items={cloudFaqs} theme="light" client:visible />
+	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
+		<!-- Hero -->
+		<section class={PRODUCT_HERO_SECTION_CLASS}>
+			<div class={PRODUCT_HERO_INNER_CLASS}>
+				<div class="mb-7 flex">
+					<ProductLockup product={cloudProduct} />
+				</div>
+				<h1 class={PRODUCT_HERO_H1_CLASS}>Simple, predictable pricing</h1>
+				<p class={PRODUCT_HERO_SUBTITLE_CLASS}>
+					Pay for coordination, state, and active execution on Rivet Cloud. Self-host Rivet when you need your own infrastructure.
+				</p>
+			</div>
+		</section>
+		<PricingPageClient client:load />
+		{/* Hydrated on scroll so the accordion animates; content is still SSR'd
+		    into the HTML (and JSON-LD) for crawlers. */}
+		<FaqSection items={cloudFaqs} theme="light" className="bg-paper-mid" client:visible />
 		<RedesignedCTA client:visible />
-	</div>
+	</main>
 </MarketingLayout>

@@ -20,6 +20,15 @@ export interface ProductMetadata {
 	name: string;
 	/** One line, used in the product switcher and the docs index. */
 	tagline: string;
+	/**
+	 * Verb-led framing for the four pillars (Run / Operate / Automate /
+	 * Deploy): the eyebrow verb and its premise line, shared by the Products
+	 * menu and the landing stack section so the set is defined once. Absent on
+	 * non-pillar products (Rivet Cloud).
+	 */
+	verb?: string;
+	/** Premise line for the verb framing. No terminal period. */
+	premise?: string;
 	/** Repository and sibling directory that owns this product's docs. */
 	repo: string;
 	/** Accent hex, and its contrast against #EFEFEF for the record. */
@@ -77,6 +86,8 @@ export const PRODUCTS: ProductMetadata[] = [
 		id: "actors",
 		name: "Actors",
 		tagline: "The primitive for stateful workloads",
+		verb: "Run",
+		premise: "Give every agent a durable process to live in",
 		repo: "rivet",
 		color: "#2C5A7A",
 		contrast: 6.41,
@@ -86,7 +97,9 @@ export const PRODUCTS: ProductMetadata[] = [
 	{
 		id: "agentos",
 		name: "agentOS",
-		tagline: "Agent execution, filesystems, and orchestration",
+		tagline: "A computer for every agent",
+		verb: "Operate",
+		premise: "Hand every agent a computer of its own",
 		repo: "agentos",
 		color: "#9C3A3F",
 		contrast: 5.91,
@@ -94,25 +107,28 @@ export const PRODUCTS: ProductMetadata[] = [
 		hiddenTabs: ["use-cases"],
 	},
 	{
-		id: "dynamic-apps",
-		name: "Dynamic Apps",
-		tagline: "Deploy an AI-generated backend for every user",
-		repo: "dynamic-apps",
-		color: "#2F6B4B",
-		contrast: 5.49,
-		snippetFrom: "agentos",
-		optionalTabs: [],
-		hiddenTabs: ["use-cases"],
-		badge: "Preview",
-	},
-	{
 		id: "workflows",
 		name: "Workflows",
 		tagline: "Durable, replayable multi-step operations",
+		verb: "Automate",
+		premise: "Write multi-step operations that survive restarts",
 		repo: "workflows",
 		color: "#6A4C93",
 		contrast: 5.95,
 		snippetFrom: "actors",
+		optionalTabs: [],
+		hiddenTabs: ["use-cases"],
+	},
+	{
+		id: "dynamic-apps",
+		name: "Dynamic Apps",
+		tagline: "Deploy an AI-generated backend for every user",
+		verb: "Deploy",
+		premise: "Deploy the backends your agents build",
+		repo: "dynamic-apps",
+		color: "#2F6B4B",
+		contrast: 5.49,
+		snippetFrom: "agentos",
 		optionalTabs: [],
 		hiddenTabs: ["use-cases"],
 	},
