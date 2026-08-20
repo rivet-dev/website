@@ -317,7 +317,7 @@ function SmallPrint({ initialOpenings }) {
 						<rect y="8.8" width="14" height="1.2" fill="black" />
 						<rect width="5" height="5" fill="black" />
 					</svg>
-					Built in San Francisco, United States
+					Built in San Francisco, United States and around the world
 				</span>
 			</div>
 

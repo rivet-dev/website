@@ -3,7 +3,6 @@ import { DeploymentOptions } from "../DeploymentOptions";
 import {
   EYEBROW_CLASS,
   SECTION_H2_CLASS,
-  SECTION_LEDE_CLASS,
 } from "../typography";
 
 const PLATFORM_LINK_CLASS =
@@ -16,10 +15,6 @@ export const HostingSection = () => (
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Start local. Deploy when ready.
         </h2>
-        <p className={SECTION_LEDE_CLASS}>
-          Build locally, deploy on Rivet Cloud, or self-host Rivet inside your
-          own infrastructure.
-        </p>
       </div>
 
       <DeploymentOptions

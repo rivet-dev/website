@@ -185,7 +185,7 @@ const capabilities = [
 const compositionLayers = [
 	{
 		name: 'Actors',
-		role: 'Required foundation',
+		role: 'Foundation',
 		body: 'Every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.',
 		href: '/actors',
 	},
@@ -356,7 +356,6 @@ const compositionLayers = [
 				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
 					<div>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See the history behind every run.</h2>
-						<p class={SECTION_LEDE_CLASS}>The built-in inspector renders each run's recorded history.</p>
 					</div>
 					<div class="grid gap-6 sm:grid-cols-2">
 						{capabilities.map((capability) => (
@@ -387,7 +386,6 @@ const compositionLayers = [
 			<div class="mx-auto max-w-7xl">
 				<div class="max-w-3xl">
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One foundation. Optional layers.</h2>
-					<p class={SECTION_LEDE_CLASS}>Workflows runs as an Actor <code class="font-mono text-[0.92em] text-ink">run</code> handler. Add the other layers when the job needs them.</p>
 				</div>
 
 				<div class="mt-12 grid overflow-hidden rounded-2xl border-l border-t border-ink/10 md:grid-cols-3">
@@ -408,7 +406,6 @@ const compositionLayers = [
 			<div class="mx-auto max-w-7xl">
 				<div class="mb-12 max-w-3xl">
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
-					<p class={SECTION_LEDE_CLASS}>Run locally while you build, deploy on Rivet Cloud, or self-host the open-source control plane — the service that persists and schedules your Actors — on Docker, Kubernetes, or a VM.</p>
 				</div>
 				<DeploymentOptions
 					productName="Workflows"

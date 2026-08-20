@@ -40,7 +40,7 @@ export const OnPremSection = () => (
                 key={point}
                 className="flex items-start gap-3 py-4 text-sm leading-relaxed text-ink-soft"
               >
-                <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/30">
+                <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/60 bg-pine/[0.08]">
                   <Check className="h-3 w-3 text-pine" aria-hidden="true" />
                 </span>
                 {point}

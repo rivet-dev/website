@@ -3,7 +3,6 @@ import { integrationsFor } from "@/data/integrations";
 import {
   EYEBROW_CLASS,
   SECTION_H2_CLASS,
-  SECTION_LEDE_CLASS,
 } from "../typography";
 
 const integrations = integrationsFor("actors");
@@ -102,10 +101,6 @@ export const IntegrationsSection = () => (
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Works with your stack.
         </h2>
-        <p className={SECTION_LEDE_CLASS}>
-          Standard Node.js, Bun, and Deno. Your frameworks, your tools. No
-          custom runtime, no rewrite.
-        </p>
       </div>
 
       <div className="mt-12 grid items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">

@@ -714,3 +714,12 @@
 	color: #1b1916;
 	border-bottom-color: #1b1916;
 }
+
+/* Slow diagonal pan for the stack cards' dot grid; one 18px grid cell per
+   cycle so the loop is seamless. Animates transform (composited) rather than
+   background-position, which browsers snap to whole pixels and stutter.
+   Paused by default, runs on card hover. */
+@keyframes dot-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(18px, 18px, 0); }
+}

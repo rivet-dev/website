@@ -1,5 +1,5 @@
 import { Activity, Database, GitBranch, Terminal } from "lucide-react";
-import { SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
+import { SECTION_H2_CLASS } from "../typography";
 
 const inspectorSrc =
   "https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png";
@@ -39,10 +39,6 @@ export const ObservabilitySection = () => (
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             Observe the whole stack.
           </h2>
-          <p className={SECTION_LEDE_CLASS}>
-            Inspect Actor state, SQLite data, workflow progress, events, and
-            callable actions from the Rivet dashboard.
-          </p>
         </div>
 
         <div className="grid gap-x-8 sm:grid-cols-2">
