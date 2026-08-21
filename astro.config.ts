@@ -20,6 +20,9 @@ export default defineConfig({
 	site: 'https://rivet.dev',
 	output: 'static',
 	trailingSlash: 'ignore',
+	server: {
+		allowedHosts: ['.onamp.dev'],
+	},
 	image: {
 		// Allow build-time optimization of artwork hosted on the assets CDN.
 		domains: ['assets.rivet.dev'],
