@@ -4,6 +4,7 @@
 // named chapter.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqList } from '@/components/faq/FaqSection';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
@@ -473,18 +474,8 @@ const compositionLayers = [
 		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="dynamic-apps-faq-heading">
 			<div class={SITE_NARROW_RAIL_CLASS}>
 				<h2 id="dynamic-apps-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
-				<div class="divide-y divide-ink/10 border-b border-ink/10" data-site-reveal>
-					{dynamicAppsFaqs.map((item) => (
-						<details class="group py-5">
-							<summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine [&::-webkit-details-marker]:hidden">
-								{item.question}
-								<svg viewBox="0 0 16 16" aria-hidden="true" class="h-4 w-4 shrink-0 text-ink-faint transition-transform motion-reduce:transition-none group-open:rotate-45">
-									<path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-								</svg>
-							</summary>
-							<div class="pt-3 text-[15px] leading-relaxed text-ink-soft [&_a]:text-pine [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-ink" set:html={item.answerHtml} />
-						</details>
-					))}
+				<div data-site-reveal>
+					<FaqList items={dynamicAppsFaqs} theme="light" client:visible />
 				</div>
 			</div>
 		</section>
