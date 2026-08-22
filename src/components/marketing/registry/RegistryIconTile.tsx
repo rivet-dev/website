@@ -32,10 +32,13 @@ const MONOGRAM_TINTS = [
 	"bg-ink/[0.06] text-ink-soft",
 ] as const;
 
+// A single hairline ring defines the squircle edge. An inset top highlight was
+// tried here but a vertically-offset inset shadow can't track the rounded
+// corners, so it split into a doubled/misaligned arc at the top; depth comes
+// from the ring alone, consistent with the marketing card canon.
 const TILE_SURFACE =
 	"relative flex shrink-0 items-center justify-center overflow-hidden " +
-	"ring-1 ring-ink/[0.08] " +
-	"shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]";
+	"ring-1 ring-ink/[0.08]";
 
 function monogramTint(title: string) {
 	let hash = 0;

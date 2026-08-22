@@ -91,7 +91,7 @@ export const ExecutionDensity = ({ workload, onWorkloadChange }: { workload: Wor
 			>
 				{/* Header: eyebrow + workload toggle */}
 				<div className='flex flex-wrap items-start justify-between gap-3'>
-					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine'>Cost Per Execution-Second</span>
+					<span className='text-sm font-medium text-ink-faint'>Cost per execution-second</span>
 					<div className='w-64 max-sm:w-full'>
 						<BenchToggle
 							options={WORKLOAD_KEYS.map((k) => benchWorkloads[k].label)}
@@ -125,7 +125,7 @@ export const ExecutionDensity = ({ workload, onWorkloadChange }: { workload: Wor
 						{/* Comparison ledger */}
 						<div className='mt-4 divide-y divide-ink/10 border-y border-ink/10'>
 							<div className='flex items-baseline justify-between gap-4 py-2.5'>
-								<span className='inline-flex min-w-0 items-baseline font-mono text-[13px] font-medium text-ink'>
+								<span className='inline-flex min-w-0 items-baseline text-sm font-medium text-ink'>
 									agentOS
 									<BenchInfoTooltip>
 										<strong>What&apos;s measured:</strong>{' '}
@@ -143,12 +143,12 @@ export const ExecutionDensity = ({ workload, onWorkloadChange }: { workload: Wor
 								</span>
 							</div>
 							<div className='flex items-baseline justify-between gap-4 py-2.5'>
-								<span className='font-mono text-[13px] text-ink-faint'>Cheapest sandbox</span>
+								<span className='text-sm text-ink-faint'>Cheapest sandbox</span>
 								<span className='whitespace-nowrap font-mono text-[15px] tabular-nums text-ink-faint'>{wl.sandboxCost}</span>
 							</div>
 						</div>
 
-						<p className='mt-4 font-mono text-[10px] leading-relaxed text-ink-faint'>Assumes one agent per sandbox, needed for isolation.</p>
+						<p className='mt-4 text-xs leading-relaxed text-ink-faint'>Assumes one agent per sandbox, needed for isolation.</p>
 					</div>
 
 					{/* Visual: one server packs N executions vs one per sandbox */}
@@ -207,9 +207,9 @@ export const ExecutionDensity = ({ workload, onWorkloadChange }: { workload: Wor
 									animate={{ width: inView ? `${wl.memory.agentOSBar}%` : '0%' }}
 									transition={{ duration: reduced ? 0 : 0.6, ease: [...EASE] }}
 								/>
-								<span className='absolute inset-y-0 right-2.5 flex items-center font-mono text-[10px] uppercase tracking-wide text-ink-faint'>idle &middot; reserved</span>
+								<span className='absolute inset-y-0 right-2.5 flex items-center text-xs font-medium text-ink-faint'>idle &middot; reserved</span>
 							</div>
-							<p className='mt-2 font-mono text-[10px] leading-relaxed text-ink-faint'>
+							<p className='mt-2 text-xs leading-relaxed text-ink-faint'>
 								{wl.memory.agentOS} used of <span className='text-ink-soft'>~1 GB reserved</span> &mdash; the rest is billed while idle.
 							</p>
 						</div>

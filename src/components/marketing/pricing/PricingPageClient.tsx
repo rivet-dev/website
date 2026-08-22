@@ -1,145 +1,145 @@
 "use client";
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   ArrowRight,
   Check,
-  Server,
   ShieldCheck,
   Cpu,
   MemoryStick,
   Clock
 } from 'lucide-react';
-import rivetLogoWhite from '@/images/rivet-logos/icon-white.svg';
+import {
+  Icon,
+  faCloudArrowUp,
+  faServer,
+  faShareNodes
+} from '@rivet-gg/icons';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
 import {
-  PRIMARY_INK_BUTTON_CLASS,
+  CARD_TITLE_CLASS,
+  EYEBROW_ON_INK_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
   SECTION_H2_CLASS,
-  SUBTITLE_CLASS
+  SECTION_LEDE_CLASS
 } from '@/components/marketing/typography';
+import {
+  SITE_CARD_CLASS,
+  SITE_SECTION_CLASS,
+  SITE_STANDARD_RAIL_CLASS,
+  SITE_WIDE_CALLOUT_CLASS,
+} from '@/components/marketing/layout';
+import {
+  DEPLOY_CARD_TITLE_CLASS,
+  DEPLOY_GHOST_BUTTON_CLASS,
+  DEPLOY_WHITE_BUTTON_CLASS,
+} from '@/components/marketing/deployKit';
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { DeploymentDiagram } from '@/components/marketing/diagrams/deploymentDiagrams';
 
 // --- Page Sections ---
 
 const SelfHostingComparison = () => {
-  const cloudSpecs = [
-    { label: 'Scaling', value: 'Managed' },
-    { label: 'Database', value: 'FoundationDB' },
-    { label: 'Networking', value: 'Global Mesh' },
-    { label: 'Updates', value: 'Automatic' },
-  ];
-
-  const selfHostedSpecs = [
-    { label: 'Scaling', value: 'You Manage' },
-    { label: 'Database', value: 'BYO (postgres or filesystem)' },
-    { label: 'Networking', value: 'Manual VPC' },
-    { label: 'Updates', value: 'Manual' },
-  ];
-
-  const enterpriseSpecs = [
-    { label: 'Scaling', value: 'You Manage' },
-    { label: 'Database', value: 'FoundationDB' },
-    { label: 'Networking', value: 'VPC & air-gapped' },
-    { label: 'Updates', value: 'Guided' },
+  const deploymentModels = [
+    {
+      title: 'Fully managed',
+      description: 'Rivet Cloud runs your workers, the control plane, and storage. Nothing to operate.',
+      hint: 'Best for most teams shipping to production.',
+      icon: faCloudArrowUp,
+      diagram: 'managed' as const,
+      cta: 'Get Started',
+      href: 'https://dashboard.rivet.dev',
+      primary: true,
+    },
+    {
+      title: 'Bring your own compute',
+      description: 'Your workers run on your own infrastructure and connect outbound to the control plane in Rivet Cloud.',
+      hint: 'Best for serverless platforms and keeping compute in your VPC.',
+      icon: faShareNodes,
+      diagram: 'byoc' as const,
+      cta: 'Connect Your Host',
+      href: '/actors/self-host/',
+      primary: false,
+    },
+    {
+      title: 'Fully self-hosted',
+      description: 'You run the entire stack on infrastructure you control, including air-gapped networks.',
+      hint: 'Best for strict compliance and air-gapped environments.',
+      icon: faServer,
+      diagram: 'self-hosted' as const,
+      cta: 'View on GitHub',
+      href: 'https://github.com/rivet-dev/rivet',
+      primary: false,
+    },
   ];
 
   return (
-    <section className="border-t border-ink/10 py-16 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col gap-12">
-          <div className="max-w-xl">
-            <h2 className={`mb-2 ${SECTION_H2_CLASS}`}>Compare Deployment Models</h2>
-            <p className={SUBTITLE_CLASS}>
-                Rivet is open source. Use Rivet Cloud for managed infrastructure, or self-host in your VPC, your customers' environments, or air-gapped networks.
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-              {/* Rivet Cloud Card */}
-              <div className="flex flex-col border border-ink/10 bg-white/55 p-7">
-                  <div className="mb-6 flex items-center gap-3">
-                       <img src={rivetLogoWhite.src} alt="Rivet" className="h-9 w-9 invert" />
-                       <h3 className="text-lg font-medium text-ink">Rivet Cloud</h3>
-                  </div>
-                  <p className="mb-8 text-sm leading-relaxed text-ink-soft">
-                      Managed cloud solution for personal projects to large orgs.
-                  </p>
-
-                  <div className="flex-grow font-mono text-sm">
-                      {cloudSpecs.map(({ label, value }) => (
-                          <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
-                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
-                              <span className="text-right text-ink">{value}</span>
-                          </div>
-                      ))}
-                  </div>
-
-                  <a href="https://dashboard.rivet.dev"
-                      className={`mt-8 ${PRIMARY_INK_BUTTON_CLASS}`}
-                  >
-                      Get Started
-                  </a>
-              </div>
-
-              {/* Self-Hosted Card */}
-              <div className="flex flex-col border border-ink/10 bg-white/55 p-7">
-                  <div className="mb-6 flex items-center gap-3">
-                       <Server className="h-6 w-6 text-ink" />
-                       <h3 className="text-lg font-medium text-ink">Self-Hosted</h3>
-                  </div>
-                  <p className="mb-8 text-sm leading-relaxed text-ink-soft">
-                      Run the open-source version of Rivet on your own infrastructure. Apache 2.0, no usage limits, full source access.
-                  </p>
-
-                  <div className="flex-grow font-mono text-sm">
-                      {selfHostedSpecs.map(({ label, value }) => (
-                          <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
-                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
-                              <span className="text-right text-ink">{value}</span>
-                          </div>
-                      ))}
-                  </div>
-
-                  <a href="https://github.com/rivet-dev/rivet"
-                      className={`mt-8 ${PRODUCT_HERO_SECONDARY_BUTTON_CLASS}`}
-                  >
-                      View on GitHub
-                  </a>
-                  <p className="mt-4 text-center text-xs text-ink-faint">
-                      High-touch deployment? <a href="/enterprise" className="text-ink-soft transition-colors hover:text-ink">Rivet for Enterprise</a>
-                  </p>
-              </div>
-
-              {/* Enterprise Edition Card */}
-              <div className="flex flex-col border border-ink/10 bg-white/55 p-7">
-                  <div className="mb-6 flex items-center gap-3">
-                       <ShieldCheck className="h-6 w-6 text-ink" />
-                       <h3 className="text-lg font-medium text-ink">Enterprise Edition</h3>
-                  </div>
-                  <p className="mb-8 text-sm leading-relaxed text-ink-soft">
-                      Production-grade closed-source features on top of open-source Rivet. Orchestration, multi-tenancy, and compliance to run at enterprise scale.
-                  </p>
-
-                  <div className="flex-grow font-mono text-sm">
-                      {enterpriseSpecs.map(({ label, value }) => (
-                          <div key={label} className="flex items-center justify-between gap-4 border-b border-ink/10 py-3.5">
-                              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-faint">{label}</span>
-                              <span className="text-right text-ink">{value}</span>
-                          </div>
-                      ))}
-                  </div>
-
-                  <a href="/sales"
-                      className={`mt-8 ${PRODUCT_HERO_SECONDARY_BUTTON_CLASS}`}
-                  >
-                      Contact Sales
-                  </a>
-              </div>
-          </div>
+    <section className={SITE_SECTION_CLASS}>
+      <div className={SITE_STANDARD_RAIL_CLASS}>
+        <div className="max-w-3xl" data-site-reveal>
+          <h2 className={SECTION_H2_CLASS}>Compare Deployment Models</h2>
+          <p className={SECTION_LEDE_CLASS}>
+            Every model runs the same three pieces — a worker running your code, the control plane,
+            and storage. Choose who runs each piece.
+          </p>
         </div>
+
+        {/* Fused hairline grid (workflows composition pattern): three cells
+            reading as one comparison object. Every column draws the identical
+            worker → control plane → storage stack; only the Rivet Cloud (pine)
+            vs your-infrastructure (ink) boundary moves, so the pine region
+            visibly shrinks left to right. Subgrid keeps the five rows level
+            across columns; browsers without subgrid fall back to auto rows. */}
+        <div className="mt-12 grid gap-6 md:grid-cols-3" data-site-reveal-group>
+          {deploymentModels.map((model) => (
+            <article
+              key={model.title}
+              data-site-reveal-child
+              className={`${SITE_CARD_CLASS} flex flex-col md:grid md:row-span-5 md:grid-rows-subgrid`}
+            >
+              <div className="flex h-6 items-center gap-2.5">
+                <Icon icon={model.icon} aria-hidden="true" className="h-4 w-4 text-pine" />
+                <h3 className={DEPLOY_CARD_TITLE_CLASS}>{model.title}</h3>
+              </div>
+              <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{model.description}</p>
+
+              <div className="mt-6 flex-1">
+                <DeploymentDiagram variant={model.diagram} />
+              </div>
+
+              <p className="mt-4 text-xs leading-relaxed text-ink-faint">{model.hint}</p>
+              <a
+                href={model.href}
+                className={`mt-6 ${model.primary ? DEPLOY_WHITE_BUTTON_CLASS : DEPLOY_GHOST_BUTTON_CLASS}`}
+              >
+                {model.cta}
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <aside className={`mt-6 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto] ${SITE_WIDE_CALLOUT_CLASS}`} data-site-reveal>
+          <div className="flex items-start gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper text-pine">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className={CARD_TITLE_CLASS}>Enterprise Edition</h3>
+              <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-ink-soft">
+                Add multi-tenancy, access controls, backups, and deployment guidance to a self-hosted deployment.
+              </p>
+              <a href="/enterprise" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
+                Explore Enterprise
+              </a>
+            </div>
+          </div>
+          <a href="/talk-to-an-engineer" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+            Talk to an Engineer
+          </a>
+        </aside>
       </div>
     </section>
   )
@@ -168,13 +168,13 @@ const ComparisonTable = () => {
     };
 
     return (
-        <div className="mt-24 border-t border-ink/10 pt-16">
-            <h3 className="mb-12 text-2xl font-medium tracking-[-0.015em] text-ink">Compare Cloud Plans</h3>
+        <div className="mt-24 pt-16" data-site-reveal>
+            <h3 className={`mb-12 ${SECTION_H2_CLASS}`}>Compare Cloud Plans</h3>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px] border-collapse">
                     <thead>
                         <tr className="border-b border-ink/15">
-                            <th className="w-1/4 p-4 text-left font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">Feature</th>
+                            <th className="w-1/4 p-4 text-left text-sm font-medium text-ink-faint">Feature</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Free</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-pine">Hobby</th>
                             <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Team</th>
@@ -193,7 +193,7 @@ const ComparisonTable = () => {
                 </table>
             </div>
             <p className="mt-6 text-xs text-ink-faint">
-                Free plan values are hard monthly limits. Hobby and Team include the listed amounts, then bill per usage; paid compute has no included amount and is billed per usage.
+                Free plan values are hard monthly limits. Hobby and Team include the listed amounts, then bill per usage; paid active execution has no included amount and is billed per usage.
             </p>
         </div>
     );
@@ -220,6 +220,9 @@ const usd = (n: number, decimals = 2) =>
     `$${n.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
 
 const ComputeCalculator = () => {
+    const vcpuInputId = useId();
+    const memoryInputId = useId();
+    const hoursInputId = useId();
     const [vcpuIdx, setVcpuIdx] = useState(3); // 1 vCPU
     const [memIdx, setMemIdx] = useState(2); // 512 MiB
     const [hours, setHours] = useState(100);
@@ -234,34 +237,37 @@ const ComputeCalculator = () => {
     const memLabel = memoryMib >= 1024 ? `${memoryMib / 1024} GiB` : `${memoryMib} MiB`;
 
     return (
-        <div className="border-t border-ink/10 pt-16">
-            <h3 className="mb-3 text-2xl font-medium tracking-[-0.015em] text-ink">Estimate your compute</h3>
-            <p className="mb-8 max-w-2xl text-base leading-relaxed text-ink-soft">
+        <div className="pt-16" data-site-reveal>
+            <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate managed execution cost</h3>
+            <p className="mb-8 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
                 Run your actors and applications on Rivet Cloud and pay only for the seconds they are active.
                 Costs scale with the CPU and memory you configure.
             </p>
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Controls sit on porcelain: this is interactive input UI. */}
-                <div className="space-y-8 border border-ink/10 bg-white/55 p-7">
+                <div className={`space-y-8 ${SITE_CARD_CLASS}`}>
                     {/* vCPU */}
                     <div>
                         <div className="mb-3 flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-sm text-ink-soft">
-                                <Cpu className="h-4 w-4 text-ink-faint" /> vCPU
-                            </span>
-                            <span className="font-mono text-sm text-ink">{vcpus}</span>
+                            <label htmlFor={vcpuInputId} className="flex items-center gap-2 text-sm text-ink-soft">
+                                <Cpu aria-hidden="true" className="h-4 w-4 text-ink-faint" /> vCPU
+                            </label>
+                            <output htmlFor={vcpuInputId} className="font-mono text-sm text-ink">{vcpus}</output>
                         </div>
                         <input
+                            id={vcpuInputId}
                             type="range"
                             min={0}
                             max={VCPU_STEPS.length - 1}
                             step={1}
                             value={vcpuIdx}
+                            aria-valuetext={`${vcpus} vCPU`}
+                            aria-describedby={`${vcpuInputId}-description`}
                             onChange={(e) => setVcpuIdx(Number(e.target.value))}
-                            className="w-full accent-pine"
+                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                         />
-                        <p className="mt-2 text-xs text-ink-faint">
+                        <p id={`${vcpuInputId}-description`} className="mt-2 text-xs text-ink-faint">
                             1 vCPU = half a physical core. 0.08–1 vCPU, or exactly 2, 4, or 8.
                         </p>
                     </div>
@@ -269,21 +275,24 @@ const ComputeCalculator = () => {
                     {/* Memory */}
                     <div>
                         <div className="mb-3 flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-sm text-ink-soft">
-                                <MemoryStick className="h-4 w-4 text-ink-faint" /> Memory
-                            </span>
-                            <span className="font-mono text-sm text-ink">{memLabel}</span>
+                            <label htmlFor={memoryInputId} className="flex items-center gap-2 text-sm text-ink-soft">
+                                <MemoryStick aria-hidden="true" className="h-4 w-4 text-ink-faint" /> Memory
+                            </label>
+                            <output htmlFor={memoryInputId} className="font-mono text-sm text-ink">{memLabel}</output>
                         </div>
                         <input
+                            id={memoryInputId}
                             type="range"
                             min={0}
                             max={MEMORY_STEPS.length - 1}
                             step={1}
                             value={memIdx}
+                            aria-valuetext={memLabel}
+                            aria-describedby={`${memoryInputId}-description`}
                             onChange={(e) => setMemIdx(Number(e.target.value))}
-                            className="w-full accent-pine"
+                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                         />
-                        <p className="mt-2 text-xs text-ink-faint">
+                        <p id={`${memoryInputId}-description`} className="mt-2 text-xs text-ink-faint">
                             128 MiB to 4 GiB.
                         </p>
                     </div>
@@ -291,22 +300,25 @@ const ComputeCalculator = () => {
                     {/* Active time */}
                     <div>
                         <div className="mb-3 flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-sm text-ink-soft">
-                                <Clock className="h-4 w-4 text-ink-faint" /> Active hours / month
-                            </span>
-                            <span className="font-mono text-sm text-ink">{hours >= 730 ? "Always on" : `${hours} h`}</span>
+                            <label htmlFor={hoursInputId} className="flex items-center gap-2 text-sm text-ink-soft">
+                                <Clock aria-hidden="true" className="h-4 w-4 text-ink-faint" /> Active hours / month
+                            </label>
+                            <output htmlFor={hoursInputId} className="font-mono text-sm text-ink">{hours >= 730 ? "Always on" : `${hours} h`}</output>
                         </div>
                         <input
+                            id={hoursInputId}
                             type="range"
                             min={1}
                             max={730}
                             step={1}
                             value={hours}
+                            aria-valuetext={hours >= 730 ? 'Always on, 730 hours per month' : `${hours} hours per month`}
+                            aria-describedby={`${hoursInputId}-description`}
                             onChange={(e) => setHours(Number(e.target.value))}
-                            className="w-full accent-pine"
+                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                         />
-                        <p className="mt-2 text-xs text-ink-faint">
-                            Sleeping actors are not billed for compute.
+                        <p id={`${hoursInputId}-description`} className="mt-2 text-xs text-ink-faint">
+                            Sleeping Actors are not billed for active execution.
                         </p>
                     </div>
                 </div>
@@ -314,30 +326,30 @@ const ComputeCalculator = () => {
                 {/* Result is the data moment: render it on the ink plate so the
                     estimate reads as output, mirroring the Self-Hosted panel. */}
                 <InkPanel className="flex flex-col p-8">
-                    <span className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-sage">Estimated compute</span>
+                    <span className={EYEBROW_ON_INK_CLASS}>Estimated execution cost</span>
                     <div className="mt-2 flex items-baseline gap-2">
                         <span className="text-4xl font-medium tracking-[-0.015em] text-cream">{usd(monthly)}</span>
-                        <span className="font-mono text-xs text-cream/50">/mo</span>
+                        <span className="text-xs text-cream/50">/mo</span>
                     </div>
 
-                    <div className="mt-8 space-y-3 font-mono text-sm">
+                    <div className="mt-8 space-y-3 text-sm">
                         <div className="flex items-center justify-between border-b border-cream/10 py-2">
                             <span className="text-cream/50">CPU ({vcpus} vCPU)</span>
-                            <span className="text-cream/85">{usd(cpuPerSec * hours * 3600)}</span>
+                            <span className="font-mono text-cream/85">{usd(cpuPerSec * hours * 3600)}</span>
                         </div>
                         <div className="flex items-center justify-between border-b border-cream/10 py-2">
                             <span className="text-cream/50">Memory ({memLabel})</span>
-                            <span className="text-cream/85">{usd(memPerSec * hours * 3600)}</span>
+                            <span className="font-mono text-cream/85">{usd(memPerSec * hours * 3600)}</span>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <span className="text-cream/50">Rate</span>
-                            <span className="text-cream/85">{usd(perSecond, 7)}/s</span>
+                            <span className="font-mono text-cream/85">{usd(perSecond, 7)}/s</span>
                         </div>
                     </div>
 
                     <p className="mt-auto pt-8 text-xs leading-relaxed text-cream/50">
-                        Estimate only. Or bring your own compute and run your actors and applications on AWS, Vercel,
-                        Railway, or bare metal, paid directly to your provider.
+                        Estimate only. Or use a supported deployment path on AWS, Vercel,
+                        Railway, or bare metal and pay that provider directly.
                     </p>
                 </InkPanel>
             </div>
@@ -424,9 +436,9 @@ const Pricing = () => {
         name: "Enterprise Edition",
         price: "Custom",
         period: "",
-        desc: "Closed-source, production-grade features to run Rivet at enterprise scale in your own VPC, customer environments, or regulated networks.",
+        desc: "Additional operational features for running Rivet in your own VPC, customer environments, or regulated networks.",
         features: [
-            "Actor orchestration engine",
+            "Actor control plane",
             "FoundationDB persistence layer",
             "Cloud layer for multi-tenant",
             "SQLite backup",
@@ -459,47 +471,41 @@ const Pricing = () => {
     ];
 
     return (
-        <section id="pricing" className="pb-16 pt-32 md:pb-32 md:pt-40">
-            <div className="mx-auto max-w-7xl px-6">
+        <section id="pricing" className={SITE_SECTION_CLASS}>
+            <div className={SITE_STANDARD_RAIL_CLASS}>
                 <div className="flex flex-col gap-12">
-                    <div className="flex flex-col items-center text-center">
-                        <h2 className={`mb-2 ${SECTION_H2_CLASS}`}>Simple, predictable pricing</h2>
-                        <p className="mt-2 max-w-xl text-base leading-relaxed text-ink-soft">
-                            Pay for coordination, state, and compute. Run your actors and applications on Rivet Cloud, or bring your own and run them anywhere.
-                        </p>
-                    </div>
-
                     <div className="flex flex-col gap-12">
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
                                 {plans.map((plan, idx) => (
                                     <div
                                        key={idx}
-                                       className={`flex flex-col border bg-white/55 ${
+                                       data-site-reveal-child
+                                       className={`flex flex-col overflow-hidden rounded-xl border bg-white/55 ${
                                            plan.highlight ? 'border-pine/60' : 'border-ink/10'
                                        }`}
                                     >
                                         {plan.inkHeader ? (
                                             <div className="selection-paper flex items-center justify-between gap-4 bg-ink px-7 py-3">
                                                 <span className="text-sm font-medium text-cream">{plan.name}</span>
-                                                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-cream/60">On-Prem</span>
+                                                <span className={EYEBROW_ON_INK_CLASS}>On-Prem</span>
                                             </div>
                                         ) : null}
-                                        <div className="flex flex-grow flex-col p-7">
+                                        <div className="flex flex-grow flex-col p-6 md:p-8">
                                             {!plan.inkHeader ? (
-                                                <h3 className="mb-2 text-lg font-medium text-ink">{plan.name}</h3>
+                                                <h3 className={`mb-2 ${CARD_TITLE_CLASS}`}>{plan.name}</h3>
                                             ) : null}
 
                                             <div className="mb-6">
-                                                {plan.prefix && <span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{plan.prefix}</span>}
+                                                {plan.prefix && <span className="mb-1 block text-sm font-medium text-ink-faint">{plan.prefix}</span>}
                                                 <div className="flex items-baseline gap-1">
                                                     <span className="text-3xl font-medium tracking-[-0.015em] text-ink">{plan.price}</span>
-                                                    {plan.period && <span className="ml-1 font-mono text-xs text-ink-faint">{plan.period}</span>}
+                                                    {plan.period && <span className="ml-1 text-xs text-ink-faint">{plan.period}</span>}
                                                 </div>
                                             </div>
 
                                             <div className="mb-6 h-px bg-ink/10" />
 
-                                            {plan.desc && <p className="mb-6 min-h-[2.5rem] text-sm leading-relaxed text-ink-soft">{plan.desc}</p>}
+                                            {plan.desc && <p className="mb-6 min-h-[2.5rem] text-[15px] leading-relaxed text-ink-soft">{plan.desc}</p>}
 
                                             <div className="mb-8 space-y-3">
                                                 {plan.features.map((feat, i) => (
@@ -510,7 +516,7 @@ const Pricing = () => {
                                                 ))}
                                             </div>
 
-                                            <a href={plan.cta === "Contact Sales" ? "/sales" : "https://dashboard.rivet.dev"}
+                                            <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer" : "https://dashboard.rivet.dev"}
                                                 className={`mt-auto ${
                                                     plan.highlight
                                                     ? PRODUCT_HERO_PRIMARY_BUTTON_CLASS
@@ -525,10 +531,10 @@ const Pricing = () => {
                             </div>
 
                             {/* YC & a16z Speedrun Callout */}
-                            <div className="border border-ink/10 bg-white/55 p-6">
+                            <div className={SITE_WIDE_CALLOUT_CLASS} data-site-reveal>
                                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                                         <div>
-                                            <p className="mb-2 text-base font-medium text-ink">Startup Deal: 50% off for 12 months</p>
+                                            <p className={`mb-2 ${CARD_TITLE_CLASS}`}>Startup Deal: 50% off for 12 months</p>
                                             <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
                                                 <span>For</span>
                                                 <div className="flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft">
@@ -556,22 +562,22 @@ const Pricing = () => {
                             {/* Usage pricing, compute calculator, and plan comparison */}
                                 <>
                                     {/* Usage Pricing Section */}
-                                    <div className="border-t border-ink/10 pt-16">
-                                        <h3 className="mb-3 text-2xl font-medium tracking-[-0.015em] text-ink">Usage Pricing</h3>
-                                        <p className="mb-8 text-base leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
+                                    <div className="pt-16" data-site-reveal>
+                                        <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Usage Pricing</h3>
+                                        <p className="mb-8 text-[15px] leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
 
                                         <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
                                             {usagePricing.map((item, i) => (
                                                 <div key={i} className="border-t border-ink/10 pt-6">
-                                                    <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{item.resource}</div>
-                                                    {item.prefix && <span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">{item.prefix}</span>}
+                                                    <div className="mb-2 text-sm font-medium text-ink-faint">{item.resource}</div>
+                                                    {item.prefix && <span className="mb-1 block text-sm font-medium text-ink-faint">{item.prefix}</span>}
                                                     <div className="mb-1 font-mono text-2xl text-ink">{item.price}</div>
                                                     <div className="text-xs text-ink-faint">{item.unit}</div>
                                                 </div>
                                             ))}
                                         </div>
                                         <p className="mt-6 text-xs text-ink-faint">* Reads and writes to persisted actor state, not in-memory operations within an actor</p>
-                                        <p className="mt-2 text-xs text-ink-faint">Compute runs on Rivet Cloud, billed per active second. Or bring your own compute and run your actors and applications on AWS, Vercel, Railway, or bare metal, paid directly to your provider.</p>
+                                        <p className="mt-2 text-xs text-ink-faint">Active execution on Rivet Cloud is billed per second. Supported deployment paths are also available for AWS, Vercel, Railway, and bare metal.</p>
                                     </div>
 
                                     <ComputeCalculator />
@@ -588,11 +594,10 @@ const Pricing = () => {
 
 export default function PricingPageClient() {
   return (
-    <div className="paper-grain min-h-screen font-sans text-ink-soft">
-      <main>
-        <Pricing />
-        <SelfHostingComparison />
-      </main>
-    </div>
+    <>
+      <Pricing />
+      <SectionRule />
+      <SelfHostingComparison />
+    </>
   );
 }

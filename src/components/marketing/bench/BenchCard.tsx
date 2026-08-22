@@ -1,6 +1,6 @@
 'use client';
 
-// Benchmark card primitives: the dark "ink" data card with a mono eyebrow, a
+// Benchmark card primitives: the light data card with a sans eyebrow, a
 // count-up headline, a comparison ledger, an optional toggle, and floating info
 // tooltips. Used by the Actors marketing page (Actors vs. traditional
 // infrastructure).
@@ -8,16 +8,15 @@
 import { useId, useMemo, useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { InkPanel } from '../editorial/InkPanel';
 
 export function BenchInfoTooltip({ children }: { children: ReactNode }) {
-	// The wrapper is intentionally not positioned so the tooltip spans the ink
+	// The wrapper is intentionally not positioned so the tooltip spans the
 	// card itself (the nearest positioned ancestor) instead of clipping at the
 	// panel's overflow-hidden edge.
 	return (
 		<span className='group/tip ml-1.5 inline-flex align-middle'>
 			<svg
-				className='h-3.5 w-3.5 cursor-help text-cream/35 transition-colors group-hover/tip:text-cream/70'
+				className='h-3.5 w-3.5 cursor-help text-ink/30 transition-colors group-hover/tip:text-ink/70'
 				viewBox='0 0 16 16'
 				fill='currentColor'
 			>
@@ -35,7 +34,7 @@ export function BenchToggle({ options, active, onChange }: { options: string[]; 
 	const columns = options.length === 3 ? 'grid-cols-3' : options.length === 4 ? 'grid-cols-2' : 'grid-cols-2';
 
 	return (
-		<div className={`grid w-full gap-1 rounded-lg border border-cream/10 bg-cream/[0.03] p-1 ${columns}`}>
+		<div className={`grid w-full gap-1 rounded-lg border border-ink/10 bg-ink/[0.04] p-1 ${columns}`}>
 			{options.map((label, i) => {
 				const isActive = i === active;
 				return (
@@ -45,14 +44,14 @@ export function BenchToggle({ options, active, onChange }: { options: string[]; 
 						onClick={() => onChange(i)}
 						aria-pressed={isActive}
 						whileTap={{ scale: 0.94 }}
-						className={`relative flex h-7 min-w-0 items-center justify-center rounded-md px-1.5 text-center font-mono text-[10px] uppercase tracking-[0.12em] transition-colors ${
-							isActive ? 'text-ink' : 'text-cream/45 hover:text-cream/75'
+						className={`relative flex h-7 min-w-0 items-center justify-center rounded-md px-1.5 text-center text-xs font-medium transition-colors ${
+							isActive ? 'text-cream' : 'text-ink-faint hover:text-ink'
 						}`}
 					>
 						{isActive && (
 							<motion.span
 								layoutId={`bench-toggle-${layoutId}`}
-								className='absolute inset-0 rounded-md bg-cream'
+								className='absolute inset-0 rounded-md bg-ink'
 								transition={{ type: 'spring', stiffness: 480, damping: 38 }}
 							/>
 						)}
@@ -152,7 +151,7 @@ export function CountUpStat({ text, active }: { text: string; active: boolean })
 	);
 }
 
-// Dark ink data card with a mono title, headline stat,
+// Light data card with a sans title, headline stat,
 // and label/value rows pinned to the card's foot.
 export function BenchCard({
 	title,
@@ -173,7 +172,7 @@ export function BenchCard({
 	const [inView, setInView] = useState(false);
 
 	return (
-		<InkPanel className='h-full'>
+		<div className='relative h-full overflow-hidden rounded-xl border border-ink/10 bg-white/55'>
 			<motion.div
 				className='flex h-full flex-col p-6 md:p-7'
 				onViewportEnter={() => setInView(true)}
@@ -181,25 +180,25 @@ export function BenchCard({
 			>
 				{/* Eyebrow rail */}
 				<div className='flex min-h-[2.5rem] items-start justify-between gap-3'>
-					<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-sage'>{title}</span>
+					<span className='text-sm font-medium text-ink-faint'>{title}</span>
 				</div>
 
 				{/* Verdict: the headline multiplier */}
 				<div className='mt-5 flex items-baseline gap-2'>
-					<span className='font-sans text-[2.75rem] font-medium leading-[1.0] tracking-[-0.02em] tabular-nums text-cream md:text-5xl'>
+					<span className='font-sans text-[2.75rem] font-medium leading-[1.0] tracking-[-0.02em] tabular-nums text-ink md:text-5xl'>
 						<CountUpStat text={statNote} active={inView} />
 					</span>
-					{verb ? <span className='font-sans text-lg font-medium text-cream/45 md:text-xl'>{verb}</span> : null}
+					{verb ? <span className='font-sans text-lg font-medium text-ink-faint md:text-xl'>{verb}</span> : null}
 				</div>
 
 				{/* Comparison ledger: ours vs theirs, same unit, right-aligned */}
-				<div className='mb-6 mt-6 divide-y divide-cream/10 border-y border-cream/10'>
+				<div className='mb-6 mt-6 divide-y divide-ink/10 border-y border-ink/10'>
 					{rows.map((row, i) => (
 						<div key={i} className='flex items-baseline justify-between gap-4 py-2.5'>
-							<span className={`inline-flex min-w-0 items-baseline font-mono text-[13px] ${row.highlight ? 'font-medium text-cream' : 'font-normal text-cream/45'}`}>
+							<span className={`inline-flex min-w-0 items-baseline text-[13px] ${row.highlight ? 'font-medium text-ink' : 'font-normal text-ink-faint'}`}>
 								{row.label}
 							</span>
-							<span className={`whitespace-nowrap font-mono text-[15px] tabular-nums ${row.highlight ? 'font-medium text-sage' : 'font-normal text-cream/45'}`}>
+							<span className={`whitespace-nowrap font-mono text-[15px] tabular-nums ${row.highlight ? 'font-medium text-pine' : 'font-normal text-ink-faint'}`}>
 								{row.value}
 							</span>
 						</div>
@@ -208,9 +207,9 @@ export function BenchCard({
 
 				{toggle}
 				{note ? (
-					<p className='mt-auto font-mono text-[10px] leading-relaxed text-cream/35'>{note}</p>
+					<p className='mt-auto text-[10px] leading-relaxed text-ink-faint'>{note}</p>
 				) : null}
 			</motion.div>
-		</InkPanel>
+		</div>
 	);
 }

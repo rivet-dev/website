@@ -49,7 +49,7 @@ export function BenchToggle({ options, active, onChange }: { options: string[]; 
 						onClick={() => onChange(i)}
 						aria-pressed={isActive}
 						whileTap={{ scale: 0.94 }}
-						className={`relative flex h-7 min-w-0 items-center justify-center rounded-md px-1.5 text-center font-mono text-[10px] uppercase tracking-[0.12em] transition-colors ${
+						className={`relative flex h-7 min-w-0 items-center justify-center rounded-md px-1.5 text-center text-xs font-medium transition-colors ${
 							isActive ? 'text-cream' : 'text-ink-soft hover:text-ink'
 						}`}
 					>

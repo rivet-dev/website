@@ -20,6 +20,7 @@ import {
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 } from '@/components/marketing/typography';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
 
 // --- Copy Agent Prompt Button ---
@@ -76,7 +77,7 @@ const UseCase = ({ icon: Icon, title, description, benefits, example, delay = 0 
 		</ul>
 		{example && (
 			<div className='mt-auto border-t border-ink/10 pt-4'>
-				<span className='font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint'>Example</span>
+				<span className='text-sm font-medium text-ink-faint'>Example</span>
 				<p className='mt-1.5 text-sm leading-relaxed text-ink-soft'>{example}</p>
 			</div>
 		)}
@@ -116,9 +117,9 @@ export const useCases: UseCaseProps[] = [
 			'Low memory per instance compared to sandboxes',
 			'Near-zero cold starts for rapid iteration',
 			'Deterministic replay for debugging',
-			'Cost-effective at thousands of runs',
+			'Parallel runs on independently addressed Actors',
 		],
-		example: 'Evaluating 10,000 agent responses in parallel to measure performance across different prompts.',
+		example: 'Evaluating agent responses in parallel to compare performance across prompts.',
 	},
 	{
 		icon: Users,
@@ -127,7 +128,7 @@ export const useCases: UseCaseProps[] = [
 		benefits: [
 			'Shared file systems between agents',
 			'Real-time inter-agent messaging',
-			'Workflow orchestration primitives',
+			'Optional durable Workflows layer',
 			'Centralized observability',
 		],
 		example: 'A team of agents where one researches, one writes, and one reviews, all collaborating on a document.',
@@ -196,8 +197,10 @@ export default function AgentOSUseCasesPage() {
 					</div>
 				</section>
 
+				<SectionRule />
+
 				{/* Use Cases Grid */}
-				<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
+				<section className='px-6 py-16 md:py-32'>
 					<div className='mx-auto max-w-7xl'>
 						<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
 							{useCases.map((useCase, i) => (
@@ -207,8 +210,10 @@ export default function AgentOSUseCasesPage() {
 					</div>
 				</section>
 
+				<SectionRule />
+
 				{/* CTA */}
-				<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
+				<section className='px-6 py-16 md:py-32'>
 					<div className='mx-auto max-w-3xl text-center'>
 						<motion.h2
 							initial={{ opacity: 0, y: 20 }}

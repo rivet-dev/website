@@ -81,13 +81,13 @@ function ProductLabel({
 				<span
 					aria-hidden="true"
 					className={cn(
-						"flex size-7 shrink-0 items-center justify-center rounded-lg",
+						"flex size-7 shrink-0 items-center justify-center rounded-[34.375%]",
 						accent?.fill ?? "bg-ink/20",
 					)}
 				>
 					<ProductMark
 						product={current}
-						className="h-[15px] w-[15px]"
+						className="h-7 w-7"
 						tone="cream"
 					/>
 				</span>
@@ -131,9 +131,12 @@ export function ProductBar({
 	if (!product && !sectionLabel) return null;
 
 	return (
-		<div className="-mx-8 hidden h-14 items-center gap-5 bg-[#e9e9eb] px-8 md:flex">
+		// Quiet Linear-style tab strip sitting directly on the header glass: no
+		// band fill, no underline — the active tab is ink, the rest ink-faint,
+		// and the product accent lives only in the label tile.
+		<div className="hidden h-12 items-center gap-6 md:flex">
 			<ProductLabel current={product} label={sectionLabel} />
-			<div className="flex h-full items-center gap-4">
+			<div className="flex h-full items-center gap-6">
 				{product && visibleTabs(product).map((tab) => {
 					const accent = productAccent(product.id);
 					return (
@@ -142,8 +145,8 @@ export function ProductBar({
 							href={tab.href}
 							aria-current={tab.id === activeTabId ? "page" : undefined}
 							className={cn(
-								"flex h-full items-center rounded-none border-b-2 border-transparent px-0 text-sm text-ink-faint transition-colors hover:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e9e9eb]",
-									accent?.activeBorder ?? "aria-current-page:border-pine",
+								"flex h-full items-center rounded-sm text-sm font-medium text-ink-faint transition-colors hover:text-ink aria-current-page:text-ink",
+								"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 								accent?.focusRing ?? "focus-visible:ring-pine",
 							)}
 						>

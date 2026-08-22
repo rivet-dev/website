@@ -12,6 +12,7 @@ We recommend passing this page to your coding agent to verify your configuration
 - **Configure an admin token.** Generate a strong random value and set `RIVET__AUTH__ADMIN_TOKEN`. Without one the API is unauthenticated. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 - **Keep the admin token out of client reach.** It must never appear in a public endpoint or anywhere a browser can read it.
 - **Terminate TLS.** Every connection to the control plane should be encrypted at a reverse proxy or load balancer. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+- **Disable crash reporting in locked-down environments.** The control plane sends crash reports to Rivet by default. Set `RIVET__TELEMETRY__ENABLED=false` for air-gapped or regulated deployments. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 
 ## Resources
 

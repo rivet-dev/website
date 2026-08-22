@@ -4,7 +4,18 @@ import BlogLayout from '@/layouts/BlogLayout.astro';
 import { CATEGORIES } from '@/lib/article';
 import { formatTimestamp } from '@/lib/formatDate';
 import { getPostImage } from '@/lib/postImage';
-import { HERO_H1_CLASS, PRODUCT_HERO_SECONDARY_BUTTON_CLASS } from '@/components/marketing/typography';
+import {
+	CARD_TITLE_CLASS,
+	HERO_H1_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+} from '@/components/marketing/typography';
+import {
+	SITE_CARD_CLASS,
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { Icon, faRss } from '@rivet-gg/icons';
 
 const MONTHS = [
@@ -58,100 +69,106 @@ for (const entry of changelogPosts) {
 ---
 
 <BlogLayout title="Blog - Rivet">
-	<div class="mx-auto w-full max-w-7xl px-6 pb-32 pt-20 md:pb-48 md:pt-32" style="--header-height: 5rem;">
-		<div class="mt-8 flex w-full items-center justify-between">
-			<h1 class={HERO_H1_CLASS}>Blog</h1>
-			<a
-				href="/rss/feed.xml"
-				class:list={[PRODUCT_HERO_SECONDARY_BUTTON_CLASS, '!w-auto']}
-			>
-				<Icon icon={faRss} />
-				RSS Feed
-			</a>
-		</div>
-
-		<div class="mt-12 flex flex-col gap-12 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14">
-			<!-- Changelog calendar -->
-			<aside class="order-last lg:order-none">
-				<div class="lg:sticky lg:top-32">
-					<div class="border-b border-ink/10 pb-3">
-						<h2 class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">Changelog</h2>
-					</div>
-					<div class="relative">
-						<div class="mt-5 max-h-[calc(100vh-14rem)] space-y-6 overflow-y-auto pb-6 pr-1">
-							{changelogMonths.map((month) => (
-							<div>
-								<p class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint">{month.label}</p>
-								<ul class="mt-2">
-									{month.items.map((item) => (
-										<li>
-											<a
-												href={`/changelog/${item.slug}/`}
-												class="group flex gap-3 rounded-md py-1.5 transition-colors"
-											>
-												<time
-													datetime={item.published.toISOString()}
-													class="w-6 shrink-0 pt-px text-right font-mono text-xs tabular-nums text-ink-faint transition-colors group-hover:text-pine"
-												>
-													{item.published.getDate()}
-												</time>
-												<span class="text-sm leading-snug text-ink-soft transition-colors group-hover:text-ink">
-													{item.title}
-												</span>
-											</a>
-										</li>
-									))}
-								</ul>
-							</div>
-						))}
-						</div>
-						<div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper to-transparent"></div>
-					</div>
-				</div>
-			</aside>
-
-			<!-- Blog posts + changelog -->
-			<div class="order-first grid grid-cols-1 gap-6 md:grid-cols-2 lg:order-none">
-				{articles.map((article) => (
-					<a href={article.href} class="size-full">
-						<article class="flex size-full flex-col items-start justify-between border border-ink/10 bg-white/55 p-4 transition-colors hover:border-ink/25">
-							<div class="w-full">
-								{article.image && (
-									<div class="relative w-full">
-										<img
-											src={article.image.src}
-											alt={article.title}
-											width={1200}
-											height={600}
-											class="aspect-[2/1] w-full rounded-md border border-ink/10 object-cover"
-											loading="lazy"
-											decoding="async"
-										/>
-									</div>
-								)}
-								<div class="mt-4 flex items-center gap-x-3 text-xs">
-									{CATEGORIES[article.data.category] && (
-										<span class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-pine">
-											{CATEGORIES[article.data.category].name}
-										</span>
-									)}
-									<time datetime={article.data.published.toISOString()} class="text-ink-faint">
-										{formatTimestamp(article.data.published)}
-									</time>
-								</div>
-								<div class="group relative">
-									<h3 class="mt-2 text-xl font-medium leading-7 text-ink">
-										{article.title}
-									</h3>
-									<p class="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-										{article.description}
-									</p>
-								</div>
-							</div>
-						</article>
-					</a>
-				))}
+	<main id="main-content" tabindex="-1" style="--header-height: 5rem;">
+		<section class={SITE_UTILITY_HERO_CLASS}>
+			<div class:list={[SITE_STANDARD_RAIL_CLASS, 'flex w-full items-center justify-between gap-6']} data-site-reveal>
+				<h1 class={HERO_H1_CLASS}>Blog</h1>
+				<a
+					href="/rss/feed.xml"
+					class:list={[PRODUCT_HERO_SECONDARY_BUTTON_CLASS, '!w-auto']}
+				>
+					<Icon icon={faRss} />
+					RSS Feed
+				</a>
 			</div>
-		</div>
-	</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class:list={[SITE_STANDARD_RAIL_CLASS, 'flex flex-col gap-12 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14']}>
+				<!-- Changelog calendar -->
+				<aside class="order-last lg:order-none" data-site-reveal>
+					<div class="lg:sticky lg:top-32">
+						<div class="border-b border-ink/10 pb-3">
+							<h2 class="text-sm font-medium text-ink-faint">Changelog</h2>
+						</div>
+						<div class="relative">
+							<div class="mt-5 max-h-[calc(100vh-14rem)] space-y-6 overflow-y-auto pb-6 pr-1">
+								{changelogMonths.map((month) => (
+									<div>
+										<p class="text-xs font-medium text-ink-faint">{month.label}</p>
+										<ul class="mt-2">
+											{month.items.map((item) => (
+												<li>
+													<a
+														href={`/changelog/${item.slug}/`}
+														class="group flex gap-3 rounded-md py-1.5 transition-colors"
+													>
+														<time
+															datetime={item.published.toISOString()}
+															class="w-6 shrink-0 pt-px text-right font-mono text-xs tabular-nums text-ink-faint transition-colors group-hover:text-pine"
+														>
+															{item.published.getDate()}
+														</time>
+														<span class="text-sm leading-snug text-ink-soft transition-colors group-hover:text-ink">
+															{item.title}
+														</span>
+													</a>
+												</li>
+											))}
+										</ul>
+									</div>
+								))}
+							</div>
+							<div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper to-transparent"></div>
+						</div>
+					</div>
+				</aside>
+
+				<!-- Blog posts + changelog -->
+				<div class="order-first grid grid-cols-1 gap-6 md:grid-cols-2 lg:order-none">
+					{articles.map((article) => (
+						<a href={article.href} class="size-full" data-site-reveal>
+							<article class:list={[SITE_CARD_CLASS, 'flex size-full flex-col items-start justify-between transition-colors hover:border-ink/25']}>
+								<div class="w-full">
+									{article.image && (
+										<div class="relative w-full">
+											<img
+												src={article.image.src}
+												alt={article.title}
+												width={1200}
+												height={600}
+												class="aspect-[2/1] w-full rounded-xl border border-ink/10 object-cover"
+												loading="lazy"
+												decoding="async"
+											/>
+										</div>
+									)}
+									<div class="mt-5 flex items-center gap-x-3 text-xs">
+										{CATEGORIES[article.data.category] && (
+											<span class="text-xs font-medium text-ink-faint">
+												{CATEGORIES[article.data.category].name}
+											</span>
+										)}
+										<time datetime={article.data.published.toISOString()} class="text-ink-faint">
+											{formatTimestamp(article.data.published)}
+										</time>
+									</div>
+									<div class="group relative">
+										<h3 class:list={[CARD_TITLE_CLASS, 'mt-2']}>
+											{article.title}
+										</h3>
+										<p class="mt-2 line-clamp-2 text-[15px] leading-relaxed text-ink-soft">
+											{article.description}
+										</p>
+									</div>
+								</div>
+							</article>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+	</main>
 </BlogLayout>

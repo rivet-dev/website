@@ -9,11 +9,11 @@ export const cloudflareDurableObjects: CompareEntry = {
 	competitorIcon: faCloudflare,
 	title: 'Rivet Actors vs Cloudflare Durable Objects',
 	description:
-		'Compare Rivet Actors and Cloudflare Durable Objects: open-source stateful actors on your own infrastructure versus stateful compute tied to Cloudflare.',
+		'Compare Apache-licensed Rivet Actors on Rivet Cloud or self-hosted with stateful Durable Objects on Cloudflare.',
 	heroSubtitle:
-		'Cloudflare Durable Objects provide stateful serverless computing with vendor lock-in. Rivet Actors give you the same capabilities as an open-source library that works with your existing infrastructure and technology stack. If your workloads must run on-prem, in a customer VPC, or air-gapped, Durable Objects are not an option. Rivet is built for exactly that.',
+		'Cloudflare Durable Objects provide stateful primitives for applications built on the Workers runtime. Rivet Actors provide an Apache-licensed Actor model with state, SQLite, scheduling, and realtime, available through Rivet Cloud or as a self-hosted deployment.',
 	rivetSummary:
-		'Rivet Actors bring the actor model to your existing infrastructure as an open-source library. Build stateful, distributed applications with your preferred technology stack, deployed on your own infrastructure.',
+		'Rivet Actors combine durable identity, state, storage, scheduling, and realtime connections in an Apache-licensed runtime. Deploy on Rivet Cloud or self-host Rivet.',
 	competitorSummary:
 		"Cloudflare Durable Objects provide stateful serverless computing that runs on Cloudflare's global edge network. Built on Cloudflare's platform, Durable Objects offer strong consistency and state persistence for applications built on the Workers runtime.",
 	whenToChooseRivet: [
@@ -23,14 +23,14 @@ export const cloudflareDurableObjects: CompareEntry = {
 				'When you want an intuitive platform with high-quality documentation, mature local development experience, and in-depth observability into your workloads',
 		},
 		{
-			title: 'Works with your existing infrastructure',
+			title: 'Rivet Cloud or self-hosted',
 			description:
-				'When you want to use actors with your existing deployment process on Kubernetes, AWS, VPS, or any infrastructure',
+				'When you want a managed Rivet deployment or documented self-hosting paths for Kubernetes, AWS, VMs, and other supported platforms',
 		},
 		{
 			title: 'Technology flexibility',
 			description:
-				'When you want to use your existing frameworks and libraries without platform-specific constraints',
+				'When you want Node.js, Bun, or Deno support, with a Rust SDK available in preview',
 		},
 		{
 			title: 'Provides monitoring and observability',
@@ -93,17 +93,17 @@ export const cloudflareDurableObjects: CompareEntry = {
 			title: 'Infrastructure',
 			rows: [
 				{
-					feature: 'Works with existing infrastructure',
+					feature: 'Deployment options',
 					rivet: {
 						status: 'yes',
-						text: 'Deploy actors on Kubernetes, AWS, VPS, or any infrastructure',
+						text: 'Rivet Cloud plus documented self-hosting paths for Kubernetes, AWS, VMs, and other supported platforms',
 					},
 					competitor: {
 						status: 'no',
 						text: "Locked to Cloudflare's infrastructure",
 					},
 					importance:
-						'Using your existing infrastructure avoids vendor lock-in and integrates with your current setup',
+						'Deployment choice determines operational ownership, network boundaries, and portability',
 				},
 				{
 					feature: 'Data sovereignty and VPC isolation',
@@ -119,23 +119,23 @@ export const cloudflareDurableObjects: CompareEntry = {
 						'Data sovereignty ensures compliance with data governance requirements and maintains complete network isolation',
 				},
 				{
-					feature: 'Works with existing deploy processes',
+					feature: 'Deployment model',
 					rivet: {
 						status: 'yes',
-						text: 'Import the library and deploy with your existing CI/CD',
+						text: 'Deploy through Rivet Cloud or follow a documented self-hosting guide',
 					},
 					competitor: {
 						status: 'no',
 						text: 'Requires Cloudflare-specific deployment process',
 					},
 					importance:
-						'Keeping your existing deployment process reduces complexity and learning curve',
+						'A documented deployment model makes operating requirements explicit',
 				},
 				{
 					feature: 'Technology flexibility',
 					rivet: {
 						status: 'yes',
-						text: 'Works with your existing technology stack and frameworks',
+						text: 'TypeScript and JavaScript on Node.js, Bun, and Deno, with a Rust SDK in preview',
 					},
 					competitor: {
 						status: 'partial',
@@ -210,7 +210,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'Memory limits',
 					rivet: {
 						status: 'yes',
-						text: 'No platform memory cap; memory is bounded by the compute you run actors on',
+						text: 'No fixed platform memory cap; memory is bounded by the resources provisioned for the deployment',
 					},
 					competitor: {
 						status: 'partial',
@@ -454,7 +454,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 		},
 	],
 	verdict: [
-		'While Cloudflare Durable Objects provide stateful serverless computing with vendor lock-in, Rivet Actors offer the same actor model capabilities as an open-source library that works with your existing infrastructure. Choose Rivet Actors when you want the power of actors without changing your deployment process, technology stack, or being locked into a specific platform.',
+		'Choose Cloudflare Durable Objects when the Workers runtime and Cloudflare platform match your application. Choose Rivet Actors when you want an Apache-licensed Actor runtime with Rivet Cloud and self-hosted deployment options.',
 	],
 	migration: {
 		heading: 'Migrating from Cloudflare Durable Objects?',
@@ -469,7 +469,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 		{
 			question: 'Can I run Rivet Actors outside of a single cloud provider?',
 			answerHtml:
-				'Yes. Rivet Actors run on Rivet Cloud or self-hosted on Kubernetes, AWS, a VPS, or any infrastructure that runs containers. Your application code stays the same in either case, so you are not locked to one provider.',
+				'Yes. Deploy on Rivet Cloud or self-host Rivet using the documented Kubernetes, AWS, VM, and other supported deployment paths.',
 		},
 		{
 			question: 'Do Rivet Actors support SQLite storage like Durable Objects?',

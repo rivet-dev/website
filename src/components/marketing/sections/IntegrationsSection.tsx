@@ -1,137 +1,142 @@
-'use client';
+import { Blocks, LayoutGrid, Terminal, Wrench } from "lucide-react";
+import { integrationsFor } from "@/data/integrations";
+import {
+  EYEBROW_CLASS,
+  SECTION_H2_CLASS,
+} from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
-import { Blocks, LayoutGrid, Terminal, Wrench } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { integrationsFor } from '@/data/integrations';
-
-const integrations = integrationsFor('actors');
-import { EYEBROW_CLASS, SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
-import { GLOW_PILL_SURFACE_CLASS, handleGlowPillMouseMove } from '../glowPill';
+const integrations = integrationsFor("actors");
 
 const frameworks = [
-  { name: 'React', href: '/actors/docs/clients/react' },
-  { name: 'Next.js', href: '/actors/docs/clients/javascript' },
-  { name: 'Svelte', href: '/actors/docs/clients/javascript' },
-  { name: 'Hono', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/hono', external: true },
-  { name: 'Express', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/express', external: true },
-  { name: 'Elysia', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/elysia', external: true },
-  { name: 'tRPC', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/trpc', external: true },
+  { name: "React", href: "/actors/docs/clients/react" },
+  { name: "Next.js", href: "/actors/docs/clients/javascript" },
+  { name: "Svelte", href: "/actors/docs/clients/javascript" },
+  {
+    name: "Hono",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/hono",
+    external: true,
+  },
+  {
+    name: "Express",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/express",
+    external: true,
+  },
+  {
+    name: "Elysia",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/elysia",
+    external: true,
+  },
+  {
+    name: "tRPC",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/trpc",
+    external: true,
+  },
 ];
 
-// Shares GLOW_PILL_SURFACE_CLASS with HostingSection so the two index rows
-// read as one vocabulary.
-const STACK_LINK_CLASS = GLOW_PILL_SURFACE_CLASS;
+const runtimes = [
+  { name: "Node.js", href: "/actors/docs/quickstart/backend" },
+  { name: "Bun", href: "/actors/docs/quickstart/backend" },
+  {
+    name: "Deno",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/deno",
+    external: true,
+  },
+];
+
+const tools = [
+  { name: "Vitest", href: "/actors/docs/testing" },
+  { name: "Pino", href: "/actors/docs/general/logging" },
+  {
+    name: "AI SDK",
+    href: "https://github.com/rivet-dev/rivet/tree/main/examples/ai-agent",
+    external: true,
+  },
+  {
+    name: "OpenAPI",
+    href: "https://github.com/rivet-dev/rivet/tree/main/rivetkit-openapi",
+    external: true,
+  },
+  {
+    name: "AsyncAPI",
+    href: "https://github.com/rivet-dev/rivet/tree/main/rivetkit-asyncapi",
+    external: true,
+  },
+];
+
+// Quiet chip per technology. Shape comes from the hairline and fill, so the
+// name itself carries no underline.
+const STACK_CHIP_CLASS =
+  "inline-flex items-center rounded-md border border-ink/10 bg-white/55 px-2.5 py-1 text-sm text-ink-soft transition-colors hover:border-ink/25 hover:bg-white hover:text-ink";
+
+interface StackLink {
+  name: string;
+  href: string;
+  external?: boolean;
+}
+
+interface StackGroup {
+  label: string;
+  icon: typeof LayoutGrid;
+  items: StackLink[];
+}
+
+const groups: StackGroup[] = [
+  { label: "Frameworks", icon: LayoutGrid, items: frameworks },
+  { label: "Runtimes", icon: Terminal, items: runtimes },
+  { label: "Tools", icon: Wrench, items: tools },
+  {
+    label: "Integrations",
+    icon: Blocks,
+    items: integrations.map((integration) => ({
+      name: integration.title,
+      href: `/actors/integrations/${integration.slug}`,
+    })),
+  },
+];
 
 export const IntegrationsSection = () => (
-  <section className='relative overflow-hidden border-t border-ink/10 py-16 md:py-32'>
-    <div className='relative z-10 mx-auto max-w-7xl px-6'>
-      <div className='mb-12'>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className='max-w-xl'
-        >
-          <h2 className={`mb-2 ${SECTION_H2_CLASS}`}>Works with your stack.</h2>
-          <p className={SUBTITLE_CLASS}>
-            Standard Node.js, Bun, and Deno. Your frameworks, your tools. No custom runtime, no rewrite.
-          </p>
-        </motion.div>
+  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
+      <div data-site-reveal="" className="max-w-3xl">
+        <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
+          Works with your stack.
+        </h2>
       </div>
 
-      <div className='grid grid-cols-1 gap-8 md:grid-cols-3'>
-        {/* Category 1: Frameworks */}
-        <div className='border-t border-ink/10 pt-6'>
-          <div className='mb-4 flex items-center gap-3'>
-            <LayoutGrid className='h-4 w-4 text-olive' />
-            <h4 className={EYEBROW_CLASS}>Frameworks</h4>
-          </div>
-          <div className='flex flex-wrap gap-2'>
-            {frameworks.map(tech => (
-              <a
-                key={tech.name}
-                href={tech.href}
-                onMouseMove={handleGlowPillMouseMove}
-                {...(tech.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={STACK_LINK_CLASS}
-              >
-                {tech.name}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Category 2: Runtimes */}
-        <div className='border-t border-ink/10 pt-6'>
-          <div className='mb-4 flex items-center gap-3'>
-            <Terminal className='h-4 w-4 text-olive' />
-            <h4 className={EYEBROW_CLASS}>Runtimes</h4>
-          </div>
-          <div className='flex flex-wrap gap-2'>
-            {[
-              { name: 'Node.js', href: '/actors/docs/quickstart/backend' },
-              { name: 'Bun', href: '/actors/docs/quickstart/backend' },
-              { name: 'Deno', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/deno', external: true }
-            ].map(tech => (
-              <a
-                key={tech.name}
-                href={tech.href}
-                onMouseMove={handleGlowPillMouseMove}
-                {...(tech.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={STACK_LINK_CLASS}
-              >
-                {tech.name}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Category 3: Tools */}
-        <div className='border-t border-ink/10 pt-6'>
-          <div className='mb-4 flex items-center gap-3'>
-            <Wrench className='h-4 w-4 text-olive' />
-            <h4 className={EYEBROW_CLASS}>Tools</h4>
-          </div>
-          <div className='flex flex-wrap gap-2'>
-            {[
-              { name: 'Vitest', href: '/actors/docs/testing' },
-              { name: 'Pino', href: '/actors/docs/general/logging' },
-              { name: 'AI SDK', href: 'https://github.com/rivet-dev/rivet/tree/main/examples/ai-agent', external: true },
-              { name: 'OpenAPI', href: 'https://github.com/rivet-dev/rivet/tree/main/rivetkit-openapi', external: true },
-              { name: 'AsyncAPI', href: 'https://github.com/rivet-dev/rivet/tree/main/rivetkit-asyncapi', external: true }
-            ].map(tech => (
-              <a
-                key={tech.name}
-                href={tech.href}
-                onMouseMove={handleGlowPillMouseMove}
-                {...(tech.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className={STACK_LINK_CLASS}
-              >
-                {tech.name}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className='mt-8 border-t border-ink/10 pt-6'>
-        <div className='mb-4 flex items-center gap-3'>
-          <Blocks className='h-4 w-4 text-olive' />
-          <h4 className={EYEBROW_CLASS}>Integrations</h4>
-        </div>
-        <div className='flex flex-wrap gap-2'>
-          {integrations.map(integration => (
-            <a
-              key={integration.title}
-              href={`/actors/integrations/${integration.slug}`}
-              onMouseMove={handleGlowPillMouseMove}
-              className={STACK_LINK_CLASS}
+      <div
+        data-site-reveal-group=""
+        className="mt-12 grid items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {groups.map((group) => {
+          const Icon = group.icon;
+          return (
+            <div
+              key={group.label}
+              data-site-reveal-child=""
+              className="border-t border-ink/15 pt-5"
             >
-              {integration.title}
-            </a>
-          ))}
-        </div>
+              <div className="flex items-center gap-2.5">
+                <Icon className="h-4 w-4 text-pine" aria-hidden="true" />
+                <h3 className={EYEBROW_CLASS}>{group.label}</h3>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    {...(item.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    className={STACK_CHIP_CLASS}
+                  >
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   </section>

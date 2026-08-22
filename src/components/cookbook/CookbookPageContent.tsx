@@ -51,7 +51,7 @@ function FilterChips({
 
 	return (
 		<div className="flex flex-wrap items-center gap-2">
-			<span className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint mr-1">{title}:</span>
+			<span className="text-xs font-medium text-ink-faint mr-1">{title}:</span>
 			{items.map((item) => {
 				const isSelected = selected.includes(item);
 				return (

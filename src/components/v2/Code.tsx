@@ -101,7 +101,7 @@ export function CodeGroup({ children, className, stacked }: CodeGroupProps) {
 
 	return (
 		<div
-			className={cn("code-group group my-4 overflow-hidden rounded-xl border border-cream/10", className)}
+			className={cn("code-group group my-4 overflow-hidden rounded-xl border border-ink/10", className)}
 			data-code-group-container
 			data-code-group-workspace
 		>
@@ -234,7 +234,7 @@ export const pre = ({
 		<div
 			className={cn(
 				"not-prose group/code relative group-[.code-group]:my-0 group-[[data-code-group-workspace]]:border-none group-[[data-code-group-workspace]]:overflow-visible",
-				flush ? "" : "my-4 overflow-hidden rounded-xl border border-cream/10"
+				flush ? "" : "my-4 overflow-hidden rounded-xl border border-ink/10"
 			)}
 			data-code-block
 			data-code-title={displayName}
@@ -250,7 +250,7 @@ export const pre = ({
 					<WithTooltip
 						trigger={
 							<CopyCodeTrigger>
-								<Button size="icon-sm" variant="ghost" data-copy-code className="hover:bg-neutral-700/80">
+								<Button size="icon-sm" variant="ghost" data-copy-code className="text-ink-soft hover:bg-ink/10 hover:text-ink">
 									<Icon icon={faCopy} />
 								</Button>
 							</CopyCodeTrigger>
@@ -260,7 +260,7 @@ export const pre = ({
 				</TooltipProvider>
 			</div>
 
-			<div className="bg-neutral-950 text-sm overflow-x-auto">
+			<div className="bg-white text-sm overflow-x-auto">
 				<div className="p-4 w-fit min-w-full">
 					{highlightedCode ? (
 						<span
