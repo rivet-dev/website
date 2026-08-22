@@ -1,4 +1,4 @@
-import { ArrowRight, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { PerimeterDiagram } from "../editorial/PerimeterDiagram";
 import {
 	BODY_CLASS,
@@ -53,7 +53,6 @@ export const OnPremSection = () => (
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <a href="/talk-to-an-engineer" className={PRIMARY_INK_BUTTON_CLASS}>
               Talk to an engineer
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
             <a
               href="/enterprise"

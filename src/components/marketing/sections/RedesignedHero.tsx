@@ -354,7 +354,6 @@ export const RedesignedHero = ({
             >
               <a href="/docs" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
                 Start Building
-                <ArrowRight className="h-4 w-4" />
               </a>
               <CopyInstallButton />
             </div>

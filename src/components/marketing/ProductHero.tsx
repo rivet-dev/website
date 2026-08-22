@@ -52,7 +52,6 @@ export function ProductHero({
 				<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
 				<a href={docsHref} className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
 					Documentation
-					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
 				</a>
 				<a
 					href="/talk-to-an-engineer"

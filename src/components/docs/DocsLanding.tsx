@@ -81,22 +81,26 @@ function LandingCard({ item }: { item: DocsLandingItem }) {
 	return (
 		<a
 			href={item.href}
-			className={`group flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white/55 no-underline transition-colors ${item.hoverBorderClassName ?? "hover:border-ink/25"}`}
+			className={`group flex flex-col overflow-hidden rounded-xl border border-ink/10 bg-white/55 no-underline transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${item.hoverBorderClassName ?? "hover:border-ink/25"}`}
 		>
 			<div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-ink/10">
 				<div className="absolute inset-0" style={gridStyle} />
 				{item.logoSrc ? (
-					// Product wordmarks are white-on-transparent, so the SVG supplies
-					// the silhouette and the accent class supplies the hue.
+					// The same badge treatment as the product pages' lockups: an ink
+					// squircle tile with the white-on-transparent mark masked in cream.
 					<span
 						aria-hidden="true"
-						style={wordmarkMaskStyle(item.logoSrc)}
-						className={`relative inline-block h-14 w-14 transition-transform duration-200 group-hover:scale-105 bg-ink`}
-					/>
+						className="relative flex size-14 items-center justify-center rounded-[34.375%] bg-ink transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none"
+					>
+						<span
+							style={wordmarkMaskStyle(item.logoSrc)}
+							className="block h-full w-full bg-cream"
+						/>
+					</span>
 				) : (
 					<Icon
 						icon={item.icon}
-						className={`relative text-6xl transition-transform duration-200 group-hover:scale-105 text-ink-soft`}
+						className={`relative text-6xl transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none text-ink-soft`}
 					/>
 				)}
 			</div>

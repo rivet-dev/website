@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { Check, ArrowRight, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import {
 	CARD_TITLE_CLASS,
@@ -315,7 +315,6 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 								className={PRIMARY_INK_BUTTON_CLASS}
 							>
 								Claim the deal
-								<ArrowRight className="h-4 w-4" />
 							</a>
 						</div>
 					</div>
@@ -396,7 +395,6 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 					className={INK_PANEL_LIGHT_BUTTON_CLASS}
 				>
 					Claim the deal
-					<ArrowRight className="h-4 w-4" />
 				</a>
 			</ClosingCtaPanel>
 		</main>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Database, Globe, Infinity, Layers, Wifi, GitBranch, ArrowRight } from 'lucide-react';
+import { Database, Globe, Infinity, Layers, Wifi, GitBranch } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
 	BODY_CLASS,
@@ -78,7 +78,6 @@ export const ActorsPrimitiveSection = () => (
 					</a>
 					<a href='/actors' className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
 						Details
-						<ArrowRight className='h-3.5 w-3.5' />
 					</a>
 				</motion.div>
 			</div>
