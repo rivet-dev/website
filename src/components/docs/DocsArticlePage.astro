@@ -157,7 +157,7 @@ const breadcrumbSchema = {
 		</aside>
 	)}
 	<div class="flex justify-center w-full min-w-0">
-		<div class="flex gap-8 max-w-6xl w-full min-w-0">
+		<div class:list={["flex gap-8 w-full min-w-0", isLanding ? "max-w-6xl" : "max-w-[86rem]"]}>
 			<main id="main-content" tabindex="-1" class:list={["w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0", landing ? "" : "py-8 max-w-prose-docs"]}>
 				{landing ? (
 					<DocsLanding {...landing} />

@@ -179,7 +179,7 @@ export default {
 				content: "calc(100vh - var(--header-height, 3.5rem))",
 			},
 			maxWidth: {
-				'prose-docs': '52rem',
+				'prose-docs': '58rem',
 			},
 		},
 	},
