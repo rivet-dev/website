@@ -103,8 +103,8 @@ export default function TalkToAnEngineerPageClient() {
 		<main id="main-content" tabIndex={-1}>
 			<section className={SITE_UTILITY_HERO_CLASS}>
 				{/* 2x2 grid: heading and form stack on the left rail; the statue
-				    spans both rows, its top on the h1 line, pinned to the right
-				    rail so the figure fills the upper-right quadrant. */}
+				    spans both rows, pinned to the right rail and centered
+				    vertically against the heading + form column. */}
 				<div className={`grid grid-cols-1 gap-y-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-12 ${SITE_STANDARD_RAIL_CLASS}`}>
 					<header data-site-reveal>
 						<h1 className={HERO_H1_CLASS}>Talk to an Engineer</h1>
@@ -118,7 +118,7 @@ export default function TalkToAnEngineerPageClient() {
 						<TalkToAnEngineerForm />
 					</div>
 
-					<div className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block lg:justify-self-end">
+					<div className="hidden lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block lg:self-center lg:justify-self-end">
 						<ProductIconCluster />
 					</div>
 				</div>

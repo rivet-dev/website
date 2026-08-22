@@ -8,13 +8,13 @@
 import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
 import dynamicAppsLogoUrl from "@/images/products/dynamic-apps-logo.svg";
-import rivetCloudLogoUrl from "@/images/products/rivet-cloud-logo.svg";
 import workflowsLogoUrl from "@/images/products/workflows-logo.svg";
 
+// Rivet Cloud stays off this map on purpose: its product-bar mark is the
+// faCloud glyph (see `products.ts`), not the R-in-ring wordmark.
 export const productLogos: Record<string, { src: string }> = {
 	actors: actorsLogoUrl,
 	agentos: agentosLogoUrl,
 	workflows: workflowsLogoUrl,
 	"dynamic-apps": dynamicAppsLogoUrl,
-	cloud: rivetCloudLogoUrl,
 };
