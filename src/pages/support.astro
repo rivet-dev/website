@@ -7,6 +7,7 @@ import {
 	SITE_STANDARD_RAIL_CLASS,
 	SITE_UTILITY_HERO_CLASS,
 } from '@/components/marketing/layout';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	CARD_TITLE_CLASS,
 	HERO_H1_CLASS,
@@ -22,24 +23,27 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 >
 	<main id="main-content" tabindex="-1">
 		<section class={`${SITE_UTILITY_HERO_CLASS} text-center`}>
-			<div class={SITE_NARROW_RAIL_CLASS}>
-				<h1 class={HERO_H1_CLASS}>
+			<div class={SITE_NARROW_RAIL_CLASS} data-site-reveal-group data-site-reveal-stagger="40">
+				<h1 class={HERO_H1_CLASS} data-site-reveal-child>
 					Support
 				</h1>
-				<p class={`${SUBTITLE_CLASS} mx-auto max-w-3xl`}>
+				<p class={`${SUBTITLE_CLASS} mx-auto max-w-3xl`} data-site-reveal-child>
 					Get help with Rivet, from troubleshooting to feature
 					requests.
 				</p>
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
 				<!-- Email Tile -->
 				<a
 					href="mailto:support@rivet.dev"
 					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
+					data-site-reveal-child
 				>
 					<div class="flex flex-col items-center">
 						<Icon
@@ -60,6 +64,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					target="_blank"
 					rel="noopener noreferrer"
 					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
+					data-site-reveal-child
 				>
 					<div class="flex flex-col items-center">
 						<Icon
@@ -80,6 +85,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					target="_blank"
 					rel="noopener noreferrer"
 					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
+					data-site-reveal-child
 				>
 					<div class="flex flex-col items-center">
 						<Icon

@@ -10,6 +10,7 @@ import {
 	SITE_STANDARD_RAIL_CLASS,
 	SITE_UTILITY_HERO_CLASS,
 } from '@/components/marketing/layout';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
 
 // Slim each entry down to the fields the storefront renders so multi-line
@@ -38,13 +39,15 @@ const entries: RegistryCardEntry[] = registry.map((entry) => ({
 >
 	<main id="main-content" tabindex="-1">
 		<section class={SITE_UTILITY_HERO_CLASS}>
-			<div class={SITE_STANDARD_RAIL_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS} data-site-reveal>
 				<h1 class={HERO_H1_CLASS}>agentOS Registry</h1>
 				<p class={`${SUBTITLE_CLASS} max-w-2xl`}>
 					Agents, file systems, browsers, and software packages for agentOS.
 				</p>
 			</div>
 		</section>
+
+		<SectionRule />
 
 		<section class={SITE_SECTION_CLASS}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>

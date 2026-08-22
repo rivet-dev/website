@@ -20,6 +20,7 @@ import {
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 } from '@/components/marketing/typography';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
 
 // --- Copy Agent Prompt Button ---
@@ -196,6 +197,8 @@ export default function AgentOSUseCasesPage() {
 					</div>
 				</section>
 
+				<SectionRule />
+
 				{/* Use Cases Grid */}
 				<section className='px-6 py-16 md:py-32'>
 					<div className='mx-auto max-w-7xl'>
@@ -206,6 +209,8 @@ export default function AgentOSUseCasesPage() {
 						</div>
 					</div>
 				</section>
+
+				<SectionRule />
 
 				{/* CTA */}
 				<section className='px-6 py-16 md:py-32'>

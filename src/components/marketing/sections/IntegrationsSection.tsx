@@ -98,17 +98,24 @@ const groups: StackGroup[] = [
 export const IntegrationsSection = () => (
   <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
-      <div className="max-w-3xl">
+      <div data-site-reveal="" className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Works with your stack.
         </h2>
       </div>
 
-      <div className="mt-12 grid items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        data-site-reveal-group=""
+        className="mt-12 grid items-start gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {groups.map((group) => {
           const Icon = group.icon;
           return (
-            <div key={group.label} className="border-t border-ink/15 pt-5">
+            <div
+              key={group.label}
+              data-site-reveal-child=""
+              className="border-t border-ink/15 pt-5"
+            >
               <div className="flex items-center gap-2.5">
                 <Icon className="h-4 w-4 text-pine" aria-hidden="true" />
                 <h3 className={EYEBROW_CLASS}>{group.label}</h3>

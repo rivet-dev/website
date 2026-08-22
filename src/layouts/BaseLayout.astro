@@ -10,6 +10,7 @@ import { TooltipProvider } from '@rivet-gg/components';
 import CopyCodeScript from '@/components/CopyCodeScript.astro';
 import TabsScript from '@/components/TabsScript.astro';
 import MermaidScript from '@/components/MermaidScript.astro';
+import { ScrollObserver } from '@/components/ScrollObserver';
 
 interface Props {
 	title: string;
@@ -186,6 +187,17 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<link rel="mask-icon" href="/icons/safari-pinned-tab.svg?20240925" color="#5bbad5" />
 		<meta name="msapplication-TileColor" content={themeColor} />
 		<meta name="theme-color" content={themeColor} />
+		{pageFamily === 'site' && (
+			<script is:inline data-astro-rerun>
+				document.documentElement.classList.add('site-motion-ready');
+				window.setTimeout(() => {
+					if (document.documentElement.hasAttribute('data-site-motion-observer-ready')) return;
+					document
+						.querySelectorAll('[data-site-reveal], [data-site-reveal-group], [data-site-hero-reveal]')
+						.forEach((element) => element.setAttribute('data-site-reveal-visible', ''));
+				}, 2000);
+			</script>
+		)}
 
 		<!-- Analytics -->
 		<script is:inline async src="https://analytics.ahrefs.com/analytics.js" data-key="9b9IZaKPAs/KhRrWrBjsrw"></script>
@@ -211,6 +223,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 			</Providers>
 		</TooltipProvider>
 		<EmbedDetector client:load />
+		{pageFamily === 'site' && <ScrollObserver client:load />}
 		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} pageFamily={pageFamily} />
 		<CopyCodeScript />
 		<TabsScript />

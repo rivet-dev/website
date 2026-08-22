@@ -39,6 +39,7 @@ import { AGENT_PROMPT } from '@/data/agentPrompt';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
 import { CopyInstallCommand } from '@/components/marketing/ProductHeroCta';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	CARD_TITLE_CLASS,
 	EYEBROW_CLASS,
@@ -2888,14 +2889,23 @@ export default function AgentOSPage({ heroTabs, filesystemHighlightedCode }: Age
 	return (
 		<main id='main-content' tabIndex={-1}>
 			<Hero />
+			<SectionRule />
 			<AgentCompatibilitySection />
+			<SectionRule />
 			<RuntimeArgumentSection />
+			<SectionRule />
 			<ExecutionSection />
+			<SectionRule />
 			<FilesystemSection highlightedCode={filesystemHighlightedCode} />
+			<SectionRule />
 			<OrchestrationSection heroTabs={heroTabs} />
+			<SectionRule />
 			<RegistrySection />
+			<SectionRule />
 			<SecondaryFeaturesSection />
+			<SectionRule />
 			<DeploymentSection />
+			<SectionRule />
 			<ClosingCta />
 		</main>
 	);

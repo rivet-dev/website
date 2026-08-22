@@ -10,6 +10,7 @@ import {
 	SITE_SECTION_CLASS,
 	SITE_UTILITY_HERO_CLASS,
 } from "@/components/marketing/layout";
+import { SectionRule } from "@/components/marketing/SectionRule";
 import {
 	CARD_TITLE_CLASS,
 	HERO_H1_CLASS,
@@ -222,12 +223,13 @@ const ribbon: MetaCell[] = [
 			<div class={SITE_NARROW_RAIL_CLASS}>
 				<a
 					href="/agentos/registry"
+					data-site-reveal
 					class="mb-8 inline-flex items-center rounded-sm text-sm text-ink-faint no-underline transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 				>
 					&larr; Back to Registry
 				</a>
 
-				<div class="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+				<div class="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8" data-site-reveal data-site-reveal-delay="40">
 					<RegistryIconTile
 						title={entry.title}
 						image={entry.image}
@@ -263,7 +265,7 @@ const ribbon: MetaCell[] = [
 					)}
 				</div>
 
-				<div class="mt-10 flex divide-x divide-ink/10 overflow-x-auto border-y border-ink/10">
+				<div class="mt-10 flex divide-x divide-ink/10 overflow-x-auto border-y border-ink/10" data-site-reveal data-site-reveal-delay="80">
 					{ribbon.map((cell) => (
 						<div class="min-w-[7.5rem] flex-1 px-4 py-4 text-center">
 							<div class="text-sm text-ink-faint">{cell.label}</div>
@@ -292,8 +294,10 @@ const ribbon: MetaCell[] = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<section class={SITE_SECTION_CLASS}>
-			<div class={SITE_NARROW_RAIL_CLASS}>
+			<div class={SITE_NARROW_RAIL_CLASS} data-site-reveal>
 				{isComingSoon ? (
 				<div class={`${SITE_CARD_CLASS} border-dashed text-center`}>
 					<p class="text-[17px] text-ink-faint">This integration is coming soon.</p>

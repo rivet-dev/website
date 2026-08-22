@@ -27,7 +27,7 @@ export const OnPremSection = () => (
   <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-        <div>
+        <div data-site-reveal="">
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             Run it where your data lives.
           </h2>
@@ -64,7 +64,9 @@ export const OnPremSection = () => (
           </div>
         </div>
 
-        <PerimeterDiagram className="bg-paper" nodes={perimeterNodes} footer={null} />
+        <div data-site-reveal="">
+          <PerimeterDiagram className="bg-paper" nodes={perimeterNodes} footer={null} />
+        </div>
       </div>
     </div>
   </section>

@@ -12,6 +12,7 @@ import {
 	SECTION_H2_CLASS,
 } from '@/components/marketing/typography';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
 import {
@@ -170,7 +171,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }: Collapsibl
 
 	return (
 		<section className={`bg-paper ${SITE_GUTTER_CLASS}`}>
-			<div className={SITE_STANDARD_RAIL_CLASS}>
+			<div className={SITE_STANDARD_RAIL_CLASS} data-site-reveal>
 				<h2 className="text-balance">
 					<button
 						id={triggerId}
@@ -239,7 +240,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				<div className="flex flex-col justify-center">
 					<div className={SITE_STANDARD_RAIL_CLASS}>
 						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-20">
-							<div className="max-w-xl">
+							<div className="max-w-xl" data-site-reveal>
 								<h1 className={`mb-6 ${HERO_H1_CLASS}`}>
 									Built for Demo Day and Beyond
 								</h1>
@@ -258,7 +259,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 								</p>
 							</div>
 							{/* Desktop: Overlapping photos */}
-							<div className="hidden lg:block flex-shrink-0 relative w-[500px] h-[400px]">
+							<div className="hidden lg:block flex-shrink-0 relative w-[500px] h-[400px]" data-site-reveal data-site-reveal-delay="40">
 								<div className="absolute top-0 left-0 w-[320px] h-[240px] overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
 									<img
 										src={foundersImage}
@@ -283,7 +284,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 								</div>
 							</div>
 							{/* Mobile: Click to switch photos */}
-							<div className="lg:hidden">
+							<div className="lg:hidden" data-site-reveal data-site-reveal-delay="40">
 								<StartupImageCycler
 									images={[
 										{ src: foundersImage, alt: 'Rivet founders Nathan Flurry and Nicholas Kissel at Y Combinator W23 Demo Day' },
@@ -298,7 +299,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				{/* Bottom section */}
 				<div className="mt-12">
 					<div className={SITE_STANDARD_RAIL_CLASS}>
-						<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+						<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6" data-site-reveal data-site-reveal-delay="80">
 							<div>
 								<h2 className={CARD_TITLE_CLASS}>
 									50% off Rivet Cloud for 12 months
@@ -321,6 +322,8 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				</div>
 			</section>
 
+			<SectionRule />
+
 			{/* What You Get */}
 			<CollapsibleSection title="What you get" background="paper-mid">
 				<p className="mb-12 max-w-xl text-[17px] leading-relaxed text-ink-soft">
@@ -336,6 +339,8 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				</div>
 			</CollapsibleSection>
 
+			<SectionRule />
+
 			{/* Eligibility */}
 			<CollapsibleSection title="Eligibility">
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -349,6 +354,8 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 					))}
 				</div>
 			</CollapsibleSection>
+
+			<SectionRule />
 
 			{/* How to Claim */}
 			<CollapsibleSection title="How to claim" background="paper-mid">
@@ -364,6 +371,8 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 					))}
 				</div>
 			</CollapsibleSection>
+
+			<SectionRule />
 
 			{/* CTA */}
 			<ClosingCtaPanel

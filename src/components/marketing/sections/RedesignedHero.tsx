@@ -290,74 +290,96 @@ export const RedesignedHero = ({
   latestChangelogTitle,
   latestChangelogHref,
   thinkingImages,
-}: RedesignedHeroProps) => (
-  <section className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}>
-    <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
-      <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
-        <div className="max-w-2xl">
-          <div className="mb-7">
-            <a
-              href={latestChangelogHref}
-              className={`${GLOW_PILL_SURFACE_CLASS} group gap-2`}
-              onMouseMove={handleGlowPillMouseMove}
+}: RedesignedHeroProps) => {
+  return (
+    <section className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}>
+      <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
+        <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
+          <div className="max-w-2xl">
+            <div data-site-hero-reveal data-site-reveal-delay="0" className="mb-7">
+              <a
+                href={latestChangelogHref}
+                className={`${GLOW_PILL_SURFACE_CLASS} group gap-2`}
+                onMouseMove={handleGlowPillMouseMove}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-1.5 w-1.5 bg-accent"
+                  style={{
+                    boxShadow:
+                      "0 0 2px rgba(203, 90, 51, 0.9), 0 0 6px rgba(203, 90, 51, 0.5), 0 0 14px rgba(171, 69, 31, 0.35)",
+                  }}
+                />
+                <span>{latestChangelogTitle}</span>
+                <ArrowRight className="h-3 w-3 text-ink-soft transition-transform group-hover:translate-x-0.5" />
+              </a>
+            </div>
+
+            <h1
+              data-site-hero-reveal
+              data-site-reveal-delay="40"
+              className={`mb-5 ${HERO_H1_CLASS}`}
             >
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 bg-accent"
-                style={{
-                  boxShadow:
-                    "0 0 2px rgba(203, 90, 51, 0.9), 0 0 6px rgba(203, 90, 51, 0.5), 0 0 14px rgba(171, 69, 31, 0.35)",
-                }}
-              />
-              <span>{latestChangelogTitle}</span>
-              <ArrowRight className="h-3 w-3 text-ink-soft transition-transform group-hover:translate-x-0.5" />
-            </a>
+              Infrastructure for the <br />
+              agentic era.
+            </h1>
+
+            <p
+              data-site-hero-reveal
+              data-site-reveal-delay="80"
+              className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft"
+            >
+              <ProductVerb href="/actors" accent="actors">
+                Orchestrate
+              </ProductVerb>{" "}
+              agents.{" "}
+              <ProductVerb href="/agentos" accent="agentos">
+                Operate
+              </ProductVerb>{" "}
+              their environment.{" "}
+              <ProductVerb href="/workflows" accent="workflows">
+                Automate
+              </ProductVerb>{" "}
+              their work.{" "}
+              <ProductVerb href="/dynamic-apps" accent="dynamic-apps">
+                Deploy
+              </ProductVerb>{" "}
+              what they build.
+            </p>
+
+            <div
+              data-site-hero-reveal
+              data-site-reveal-delay="120"
+              className="flex flex-col gap-3 sm:flex-row"
+            >
+              <a href="/docs" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+                Start Building
+                <ArrowRight className="h-4 w-4" />
+              </a>
+              <CopyInstallButton />
+            </div>
           </div>
 
-          <h1 className={`mb-5 ${HERO_H1_CLASS}`}>
-            Infrastructure for the <br />
-            agentic era.
-          </h1>
-
-          <p className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft">
-            <ProductVerb href="/actors" accent="actors">
-              Orchestrate
-            </ProductVerb>{" "}
-            agents.{" "}
-            <ProductVerb href="/agentos" accent="agentos">
-              Operate
-            </ProductVerb>{" "}
-            their environment.{" "}
-            <ProductVerb href="/workflows" accent="workflows">
-              Automate
-            </ProductVerb>{" "}
-            their work.{" "}
-            <ProductVerb href="/dynamic-apps" accent="dynamic-apps">
-              Deploy
-            </ProductVerb>{" "}
-            what they build.
-          </p>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <a href="/docs" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
-              Start Building
-              <ArrowRight className="h-4 w-4" />
-            </a>
-            <CopyInstallButton />
+          <div
+            data-site-hero-reveal
+            data-site-reveal-delay="160"
+            className="relative hidden flex-shrink-0 lg:block"
+          >
+            <ThinkingImageCycler images={thinkingImages} />
           </div>
         </div>
 
-        <div className="relative hidden flex-shrink-0 lg:block">
-          <ThinkingImageCycler images={thinkingImages} />
+        {/* Mobile: Image */}
+        <div
+          data-site-hero-reveal
+          data-site-reveal-delay="160"
+          className="mb-10 mt-12 lg:hidden"
+        >
+          <div className="flex justify-center">
+            <ThinkingImageCycler images={thinkingImages} />
+          </div>
         </div>
       </div>
-
-      {/* Mobile: Image */}
-      <div className="mb-10 mt-12 lg:hidden">
-        <div className="flex justify-center">
-          <ThinkingImageCycler images={thinkingImages} />
-        </div>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

@@ -15,6 +15,7 @@ import {
 	SITE_STANDARD_RAIL_CLASS,
 	SITE_UTILITY_HERO_CLASS,
 } from '@/components/marketing/layout';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { Icon, faRss } from '@rivet-gg/icons';
 
 const MONTHS = [
@@ -70,7 +71,7 @@ for (const entry of changelogPosts) {
 <BlogLayout title="Blog - Rivet">
 	<main id="main-content" tabindex="-1" style="--header-height: 5rem;">
 		<section class={SITE_UTILITY_HERO_CLASS}>
-			<div class:list={[SITE_STANDARD_RAIL_CLASS, 'flex w-full items-center justify-between gap-6']}>
+			<div class:list={[SITE_STANDARD_RAIL_CLASS, 'flex w-full items-center justify-between gap-6']} data-site-reveal>
 				<h1 class={HERO_H1_CLASS}>Blog</h1>
 				<a
 					href="/rss/feed.xml"
@@ -82,10 +83,12 @@ for (const entry of changelogPosts) {
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<section class={SITE_SECTION_CLASS}>
 			<div class:list={[SITE_STANDARD_RAIL_CLASS, 'flex flex-col gap-12 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14']}>
 				<!-- Changelog calendar -->
-				<aside class="order-last lg:order-none">
+				<aside class="order-last lg:order-none" data-site-reveal>
 					<div class="lg:sticky lg:top-32">
 						<div class="border-b border-ink/10 pb-3">
 							<h2 class="text-sm font-medium text-ink-faint">Changelog</h2>
@@ -126,7 +129,7 @@ for (const entry of changelogPosts) {
 				<!-- Blog posts + changelog -->
 				<div class="order-first grid grid-cols-1 gap-6 md:grid-cols-2 lg:order-none">
 					{articles.map((article) => (
-						<a href={article.href} class="size-full">
+						<a href={article.href} class="size-full" data-site-reveal>
 							<article class:list={[SITE_CARD_CLASS, 'flex size-full flex-col items-start justify-between transition-colors hover:border-ink/25']}>
 								<div class="w-full">
 									{article.image && (

@@ -36,7 +36,7 @@ export const ClosingCtaPanel = ({
 	<section
 		className={`bg-paper ${SITE_SECTION_CLASS} ${className ?? ''}`}
 	>
-		<div className={SITE_STANDARD_RAIL_CLASS}>
+		<div className={SITE_STANDARD_RAIL_CLASS} data-site-reveal>
 			<InkPanel textureSrc={textureSrc} veil={veil}>
 				<div className='flex flex-col items-center px-6 py-16 text-center md:py-24'>
 					<h2

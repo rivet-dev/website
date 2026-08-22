@@ -390,6 +390,103 @@
 		);
 	}
 
+	/* Blueprint section boundary: a full-bleed hairline that breaks at the
+	   standard content rail's vertical guides, where a registration cross
+	   marks the intersection and a short guide segment fades away above and
+	   below. Rendered by <SectionRule /> placed between top-level sections;
+	   the guide position mirrors SITE_SECTION_CLASS gutters around the
+	   max-w-7xl rail so crosses sit exactly on the content edge. */
+	.site-rule {
+		--rule-gutter: 1rem;
+		--rule-guide: max(var(--rule-gutter), calc((100% - 80rem) / 2));
+		--rule-cross: 1.25rem;
+		--rule-gap: 0.4375rem;
+		--rule-reach: calc(var(--rule-cross) / 2 + var(--rule-gap));
+		--rule-line: rgba(27, 25, 22, 0.12);
+		--rule-mark: rgba(27, 25, 22, 0.34);
+		position: relative;
+		z-index: 1;
+		height: 0;
+	}
+	@media (min-width: 768px) {
+		.site-rule {
+			--rule-gutter: 3rem;
+		}
+	}
+	@media (min-width: 1681px) {
+		.site-rule {
+			--rule-gutter: 3.5rem;
+		}
+	}
+	.site-rule > span {
+		position: absolute;
+		pointer-events: none;
+	}
+	.site-rule-seg {
+		top: -0.5px;
+		height: 1px;
+		background: var(--rule-line);
+	}
+	.site-rule-seg-left {
+		left: 0;
+		width: calc(var(--rule-guide) - var(--rule-reach));
+	}
+	.site-rule-seg-mid {
+		left: calc(var(--rule-guide) + var(--rule-reach));
+		right: calc(var(--rule-guide) + var(--rule-reach));
+	}
+	.site-rule-seg-right {
+		right: 0;
+		width: calc(var(--rule-guide) - var(--rule-reach));
+	}
+	.site-rule-cross {
+		top: calc(var(--rule-cross) / -2);
+		width: var(--rule-cross);
+		height: var(--rule-cross);
+	}
+	.site-rule-cross-left {
+		left: calc(var(--rule-guide) - var(--rule-cross) / 2);
+	}
+	.site-rule-cross-right {
+		right: calc(var(--rule-guide) - var(--rule-cross) / 2);
+	}
+	.site-rule-cross::before,
+	.site-rule-cross::after {
+		content: '';
+		position: absolute;
+		background: var(--rule-mark);
+	}
+	.site-rule-cross::before {
+		left: 0;
+		right: 0;
+		top: calc(50% - 0.5px);
+		height: 1px;
+	}
+	.site-rule-cross::after {
+		top: 0;
+		bottom: 0;
+		left: calc(50% - 0.5px);
+		width: 1px;
+	}
+	.site-rule-dash {
+		width: 1px;
+		height: 2.5rem;
+	}
+	.site-rule-dash-left {
+		left: calc(var(--rule-guide) - 0.5px);
+	}
+	.site-rule-dash-right {
+		right: calc(var(--rule-guide) - 0.5px);
+	}
+	.site-rule-dash-up {
+		bottom: var(--rule-reach);
+		background: linear-gradient(to top, var(--rule-line), transparent);
+	}
+	.site-rule-dash-down {
+		top: var(--rule-reach);
+		background: linear-gradient(to bottom, var(--rule-line), transparent);
+	}
+
 	/* Documentary-style Ken Burns drift for cover imagery. While the parent
 	   .group is hovered the image slowly zooms and pans along a per-card
 	   vector (set via --kb-x / --kb-y / --kb-scale), then settles back gently
@@ -413,40 +510,55 @@
 		}
 	}
 
-	/* Scroll-triggered animations */
-	.animate-on-scroll {
+	/* Site-only content entrances. These mirror marketing/motion.tsx: a calm
+	   14px fade-rise, 550ms duration, the same easing curve, and 70ms grouped
+	   stagger. The pre-paint class is only installed by the site layout, so
+	   docs and no-JavaScript rendering remain untouched and fully visible. */
+	.site-motion-ready [data-site-reveal],
+	.site-motion-ready [data-site-reveal-child] {
 		opacity: 0;
-		transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-		transition-delay: var(--scroll-delay, 0s);
+		transform: translate3d(0, 14px, 0);
+		transition:
+			opacity 550ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition-delay: var(--site-reveal-delay, 0ms);
 		will-change: opacity, transform;
 	}
 
-	.animate-fade-up {
-		transform: translateY(30px);
-	}
-
-	.animate-on-scroll.is-visible {
+	.site-motion-ready [data-site-reveal][data-site-reveal-visible],
+	.site-motion-ready [data-site-reveal-group][data-site-reveal-visible] > [data-site-reveal-child] {
 		opacity: 1;
-		transform: translateY(0);
+		transform: translate3d(0, 0, 0);
+		will-change: auto;
 	}
 
-	.delay-100 {
-		--scroll-delay: 100ms;
+	/* Product heroes use the agentOS load sequence: a slightly longer rise,
+	   500ms duration, and 40ms steps. CSS owns the initial state so the
+	   server-rendered hero stays visible when JavaScript is unavailable. */
+	.site-motion-ready [data-site-hero-reveal] {
+		opacity: 0;
+		transform: translate3d(0, 20px, 0);
+		transition:
+			opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition-delay: var(--site-reveal-delay, 0ms);
+		will-change: opacity, transform;
 	}
-	.delay-200 {
-		--scroll-delay: 200ms;
+
+	.site-motion-ready [data-site-hero-reveal][data-site-reveal-visible] {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+		will-change: auto;
 	}
-	.delay-300 {
-		--scroll-delay: 300ms;
-	}
-	.delay-400 {
-		--scroll-delay: 400ms;
-	}
-	.delay-500 {
-		--scroll-delay: 500ms;
-	}
-	.delay-600 {
-		--scroll-delay: 600ms;
+
+	@media (prefers-reduced-motion: reduce) {
+		.site-motion-ready [data-site-reveal],
+		.site-motion-ready [data-site-reveal-child],
+		.site-motion-ready [data-site-hero-reveal] {
+			transform: none;
+			transition: opacity 200ms ease-out;
+			transition-delay: 0ms;
+		}
 	}
 
 	/* Sticky Code Highlighting */
@@ -722,4 +834,195 @@
 @keyframes dot-drift {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(18px, 18px, 0); }
+}
+
+/* The Workflows stack card transposes the reference's vertical data field into
+   horizontal execution lanes. Each trace enters a task, the task resolves,
+   then the trace continues before the sequence loops while the card is active. */
+.workflow-rail {
+	stroke: rgba(244, 241, 231, 0.18);
+	stroke-width: 1;
+}
+
+.workflow-node-cutout {
+	fill: #6a4c93;
+}
+
+.workflow-node {
+	fill: var(--workflow-node-fill);
+	stroke: rgba(244, 241, 231, 0.22);
+	stroke-width: 1;
+	transform-box: fill-box;
+	transform-origin: center;
+	transition:
+		fill 170ms cubic-bezier(0.22, 1, 0.36, 1),
+		stroke 170ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 170ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.workflow-step-1 {
+	--workflow-node-fill: rgba(244, 241, 231, 0.24);
+	--workflow-node-active-fill: rgba(244, 241, 231, 0.5);
+}
+
+.workflow-step-2 {
+	--workflow-node-fill: rgba(255, 255, 255, 0.16);
+	--workflow-node-active-fill: rgba(255, 255, 255, 0.4);
+}
+
+.workflow-step-3 {
+	--workflow-node-fill: rgba(244, 241, 231, 0.28);
+	--workflow-node-active-fill: rgba(244, 241, 231, 0.54);
+}
+
+.workflow-step-4 {
+	--workflow-node-fill: rgba(255, 255, 255, 0.2);
+	--workflow-node-active-fill: rgba(255, 255, 255, 0.46);
+}
+
+.workflow-trace {
+	fill: none;
+	stroke: rgba(244, 241, 231, 0.88);
+	stroke-width: 1.25;
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	opacity: 0;
+	transition:
+		stroke-dashoffset 170ms cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 170ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.workflow-card:is(:hover, :focus-visible) .workflow-trace-in {
+	animation: workflow-trace-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: var(--workflow-step-delay);
+}
+
+.workflow-card:is(:hover, :focus-visible) .workflow-node {
+	animation: workflow-node-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: calc(var(--workflow-step-delay) + 140ms);
+}
+
+.workflow-card:is(:hover, :focus-visible) .workflow-trace-out {
+	animation: workflow-trace-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: calc(var(--workflow-step-delay) + 220ms);
+}
+
+@keyframes workflow-trace-loop {
+	0% {
+		stroke-dashoffset: 1;
+		opacity: 0;
+	}
+	6% {
+		opacity: 1;
+	}
+	18%,
+	58% {
+		stroke-dashoffset: 0;
+		opacity: 1;
+	}
+	74% {
+		stroke-dashoffset: 0;
+		opacity: 0;
+	}
+	75%,
+	100% {
+		stroke-dashoffset: 1;
+		opacity: 0;
+	}
+}
+
+/* Dynamic Apps uses paired circle outlines: each pair trades diagonal
+   positions, pauses, and returns to origin while the card remains active. */
+.dynamic-app-circle {
+	fill: none;
+	stroke-width: 1;
+	transform-box: view-box;
+	transform-origin: center;
+}
+
+.dynamic-app-circle--bright {
+	stroke: rgba(244, 241, 231, 0.34);
+}
+
+.dynamic-app-circle--soft {
+	stroke: rgba(244, 241, 231, 0.2);
+}
+
+.dynamic-apps-card:is(:hover, :focus-visible) .dynamic-app-circle--forward {
+	animation: dynamic-app-circle-forward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: var(--dynamic-circle-delay);
+}
+
+.dynamic-apps-card:is(:hover, :focus-visible) .dynamic-app-circle--backward {
+	animation: dynamic-app-circle-backward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: var(--dynamic-circle-delay);
+}
+
+@keyframes dynamic-app-circle-forward {
+	0%,
+	7%,
+	93%,
+	100% {
+		transform: translate(0, 0);
+	}
+	43%,
+	57% {
+		transform: translate(25%, 18%);
+	}
+}
+
+@keyframes dynamic-app-circle-backward {
+	0%,
+	7%,
+	93%,
+	100% {
+		transform: translate(0, 0);
+	}
+	43%,
+	57% {
+		transform: translate(-25%, -18%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dynamic-app-circle {
+		animation: none !important;
+		transform: none;
+	}
+}
+
+@keyframes workflow-node-loop {
+	0%,
+	5%,
+	76%,
+	100% {
+		fill: var(--workflow-node-fill);
+		stroke: rgba(244, 241, 231, 0.22);
+		transform: scale(1);
+	}
+	13%,
+	58% {
+		fill: var(--workflow-node-active-fill);
+		stroke: rgba(255, 255, 255, 0.6);
+		transform: scale(1.01);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.workflow-node,
+	.workflow-trace {
+		animation: none !important;
+		transition: none;
+	}
+
+	.workflow-card:is(:hover, :focus-visible) .workflow-node {
+		fill: var(--workflow-node-active-fill);
+		stroke: rgba(255, 255, 255, 0.56);
+		transform: none;
+	}
+
+	.workflow-card:is(:hover, :focus-visible) .workflow-trace {
+		stroke-dashoffset: 0;
+		opacity: 0.72;
+	}
 }

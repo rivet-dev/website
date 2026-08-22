@@ -402,11 +402,11 @@ export const ProblemSection = () => {
       className={`bg-paper ${SITE_SECTION_CLASS}`}
     >
       <div className={SITE_STANDARD_RAIL_CLASS}>
-        <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+        <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Actors in action.</h2>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] lg:gap-16">
+        <div className="mt-12 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] lg:gap-16" data-site-reveal>
           <div>
             <UseCaseDetails config={config} />
           </div>

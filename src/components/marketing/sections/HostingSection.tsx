@@ -12,20 +12,22 @@ const PLATFORM_LINK_CLASS =
 export const HostingSection = () => (
   <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
-      <div className="max-w-3xl">
+      <div data-site-reveal="" className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Start local. Deploy when ready.
         </h2>
       </div>
 
-      <DeploymentOptions
-        productName="Actors"
-        quickstartHref="/actors/docs"
-        selfHostHref="/actors/self-host/control-plane"
-        className="mt-12"
-      />
+      <div data-site-reveal="">
+        <DeploymentOptions
+          productName="Actors"
+          quickstartHref="/actors/docs"
+          selfHostHref="/actors/self-host/control-plane"
+          className="mt-12"
+        />
+      </div>
 
-      <div className="mt-12">
+      <div data-site-reveal="" className="mt-12">
         <p className={EYEBROW_CLASS}>Your backend deploys to</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {deployOptionsForRole("worker").map(

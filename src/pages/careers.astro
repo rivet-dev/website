@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	BODY_CLASS,
 	HERO_H1_CLASS,
@@ -73,9 +74,9 @@ const benefits = [
 				<div class="career-grid absolute inset-0 opacity-60" aria-hidden="true"></div>
 				<div class={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
 					<div class="flex items-center justify-center text-center">
-						<div class="mx-auto max-w-4xl">
-							<h1 class={HERO_H1_CLASS}>Help us build infrastructure for AI agents.</h1>
-							<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+						<div class="mx-auto max-w-4xl" data-site-reveal-group data-site-reveal-stagger="40">
+							<h1 class={HERO_H1_CLASS} data-site-reveal-child>Help us build infrastructure for AI agents.</h1>
+							<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row" data-site-reveal-child>
 								<a href="#open-positions" class={PRIMARY_INK_BUTTON_CLASS}>See open positions</a>
 								<a
 									href="https://github.com/rivet-dev"
@@ -92,10 +93,12 @@ const benefits = [
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Work -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
-					<div class="max-w-md">
+					<div class="max-w-md" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>What we build.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							Everything builds on actors. Use Rivet as a library in development and a
@@ -105,33 +108,35 @@ const benefits = [
 						<p class="mt-4 text-sm font-medium text-ink">Almost everything you write is public.</p>
 					</div>
 
-					<div class="border-t border-ink/15">
+					<div class="border-t border-ink/15" data-site-reveal-group data-site-reveal-stagger="70">
 						{workAreas.map((item) => (
-							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8">
+							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8" data-site-reveal-child>
 								<h3 class="text-lg font-medium text-ink">{item.title}</h3>
 								<p class={BODY_CLASS}>{item.body}</p>
 							</div>
 						))}
-						<p class="pt-6 text-xs leading-relaxed text-ink-faint">
+						<p class="pt-6 text-xs leading-relaxed text-ink-faint" data-site-reveal-child>
 							Rust · TypeScript · FoundationDB · Postgres · ClickHouse · NATS · SQLite
 						</p>
 					</div>
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- AI policy -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
-					<div class="max-w-md">
+					<div class="max-w-md" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>How we use AI.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							The policy depends on the risk and predictability of the code.
 						</p>
 					</div>
 
-					<div class="border-t border-ink/15">
+					<div class="border-t border-ink/15" data-site-reveal-group data-site-reveal-stagger="70">
 						{aiPolicy.map((item) => (
-							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8">
+							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8" data-site-reveal-child>
 								<h3 class="text-sm font-medium text-ink">{item.area}</h3>
 								<p class={BODY_CLASS}>{item.policy}</p>
 							</div>
@@ -140,13 +145,15 @@ const benefits = [
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Benefits -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
-					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Benefits.</h2>
-					<ul class="border-t border-ink/15">
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Benefits.</h2>
+					<ul class="border-t border-ink/15" data-site-reveal-group data-site-reveal-stagger="70">
 						{benefits.map((benefit) => (
-							<li class="border-b border-ink/15 py-5 text-sm font-medium text-ink">
+							<li class="border-b border-ink/15 py-5 text-sm font-medium text-ink" data-site-reveal-child>
 								{benefit}
 							</li>
 						))}
@@ -154,17 +161,19 @@ const benefits = [
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Open roles -->
 			<section id="open-positions" class={`scroll-mt-24 bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="max-w-3xl">
+					<div class="max-w-3xl" data-site-reveal>
 						<h2 id="open-positions-heading" class={`text-balance ${SECTION_H2_CLASS}`}>Open positions.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							Current openings are published here. Select a role to learn more and apply.
 						</p>
 					</div>
 
-					<div class="mt-12 min-w-0">
+					<div class="mt-12 min-w-0" data-site-reveal>
 						<waas-job-board
 							company="rivet"
 							action-color="#AB451F"

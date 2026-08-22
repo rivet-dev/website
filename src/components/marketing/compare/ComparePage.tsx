@@ -6,6 +6,7 @@ import { compareEntries, compareHref, getCompareEntry } from '@/data/compare';
 import type { CompareEntry } from '@/data/compare/types';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	SITE_NARROW_RAIL_CLASS,
 	SITE_SECTION_CLASS,
@@ -55,7 +56,7 @@ function HeroSection({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_UTILITY_HERO_CLASS}>
 			<div className={SITE_STANDARD_RAIL_CLASS}>
-				<div className="max-w-3xl">
+				<div className="max-w-3xl" data-site-reveal>
 					<h1 className={HERO_H1_CLASS}>
 						{entry.rivetProductName} vs <br />
 						{entry.competitorName}
@@ -143,11 +144,13 @@ function OverviewSection({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
 			<div className={SITE_STANDARD_RAIL_CLASS}>
-				<SectionHeading
-					title="Two approaches, side by side"
-					subtitle="What each platform is, and the situations where it is the right choice."
-				/>
-				<div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
+				<div data-site-reveal>
+					<SectionHeading
+						title="Two approaches, side by side"
+						subtitle="What each platform is, and the situations where it is the right choice."
+					/>
+				</div>
+				<div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2" data-site-reveal>
 					<OverviewPanel
 						icon={<Icon icon={faRivet} className="h-4 w-4" />}
 						name={entry.rivetProductName}
@@ -192,11 +195,13 @@ function ComparisonSection({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
 			<div className={SITE_STANDARD_RAIL_CLASS}>
-				<SectionHeading
-					title="Feature comparison"
-					subtitle="A detailed breakdown of capabilities across both platforms."
-				/>
-				<div className="mt-14">
+				<div data-site-reveal>
+					<SectionHeading
+						title="Feature comparison"
+						subtitle="A detailed breakdown of capabilities across both platforms."
+					/>
+				</div>
+				<div className="mt-14" data-site-reveal>
 					<ComparisonTable
 						featureGroups={entry.featureGroups}
 						competitorName={entry.competitorName}
@@ -212,7 +217,7 @@ function ComparisonSection({ entry }: { entry: CompareEntry }) {
 function VerdictSection({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
-			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`}>
+			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`} data-site-reveal>
 				<SectionHeading title="Which should you pick?" center />
 				<div className="mt-8 space-y-5">
 					{entry.verdict.map((paragraph, index) => (
@@ -236,7 +241,7 @@ function VerdictSection({ entry }: { entry: CompareEntry }) {
 function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['migration']> }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
-			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`}>
+			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`} data-site-reveal>
 				<SectionHeading title={migration.heading} center />
 				<p className="mt-8 text-[15px] leading-relaxed text-ink-soft">{migration.body}</p>
 				<div className="mt-8">
@@ -255,7 +260,7 @@ function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['
 function FaqSectionLight({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
-			<div className={SITE_NARROW_RAIL_CLASS}>
+			<div className={SITE_NARROW_RAIL_CLASS} data-site-reveal>
 				<SectionHeading title="Frequently asked questions" />
 				<div className="mt-10">
 					<FaqList items={entry.faq} theme="light" />
@@ -274,8 +279,10 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 	return (
 		<section className={SITE_SECTION_CLASS}>
 			<div className={SITE_STANDARD_RAIL_CLASS}>
-				<SectionHeading title="Other comparisons" />
-				<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+				<div data-site-reveal>
+					<SectionHeading title="Other comparisons" />
+				</div>
+				<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2" data-site-reveal>
 					{others.map((other) => (
 						<CatalogCard
 							key={other.slug}
@@ -317,12 +324,23 @@ export function ComparePage({ slug }: ComparePageProps) {
 	return (
 		<main id="main-content" tabIndex={-1}>
 			<HeroSection entry={entry} />
+			<SectionRule />
 			<OverviewSection entry={entry} />
+			<SectionRule />
 			<ComparisonSection entry={entry} />
+			<SectionRule />
 			<VerdictSection entry={entry} />
-			{entry.migration && <MigrationSection migration={entry.migration} />}
+			<SectionRule />
+			{entry.migration && (
+				<>
+					<MigrationSection migration={entry.migration} />
+					<SectionRule />
+				</>
+			)}
 			<FaqSectionLight entry={entry} />
+			<SectionRule />
 			<OtherComparisonsSection entry={entry} />
+			<SectionRule />
 			<CTASection />
 		</main>
 	);

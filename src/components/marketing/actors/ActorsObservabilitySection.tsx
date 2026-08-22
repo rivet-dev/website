@@ -35,7 +35,7 @@ const features = [
 export const ActorsObservabilitySection = () => (
   <section className={`${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
-      <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+      <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
         <div>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Observe the whole stack.</h2>
           <p className={SECTION_LEDE_CLASS}>
@@ -61,7 +61,7 @@ export const ActorsObservabilitySection = () => (
         </div>
       </div>
 
-      <figure className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
+      <figure className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3" data-site-reveal>
         <img
           src={INSPECTOR_SRC}
           alt="Rivet Actor Inspector showing state, events, and callable actions for a running Actor"

@@ -14,6 +14,7 @@ import {
 	SECTION_LEDE_CLASS,
 } from '@/components/marketing/typography';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	SITE_SECTION_CLASS,
 	SITE_STANDARD_RAIL_CLASS,
@@ -106,13 +107,13 @@ const enterpriseEditionFeatures = [
 			<section class={SITE_UTILITY_HERO_CLASS}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
 					<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
-						<div>
-							<h1 class={HERO_H1_CLASS}>Run Rivet inside your perimeter.</h1>
-							<p class="mt-4 max-w-xl text-[17px] leading-relaxed text-ink-soft">
+						<div data-site-reveal-group data-site-reveal-stagger="40">
+							<h1 class={HERO_H1_CLASS} data-site-reveal-child>Run Rivet inside your perimeter.</h1>
+							<p class="mt-4 max-w-xl text-[17px] leading-relaxed text-ink-soft" data-site-reveal-child>
 								Deploy Rivet in your VPC, embed it in your customers’ environments, or run it
 								fully air-gapped. The same platform that powers Rivet Cloud, under your control.
 							</p>
-							<div class="mt-8 flex flex-col gap-3 sm:flex-row">
+							<div class="mt-8 flex flex-col gap-3 sm:flex-row" data-site-reveal-child>
 								<a href="/talk-to-an-engineer" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
 									Talk to an engineer
 								</a>
@@ -121,37 +122,45 @@ const enterpriseEditionFeatures = [
 								</a>
 							</div>
 						</div>
-						<PerimeterDiagram />
+						<div data-site-reveal data-site-reveal-delay="120">
+							<PerimeterDiagram />
+						</div>
 					</div>
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Deployment models -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="max-w-3xl">
+					<div class="max-w-3xl" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Three ways to deploy.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							Rivet ships as software you run, not a service you call out to. Pick the
 							boundary, and Rivet stays inside it.
 						</p>
 					</div>
-					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
 						{
 							deploymentModels.map((model) => (
-								<CatalogCard title={model.title}>
-									<p class={`mt-2 ${BODY_CLASS}`}>{model.body}</p>
-								</CatalogCard>
+								<div class="h-full" data-site-reveal-child>
+									<CatalogCard title={model.title} className="h-full">
+										<p class={`mt-2 ${BODY_CLASS}`}>{model.body}</p>
+									</CatalogCard>
+								</div>
 							))
 						}
 					</div>
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Enterprise Edition contents -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="max-w-3xl">
+					<div class="max-w-3xl" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Everything in Enterprise Edition.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							Additional operational features on top of the open-source control plane. The
@@ -159,10 +168,10 @@ const enterpriseEditionFeatures = [
 							in your own VPC, customer environments, or regulated networks.
 						</p>
 					</div>
-					<ul class="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+					<ul class="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
 						{
 							enterpriseEditionFeatures.map((feature) => (
-								<li class={`flex items-start gap-3 ${BODY_CLASS}`}>
+								<li class={`flex items-start gap-3 ${BODY_CLASS}`} data-site-reveal-child>
 									<span class="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/30">
 										<svg class="h-3 w-3 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 											<path d="M20 6 9 17l-5-5" />
@@ -176,10 +185,12 @@ const enterpriseEditionFeatures = [
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Compliance posture -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+					<div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16" data-site-reveal>
 						<div>
 							<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Keep deployment inside your existing boundary.</h2>
 							<p class={SECTION_LEDE_CLASS}>
@@ -206,27 +217,33 @@ const enterpriseEditionFeatures = [
 				</div>
 			</section>
 
+			<SectionRule />
+
 			<!-- Architecture footprint -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="max-w-3xl">
+					<div class="max-w-3xl" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>A footprint your ops team will sign off on.</h2>
 						<p class={SECTION_LEDE_CLASS}>
 							The self-hosted control plane ships as a Rust binary and container, with documented
 							Docker Compose, Kubernetes, and VM deployment paths.
 						</p>
 					</div>
-					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
 						{
 							footprints.map((fp) => (
-								<CatalogCard title={fp.title} className="flex flex-col">
-									<p class={`mt-2 ${BODY_CLASS}`}>{fp.body}</p>
-								</CatalogCard>
+								<div class="h-full" data-site-reveal-child>
+									<CatalogCard title={fp.title} className="flex h-full flex-col">
+										<p class={`mt-2 ${BODY_CLASS}`}>{fp.body}</p>
+									</CatalogCard>
+								</div>
 							))
 						}
 					</div>
 				</div>
 			</section>
+
+			<SectionRule />
 
 			<!-- Closing CTA -->
 			<ClosingCtaPanel

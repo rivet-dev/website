@@ -26,7 +26,7 @@ const canonicalUrl = Astro.props.canonicalUrl ?? frontmatter?.canonicalUrl;
 	<Header variant="floating" pageFamily="site" client:load />
 	<div class={SITE_PAGE_CLASS} style="--header-height: 5rem;">
 		<main id="main-content" tabindex="-1" class={SITE_UTILITY_HERO_CLASS}>
-			<div class={SITE_EDITORIAL_RAIL_CLASS}>
+			<div class={SITE_EDITORIAL_RAIL_CLASS} data-site-reveal>
 				<Prose as="article" surface="paper" className="site-legal-prose max-w-none">
 					<slot />
 				</Prose>

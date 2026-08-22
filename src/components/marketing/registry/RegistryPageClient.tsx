@@ -246,7 +246,7 @@ function Shelf({
 	};
 
 	return (
-		<section className="py-12 md:py-20">
+		<section className="py-12 md:py-20" data-site-reveal>
 			<div className="mb-4 flex items-end justify-between gap-4">
 				<div>
 					<h2 className={SECTION_H2_CLASS}>
@@ -340,6 +340,7 @@ function FeaturedBanner({
 	return (
 		<div
 			className="group/banner relative mb-12 md:mb-20"
+			data-site-reveal
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
 			onFocusCapture={() => setFocusWithin(true)}
@@ -437,7 +438,7 @@ function FeaturedBanner({
 
 function FooterCta() {
 	return (
-		<div className="pt-12 md:pt-20">
+		<div className="pt-12 md:pt-20" data-site-reveal>
 			<InkPanel>
 				<div className="flex flex-col items-center px-6 py-14 text-center md:py-16">
 					<p className="mb-6 text-[15px] text-cream/70">

@@ -7,6 +7,7 @@ import {
 } from '@/components/marketing/layout';
 import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
+import { SectionRule } from '@/components/marketing/SectionRule';
 
 // Fetch OSS friends data at build time
 let items: any[] = [];
@@ -27,26 +28,30 @@ try {
 	<main id="main-content" tabindex="-1">
 		<section class={SITE_UTILITY_HERO_CLASS}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<div class="max-w-2xl">
-					<h1 class={HERO_H1_CLASS}>
+				<div class="max-w-2xl" data-site-reveal-group data-site-reveal-stagger="40">
+					<h1 class={HERO_H1_CLASS} data-site-reveal-child>
 						Open Source Friends
 					</h1>
-					<p class={SUBTITLE_CLASS}>
+					<p class={SUBTITLE_CLASS} data-site-reveal-child>
 						Other companies whose code & culture mirrors that at Rivet.
 					</p>
 				</div>
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{items.map((friend: any) => (
-						<CatalogCard href={friend.href} external title={friend.name}>
-							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
-								{friend.description}
-							</p>
-						</CatalogCard>
+						<div class="h-full" data-site-reveal>
+							<CatalogCard href={friend.href} external title={friend.name} className="h-full">
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+									{friend.description}
+								</p>
+							</CatalogCard>
+						</div>
 					))}
 				</div>
 			</div>

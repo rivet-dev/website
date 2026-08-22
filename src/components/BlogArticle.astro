@@ -70,13 +70,14 @@ const otherArticles = allPosts
 			<div class={SITE_EDITORIAL_RAIL_CLASS}>
 				<a
 					href="/blog/"
+					data-site-reveal
 					class="group flex items-center gap-2 text-sm text-ink-faint transition-colors hover:text-ink"
 				>
 					<Icon icon={faArrowLeft} className="h-3 w-auto transition-transform group-hover:-translate-x-0.5" />
 					Blog
 				</a>
 
-				<div class:list={['mt-8', image ? 'mb-12' : 'mb-0']}>
+				<div class:list={['mt-8', image ? 'mb-12' : 'mb-0']} data-site-reveal data-site-reveal-delay="40">
 					<time datetime={entry.data.published.toISOString()} class="text-xs text-ink-faint">
 						{formatTimestamp(entry.data.published)}
 					</time>
@@ -87,6 +88,8 @@ const otherArticles = allPosts
 				{image && (
 					<img
 						src={image.src}
+						data-site-reveal
+						data-site-reveal-delay="80"
 						alt={title}
 						width={image.width}
 						height={image.height}
@@ -168,11 +171,12 @@ const otherArticles = allPosts
 	{otherArticles.length > 0 && (
 		<section class={SITE_COMPACT_SECTION_CLASS}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<h2 class={SECTION_H2_CLASS}>Read next</h2>
-				<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+				<h2 class={SECTION_H2_CLASS} data-site-reveal>Read next</h2>
+				<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3" data-site-reveal-group>
 					{otherArticles.map((article) => (
 						<a
 							href={`${readNextBase}${article.slug}/`}
+							data-site-reveal-child
 							class:list={[SITE_CARD_CLASS, 'group flex flex-col transition-colors hover:border-ink/25']}
 						>
 							{article.image && (

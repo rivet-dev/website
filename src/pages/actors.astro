@@ -13,6 +13,7 @@ import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { actorsFaqs } from '@/data/faqs/actors';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { productLogos } from '@/sitemap/productLogos';
 import { wordmarkMaskStyle } from '@/lib/product-accent';
 import {
@@ -101,14 +102,14 @@ const compositionLayers = [
 		<!-- Hero -->
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
 			<div class={PRODUCT_HERO_INNER_CLASS}>
-				<div class="mb-7 flex">
+				<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
 					<ProductLockup product={actorsProduct} />
 				</div>
-				<h1 class={PRODUCT_HERO_H1_CLASS}>The primitive for agent orchestration, real-time, and per-tenant databases</h1>
-				<p class={PRODUCT_HERO_SUBTITLE_CLASS}>
+				<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">The primitive for agent orchestration, real-time, and per-tenant databases</h1>
+				<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
 					One Actor per agent, per session, per user. The same primitive powers realtime apps, multiplayer, and collaborative state.
 				</p>
-				<div class={PRODUCT_HERO_CTA_ROW_CLASS}>
+				<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
 						<button
 							type="button"
 							data-actors-install-copy
@@ -130,45 +131,55 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Use cases -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One primitive, every stateful workload.</h2>
 				</div>
-				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
 					{
 						useCases.map((useCase) => (
-							<CatalogCard
-								flush
-								title={useCase.title}
-								href={useCase.href}
-								linkLabel="Read the docs"
-								className="flex min-h-64 h-full flex-col"
-							>
-								<p class="mt-3 flex-1 text-[15px] leading-relaxed text-ink-soft">{useCase.body}</p>
-							</CatalogCard>
+							<div class="h-full" data-site-reveal-child>
+								<CatalogCard
+									flush
+									title={useCase.title}
+									href={useCase.href}
+									linkLabel="Read the docs"
+									className="flex min-h-64 h-full flex-col"
+								>
+									<p class="mt-3 flex-1 text-[15px] leading-relaxed text-ink-soft">{useCase.body}</p>
+								</CatalogCard>
+							</div>
 						))
 					}
 				</div>
 			</div>
 		</section>
 
+		<SectionRule />
 		<BuiltInFeatures />
+		<SectionRule />
 		<ProblemSection client:visible />
+		<SectionRule />
 		<BenchmarksSection />
+		<SectionRule />
 		<ActorsObservabilitySection />
+
+		<SectionRule />
 
 		<!-- Composition -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<div class="max-w-3xl">
+				<div class="max-w-3xl" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>The foundation the rest of Rivet builds on.</h2>
 				</div>
 
-				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3">
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3" data-site-reveal-group>
 					{compositionLayers.map((layer) => (
-						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8">
+						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8" data-site-reveal-child>
 							<div class="flex items-center gap-3">
 								<span
 									aria-hidden="true"
@@ -186,26 +197,32 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Deployment -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<div class="mb-12 max-w-3xl">
+				<div class="mb-12 max-w-3xl" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
 				</div>
-				<DeploymentOptions
-					productName="Actors"
-					quickstartHref="/actors/docs"
-					selfHostHref="/actors/self-host/control-plane"
-					installCommand="npm install rivetkit"
-				/>
+				<div data-site-reveal>
+					<DeploymentOptions
+						productName="Actors"
+						quickstartHref="/actors/docs"
+						selfHostHref="/actors/self-host/control-plane"
+						installCommand="npm install rivetkit"
+					/>
+				</div>
 			</div>
 		</section>
+
+		<SectionRule />
 
 		<!-- FAQ -->
 		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="actors-faq-heading">
 			<div class={SITE_NARROW_RAIL_CLASS}>
-				<h2 id="actors-faq-heading" class={`mb-12 text-balance text-center ${SECTION_H2_CLASS}`}>Frequently asked questions</h2>
-				<div class="divide-y divide-ink/10 border-b border-ink/10">
+				<h2 id="actors-faq-heading" class={`mb-12 text-balance text-center ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
+				<div class="divide-y divide-ink/10 border-b border-ink/10" data-site-reveal>
 					{actorsFaqs.map((item) => (
 						<details class="group py-5">
 							<summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine [&::-webkit-details-marker]:hidden">
@@ -220,6 +237,8 @@ const compositionLayers = [
 				</div>
 			</div>
 		</section>
+
+		<SectionRule />
 
 		<!-- Closing CTA: the hero owns this page's single ember action. -->
 		<ClosingCtaPanel

@@ -36,19 +36,23 @@ export const ObservabilitySection = () => (
   <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
-        <div>
+        <div data-site-reveal="">
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             Observe the whole stack.
           </h2>
         </div>
 
-        <div className="grid gap-x-8 sm:grid-cols-2">
+        <div
+          data-site-reveal-group=""
+          className="grid gap-x-8 sm:grid-cols-2"
+        >
           {features.map((feature) => {
             const Icon = feature.icon;
 
             return (
               <article
                 key={feature.title}
+                data-site-reveal-child=""
                 className="border-t border-ink/15 py-5"
               >
                 <Icon className="mb-3 h-4 w-4 text-pine" aria-hidden="true" />
@@ -64,7 +68,10 @@ export const ObservabilitySection = () => (
         </div>
       </div>
 
-      <figure className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
+      <figure
+        data-site-reveal=""
+        className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3"
+      >
         <img
           src={inspectorSrc}
           alt="Rivet Actor Inspector"

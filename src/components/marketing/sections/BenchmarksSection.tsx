@@ -152,13 +152,13 @@ export const BenchmarksSection = () => {
   return (
     <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
       <div className={SITE_STANDARD_RAIL_CLASS}>
-        <div className="mb-12 md:mb-16">
+        <div className="mb-12 md:mb-16" data-site-reveal>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             How Actors Compare
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 overflow-hidden rounded-xl border-l border-t border-ink/10 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 overflow-hidden rounded-xl border-l border-t border-ink/10 sm:grid-cols-2 xl:grid-cols-3" data-site-reveal>
           {benchmarks.map((card) => {
             const accent = card.bars.find((bar) => bar.highlight);
             const stat = card.hero ?? accent?.value ?? "";

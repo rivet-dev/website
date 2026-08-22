@@ -3,6 +3,7 @@ import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
 import { WorkflowRunDemo } from '@/components/marketing/workflows/WorkflowRunDemo';
 import {
@@ -176,14 +177,14 @@ const compositionLayers = [
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
 			<div class="mx-auto w-full max-w-7xl">
 				<div class={PRODUCT_HERO_INNER_CLASS}>
-					<div class="mb-7 flex">
+					<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
 						<ProductLockup product={workflowsProduct} />
 					</div>
-					<h1 class={PRODUCT_HERO_H1_CLASS}>Automate agent work that outlives a process.</h1>
-					<p class={PRODUCT_HERO_SUBTITLE_CLASS}>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Automate agent work that outlives a process.</h1>
+					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
 						Durable workflows built on Rivet Actors. Steps record their results, wait for people or systems, and resume after crashes and deploys.
 					</p>
-					<div class={PRODUCT_HERO_CTA_ROW_CLASS}>
+					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
 						<button
 							type="button"
 							data-workflows-install-copy
@@ -213,11 +214,13 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Chapter 01 -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
-				<h2 class={`max-w-3xl text-balance ${SECTION_H2_CLASS}`}>Regular TypeScript, durable progress.</h2>
-				<div class="mt-12 min-w-0">
+				<h2 class={`max-w-3xl text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Regular TypeScript, durable progress.</h2>
+				<div class="mt-12 min-w-0" data-site-reveal>
 					<WorkflowCodeTabs tabs={progressTabs} client:visible />
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine underline underline-offset-2" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
@@ -226,9 +229,9 @@ const compositionLayers = [
 			</div>
 
 			<div class="mx-auto mt-14 max-w-7xl md:mt-20">
-				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
 					{actorInheritance.map((item) => (
-						<div class="border-t border-ink/15 pt-5">
+						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
 							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
 							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
 						</div>
@@ -237,10 +240,12 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Chapter 02 -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
-				<div class="max-w-3xl">
+				<div class="max-w-3xl" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Wait, branch, and recover.</h2>
 					<p class={SECTION_LEDE_CLASS}>
 						Pause for approval, fan out, retry. Every step is recorded.
@@ -248,7 +253,7 @@ const compositionLayers = [
 				</div>
 				<div class="mt-12 min-w-0">
 					<WorkflowCoordinationDiagram client:visible />
-					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
 						<a class="text-pine underline underline-offset-2" href="/workflows/docs/queues">queue waits</a>,
 						<a class="text-pine underline underline-offset-2" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
@@ -261,10 +266,12 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Chapter 03 -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
-				<div>
+				<div data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Automate agent work.</h2>
 					<p class={SECTION_LEDE_CLASS}>
 						The workflow gives an agent a computer and records every step.
@@ -272,7 +279,7 @@ const compositionLayers = [
 				</div>
 				<div class="min-w-0">
 					<WorkflowAgentDiagram client:visible />
-					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
 						<a class="text-pine underline underline-offset-2" href="/workflows/docs/patterns">agent patterns</a> or
 						<a class="text-pine underline underline-offset-2" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
@@ -284,10 +291,12 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Chapter 04 -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
-				<div>
+				<div data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Evolve running work.</h2>
 					<p class={SECTION_LEDE_CLASS}>
 						Deploy new code mid-run. Old runs keep their version; new runs take the latest.
@@ -295,7 +304,7 @@ const compositionLayers = [
 				</div>
 				<div class="min-w-0">
 					<WorkflowVersioningDiagram client:visible />
-					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
 						<a class="text-pine underline underline-offset-2" href="/workflows/docs/versioning">versioning</a>.
 					</p>
@@ -306,16 +315,18 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Inspector -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
-					<div>
+					<div data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See the history behind every run.</h2>
 					</div>
-					<div class="grid gap-6 sm:grid-cols-2">
+					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
 						{capabilities.map((capability) => (
-							<div class="border-t border-ink/15 pt-5">
+							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
 								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
 								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
 							</div>
@@ -323,7 +334,7 @@ const compositionLayers = [
 					</div>
 				</div>
 
-				<figure class="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
+				<figure class="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3" data-site-reveal>
 					<img
 						src={INSPECTOR_IMAGE}
 						alt="Rivet workflow inspector showing a run history with nested steps, statuses, durations, and recorded details"
@@ -337,16 +348,18 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Composition -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
-				<div class="max-w-3xl">
+				<div class="max-w-3xl" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One foundation, composable with the rest of Rivet.</h2>
 				</div>
 
-				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3">
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3" data-site-reveal-group>
 					{compositionLayers.map((layer) => (
-						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8">
+						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8" data-site-reveal-child>
 							<div class="flex items-center gap-3">
 								<span
 									aria-hidden="true"
@@ -364,25 +377,31 @@ const compositionLayers = [
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<!-- Deployment -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
-				<div class="mb-12 max-w-3xl">
+				<div class="mb-12 max-w-3xl" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
 				</div>
-				<DeploymentOptions
-					productName="Workflows"
-					quickstartHref="/workflows/docs/quickstart"
-					selfHostHref="/workflows/self-host/control-plane"
-					installCommand="npm install rivetkit"
-				/>
+				<div data-site-reveal>
+					<DeploymentOptions
+						productName="Workflows"
+						quickstartHref="/workflows/docs/quickstart"
+						selfHostHref="/workflows/self-host/control-plane"
+						installCommand="npm install rivetkit"
+					/>
+				</div>
 			</div>
 		</section>
 
+		<SectionRule />
+
 		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="workflows-faq-heading">
 			<div class={SITE_NARROW_RAIL_CLASS}>
-				<h2 id="workflows-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`}>Frequently asked questions</h2>
-				<div class="divide-y divide-ink/10 border-b border-ink/10">
+				<h2 id="workflows-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
+				<div class="divide-y divide-ink/10 border-b border-ink/10" data-site-reveal>
 					{workflowsFaqs.map((item) => (
 						<details class="group py-5">
 							<summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine [&::-webkit-details-marker]:hidden">
@@ -397,6 +416,8 @@ const compositionLayers = [
 				</div>
 			</div>
 		</section>
+
+		<SectionRule />
 
 		<!-- Closing CTA: the hero owns this page's single ember action. -->
 		<ClosingCtaPanel

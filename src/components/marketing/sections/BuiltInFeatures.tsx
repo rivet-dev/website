@@ -68,19 +68,20 @@ const features = [
 export const BuiltInFeatures = () => (
   <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
     <div className={SITE_STANDARD_RAIL_CLASS}>
-      <div className="max-w-3xl">
+      <div className="max-w-3xl" data-site-reveal>
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           A lightweight primitive with powerful capabilities.
         </h2>
       </div>
 
-      <div className="mt-12 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
             <a
               key={feature.title}
               href={feature.href}
+              data-site-reveal-child
               className="group flex flex-col border-t border-ink/15 py-6 transition-colors hover:border-pine/50"
             >
               <div className="flex items-center gap-2.5">

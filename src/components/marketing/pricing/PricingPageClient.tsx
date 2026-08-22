@@ -37,6 +37,7 @@ import {
   DEPLOY_WHITE_BUTTON_CLASS,
 } from '@/components/marketing/deployKit';
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { DeploymentDiagram } from '@/components/marketing/diagrams/deploymentDiagrams';
 
 // --- Page Sections ---
@@ -78,7 +79,7 @@ const SelfHostingComparison = () => {
   return (
     <section className={SITE_SECTION_CLASS}>
       <div className={SITE_STANDARD_RAIL_CLASS}>
-        <div className="max-w-3xl">
+        <div className="max-w-3xl" data-site-reveal>
           <h2 className={SECTION_H2_CLASS}>Compare Deployment Models</h2>
           <p className={SECTION_LEDE_CLASS}>
             Every model runs the same three pieces — a worker running your code, the control plane,
@@ -92,10 +93,11 @@ const SelfHostingComparison = () => {
             vs your-infrastructure (ink) boundary moves, so the pine region
             visibly shrinks left to right. Subgrid keeps the five rows level
             across columns; browsers without subgrid fall back to auto rows. */}
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3" data-site-reveal-group>
           {deploymentModels.map((model) => (
             <article
               key={model.title}
+              data-site-reveal-child
               className={`${SITE_CARD_CLASS} flex flex-col md:grid md:row-span-5 md:grid-rows-subgrid`}
             >
               <div className="flex h-6 items-center gap-2.5">
@@ -119,7 +121,7 @@ const SelfHostingComparison = () => {
           ))}
         </div>
 
-        <aside className={`mt-6 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto] ${SITE_WIDE_CALLOUT_CLASS}`}>
+        <aside className={`mt-6 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto] ${SITE_WIDE_CALLOUT_CLASS}`} data-site-reveal>
           <div className="flex items-start gap-4">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper text-pine">
               <ShieldCheck className="h-5 w-5" aria-hidden="true" />
@@ -166,7 +168,7 @@ const ComparisonTable = () => {
     };
 
     return (
-        <div className="mt-24 pt-16">
+        <div className="mt-24 pt-16" data-site-reveal>
             <h3 className={`mb-12 ${SECTION_H2_CLASS}`}>Compare Cloud Plans</h3>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px] border-collapse">
@@ -235,7 +237,7 @@ const ComputeCalculator = () => {
     const memLabel = memoryMib >= 1024 ? `${memoryMib / 1024} GiB` : `${memoryMib} MiB`;
 
     return (
-        <div className="pt-16">
+        <div className="pt-16" data-site-reveal>
             <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate managed execution cost</h3>
             <p className="mb-8 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
                 Run your actors and applications on Rivet Cloud and pay only for the seconds they are active.
@@ -473,10 +475,11 @@ const Pricing = () => {
             <div className={SITE_STANDARD_RAIL_CLASS}>
                 <div className="flex flex-col gap-12">
                     <div className="flex flex-col gap-12">
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
                                 {plans.map((plan, idx) => (
                                     <div
                                        key={idx}
+                                       data-site-reveal-child
                                        className={`flex flex-col overflow-hidden rounded-xl border bg-white/55 ${
                                            plan.highlight ? 'border-pine/60' : 'border-ink/10'
                                        }`}
@@ -528,7 +531,7 @@ const Pricing = () => {
                             </div>
 
                             {/* YC & a16z Speedrun Callout */}
-                            <div className={SITE_WIDE_CALLOUT_CLASS}>
+                            <div className={SITE_WIDE_CALLOUT_CLASS} data-site-reveal>
                                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                                         <div>
                                             <p className={`mb-2 ${CARD_TITLE_CLASS}`}>Startup Deal: 50% off for 12 months</p>
@@ -559,7 +562,7 @@ const Pricing = () => {
                             {/* Usage pricing, compute calculator, and plan comparison */}
                                 <>
                                     {/* Usage Pricing Section */}
-                                    <div className="pt-16">
+                                    <div className="pt-16" data-site-reveal>
                                         <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Usage Pricing</h3>
                                         <p className="mb-8 text-[15px] leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
 
@@ -593,6 +596,7 @@ export default function PricingPageClient() {
   return (
     <>
       <Pricing />
+      <SectionRule />
       <SelfHostingComparison />
     </>
   );
