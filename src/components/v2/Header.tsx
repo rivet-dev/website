@@ -532,9 +532,9 @@ export function Header({
 									<a href="/">
 										<img
 											src={logoTextBlackUrl.src}
-											width={80}
+											width={72}
 											height={24}
-											className="w-20 shrink-0"
+											className="w-[4.5rem] shrink-0"
 											alt="Rivet logo"
 										/>
 									</a>
@@ -545,9 +545,9 @@ export function Header({
 										<a href="/">
 											<img
 												src={logoTextBlackUrl.src}
-												width={80}
+												width={72}
 												height={24}
-												className="ml-1 w-20 shrink-0"
+												className="ml-1 w-[4.5rem] shrink-0"
 												alt="Rivet logo"
 											/>
 										</a>
@@ -631,9 +631,9 @@ export function Header({
 						<a href="/">
 							<img
 								src={isLightTheme ? logoTextBlackUrl.src : logoUrl.src}
-								width={80}
+								width={72}
 								height={24}
-								className="w-20 shrink-0"
+								className="w-[4.5rem] shrink-0"
 								alt="Rivet logo"
 								loading="eager"
 								decoding="async"
@@ -751,9 +751,9 @@ function DocsMobileNavigation({
 					<img
 						src={logoTextBlackUrl.src}
 						alt="Rivet"
-						width={80}
+						width={72}
 						height={24}
-						className="w-20"
+						className="w-[4.5rem]"
 					/>
 				</a>
 
@@ -849,9 +849,9 @@ function DocsMobileNavigation({
 				<img
 					src={logoUrl.src}
 					alt="Rivet"
-					width={80}
+					width={72}
 					height={24}
-					className="w-20 sm:hidden"
+					className="w-[4.5rem] sm:hidden"
 				/>
 				<img
 					src={logoIconUrl.src}
