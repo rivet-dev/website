@@ -21,7 +21,7 @@ export interface ProductMetadata {
 	/** One line, used in the product switcher and the docs index. */
 	tagline: string;
 	/**
-	 * Verb-led framing for the four pillars (Run / Operate / Automate /
+	 * Verb-led framing for the four pillars (Orchestrate / Operate / Automate /
 	 * Deploy): the eyebrow verb and its premise line, shared by the Products
 	 * menu and the landing stack section so the set is defined once. Absent on
 	 * non-pillar products (Rivet Cloud).
@@ -86,7 +86,7 @@ export const PRODUCTS: ProductMetadata[] = [
 		id: "actors",
 		name: "Actors",
 		tagline: "The primitive for stateful workloads",
-		verb: "Run",
+		verb: "Orchestrate",
 		premise: "Give every agent a durable process to live in",
 		repo: "rivet",
 		color: "#2C5A7A",

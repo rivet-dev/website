@@ -8,7 +8,10 @@ import type { RegistryIconName } from "../../../data/registry-icons";
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
+	CARD_TITLE_CLASS,
+	SECTION_H2_CLASS,
 } from "../typography";
+import { SITE_WIDE_CALLOUT_CLASS } from "../layout";
 import { InkPanel } from "../editorial/InkPanel";
 import { RegistryIconTile } from "./RegistryIconTile";
 
@@ -83,7 +86,7 @@ const CAROUSEL_INTERVAL = 6000;
 // The featured banner uses the same flat porcelain card treatment as the
 // rest of the marketing catalog.
 const BANNER_SURFACE =
-	"rounded-2xl border border-ink/10 bg-white/55";
+	SITE_WIDE_CALLOUT_CLASS;
 
 function entryHref(hrefBase: string, entry: RegistryCardEntry) {
 	// External entries (deploy targets) link straight to their guide; there is
@@ -100,7 +103,7 @@ function categoryLabelFor(entry: RegistryCardEntry) {
 }
 
 const PILL_BASE =
-	"inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-md px-3 text-[13px] font-medium transition-colors duration-200 motion-reduce:transition-none";
+	"inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-md px-3 text-sm font-medium transition-colors duration-200 motion-reduce:transition-none";
 const PILL_ACTIVE =
 	"border border-ink/15 bg-white/55 text-ink-soft group-hover:border-ink/40 group-hover:text-ink";
 
@@ -166,12 +169,12 @@ function AppRow({
 						{entry.title}
 					</h3>
 					{entry.beta && (
-						<span className="shrink-0 rounded-full border border-ink/15 px-1.5 py-0.5 text-[10px] text-ink-faint">
+						<span className="shrink-0 rounded-full border border-ink/15 px-1.5 py-0.5 text-xs text-ink-faint">
 							Beta
 						</span>
 					)}
 				</div>
-				<p className="mt-0.5 truncate text-[13px] leading-snug text-ink-soft">
+				<p className="mt-0.5 truncate text-xs leading-snug text-ink-soft">
 					{entry.description}
 				</p>
 			</div>
@@ -243,13 +246,13 @@ function Shelf({
 	};
 
 	return (
-		<section className="mb-14 border-t border-ink/[0.08] pt-10">
+		<section className="py-12 md:py-20">
 			<div className="mb-4 flex items-end justify-between gap-4">
 				<div>
-					<h2 className="text-2xl font-medium tracking-[-0.015em] text-ink">
+					<h2 className={SECTION_H2_CLASS}>
 						{label}
 					</h2>
-					<p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">
+					<p className="mt-1 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
 						{description}
 					</p>
 				</div>
@@ -336,7 +339,7 @@ function FeaturedBanner({
 
 	return (
 		<div
-			className="group/banner relative mb-16"
+			className="group/banner relative mb-12 md:mb-20"
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
 			onFocusCapture={() => setFocusWithin(true)}
@@ -363,13 +366,13 @@ function FeaturedBanner({
 							duration: reducedMotion ? 0 : 0.45,
 							ease: [0.32, 0.72, 0, 1],
 						}}
-						className="flex h-[300px] flex-col items-start justify-center gap-6 rounded-2xl px-7 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset sm:h-[320px] sm:flex-row sm:items-center sm:gap-12 sm:px-12"
+						className="flex min-h-[252px] flex-col items-start justify-center gap-6 rounded-xl no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset sm:flex-row sm:items-center sm:gap-12 md:min-h-[256px]"
 					>
 						<div className="min-w-0 flex-1">
-							<h3 className="text-3xl font-medium tracking-[-0.015em] text-ink md:text-4xl">
+							<h3 className={CARD_TITLE_CLASS}>
 								{entry.title}
 							</h3>
-							<p className="mt-3 max-w-lg line-clamp-2 text-base leading-relaxed text-ink-soft">
+							<p className="mt-3 max-w-lg line-clamp-2 text-[15px] leading-relaxed text-ink-soft">
 								{entry.description}
 							</p>
 							<span className="selection-dark mt-6 inline-flex items-center rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream transition-colors duration-200 group-hover/banner:bg-ink/85 motion-reduce:transition-none">
@@ -434,10 +437,10 @@ function FeaturedBanner({
 
 function FooterCta() {
 	return (
-		<div className="mt-4 border-t border-ink/[0.08] pt-10">
+		<div className="pt-12 md:pt-20">
 			<InkPanel>
 				<div className="flex flex-col items-center px-6 py-14 text-center md:py-16">
-					<p className="mb-6 text-sm text-cream/70">
+					<p className="mb-6 text-[15px] text-cream/70">
 						Want to add your own package to the registry?
 					</p>
 					<div className="flex flex-wrap items-center justify-center gap-3">

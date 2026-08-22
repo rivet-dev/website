@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { EYEBROW_CLASS } from '../typography';
+import { CARD_TITLE_CLASS, EYEBROW_CLASS } from '../typography';
 
 // Porcelain catalog entry: rounded hairline border, translucent white fill
 // over the porcelain field, optional pine footer link. Hook-free.
@@ -36,7 +36,7 @@ export const CatalogCard = ({
 		<>
 			{eyebrow ? <p className={`${EYEBROW_CLASS} mb-3 normal-case`}>{eyebrow}</p> : null}
 			{title ? (
-				<h3 className="text-lg font-medium tracking-[-0.01em] text-ink md:text-xl">
+				<h3 className={CARD_TITLE_CLASS}>
 					{title}
 				</h3>
 			) : null}
@@ -54,10 +54,10 @@ export const CatalogCard = ({
 
 	const frameClass = flush
 		? ''
-		: `rounded-2xl border ${highlight ? 'border-pine/60' : 'border-ink/10'} ${
+		: `rounded-xl border ${highlight ? 'border-pine/60' : 'border-ink/10'} ${
 				href && !highlight ? 'hover:border-ink/25' : ''
 			}`;
-	const cardClass = `group block ${frameClass} bg-white/55 p-7 transition-colors duration-200 motion-reduce:transition-none ${
+	const cardClass = `group block ${frameClass} bg-white/55 p-6 transition-colors duration-200 motion-reduce:transition-none md:p-8 ${
 		href ? 'hover:bg-white' : ''
 	} ${href ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper' : ''} ${className ?? ''}`;
 

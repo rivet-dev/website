@@ -13,7 +13,7 @@ export function ArticleSocials({ title }) {
 	const siteUrl = getSiteUrl();
 	const articleUrl = siteUrl + pathname;
 	return (
-		<div className="mt-14 flex items-center justify-center gap-2">
+		<div className="flex items-center justify-center gap-2">
 			<SocialIcon url="/rss/feed.xml">
 				<Icon icon={faRss} size="xl" />
 			</SocialIcon>
@@ -44,7 +44,7 @@ function SocialIcon({ url, children }) {
 			href={url}
 			target="_blank"
 			rel="noreferrer"
-			className="px-3 text-ink-faint transition-colors hover:text-pine"
+			className="inline-flex size-10 items-center justify-center rounded-md border border-ink/10 bg-white/55 text-ink-faint transition-colors hover:border-ink/25 hover:bg-white hover:text-pine"
 		>
 			{children}
 		</a>

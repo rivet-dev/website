@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Check, ArrowRight, ChevronDown } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import {
+	CARD_TITLE_CLASS,
+	BODY_CLASS,
 	HERO_H1_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
@@ -12,6 +14,12 @@ import {
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
+import {
+	SITE_CARD_CLASS,
+	SITE_GUTTER_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
 
 const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mobileObjectPosition?: string }[] }) => {
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -154,15 +162,15 @@ interface CollapsibleSectionProps {
 	background?: 'paper' | 'paper-mid';
 }
 
-function CollapsibleSection({ title, children, defaultOpen = false, background = 'paper' }: CollapsibleSectionProps) {
+function CollapsibleSection({ title, children, defaultOpen = false }: CollapsibleSectionProps) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 	const sectionId = useId();
 	const triggerId = `${sectionId}-trigger`;
 	const panelId = `${sectionId}-panel`;
 
 	return (
-		<div className={`border-t border-ink/10 px-6 ${background === 'paper-mid' ? 'bg-paper-mid' : 'bg-paper'}`}>
-			<div className="mx-auto w-full max-w-7xl">
+		<section className={`bg-paper ${SITE_GUTTER_CLASS}`}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<h2 className="text-balance">
 					<button
 						id={triggerId}
@@ -170,7 +178,7 @@ function CollapsibleSection({ title, children, defaultOpen = false, background =
 						aria-controls={panelId}
 						aria-expanded={isOpen}
 						onClick={() => setIsOpen(!isOpen)}
-						className={`flex h-28 w-full items-center justify-between text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine ${SECTION_H2_CLASS}`}
+						className={`flex w-full items-center justify-between py-12 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:py-20 ${SECTION_H2_CLASS}`}
 					>
 						<span>{title}</span>
 						<ChevronDown
@@ -187,7 +195,7 @@ function CollapsibleSection({ title, children, defaultOpen = false, background =
 					aria-labelledby={triggerId}
 					hidden={!isOpen}
 					className={`grid transition-all duration-300 ease-in-out motion-reduce:transition-none ${
-						isOpen ? 'grid-rows-[1fr] opacity-100 pb-16' : 'grid-rows-[0fr] opacity-0'
+						isOpen ? 'grid-rows-[1fr] opacity-100 pb-16 md:pb-20' : 'grid-rows-[0fr] opacity-0'
 					}`}
 				>
 					<div className="overflow-hidden">
@@ -195,7 +203,7 @@ function CollapsibleSection({ title, children, defaultOpen = false, background =
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 }
 
@@ -224,18 +232,18 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 	];
 
 	return (
-		<main id="main-content" tabIndex={-1} className="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
+		<main id="main-content" tabIndex={-1}>
 			{/* Hero Section */}
-			<section className="depth-wash relative flex flex-col overflow-hidden lg:min-h-screen">
+			<section className={`${SITE_UTILITY_HERO_CLASS} flex flex-col justify-center lg:min-h-screen`}>
 				{/* Centered content */}
-				<div className="flex flex-1 flex-col justify-start pt-32 lg:justify-center lg:pt-0 px-6">
-					<div className="mx-auto w-full max-w-7xl">
+				<div className="flex flex-col justify-center">
+					<div className={SITE_STANDARD_RAIL_CLASS}>
 						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 lg:gap-20">
 							<div className="max-w-xl">
 								<h1 className={`mb-6 ${HERO_H1_CLASS}`}>
 									Built for Demo Day and Beyond
 								</h1>
-								<p className="text-base leading-relaxed text-ink-soft">
+								<p className="text-[17px] leading-relaxed text-ink-soft">
 									As{' '}
 									<span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-ink/15 bg-white/55 px-2.5 py-0.5 text-sm text-ink-soft align-middle">
 										<img src={imgYC.src} alt="Y Combinator logo" width={16} height={16} className="h-4 w-auto" loading="eager" decoding="async" />
@@ -288,15 +296,14 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				</div>
 
 				{/* Bottom section */}
-				<div className="px-6 py-12 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:py-0 lg:pb-24">
-					<div className="mx-auto w-full max-w-7xl">
-						<div className="mb-8 h-px w-full bg-ink/10" />
+				<div className="mt-12">
+					<div className={SITE_STANDARD_RAIL_CLASS}>
 						<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 							<div>
-								<h2 className="text-base font-medium text-ink">
+								<h2 className={CARD_TITLE_CLASS}>
 									50% off Rivet Cloud for 12 months
 								</h2>
-								<p className="mt-1 text-sm text-ink-soft">
+								<p className={`mt-1 ${BODY_CLASS}`}>
 									Everything you need to build and scale stateful workloads at startup speed.
 								</p>
 							</div>
@@ -316,14 +323,14 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 
 			{/* What You Get */}
 			<CollapsibleSection title="What you get" background="paper-mid">
-				<p className="mb-12 max-w-xl text-base leading-relaxed text-ink-soft">
+				<p className="mb-12 max-w-xl text-[17px] leading-relaxed text-ink-soft">
 					Everything you need to build and scale stateful workloads at startup speed.
 				</p>
 				<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
 					{benefits.map((benefit, idx) => (
 						<div key={idx} className="flex flex-col border-t border-ink/10 pt-6">
-							<h3 className="mb-2 text-base font-medium text-ink">{benefit.title}</h3>
-							<p className="text-sm leading-relaxed text-ink-soft">{benefit.description}</p>
+							<h3 className={`mb-2 ${CARD_TITLE_CLASS}`}>{benefit.title}</h3>
+							<p className={BODY_CLASS}>{benefit.description}</p>
 						</div>
 					))}
 				</div>
@@ -333,11 +340,11 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			<CollapsibleSection title="Eligibility">
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 					{eligibility.map((item, idx) => (
-						<div key={idx} className="flex items-center gap-3 rounded-2xl border border-ink/10 bg-white/55 p-4">
+						<div key={idx} className={`flex items-center gap-3 ${SITE_CARD_CLASS}`}>
 							<div className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
 								<Check className="h-4 w-4 text-pine" />
 							</div>
-							<span className="text-sm text-ink-soft">{item}</span>
+							<span className={BODY_CLASS}>{item}</span>
 						</div>
 					))}
 				</div>
@@ -351,8 +358,8 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 							<div className="mb-3 flex h-6 w-6 items-center justify-center rounded-full border border-pine/30 font-mono text-xs text-pine">
 								{step.number}
 							</div>
-							<h3 className="mb-2 text-base font-medium text-ink">{step.title}</h3>
-							<p className="text-sm leading-relaxed text-ink-soft">{step.description}</p>
+							<h3 className={`mb-2 ${CARD_TITLE_CLASS}`}>{step.title}</h3>
+							<p className={BODY_CLASS}>{step.description}</p>
 						</div>
 					))}
 				</div>

@@ -16,6 +16,7 @@ import {
 	HEADER_PRIMARY_INK_BUTTON_CLASS,
 	HEADER_SECONDARY_BUTTON_CLASS,
 } from "@/components/marketing/typography";
+import { SITE_WIDE_GUTTERED_RAIL_CLASS } from "@/components/marketing/layout";
 import React, { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
 	Button,
@@ -25,7 +26,6 @@ import {
 	DropdownMenuTrigger,
 } from "@rivet-gg/components";
 import { faChevronDown } from "@rivet-gg/icons";
-import { ArrowRight } from "lucide-react";
 import cloudLogoUrl from "@/images/products/rivet-cloud-logo.svg";
 import sandboxAgentLogoUrl from "@/images/products/sandbox-agent-logo.svg";
 import { GitHubDropdown } from "./GitHubDropdown";
@@ -261,41 +261,39 @@ function ProductsDropdown({
 					onMouseEnter={handleMouseEnter}
 					onMouseLeave={handleMouseLeave}
 				>
-					{/* Verb-led premise grid: Run / Operate on the runtime row,
+					{/* Verb-led premise grid: Orchestrate / Operate on the runtime row,
 					    Automate / Deploy on the outcome row. Order comes from the
 					    registry, which is kept in this lifecycle order. */}
 					<div className="grid gap-1 sm:grid-cols-2">
 						{products.map((product) => (
-							<a
-								key={product.href}
-								href={product.href}
-								className={cn(
-									"group/product-row relative flex flex-col rounded-xl px-3 py-3 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
-									product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
-								)}
-							>
-								<ArrowRight
-									aria-hidden="true"
-									className="invisible absolute right-3 top-3 h-4 w-4 text-ink-faint opacity-0 transition-all duration-150 motion-reduce:transition-none group-hover/product-row:visible group-hover/product-row:translate-x-0.5 group-hover/product-row:opacity-100 group-hover/product-row:text-ink"
-								/>
+							<div key={product.href} className="flex flex-col">
+								{/* The verb sits outside the link so the hover tint colors
+								    only the product lockup, not the category label. */}
 								{product.product.verb && (
-									<div className={`${EYEBROW_CLASS} mb-2`}>
+									<div className={`${EYEBROW_CLASS} px-3 pt-3 pb-1`}>
 										{product.product.verb}
 									</div>
 								)}
-								<div className="flex items-center gap-3">
-									{/* The product color is the tile, not the mark. Tinting the
-									    mark itself fights the wordmark's own shape at this size. */}
+								<a
+									href={product.href}
+									className={cn(
+										"flex items-center gap-3 rounded-xl px-3 py-2.5 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
+										product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
+									)}
+								>
+									{/* The product color is the tile, not the mark. The mark's
+									    inset ring spans the full tile so the lockup matches the
+									    Rivet badge geometry (radius 34.375%, ring inset 14.3%). */}
 									<span
 										aria-hidden="true"
 										className={cn(
-											"flex size-8 shrink-0 items-center justify-center rounded-lg",
+											"flex size-8 shrink-0 items-center justify-center rounded-[34.375%]",
 											product.accent?.fill ?? "bg-ink/20",
 										)}
 									>
 										<ProductMark
 											product={product.product}
-											className="h-4 w-4"
+											className="h-8 w-8"
 											tone="cream"
 										/>
 									</span>
@@ -312,8 +310,8 @@ function ProductsDropdown({
 											{product.product.premise ?? product.description}
 										</div>
 									</div>
-								</div>
-							</a>
+								</a>
+							</div>
 						))}
 					</div>
 				</div>
@@ -439,6 +437,7 @@ interface HeaderProps {
 	productId?: string;
 	tabId?: string;
 	sectionLabel?: string;
+	pageFamily?: "default" | "site";
 }
 
 export function Header({
@@ -454,6 +453,7 @@ export function Header({
 	productId,
 	tabId,
 	sectionLabel,
+	pageFamily = "default",
 }: HeaderProps) {
 	const [isScrolled, setIsScrolled] = useState(false);
 
@@ -497,14 +497,18 @@ export function Header({
 
 	if (variant === "floating") {
 		const headerStyles = cn(
-			"border-transparent static bg-transparent rounded-2xl max-w-[960px] md:max-w-[1200px] [&>div:first-child]:px-3 backdrop-blur-none transition-all hover:opacity-100",
+			"border-transparent static bg-transparent rounded-2xl [&>div:first-child]:px-3 backdrop-blur-none transition-all hover:opacity-100",
+			pageFamily === "site" ? "w-full max-w-none" : "max-w-[960px] md:max-w-[1200px]",
 			isScrolled ? "opacity-100" : "opacity-100 md:opacity-80",
 		);
 
 		return (
 			<div
 				className={cn(
-					"fixed top-2 z-50 w-full max-w-[960px] px-3 md:left-1/2 md:top-4 md:-translate-x-1/2 md:px-6",
+					"fixed top-2 z-50 w-full",
+					pageFamily === "site"
+						? cn("left-1/2 -translate-x-1/2 md:top-4", SITE_WIDE_GUTTERED_RAIL_CLASS)
+						: "max-w-[960px] px-3 md:left-1/2 md:top-4 md:-translate-x-1/2 md:px-6",
 					isLightTheme && "selection:bg-orange-200 selection:text-orange-900"
 				)}
 				data-light-theme={isLightTheme ? "true" : undefined}
@@ -613,7 +617,9 @@ export function Header({
 				isLightTheme
 					? "border-b border-ink/10 bg-paper/90 supports-[backdrop-filter]:bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4] [&_button[data-mobile-menu-trigger]]:text-ink"
 					: "bg-neutral-950/80 backdrop-blur-lg",
-				"[&>div:first-child]:px-3 md:[&>div:first-child]:max-w-none md:[&>div:first-child]:px-0 md:px-8",
+				pageFamily === "site"
+					? "[&>div:first-child]:mx-auto [&>div:first-child]:w-full [&>div:first-child]:max-w-[1800px] [&>div:first-child]:px-4 md:[&>div:first-child]:px-12 min-[1681px]:[&>div:first-child]:px-14"
+					: "[&>div:first-child]:px-3 md:[&>div:first-child]:max-w-none md:[&>div:first-child]:px-0 md:px-8",
 				// 0 padding on bottom for larger screens when subnav is showing
 				effectiveSubnav ? "pb-2 md:pb-0 md:pt-3 md:[&>div:first-child>div:first-child]:min-h-12 md:[&>div:first-child>div:first-child]:mb-3" : "md:py-4",
 				// Learn mode styling

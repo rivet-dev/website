@@ -14,7 +14,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { codeToHtml } from "shiki";
-import { EYEBROW_CLASS, SECTION_H2_CLASS } from "../typography";
+import { BODY_CLASS, EYEBROW_CLASS, SECTION_H2_CLASS } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import heroTheme from "@/lib/agent-os-hero-code-theme";
 
 // Client-side shiki highlighting hook
@@ -334,7 +335,7 @@ const UseCaseDetails = ({ config }: { config: UseCaseConfig }) => (
       </span>
     </div>
 
-    <p className="text-sm leading-relaxed text-ink-soft">
+    <p className={BODY_CLASS}>
       {config.description}
     </p>
 
@@ -398,15 +399,11 @@ export const ProblemSection = () => {
   return (
     <section
       id="problem"
-      className="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32"
+      className={`bg-paper ${SITE_SECTION_CLASS}`}
     >
-      <div className="mx-auto w-full max-w-7xl">
+      <div className={SITE_STANDARD_RAIL_CLASS}>
         <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Actors in action.</h2>
-          <p className="max-w-xl text-base leading-relaxed text-ink-soft md:text-lg lg:pt-1">
-            One primitive that adapts to agents, workflows, collaboration, and
-            more.
-          </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] lg:gap-16">

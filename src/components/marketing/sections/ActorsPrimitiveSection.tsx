@@ -3,11 +3,14 @@
 import { Database, Globe, Infinity, Layers, Wifi, GitBranch, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
+	BODY_CLASS,
+	CARD_TITLE_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 	SUBTITLE_CLASS,
 } from '../typography';
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from '../layout';
 
 const actorFeatures = [
 	{
@@ -43,8 +46,8 @@ const actorFeatures = [
 ];
 
 export const ActorsPrimitiveSection = () => (
-	<section className='relative border-t border-ink/10 px-6 py-16 md:py-32'>
-		<div className='mx-auto w-full max-w-7xl'>
+	<section className={`relative bg-paper ${SITE_SECTION_CLASS}`}>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<div className='max-w-3xl'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -93,8 +96,8 @@ export const ActorsPrimitiveSection = () => (
 							className='border-t border-ink/10 py-6'
 						>
 							<Icon className='mb-2 h-4 w-4 text-olive' />
-							<h3 className='mb-1 text-sm font-medium text-ink'>{feature.title}</h3>
-							<p className='text-sm leading-relaxed text-ink-soft'>{feature.description}</p>
+							<h3 className={`mb-1 ${CARD_TITLE_CLASS}`}>{feature.title}</h3>
+							<p className={BODY_CLASS}>{feature.description}</p>
 						</motion.div>
 					);
 				})}

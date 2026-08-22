@@ -63,7 +63,7 @@ export const InkPanel = ({
 		) : null}
 		<div className="relative">{children}</div>
 		{caption ? (
-			<div className="relative flex items-center justify-between gap-4 border-t border-cream/10 px-5 py-3 font-mono text-[11px] text-cream/45">
+			<div className="relative flex items-center justify-between gap-4 border-t border-cream/10 px-5 py-3 text-xs text-cream/45">
 				<span>{caption}</span>
 				{captionAside ? <span>{captionAside}</span> : null}
 			</div>

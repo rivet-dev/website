@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
+import { SITE_PAGE_CLASS } from '@/components/marketing/layout';
 
 interface Props {
 	title: string;
@@ -60,17 +61,11 @@ const articleSchema = {
 	keywords={keywords}
 	articleAuthor={authorName}
 	articleSection={category}
+	pageFamily="site"
 >
 	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-	<Header active="blog" variant="floating" client:load />
-	<div class="paper-grain selection-paper relative z-10 w-full font-sans">
+	<Header active="blog" variant="floating" pageFamily="site" client:load />
+	<div class:list={[SITE_PAGE_CLASS, 'relative z-10 w-full']}>
 		<slot />
 	</div>
 </BaseLayout>
-
-<!-- Blog and changelog pages sit on the porcelain field. -->
-<style is:global>
-	body {
-		background-color: #efefef;
-	}
-</style>

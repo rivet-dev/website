@@ -1,11 +1,13 @@
 import { ArrowRight, Check } from "lucide-react";
 import { PerimeterDiagram } from "../editorial/PerimeterDiagram";
 import {
+	BODY_CLASS,
   PRIMARY_INK_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
   SECTION_H2_CLASS,
   SECTION_LEDE_CLASS,
 } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const points = [
   "Air-gapped and on-prem: no outbound connections, telemetry off with one flag",
@@ -22,8 +24,8 @@ const perimeterNodes = [
 ];
 
 export const OnPremSection = () => (
-  <section className="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
-    <div className="mx-auto max-w-7xl">
+  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <div>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
@@ -38,7 +40,7 @@ export const OnPremSection = () => (
             {points.map((point) => (
               <li
                 key={point}
-                className="flex items-start gap-3 py-4 text-sm leading-relaxed text-ink-soft"
+                className={`flex items-start gap-3 py-4 ${BODY_CLASS}`}
               >
                 <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/60 bg-pine/[0.08]">
                   <Check className="h-3 w-3 text-pine" aria-hidden="true" />

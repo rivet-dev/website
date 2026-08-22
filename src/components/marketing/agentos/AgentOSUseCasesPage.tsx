@@ -197,7 +197,7 @@ export default function AgentOSUseCasesPage() {
 				</section>
 
 				{/* Use Cases Grid */}
-				<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
+				<section className='px-6 py-16 md:py-32'>
 					<div className='mx-auto max-w-7xl'>
 						<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
 							{useCases.map((useCase, i) => (
@@ -208,7 +208,7 @@ export default function AgentOSUseCasesPage() {
 				</section>
 
 				{/* CTA */}
-				<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
+				<section className='px-6 py-16 md:py-32'>
 					<div className='mx-auto max-w-3xl text-center'>
 						<motion.h2
 							initial={{ opacity: 0, y: 20 }}

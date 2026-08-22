@@ -6,29 +6,28 @@ import type { ReactNode } from 'react';
 
 // Hero H1 on porcelain marketing pages.
 export const HERO_H1_CLASS =
-	'text-4xl font-medium leading-[1.06] tracking-[-0.015em] text-ink text-balance md:text-6xl';
+	'text-balance text-[2.25rem] font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-[3.5rem]';
 
 // Shared H2 metric. Keep the color separate so light and ink surfaces can use
 // the same balanced typography without competing text-color utilities.
 export const SECTION_H2_BASE_CLASS =
-	'text-balance text-3xl font-medium tracking-[-0.015em] md:text-4xl';
+	'text-balance text-[1.75rem] font-medium leading-tight tracking-[-0.015em] md:text-[2rem]';
 export const SECTION_H2_CLASS = `${SECTION_H2_BASE_CLASS} text-ink`;
 
 // Muted subtitle that sits under a hero or section heading.
 export const SUBTITLE_CLASS =
-	'mt-4 text-balance text-base leading-relaxed text-ink-soft';
+	'mt-4 text-balance text-[17px] leading-relaxed text-ink-soft';
 
 // Section lede under an H2, at the agentOS metric. Left-aligned and centered
 // variants; margins are baked in so callers never append competing spacing.
 export const SECTION_LEDE_CLASS =
-	'mt-5 max-w-xl text-balance text-base leading-relaxed text-ink-soft md:text-lg';
+	'mt-5 max-w-xl text-balance text-[17px] leading-relaxed text-ink-soft';
 export const SECTION_LEDE_CENTERED_CLASS =
-	'mx-auto mt-5 max-w-3xl text-balance text-base leading-relaxed text-ink-soft md:text-lg';
+	'mx-auto mt-5 max-w-3xl text-balance text-[17px] leading-relaxed text-ink-soft';
 
-// Marketing pages ship at ~90% density, applied by MarketingLayout around its
-// slot. Header and Footer stay un-zoomed. The agentOS hero logo counter-zooms
-// with the inverse; see AgentOSPage.
-export const MARKETING_PAGE_ZOOM = 0.9;
+// Default long-form and card copy on site surfaces. Labels and captions use
+// the quieter 14px and 12px metrics below instead.
+export const BODY_CLASS = 'text-[15px] leading-relaxed text-ink-soft';
 
 // Quiet section label: plain sans, sentence case, no letterspacing. The old
 // mono uppercase eyebrow (and its numbered "Fig. NN" variants) is retired.
@@ -40,17 +39,22 @@ export const EYEBROW_ON_INK_CLASS = 'text-sm font-medium text-cream/60';
 // Image and plate caption. Sans, sentence case, no figure numbering.
 export const CAPTION_CLASS = 'text-xs text-ink-faint';
 
+// Shared title metric for marketing cards and horizontal callouts.
+export const CARD_TITLE_BASE_CLASS =
+	'text-lg font-medium leading-snug tracking-[-0.01em] md:text-xl';
+export const CARD_TITLE_CLASS = `${CARD_TITLE_BASE_CLASS} text-ink`;
+
 // Product hero, matching the agentOS hero shell: centered on the porcelain
 // field with a single heading, one description paragraph, and the shared CTA
 // pair below it. No min-height — the hero visual sets the depth.
 export const PRODUCT_HERO_SECTION_CLASS =
-	'depth-wash relative flex flex-col justify-center overflow-hidden bg-paper px-6 pt-44 pb-28 md:pt-52 md:pb-32';
+	'depth-wash relative flex flex-col justify-center overflow-hidden bg-paper px-4 pb-24 pt-36 md:px-12 md:pb-28 md:pt-44 min-[1681px]:px-14';
 export const PRODUCT_HERO_INNER_CLASS =
 	'mx-auto flex w-full max-w-5xl flex-col items-center text-center';
 export const PRODUCT_HERO_H1_CLASS =
-	'mb-4 max-w-5xl text-balance text-4xl font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-5xl';
+	'mb-4 max-w-5xl text-balance text-[2.25rem] font-medium leading-[1.06] tracking-[-0.015em] text-ink md:text-5xl';
 export const PRODUCT_HERO_SUBTITLE_CLASS =
-	'mb-7 max-w-3xl text-balance text-base leading-relaxed text-ink-soft md:text-lg';
+	'mb-7 max-w-3xl text-balance text-[17px] leading-relaxed text-ink-soft';
 export const PRODUCT_HERO_CTA_ROW_CLASS =
 	'flex w-full flex-col flex-wrap items-center gap-x-4 gap-y-3 sm:flex-row sm:justify-center';
 

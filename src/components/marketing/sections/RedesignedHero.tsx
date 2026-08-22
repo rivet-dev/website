@@ -9,6 +9,10 @@ import {
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 } from "../typography";
 import { GLOW_PILL_SURFACE_CLASS, handleGlowPillMouseMove } from "../glowPill";
+import {
+  SITE_STANDARD_RAIL_CLASS,
+  SITE_UTILITY_HERO_CLASS,
+} from "../layout";
 
 interface ThinkingImage {
   src: string;
@@ -244,7 +248,7 @@ const CopyInstallButton = () => {
           npx skills add rivet-dev/skills
         </code>
       </noscript>
-      <div className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 translate-y-2 whitespace-nowrap font-mono text-xs text-ink-faint opacity-0 transition-all duration-200 ease-out motion-reduce:translate-y-0 motion-reduce:transition-none group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+      <div className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 translate-y-2 whitespace-nowrap text-xs text-ink-faint opacity-0 transition-all duration-200 ease-out motion-reduce:translate-y-0 motion-reduce:transition-none group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
         Give this to your coding agent
       </div>
     </div>
@@ -287,8 +291,8 @@ export const RedesignedHero = ({
   latestChangelogHref,
   thinkingImages,
 }: RedesignedHeroProps) => (
-  <section className="depth-wash relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 pb-16 pt-32 md:pb-24 md:pt-40">
-    <div className="relative mx-auto w-full max-w-7xl">
+  <section className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}>
+    <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
       <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
         <div className="max-w-2xl">
           <div className="mb-7">
@@ -299,7 +303,7 @@ export const RedesignedHero = ({
             >
               <span
                 aria-hidden="true"
-                className="h-1 w-1 rounded-full bg-accent"
+                className="h-1.5 w-1.5 bg-accent"
                 style={{
                   boxShadow:
                     "0 0 2px rgba(203, 90, 51, 0.9), 0 0 6px rgba(203, 90, 51, 0.5), 0 0 14px rgba(171, 69, 31, 0.35)",
@@ -315,9 +319,9 @@ export const RedesignedHero = ({
             agentic era.
           </h1>
 
-          <p className="mb-8 max-w-xl text-lg leading-relaxed text-ink-soft">
+          <p className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft">
             <ProductVerb href="/actors" accent="actors">
-              Run
+              Orchestrate
             </ProductVerb>{" "}
             agents.{" "}
             <ProductVerb href="/agentos" accent="agentos">

@@ -4,6 +4,7 @@ import {
   EYEBROW_CLASS,
   SECTION_H2_CLASS,
 } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const integrations = integrationsFor("actors");
 
@@ -95,8 +96,8 @@ const groups: StackGroup[] = [
 ];
 
 export const IntegrationsSection = () => (
-  <section className="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
-    <div className="mx-auto max-w-7xl">
+  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Works with your stack.

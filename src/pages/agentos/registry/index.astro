@@ -5,7 +5,12 @@ import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import RegistryPageClient from '@/components/marketing/registry/RegistryPageClient';
 import type { RegistryCardEntry } from '@/components/marketing/registry/RegistryPageClient';
 import { registry } from '@/data/registry';
-import { HERO_H1_CLASS } from '@/components/marketing/typography';
+import {
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
+import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
 
 // Slim each entry down to the fields the storefront renders so multi-line
 // config examples never ship in the island's serialized props.
@@ -31,24 +36,20 @@ const entries: RegistryCardEntry[] = registry.map((entry) => ({
 	description="Browse agents, bindings, file systems, and sandbox mounting for agentOS."
 	canonicalUrl="https://rivet.dev/agentos/registry/"
 >
-	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen w-full bg-paper font-sans text-ink-soft" style="overflow-x: clip;">
-		<div class="relative isolate pt-16">
-			<div class="mx-auto max-w-5xl px-6 lg:px-8">
+	<main id="main-content" tabindex="-1">
+		<section class={SITE_UTILITY_HERO_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
 				<h1 class={HERO_H1_CLASS}>agentOS Registry</h1>
-				<p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-soft">
+				<p class={`${SUBTITLE_CLASS} max-w-2xl`}>
 					Agents, file systems, browsers, and software packages for agentOS.
 				</p>
 			</div>
-		</div>
+		</section>
 
-		<div class="mx-auto max-w-5xl px-6 pb-24 pt-12 lg:px-8">
-			<RegistryPageClient entries={entries} hrefBase="/agentos/registry" client:load />
-		</div>
+		<section class={SITE_SECTION_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<RegistryPageClient entries={entries} hrefBase="/agentos/registry" client:load />
+			</div>
+		</section>
 	</main>
 </MarketingLayout>
-
-<style is:global>
-	body {
-		background-color: #efefef;
-	}
-</style>

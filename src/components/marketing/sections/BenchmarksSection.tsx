@@ -1,5 +1,6 @@
 import { SECTION_H2_CLASS } from "../typography";
 import { BenchInfoTooltip } from "../bench/BenchCard";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 interface BarEntry {
   label: string;
@@ -149,15 +150,15 @@ const benchmarks: BenchmarkCard[] = [
 
 export const BenchmarksSection = () => {
   return (
-    <section className="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
-      <div className="mx-auto w-full max-w-7xl">
+    <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+      <div className={SITE_STANDARD_RAIL_CLASS}>
         <div className="mb-12 md:mb-16">
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             How Actors Compare
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 overflow-hidden rounded-2xl border-l border-t border-ink/10 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 overflow-hidden rounded-xl border-l border-t border-ink/10 sm:grid-cols-2 xl:grid-cols-3">
           {benchmarks.map((card) => {
             const accent = card.bars.find((bar) => bar.highlight);
             const stat = card.hero ?? accent?.value ?? "";
@@ -189,7 +190,7 @@ export const BenchmarksSection = () => {
                       className="flex items-baseline justify-between gap-4 py-2.5"
                     >
                       <span
-                        className={`inline-flex min-w-0 items-baseline text-[13px] ${bar.highlight ? "font-medium text-ink" : "font-normal text-ink-faint"}`}
+                        className={`inline-flex min-w-0 items-baseline text-sm ${bar.highlight ? "font-medium text-ink" : "font-normal text-ink-faint"}`}
                       >
                         {bar.label}
                         {bar.note ? (
@@ -206,7 +207,7 @@ export const BenchmarksSection = () => {
                 </div>
 
                 {card.note ? (
-                  <p className="mt-auto text-[10px] leading-relaxed text-ink-faint">
+                  <p className="mt-auto text-xs leading-relaxed text-ink-faint">
                     {card.note}
                   </p>
                 ) : null}

@@ -4,13 +4,14 @@ import {
   EYEBROW_CLASS,
   SECTION_H2_CLASS,
 } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const PLATFORM_LINK_CLASS =
   "inline-flex items-center rounded-md border border-ink/10 bg-white/55 px-2.5 py-1 text-sm text-ink-soft transition-colors hover:border-ink/25 hover:bg-white hover:text-ink";
 
 export const HostingSection = () => (
-  <section className="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
-    <div className="mx-auto max-w-7xl">
+  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           Start local. Deploy when ready.
@@ -24,7 +25,7 @@ export const HostingSection = () => (
         className="mt-12"
       />
 
-      <div className="mt-12 border-t border-ink/15 pt-5">
+      <div className="mt-12">
         <p className={EYEBROW_CLASS}>Your backend deploys to</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {deployOptionsForRole("worker").map(

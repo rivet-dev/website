@@ -31,6 +31,8 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import actorsLogoUrl from '@/images/products/actors-logo.svg';
+import workflowsLogoUrl from '@/images/products/workflows-logo.svg';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
@@ -38,19 +40,26 @@ import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
 import { CopyInstallCommand } from '@/components/marketing/ProductHeroCta';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import {
+	CARD_TITLE_CLASS,
 	EYEBROW_CLASS,
 	INK_PANEL_GHOST_BUTTON_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
-	MARKETING_PAGE_ZOOM,
 	PRIMARY_INK_BUTTON_CLASS,
 	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
 	SECTION_LEDE_CENTERED_CLASS,
 	SECTION_LEDE_CLASS,
 	SectionHeading,
 } from '@/components/marketing/typography';
+import {
+	SITE_CARD_CLASS,
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+} from '@/components/marketing/layout';
 import { ColdStartTimeline } from '@/components/marketing/diagrams/ColdStartTimeline';
 import { AgentSessionDemo } from '@/components/marketing/diagrams/AgentSessionDemo';
 import { AgentOsTopologyCell, SandboxTopologyCell } from '@/components/marketing/diagrams/TopologyCells';
@@ -59,7 +68,7 @@ import { Reveal } from '@/components/marketing/motion';
 // Porcelain card surface shared by the architecture cards and feature bento:
 // a flat translucent fill and hairline ring, with no drop shadow.
 const CARD_SURFACE =
-	'rounded-2xl bg-white/55 ring-1 ring-ink/[0.08] ' + 'transition-[background-color,--tw-ring-color] duration-300 ' + 'hover:bg-white hover:ring-ink/[0.14] ' + 'motion-reduce:transition-none';
+	'rounded-xl border border-ink/10 bg-white/55 ' + 'transition-[background-color,border-color] duration-300 ' + 'hover:border-ink/15 hover:bg-white ' + 'motion-reduce:transition-none';
 
 interface HeroTabCode {
 	key: string;
@@ -320,6 +329,7 @@ interface HeroTabEntry {
 	label: string;
 	docsHref: string;
 	docsLabel?: string;
+	docsLogo?: string;
 	fileName?: string;
 	code?: string;
 	highlightedCode?: string;
@@ -544,6 +554,8 @@ interface HeroTabMeta {
 	label: string;
 	docsHref: string;
 	docsLabel: string;
+	/** Product wordmark rendered as a mini ink tile beside the docs link. */
+	docsLogo?: string;
 }
 
 const orchestrationTabMeta: HeroTabMeta[] = [
@@ -553,6 +565,7 @@ const orchestrationTabMeta: HeroTabMeta[] = [
 		label: 'Durable Workflows',
 		docsHref: '/workflows/docs',
 		docsLabel: 'Workflows docs',
+		docsLogo: workflowsLogoUrl.src,
 	},
 	{
 		key: 'multiplayer',
@@ -684,8 +697,8 @@ const Hero = () => {
 	return (
 		// Keep the hero height tied to the viewport, as on the main landing page,
 		// while preserving enough room below the foundation tiles.
-		<section className='depth-wash relative flex min-h-[92svh] flex-col justify-center overflow-hidden bg-paper px-6 pt-44 pb-28 md:pt-52 md:pb-32'>
-			<div className='mx-auto flex w-full max-w-5xl flex-col items-center text-center'>
+		<section className={`${PRODUCT_HERO_SECTION_CLASS} min-h-[92svh]`}>
+			<div className={PRODUCT_HERO_INNER_CLASS}>
 				{/* Centered single-column hero */}
 				<div className='flex w-full flex-col items-center text-center'>
 					{/* Title */}
@@ -693,10 +706,6 @@ const Hero = () => {
 						id='hero-logo'
 						{...introMotion(1)}
 						className='mb-7 flex'
-						// Counter-zoom back to effective 100%: the logo's stroke-draw mask
-						// (userSpaceOnUse) renders unreliably under an ancestor CSS zoom in
-						// some browsers, and this is the page's only masked SVG animation.
-						style={{ zoom: 1 / MARKETING_PAGE_ZOOM }}
 					>
 						<AnimatedAgentOSLogo className='h-11 w-auto md:h-12' displayedAgent={autoPlayAgent} />
 					</motion.div>
@@ -1017,7 +1026,8 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 			</div>
 			{active && (
 				<div className='mt-4 flex justify-end'>
-					<a href={active.docsHref} className='whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
+					<a href={active.docsHref} className='inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
+						{active.docsLogo ? <ProductMiniMark logoSrc={active.docsLogo} className='size-4' /> : null}
 						{active.docsLabel ?? `${active.label} docs`} <span aria-hidden='true'>→</span>
 					</a>
 				</div>
@@ -1026,16 +1036,25 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 	);
 };
 
+// Miniature of the product-hero lockup tile: cream-masked wordmark on an ink
+// chip, for inline product mentions.
+const ProductMiniMark = ({ logoSrc, className = 'size-4' }: { logoSrc: string; className?: string }) => (
+	<span aria-hidden='true' className={`inline-flex shrink-0 items-center justify-center rounded-[34.375%] bg-ink ${className}`}>
+		<span style={wordmarkMaskStyle(logoSrc)} className='block h-full w-full bg-cream' />
+	</span>
+);
+
 const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
-	<section id='orchestration' className='scroll-mt-24 border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32'>
-		<div className='mx-auto max-w-7xl'>
+	<section id='orchestration' className={`scroll-mt-24 ${SITE_SECTION_CLASS}`}>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<Reveal>
 				<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 					<div>
 						<h2 className={SECTION_H2_CLASS}>Coordinate agents. Automate durable work.</h2>
 						<p className={SECTION_LEDE_CLASS}>
 							agentOS owns the agent&apos;s computer: its files, processes, shell, and network. Connect agents and share live sessions here; use{' '}
-							<a href='/workflows' className='font-medium text-pine underline underline-offset-2'>
+							<a href='/workflows' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
+								<ProductMiniMark logoSrc={workflowsLogoUrl.src} className='mr-1 size-4 align-[-3px]' />
 								Workflows
 							</a>{' '}
 							when multi-step work must wait, retry, and resume.
@@ -1054,7 +1073,7 @@ const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
 const ActorsAttribution = () => (
 	<aside className='mt-7 border-t border-ink/10 pt-5 text-ink'>
 		<div className='flex items-start gap-3'>
-			<img src={actorsLogoUrl.src} alt='' aria-hidden='true' className='mt-0.5 h-4 w-4 shrink-0 opacity-70 brightness-0' />
+			<ProductMiniMark logoSrc={actorsLogoUrl.src} className='mt-0.5 size-5' />
 			<div>
 				<p className='text-xs font-medium text-ink'>Powered by Rivet Actors</p>
 				<p className='mt-1.5 max-w-sm text-xs leading-relaxed text-ink-soft'>Each agent lives in an Actor with durable identity, state, queues, storage, and realtime connections.</p>
@@ -1171,8 +1190,8 @@ const FilesystemSection = ({ highlightedCode }: { highlightedCode: string }) => 
 	const [showCode, setShowCode] = useState(false);
 
 	return (
-		<section id='filesystem' className='scroll-mt-24 border-t border-ink/10 bg-paper px-6 py-16 text-ink md:py-24'>
-			<div className='mx-auto max-w-7xl'>
+		<section id='filesystem' className={`scroll-mt-24 text-ink ${SITE_SECTION_CLASS}`}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<Reveal>
 					<div className='grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16'>
 						<div className='lg:order-2'>
@@ -1241,8 +1260,8 @@ const executionFeatures = [
 ];
 
 const ExecutionSection = () => (
-	<section id='execution' className='scroll-mt-24 border-t border-ink/10 bg-paper-mid px-6 py-24 md:py-32'>
-		<div className='mx-auto max-w-7xl'>
+	<section id='execution' className={`scroll-mt-24 ${SITE_SECTION_CLASS}`}>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<Reveal>
 				<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
 					<div>
@@ -1409,8 +1428,8 @@ const RegistrySection = () => {
 	};
 
 	return (
-		<section id='registry-ecosystem' className='scroll-mt-24 border-t border-ink/10 bg-paper px-6 py-20 text-ink md:py-32'>
-			<div className='mx-auto max-w-7xl'>
+		<section id='registry-ecosystem' className={`scroll-mt-24 text-ink ${SITE_SECTION_CLASS}`}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<Reveal>
 					<div className='mx-auto max-w-5xl text-center'>
 						<h2 className={SECTION_H2_CLASS}>Whatever the workload, there&apos;s a package for it.</h2>
@@ -1623,7 +1642,7 @@ function BenchCard({
 	const [inView, setInView] = useState(false);
 
 	return (
-		<motion.div className={`flex h-full flex-col p-6 md:p-7 ${CARD_SURFACE}`} onViewportEnter={() => setInView(true)} viewport={{ once: true, margin: '-10% 0px' }}>
+		<motion.div className={`flex h-full flex-col p-6 md:p-8 ${CARD_SURFACE}`} onViewportEnter={() => setInView(true)} viewport={{ once: true, margin: '-10% 0px' }}>
 			<div className='flex min-h-[2.5rem] items-start justify-between gap-3'>
 				<span className='text-sm font-medium text-ink'>{title}</span>
 				{onHelp ? (
@@ -1670,7 +1689,7 @@ function BenchCard({
 			{/* Caption bar flush with the card foot: holds the tier options or a
           one-line measurement note. */}
 			{toggle || note ? (
-				<div className='-mx-6 -mb-6 mt-auto border-t border-ink/10 px-6 py-2.5 text-[11px] font-medium leading-relaxed text-ink-faint md:-mx-7 md:-mb-7 md:px-7'>{toggle ?? note}</div>
+				<div className='-mx-6 -mb-6 mt-auto border-t border-ink/10 px-6 py-2.5 text-[11px] font-medium leading-relaxed text-ink-faint md:-mx-8 md:-mb-8 md:px-8'>{toggle ?? note}</div>
 			) : null}
 		</motion.div>
 	);
@@ -2020,7 +2039,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 				duration: reduceMotion ? 0 : 0.5,
 				delay: reduceMotion ? 0 : delay,
 			}}
-			className='group relative block min-h-[24rem] cursor-pointer overflow-hidden rounded-2xl bg-white/55 ring-1 ring-ink/[0.10] transition-[background-color,--tw-ring-color] duration-300 hover:bg-white hover:ring-ink/[0.18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none lg:aspect-square lg:min-h-0'
+			className='group relative block min-h-[24rem] cursor-pointer overflow-hidden rounded-xl border border-ink/10 bg-white/55 transition-[background-color,border-color] duration-300 hover:border-ink/15 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none lg:aspect-square lg:min-h-0'
 		>
 			<div aria-hidden='true' className='absolute inset-0'>
 				{card.bubbles.map((bubble) => {
@@ -2043,7 +2062,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 												},
 											},
 								}}
-								className='flex flex-col items-center justify-center rounded-2xl bg-ink/[0.035] opacity-65 grayscale ring-1 ring-ink/[0.08] transition-[filter,opacity,background-color,--tw-ring-color] duration-300 group-hover:bg-white group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 motion-reduce:transition-none'
+								className='flex flex-col items-center justify-center rounded-xl bg-ink/[0.035] opacity-65 grayscale ring-1 ring-ink/[0.08] transition-[filter,opacity,background-color,--tw-ring-color] duration-300 group-hover:bg-white group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 motion-reduce:transition-none'
 								style={{
 									width: bubble.size,
 									height: bubble.size,
@@ -2065,8 +2084,8 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 			</div>
 			<div className='pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/95 to-transparent' />
 			<div className='absolute inset-x-0 bottom-0 p-6 md:p-8'>
-				<h3 className='text-2xl font-medium tracking-[-0.015em] text-ink md:text-3xl'>{card.title}</h3>
-				<p className='mt-2 text-sm leading-relaxed text-ink-soft md:text-base'>{card.description}</p>
+				<h3 className={CARD_TITLE_CLASS}>{card.title}</h3>
+				<p className='mt-2 text-[15px] leading-relaxed text-ink-soft'>{card.description}</p>
 			</div>
 		</motion.a>
 	);
@@ -2091,7 +2110,7 @@ const FloatingFoundation = () => {
 					duration: reduceMotion ? 0 : 0.5,
 					delay: reduceMotion ? 0 : HERO_INTRO_STAGGER * (foundationCards.length + 6),
 				}}
-				className='group mx-auto mt-9 flex w-fit max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-sm leading-relaxed text-ink-soft no-underline transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 focus-visible:ring-offset-2'
+				className='group mx-auto mt-9 flex w-fit max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[15px] leading-relaxed text-ink-soft no-underline transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 focus-visible:ring-offset-2'
 			>
 				<span className='font-medium text-ink'>Dynamic Apps</span>
 				<span>Deploy AI-generated applications for each of your users.</span>
@@ -2108,8 +2127,8 @@ const AgentCompatibilitySection = () => {
 	const reduceMotion = useReducedMotion() ?? false;
 
 	return (
-		<section className='border-t border-ink/10 bg-paper-mid px-6 py-16 text-ink md:py-24'>
-			<div className='mx-auto max-w-7xl'>
+		<section className={`text-ink ${SITE_SECTION_CLASS}`}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<Reveal>
 					<div className='mx-auto max-w-4xl text-center'>
 						<h2 className={SECTION_H2_CLASS}>Bring any agent or framework.</h2>
@@ -2137,7 +2156,7 @@ const AgentCompatibilitySection = () => {
 											ease: [0.22, 1, 0.36, 1],
 										}}
 										style={{ zIndex: i }}
-										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white md:h-16 md:w-16'
+										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl border border-ink/10 bg-white md:h-16 md:w-16'
 									>
 										<img src={agent.src} alt='' aria-hidden='true' className='h-8 w-8 object-contain md:h-9 md:w-9' />
 										<span className='pointer-events-none absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-soft opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'>
@@ -2169,7 +2188,7 @@ const AgentCompatibilitySection = () => {
 											ease: [0.22, 1, 0.36, 1],
 										}}
 										style={{ zIndex: i }}
-										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-white md:h-16 md:w-16'
+										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl border border-ink/10 bg-white md:h-16 md:w-16'
 									>
 										<img
 											src={framework.src}
@@ -2406,7 +2425,7 @@ function RuntimeCostMeter() {
 }
 
 const RuntimeArgumentSection = () => (
-	<section className='border-t border-ink/10 bg-paper px-6 py-32 text-ink md:py-40'>
+	<section className={`text-ink ${SITE_SECTION_CLASS}`}>
 		<style>{`
 			.runtime-benchmark-dot {
 				width: 6px;
@@ -2440,7 +2459,7 @@ const RuntimeArgumentSection = () => (
 				.runtime-benchmark-dot--fast { background: rgba(48, 91, 70, 0.65); }
 			}
 		`}</style>
-		<div className='mx-auto max-w-7xl'>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<Reveal>
 				<div className='mx-auto mb-12 max-w-5xl text-center md:mb-16'>
 					<h2 className={SECTION_H2_CLASS}>
@@ -2448,7 +2467,7 @@ const RuntimeArgumentSection = () => (
 						<br />
 						Isolation built on WebAssembly.
 					</h2>
-					<div className='mx-auto mt-7 flex max-w-4xl flex-col items-center gap-2 text-balance text-base leading-relaxed text-ink-soft md:text-lg'>
+					<div className='mx-auto mt-7 flex max-w-4xl flex-col items-center gap-2 text-balance text-[17px] leading-relaxed text-ink-soft'>
 						<p className='flex w-full flex-wrap items-center justify-center gap-x-1.5'>
 							<span>Powered by</span>
 							<span className='inline-flex items-center gap-1 whitespace-nowrap'>
@@ -2485,7 +2504,7 @@ const RuntimeArgumentSection = () => (
 			</Reveal>
 
 			<Reveal>
-				<div className='grid overflow-hidden rounded-2xl border-l border-t border-ink/10 sm:grid-cols-2 lg:grid-cols-3'>
+				<div className='grid overflow-hidden rounded-xl border-l border-t border-ink/10 sm:grid-cols-2 lg:grid-cols-3'>
 					<article id='bench-cold-start' className='flex min-h-[25rem] scroll-mt-24 flex-col border-b border-r border-ink/10 bg-white/55 p-6 md:p-8'>
 						<div className='flex items-center gap-2'>
 							<h3 className='text-sm font-medium text-ink-soft'>Cold starts</h3>
@@ -2578,7 +2597,7 @@ const RuntimeArgumentSection = () => (
 								{feature.title}
 								<span className='text-ink-faint'>, {feature.contrast}</span>
 							</h3>
-							<p className='mt-4 max-w-sm text-sm leading-relaxed text-ink-soft'>{feature.description}</p>
+							<p className='mt-4 max-w-sm text-[15px] leading-relaxed text-ink-soft'>{feature.description}</p>
 						</article>
 					))}
 				</div>
@@ -2671,8 +2690,8 @@ const secondaryFeatures = [
 ];
 
 const SecondaryFeaturesSection = () => (
-	<section className='border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-24'>
-		<div className='mx-auto max-w-7xl'>
+	<section className={`${SITE_SECTION_CLASS}`}>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<Reveal>
 				<div className='mx-auto max-w-4xl text-center'>
 					<h2 className={SECTION_H2_CLASS}>Built for flexible agent workloads.</h2>
@@ -2681,21 +2700,21 @@ const SecondaryFeaturesSection = () => (
 			</Reveal>
 
 			<Reveal>
-				<div className='mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 md:mt-20 lg:grid-cols-3 lg:gap-x-14 lg:gap-y-16'>
+				<div className='mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
 					{secondaryFeatures.map((feature) => {
 						const Icon = feature.icon;
 						return (
 							<a
 								key={feature.title}
 								href={feature.docsHref}
-								className='group -m-4 block cursor-pointer rounded-xl p-4 ring-1 ring-transparent transition-[background-color,--tw-ring-color] duration-200 hover:bg-white/60 hover:ring-ink/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 motion-reduce:transition-none'
+								className={`group block cursor-pointer transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 motion-reduce:transition-none ${SITE_CARD_CLASS}`}
 							>
 								<span className='flex items-center gap-3'>
 									<Icon className='h-5 w-5 text-ink-soft transition-colors group-hover:text-ink' />
-									<span className='text-lg font-medium tracking-[-0.015em] text-ink'>{feature.title}</span>
+									<span className={CARD_TITLE_CLASS}>{feature.title}</span>
 									<ArrowRight className='ml-auto h-4 w-4 -translate-x-1 text-ink-faint opacity-0 transition-[opacity,transform,color] duration-200 group-hover:translate-x-0 group-hover:text-ink-soft group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100' />
 								</span>
-								<span className='mt-4 block text-base leading-relaxed text-ink-soft transition-colors group-hover:text-ink'>{feature.description}</span>
+								<span className='mt-4 block text-[15px] leading-relaxed text-ink-soft transition-colors group-hover:text-ink'>{feature.description}</span>
 							</a>
 						);
 					})}
@@ -2755,8 +2774,8 @@ const ColdStartModal = ({ open, onClose }: { open: boolean; onClose: () => void 
 };
 
 const ComparisonSection = () => (
-	<section className='border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32'>
-		<div className='mx-auto max-w-7xl'>
+	<section className={`${SITE_SECTION_CLASS}`}>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<Reveal>
 				<SectionHeading
 					title={
@@ -2795,8 +2814,8 @@ const BenchmarksSection = () => {
 
 	return (
 		<>
-			<section className='border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32'>
-				<div className='mx-auto max-w-7xl'>
+			<section className={`${SITE_SECTION_CLASS}`}>
+				<div className={SITE_STANDARD_RAIL_CLASS}>
 					<Reveal>
 						<div className='mb-8 flex items-baseline justify-between gap-4'>
 							<h2 className={SECTION_H2_CLASS}>What staying in-process saves.</h2>
@@ -2832,13 +2851,13 @@ const DeploymentSection = () => {
 	});
 
 	return (
-		<section className='border-t border-ink/10 bg-paper py-16 md:py-32'>
-			<div className='mx-auto max-w-7xl px-6'>
+		<section className={`${SITE_SECTION_CLASS}`}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<div className='mb-12'>
 					<motion.h2 {...revealMotion()} className={`mb-2 ${SECTION_H2_CLASS}`}>
 						Develop locally. Deploy when ready.
 					</motion.h2>
-					<motion.p {...revealMotion(0.1)} className='max-w-xl text-base leading-relaxed text-ink-soft'>
+					<motion.p {...revealMotion(0.1)} className='max-w-xl text-[17px] leading-relaxed text-ink-soft'>
 						Deploy on Rivet Cloud, or self-host Rivet inside your own infrastructure.
 					</motion.p>
 				</div>
@@ -2865,24 +2884,19 @@ const ClosingCta = () => (
 );
 
 // --- Main Page ---
-// Section surfaces intentionally alternate paper / paper-mid in the render
-// order below. If sections move, update their background class to preserve the
-// light-tinted-light rhythm rather than following each component in isolation.
 export default function AgentOSPage({ heroTabs, filesystemHighlightedCode }: AgentOSPageProps) {
 	return (
-		<div className='paper-grain min-h-screen bg-paper font-sans text-ink-soft'>
-			<main id='main-content' tabIndex={-1}>
-				<Hero />
-				<AgentCompatibilitySection />
-				<RuntimeArgumentSection />
-				<ExecutionSection />
-				<FilesystemSection highlightedCode={filesystemHighlightedCode} />
-				<OrchestrationSection heroTabs={heroTabs} />
-				<RegistrySection />
-				<SecondaryFeaturesSection />
-				<DeploymentSection />
-				<ClosingCta />
-			</main>
-		</div>
+		<main id='main-content' tabIndex={-1}>
+			<Hero />
+			<AgentCompatibilitySection />
+			<RuntimeArgumentSection />
+			<ExecutionSection />
+			<FilesystemSection highlightedCode={filesystemHighlightedCode} />
+			<OrchestrationSection heroTabs={heroTabs} />
+			<RegistrySection />
+			<SecondaryFeaturesSection />
+			<DeploymentSection />
+			<ClosingCta />
+		</main>
 	);
 }

@@ -1,11 +1,17 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import {
+	BODY_CLASS,
 	HERO_H1_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
 	SECTION_H2_CLASS,
 	SECTION_LEDE_CLASS,
 } from '@/components/marketing/typography';
+import {
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
 
 const workAreas = [
 	{
@@ -61,13 +67,12 @@ const benefits = [
 	description="Join Rivet and help build open-source infrastructure for AI agents. Explore the systems we work on and view current roles."
 	canonicalUrl="https://rivet.dev/careers/"
 >
-	<div class="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
-		<main id="main-content" tabindex="-1">
+	<main id="main-content" tabindex="-1">
 			<!-- Hero -->
-			<section class="depth-wash relative overflow-hidden px-6 pb-0 pt-32 md:pt-44">
+			<section class={SITE_UTILITY_HERO_CLASS}>
 				<div class="career-grid absolute inset-0 opacity-60" aria-hidden="true"></div>
-				<div class="relative mx-auto w-full max-w-7xl">
-					<div class="flex min-h-[32rem] items-center justify-center pb-20 text-center lg:pb-24">
+				<div class={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
+					<div class="flex items-center justify-center text-center">
 						<div class="mx-auto max-w-4xl">
 							<h1 class={HERO_H1_CLASS}>Help us build infrastructure for AI agents.</h1>
 							<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -88,8 +93,8 @@ const benefits = [
 			</section>
 
 			<!-- Work -->
-			<section class="border-t border-ink/10 bg-paper-mid px-6 py-20 md:py-32">
-				<div class="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20">
+			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
 					<div class="max-w-md">
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>What we build.</h2>
 						<p class={SECTION_LEDE_CLASS}>
@@ -103,11 +108,11 @@ const benefits = [
 					<div class="border-t border-ink/15">
 						{workAreas.map((item) => (
 							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8">
-								<h3 class="text-base font-medium text-ink">{item.title}</h3>
-								<p class="text-sm leading-relaxed text-ink-soft">{item.body}</p>
+								<h3 class="text-lg font-medium text-ink">{item.title}</h3>
+								<p class={BODY_CLASS}>{item.body}</p>
 							</div>
 						))}
-						<p class="pt-6 font-mono text-xs leading-relaxed text-ink-faint">
+						<p class="pt-6 text-xs leading-relaxed text-ink-faint">
 							Rust · TypeScript · FoundationDB · Postgres · ClickHouse · NATS · SQLite
 						</p>
 					</div>
@@ -115,8 +120,8 @@ const benefits = [
 			</section>
 
 			<!-- AI policy -->
-			<section class="border-t border-ink/10 bg-paper px-6 py-20 md:py-28">
-				<div class="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20">
+			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
 					<div class="max-w-md">
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>How we use AI.</h2>
 						<p class={SECTION_LEDE_CLASS}>
@@ -128,7 +133,7 @@ const benefits = [
 						{aiPolicy.map((item) => (
 							<div class="grid gap-2 border-b border-ink/15 py-6 sm:grid-cols-[10rem_1fr] sm:gap-8">
 								<h3 class="text-sm font-medium text-ink">{item.area}</h3>
-								<p class="text-sm leading-relaxed text-ink-soft">{item.policy}</p>
+								<p class={BODY_CLASS}>{item.policy}</p>
 							</div>
 						))}
 					</div>
@@ -136,8 +141,8 @@ const benefits = [
 			</section>
 
 			<!-- Benefits -->
-			<section class="border-t border-ink/10 bg-paper-mid px-6 py-20 md:py-28">
-				<div class="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20">
+			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+				<div class={`grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:gap-20 ${SITE_STANDARD_RAIL_CLASS}`}>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Benefits.</h2>
 					<ul class="border-t border-ink/15">
 						{benefits.map((benefit) => (
@@ -150,8 +155,8 @@ const benefits = [
 			</section>
 
 			<!-- Open roles -->
-			<section id="open-positions" class="scroll-mt-24 border-t border-ink/10 px-6 py-20 md:py-32">
-				<div class="mx-auto w-full max-w-5xl">
+			<section id="open-positions" class={`scroll-mt-24 bg-paper ${SITE_SECTION_CLASS}`}>
+				<div class={SITE_STANDARD_RAIL_CLASS}>
 					<div class="max-w-3xl">
 						<h2 id="open-positions-heading" class={`text-balance ${SECTION_H2_CLASS}`}>Open positions.</h2>
 						<p class={SECTION_LEDE_CLASS}>
@@ -168,8 +173,7 @@ const benefits = [
 					</div>
 				</div>
 			</section>
-		</main>
-	</div>
+	</main>
 
 	<script is:inline data-astro-rerun>
 		(() => {

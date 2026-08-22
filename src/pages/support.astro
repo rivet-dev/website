@@ -1,6 +1,17 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { HERO_H1_CLASS } from '@/components/marketing/typography';
+import {
+	SITE_CARD_CLASS,
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
+import {
+	CARD_TITLE_CLASS,
+	HERO_H1_CLASS,
+	SUBTITLE_CLASS,
+} from '@/components/marketing/typography';
 import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 ---
 
@@ -9,33 +20,33 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 	description="Get help with Rivet Actors via email, Discord community, or documentation. Troubleshoot issues, request features, and connect with our team."
 	canonicalUrl="https://rivet.dev/support/"
 >
-	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen w-full bg-paper font-sans text-ink-soft">
-		<section class="depth-wash relative isolate overflow-hidden px-6 pt-40 pb-16 text-center">
-			<div class="mx-auto max-w-4xl">
+	<main id="main-content" tabindex="-1">
+		<section class={`${SITE_UTILITY_HERO_CLASS} text-center`}>
+			<div class={SITE_NARROW_RAIL_CLASS}>
 				<h1 class={HERO_H1_CLASS}>
 					Support
 				</h1>
-				<p class="mt-6 max-w-3xl mx-auto text-base leading-relaxed text-ink-soft md:text-lg">
+				<p class={`${SUBTITLE_CLASS} mx-auto max-w-3xl`}>
 					Get help with Rivet, from troubleshooting to feature
 					requests.
 				</p>
 			</div>
 		</section>
 
-		<section class="border-t border-ink/10 px-6 py-16 md:py-24">
-			<div class="mx-auto max-w-7xl">
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
 				<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
 				<!-- Email Tile -->
 				<a
 					href="mailto:support@rivet.dev"
-					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
+					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faEnvelope}
 							className="text-3xl text-pine mb-2"
 						/>
-						<span class="font-medium text-ink text-lg mb-1">
+						<span class={`mb-1 ${CARD_TITLE_CLASS}`}>
 							Email
 						</span>
 						<span class="text-ink-faint text-sm">
@@ -48,14 +59,14 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/discord"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
+					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faComments}
 							className="text-3xl text-pine mb-2"
 						/>
-						<span class="font-medium text-ink text-lg mb-1">
+						<span class={`mb-1 ${CARD_TITLE_CLASS}`}>
 							Discord
 						</span>
 						<span class="text-ink-faint text-sm">
@@ -68,14 +79,14 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 					href="https://rivet.dev/actors/docs"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="group relative flex h-[180px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-7 transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
+					class={`${SITE_CARD_CLASS} group relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden transition-colors duration-200 hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper`}
 				>
 					<div class="flex flex-col items-center">
 						<Icon
 							icon={faBook}
 							className="text-3xl text-pine mb-2"
 						/>
-						<span class="font-medium text-ink text-lg mb-1">
+						<span class={`mb-1 ${CARD_TITLE_CLASS}`}>
 							Docs
 						</span>
 						<span class="text-ink-faint text-sm">

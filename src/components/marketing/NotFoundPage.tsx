@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { SITE_UTILITY_HERO_CLASS } from './layout';
 import { PRIMARY_INK_BUTTON_CLASS } from './typography';
 
 interface NotFoundPageProps {
@@ -102,7 +103,11 @@ export const NotFoundPage = ({ thinkingImage }: NotFoundPageProps) => {
   const reduceMotion = useReducedMotion() ?? false;
 
   return (
-    <main id="main-content" tabIndex={-1} className="depth-wash relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className={`${SITE_UTILITY_HERO_CLASS} flex min-h-screen flex-col items-center justify-center`}
+    >
       <div className="flex flex-col items-center gap-8">
         {/* Thinking image */}
         <motion.figure
@@ -111,11 +116,11 @@ export const NotFoundPage = ({ thinkingImage }: NotFoundPageProps) => {
           transition={{ duration: reduceMotion ? 0 : 0.6 }}
           className="relative m-0 h-[350px] w-[280px] sm:h-[400px] sm:w-[320px]"
         >
-          <div className="absolute inset-0 overflow-hidden rounded-2xl border border-ink/10 bg-white/55 p-2.5">
+          <div className="absolute inset-0 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2.5">
             <img
               src={thinkingImage}
               alt="Paul Delaroche, Napoleon at Fontainebleau (1845)"
-              className="h-full w-full rounded-xl border border-ink/10 object-cover"
+              className="h-full w-full rounded-lg border border-ink/10 object-cover"
             />
           </div>
 

@@ -8,7 +8,8 @@ import {
   ListOrdered,
   Wifi,
 } from "lucide-react";
-import { SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
+import { BODY_CLASS, CARD_TITLE_CLASS, SECTION_H2_CLASS } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const features = [
   {
@@ -65,16 +66,12 @@ const features = [
 ];
 
 export const BuiltInFeatures = () => (
-  <section className="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
-    <div className="mx-auto w-full max-w-7xl">
+  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
           A lightweight primitive with powerful capabilities.
         </h2>
-        <p className={SECTION_LEDE_CLASS}>
-          One Actor per agent, per session, per user — state, storage, and
-          networking included.
-        </p>
       </div>
 
       <div className="mt-12 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,11 +88,11 @@ export const BuiltInFeatures = () => (
                   className="h-4 w-4 shrink-0 text-ink-soft"
                   aria-hidden="true"
                 />
-                <h3 className="text-base font-medium tracking-tight text-ink">
+                <h3 className={CARD_TITLE_CLASS}>
                   {feature.title}
                 </h3>
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+              <p className={`mt-3 ${BODY_CLASS}`}>
                 {feature.description}
               </p>
             </a>

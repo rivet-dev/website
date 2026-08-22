@@ -2,6 +2,11 @@
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
 import { Prose } from '@/components/Prose';
+import {
+	SITE_EDITORIAL_RAIL_CLASS,
+	SITE_PAGE_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
 
 interface Props {
 	title?: string;
@@ -17,18 +22,69 @@ const description = Astro.props.description ?? frontmatter?.description;
 const canonicalUrl = Astro.props.canonicalUrl ?? frontmatter?.canonicalUrl;
 ---
 
-<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl}>
-	<Header variant="floating" client:load />
-	<div class="paper-grain md:mt-32 mt-20 pb-8 px-6" style="--header-height: 5rem;">
-		<Prose as="article" surface="paper" className="order-3 mt-4 w-full flex-shrink-0 lg:order-2 max-w-prose mx-auto">
-			<slot />
-		</Prose>
+<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} pageFamily="site">
+	<Header variant="floating" pageFamily="site" client:load />
+	<div class={SITE_PAGE_CLASS} style="--header-height: 5rem;">
+		<main id="main-content" tabindex="-1" class={SITE_UTILITY_HERO_CLASS}>
+			<div class={SITE_EDITORIAL_RAIL_CLASS}>
+				<Prose as="article" surface="paper" className="site-legal-prose max-w-none">
+					<slot />
+				</Prose>
+			</div>
+		</main>
 	</div>
 </BaseLayout>
 
-<!-- Legal/content pages sit on the porcelain field. -->
 <style is:global>
-	body {
-		background-color: #efefef;
+	/* Legal typography is scoped here so the shared docs prose remains unchanged. */
+	.site-legal-prose {
+		font-size: 15px;
+		line-height: 1.75;
+		color: #56524a;
+	}
+
+	.site-legal-prose h1 {
+		margin-bottom: 2rem;
+		font-size: 2.25rem;
+		font-weight: 500;
+		line-height: 1.06;
+		letter-spacing: -0.015em;
+		color: #1b1916;
+	}
+
+	.site-legal-prose h2 {
+		margin-top: 3.5rem;
+		margin-bottom: 1rem;
+		font-size: 1.75rem;
+		font-weight: 500;
+		line-height: 1.2;
+		letter-spacing: -0.015em;
+		color: #1b1916;
+	}
+
+	.site-legal-prose h3,
+	.site-legal-prose h4 {
+		font-weight: 500;
+		color: #1b1916;
+	}
+
+	.site-legal-prose a {
+		color: #2e4034;
+		text-decoration-color: rgb(46 64 52 / 0.35);
+		text-underline-offset: 0.2em;
+	}
+
+	.site-legal-prose a:hover {
+		text-decoration-color: rgb(46 64 52 / 0.9);
+	}
+
+	@media (min-width: 768px) {
+		.site-legal-prose h1 {
+			font-size: 3.5rem;
+		}
+
+		.site-legal-prose h2 {
+			font-size: 2rem;
+		}
 	}
 </style>

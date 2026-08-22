@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import {
+	CARD_TITLE_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 } from './typography';
@@ -19,8 +20,8 @@ export const DEPLOY_COMMAND_BLOCK_CLASS =
 	'relative rounded-xl border border-ink/15 bg-white/55 p-3 pr-11 font-mono text-[11px] leading-relaxed text-ink-soft';
 
 export const DEPLOY_CARD_CLASS =
-	'relative flex h-full flex-col rounded-2xl border border-ink/10 bg-white/55 p-6 md:p-8';
-export const DEPLOY_CARD_TITLE_CLASS = 'text-base font-medium tracking-tight text-ink';
+	'relative flex h-full flex-col rounded-xl border border-ink/10 bg-white/55 p-6 md:p-8';
+export const DEPLOY_CARD_TITLE_CLASS = CARD_TITLE_CLASS;
 export const DEPLOY_BUTTON_BASE = 'w-full';
 export const DEPLOY_GHOST_BUTTON_CLASS = `${PRODUCT_HERO_SECONDARY_BUTTON_CLASS} !w-full no-underline`;
 export const DEPLOY_WHITE_BUTTON_CLASS = `${PRIMARY_INK_BUTTON_CLASS} !w-full no-underline`;

@@ -60,16 +60,16 @@ export function ComparisonTable({
 									key={row.feature}
 									className="border-b border-ink/10 transition-colors hover:bg-ink/[0.03]"
 								>
-									<td className="py-5 pl-0 pr-4 align-top text-sm font-medium leading-relaxed text-ink">
+									<td className="py-5 pl-0 pr-4 align-top text-[15px] font-medium leading-relaxed text-ink">
 										{row.feature}
 									</td>
-									<td className="px-4 py-5 align-top text-sm leading-relaxed text-ink-soft">
+									<td className="px-4 py-5 align-top text-[15px] leading-relaxed text-ink-soft">
 										<FeatureStatus status={row.rivet.status} text={row.rivet.text} />
 									</td>
-									<td className="px-4 py-5 align-top text-sm leading-relaxed text-ink-soft">
+									<td className="px-4 py-5 align-top text-[15px] leading-relaxed text-ink-soft">
 										<FeatureStatus status={row.competitor.status} text={row.competitor.text} />
 									</td>
-									<td className="py-5 pl-4 pr-0 align-top text-sm leading-relaxed text-ink-faint">
+									<td className="py-5 pl-4 pr-0 align-top text-[15px] leading-relaxed text-ink-faint">
 										{row.importance}
 									</td>
 								</tr>

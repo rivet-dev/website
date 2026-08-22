@@ -1,5 +1,6 @@
 import { Activity, Database, GitBranch, Terminal } from "lucide-react";
-import { SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
+import { CARD_TITLE_CLASS, SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const INSPECTOR_SRC =
   "https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png";
@@ -32,8 +33,8 @@ const features = [
 ];
 
 export const ActorsObservabilitySection = () => (
-  <section className="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
-    <div className="mx-auto max-w-7xl">
+  <section className={`${SITE_SECTION_CLASS}`}>
+    <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
         <div>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Observe the whole stack.</h2>
@@ -48,10 +49,10 @@ export const ActorsObservabilitySection = () => (
             return (
               <div key={feature.title} className="border-t border-ink/15 py-5">
                 <Icon className="mb-3 h-4 w-4 text-pine" aria-hidden="true" />
-                <h3 className="text-base font-medium tracking-tight text-ink">
+                <h3 className={CARD_TITLE_CLASS}>
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">
                   {feature.description}
                 </p>
               </div>

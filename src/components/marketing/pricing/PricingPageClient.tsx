@@ -4,74 +4,71 @@ import { useId, useState } from 'react';
 import {
   ArrowRight,
   Check,
-  Cloud,
-  Server,
   ShieldCheck,
   Cpu,
   MemoryStick,
   Clock
 } from 'lucide-react';
-import rivetLogoWhite from '@/images/rivet-logos/icon-white.svg';
+import {
+  Icon,
+  faCloudArrowUp,
+  faServer,
+  faShareNodes
+} from '@rivet-gg/icons';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
 import {
+  CARD_TITLE_CLASS,
   EYEBROW_ON_INK_CLASS,
-  PRIMARY_INK_BUTTON_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
   SECTION_H2_CLASS,
   SECTION_LEDE_CLASS
 } from '@/components/marketing/typography';
+import {
+  SITE_CARD_CLASS,
+  SITE_SECTION_CLASS,
+  SITE_STANDARD_RAIL_CLASS,
+  SITE_WIDE_CALLOUT_CLASS,
+} from '@/components/marketing/layout';
+import {
+  DEPLOY_CARD_TITLE_CLASS,
+  DEPLOY_GHOST_BUTTON_CLASS,
+  DEPLOY_WHITE_BUTTON_CLASS,
+} from '@/components/marketing/deployKit';
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
+import { DeploymentDiagram } from '@/components/marketing/diagrams/deploymentDiagrams';
 
 // --- Page Sections ---
 
 const SelfHostingComparison = () => {
   const deploymentModels = [
     {
-      label: 'Rivet Cloud',
-      title: 'Managed orchestration + compute',
-      description:
-        'Rivet Cloud runs the control plane and your backend. Deploy without managing infrastructure or stitching together providers.',
-      arrangement: 'Orchestration and compute together',
-      icon: <img src={rivetLogoWhite.src} alt="" className="h-9 w-9 invert" />,
-      specs: [
-        { label: 'Control plane', value: 'Rivet Cloud' },
-        { label: 'Backend hosting', value: 'Rivet Cloud' },
-        { label: 'Billing', value: 'Rivet Cloud' },
-      ],
+      title: 'Fully managed',
+      description: 'Rivet Cloud runs your workers, the control plane, and storage. Nothing to operate.',
+      hint: 'Best for most teams shipping to production.',
+      icon: faCloudArrowUp,
+      diagram: 'managed' as const,
       cta: 'Get Started',
       href: 'https://dashboard.rivet.dev',
       primary: true,
     },
     {
-      label: 'Rivet Cloud + your host',
       title: 'Bring your own compute',
-      description:
-        'Rivet Cloud runs the control plane. Your backend runs on Railway, Vercel, Cloudflare, AWS, Kubernetes, or your own infrastructure.',
-      arrangement: 'Managed orchestration, your compute',
-      icon: <Cloud className="h-7 w-7 text-pine" aria-hidden="true" />,
-      specs: [
-        { label: 'Control plane', value: 'Rivet Cloud' },
-        { label: 'Backend hosting', value: 'Your provider' },
-        { label: 'Billing', value: 'Rivet Cloud + provider' },
-      ],
+      description: 'Your workers run on your own infrastructure and connect outbound to the control plane in Rivet Cloud.',
+      hint: 'Best for serverless platforms and keeping compute in your VPC.',
+      icon: faShareNodes,
+      diagram: 'byoc' as const,
       cta: 'Connect Your Host',
-      href: '/docs/connect',
+      href: '/actors/self-host/',
       primary: false,
     },
     {
-      label: 'Open source',
       title: 'Fully self-hosted',
-      description:
-        'Run the control plane and your backend on infrastructure you control, including your VPC, customer environments, and air-gapped networks.',
-      arrangement: 'Everything on your infrastructure',
-      icon: <Server className="h-7 w-7 text-ink" aria-hidden="true" />,
-      specs: [
-        { label: 'Control plane', value: 'Your infrastructure' },
-        { label: 'Backend hosting', value: 'Your infrastructure' },
-        { label: 'Billing', value: 'Your providers' },
-      ],
+      description: 'You run the entire stack on infrastructure you control, including air-gapped networks.',
+      hint: 'Best for strict compliance and air-gapped environments.',
+      icon: faServer,
+      diagram: 'self-hosted' as const,
       cta: 'View on GitHub',
       href: 'https://github.com/rivet-dev/rivet',
       primary: false,
@@ -79,76 +76,68 @@ const SelfHostingComparison = () => {
   ];
 
   return (
-    <section className="border-t border-ink/10 bg-paper py-16 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col gap-12">
-          <div className="max-w-3xl">
-            <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Compare Deployment Models</h2>
-            <p className={SECTION_LEDE_CLASS}>
-              Choose who runs the control plane and where your backend runs. Use Rivet Cloud for managed orchestration and compute, bring your own compute while Rivet Cloud manages orchestration, or self-host the full stack.
-            </p>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            {deploymentModels.map((model) => (
-              <article key={model.title} className="flex flex-col rounded-2xl border border-ink/10 bg-white/55 p-6 md:p-7">
-                <div className="mb-6 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-white/70">
-                    {model.icon}
-                  </span>
-                  <div>
-                    <p className="text-xs font-medium text-ink-faint">{model.label}</p>
-                    <h3 className="mt-0.5 text-lg font-medium text-ink">{model.title}</h3>
-                  </div>
-                </div>
-
-                <p className="text-sm leading-relaxed text-ink-soft">{model.description}</p>
-
-                <div className="mt-7 rounded-xl border border-ink/10 bg-paper/70 p-4">
-                  <p className="border-b border-ink/10 pb-3 text-xs font-medium text-pine">
-                    {model.arrangement}
-                  </p>
-                  <dl>
-                    {model.specs.map(({ label, value }) => (
-                      <div key={label} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-4 border-b border-ink/10 py-3 last:border-b-0 last:pb-0">
-                        <dt className="text-xs font-medium text-ink-faint">{label}</dt>
-                        <dd className="text-right text-sm text-ink">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-
-                <div className="flex-1" />
-                <a
-                  href={model.href}
-                  className={`mt-7 ${model.primary ? PRIMARY_INK_BUTTON_CLASS : PRODUCT_HERO_SECONDARY_BUTTON_CLASS}`}
-                >
-                  {model.cta}
-                </a>
-              </article>
-            ))}
-          </div>
-
-          <aside className="grid items-center gap-6 rounded-2xl border border-ink/10 bg-white/55 p-6 md:grid-cols-[minmax(0,1fr)_auto] md:p-8">
-            <div className="flex items-start gap-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper text-pine">
-                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="text-base font-medium text-ink">Enterprise Edition</h3>
-                <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-soft">
-                  Add multi-tenancy, access controls, backups, and deployment guidance to a self-hosted deployment.
-                </p>
-                <a href="/enterprise" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
-                  Explore Enterprise
-                </a>
-              </div>
-            </div>
-            <a href="/sales" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
-              Contact Sales
-            </a>
-          </aside>
+    <section className={SITE_SECTION_CLASS}>
+      <div className={SITE_STANDARD_RAIL_CLASS}>
+        <div className="max-w-3xl">
+          <h2 className={SECTION_H2_CLASS}>Compare Deployment Models</h2>
+          <p className={SECTION_LEDE_CLASS}>
+            Every model runs the same three pieces — a worker running your code, the control plane,
+            and storage. Choose who runs each piece.
+          </p>
         </div>
+
+        {/* Fused hairline grid (workflows composition pattern): three cells
+            reading as one comparison object. Every column draws the identical
+            worker → control plane → storage stack; only the Rivet Cloud (pine)
+            vs your-infrastructure (ink) boundary moves, so the pine region
+            visibly shrinks left to right. Subgrid keeps the five rows level
+            across columns; browsers without subgrid fall back to auto rows. */}
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {deploymentModels.map((model) => (
+            <article
+              key={model.title}
+              className={`${SITE_CARD_CLASS} flex flex-col md:grid md:row-span-5 md:grid-rows-subgrid`}
+            >
+              <div className="flex h-6 items-center gap-2.5">
+                <Icon icon={model.icon} aria-hidden="true" className="h-4 w-4 text-pine" />
+                <h3 className={DEPLOY_CARD_TITLE_CLASS}>{model.title}</h3>
+              </div>
+              <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">{model.description}</p>
+
+              <div className="mt-6 flex-1">
+                <DeploymentDiagram variant={model.diagram} />
+              </div>
+
+              <p className="mt-4 text-xs leading-relaxed text-ink-faint">{model.hint}</p>
+              <a
+                href={model.href}
+                className={`mt-6 ${model.primary ? DEPLOY_WHITE_BUTTON_CLASS : DEPLOY_GHOST_BUTTON_CLASS}`}
+              >
+                {model.cta}
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <aside className={`mt-6 grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto] ${SITE_WIDE_CALLOUT_CLASS}`}>
+          <div className="flex items-start gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-paper text-pine">
+              <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className={CARD_TITLE_CLASS}>Enterprise Edition</h3>
+              <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-ink-soft">
+                Add multi-tenancy, access controls, backups, and deployment guidance to a self-hosted deployment.
+              </p>
+              <a href="/enterprise" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
+                Explore Enterprise
+              </a>
+            </div>
+          </div>
+          <a href="/talk-to-an-engineer" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+            Talk to an Engineer
+          </a>
+        </aside>
       </div>
     </section>
   )
@@ -177,8 +166,8 @@ const ComparisonTable = () => {
     };
 
     return (
-        <div className="mt-24 border-t border-ink/10 pt-16">
-            <h3 className="mb-12 text-2xl font-medium tracking-[-0.015em] text-ink">Compare Cloud Plans</h3>
+        <div className="mt-24 pt-16">
+            <h3 className={`mb-12 ${SECTION_H2_CLASS}`}>Compare Cloud Plans</h3>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px] border-collapse">
                     <thead>
@@ -246,16 +235,16 @@ const ComputeCalculator = () => {
     const memLabel = memoryMib >= 1024 ? `${memoryMib / 1024} GiB` : `${memoryMib} MiB`;
 
     return (
-        <div className="border-t border-ink/10 pt-16">
-            <h3 className="mb-3 text-2xl font-medium tracking-[-0.015em] text-ink">Estimate managed execution cost</h3>
-            <p className="mb-8 max-w-2xl text-base leading-relaxed text-ink-soft">
+        <div className="pt-16">
+            <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate managed execution cost</h3>
+            <p className="mb-8 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
                 Run your actors and applications on Rivet Cloud and pay only for the seconds they are active.
                 Costs scale with the CPU and memory you configure.
             </p>
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Controls sit on porcelain: this is interactive input UI. */}
-                <div className="space-y-8 rounded-2xl border border-ink/10 bg-white/55 p-7">
+                <div className={`space-y-8 ${SITE_CARD_CLASS}`}>
                     {/* vCPU */}
                     <div>
                         <div className="mb-3 flex items-center justify-between">
@@ -480,15 +469,15 @@ const Pricing = () => {
     ];
 
     return (
-        <section id="pricing" className="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-24">
-            <div className="mx-auto max-w-7xl">
+        <section id="pricing" className={SITE_SECTION_CLASS}>
+            <div className={SITE_STANDARD_RAIL_CLASS}>
                 <div className="flex flex-col gap-12">
                     <div className="flex flex-col gap-12">
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                                 {plans.map((plan, idx) => (
                                     <div
                                        key={idx}
-                                       className={`flex flex-col overflow-hidden rounded-2xl border bg-white/55 ${
+                                       className={`flex flex-col overflow-hidden rounded-xl border bg-white/55 ${
                                            plan.highlight ? 'border-pine/60' : 'border-ink/10'
                                        }`}
                                     >
@@ -498,9 +487,9 @@ const Pricing = () => {
                                                 <span className={EYEBROW_ON_INK_CLASS}>On-Prem</span>
                                             </div>
                                         ) : null}
-                                        <div className="flex flex-grow flex-col p-7">
+                                        <div className="flex flex-grow flex-col p-6 md:p-8">
                                             {!plan.inkHeader ? (
-                                                <h3 className="mb-2 text-lg font-medium text-ink">{plan.name}</h3>
+                                                <h3 className={`mb-2 ${CARD_TITLE_CLASS}`}>{plan.name}</h3>
                                             ) : null}
 
                                             <div className="mb-6">
@@ -513,7 +502,7 @@ const Pricing = () => {
 
                                             <div className="mb-6 h-px bg-ink/10" />
 
-                                            {plan.desc && <p className="mb-6 min-h-[2.5rem] text-sm leading-relaxed text-ink-soft">{plan.desc}</p>}
+                                            {plan.desc && <p className="mb-6 min-h-[2.5rem] text-[15px] leading-relaxed text-ink-soft">{plan.desc}</p>}
 
                                             <div className="mb-8 space-y-3">
                                                 {plan.features.map((feat, i) => (
@@ -524,7 +513,7 @@ const Pricing = () => {
                                                 ))}
                                             </div>
 
-                                            <a href={plan.cta === "Contact Sales" ? "/sales" : "https://dashboard.rivet.dev"}
+                                            <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer" : "https://dashboard.rivet.dev"}
                                                 className={`mt-auto ${
                                                     plan.highlight
                                                     ? PRODUCT_HERO_PRIMARY_BUTTON_CLASS
@@ -539,10 +528,10 @@ const Pricing = () => {
                             </div>
 
                             {/* YC & a16z Speedrun Callout */}
-                            <div className="rounded-2xl border border-ink/10 bg-white/55 p-6">
+                            <div className={SITE_WIDE_CALLOUT_CLASS}>
                                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                                         <div>
-                                            <p className="mb-2 text-base font-medium text-ink">Startup Deal: 50% off for 12 months</p>
+                                            <p className={`mb-2 ${CARD_TITLE_CLASS}`}>Startup Deal: 50% off for 12 months</p>
                                             <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
                                                 <span>For</span>
                                                 <div className="flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft">
@@ -570,9 +559,9 @@ const Pricing = () => {
                             {/* Usage pricing, compute calculator, and plan comparison */}
                                 <>
                                     {/* Usage Pricing Section */}
-                                    <div className="border-t border-ink/10 pt-16">
-                                        <h3 className="mb-3 text-2xl font-medium tracking-[-0.015em] text-ink">Usage Pricing</h3>
-                                        <p className="mb-8 text-base leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
+                                    <div className="pt-16">
+                                        <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Usage Pricing</h3>
+                                        <p className="mb-8 text-[15px] leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
 
                                         <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
                                             {usagePricing.map((item, i) => (

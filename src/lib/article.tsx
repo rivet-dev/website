@@ -19,7 +19,6 @@ export const AUTHORS = {
 		socials: {
 			twitter: "https://x.com/NicholasKissel",
 			github: "https://github.com/nicholaskissel",
-			bluesky: "https://bsky.app/profile/nicholaskissel.com",
 		},
 	},
 	"forest-anderson": {

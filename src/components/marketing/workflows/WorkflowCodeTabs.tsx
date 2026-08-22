@@ -113,7 +113,7 @@ export function WorkflowCodeTabs({ tabs }: { tabs: WorkflowCodeTab[] }) {
             className="max-h-[34rem] overflow-auto bg-white/45 p-5 font-mono text-[12px] leading-6 text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine sm:p-6"
           >
             <div
-              className="[&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:whitespace-pre [&_.line]:block"
+              className="[&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.line]:block [&_.line]:whitespace-pre"
               dangerouslySetInnerHTML={{ __html: tab.highlighted }}
             />
           </div>

@@ -23,6 +23,7 @@ interface Props {
 	articleSection?: string;
 	robots?: string;
 	themeColor?: string;
+	pageFamily?: 'default' | 'site';
 }
 
 const {
@@ -37,6 +38,7 @@ const {
 	articleSection,
 	robots,
 	themeColor = "#EFEFEF",
+	pageFamily = 'default',
 } = Astro.props;
 
 // Only add " - Rivet" suffix if not already present (handles Rivet, Rivet Actors, Rivet Templates)
@@ -199,7 +201,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 
 		<ViewTransitions />
 	</head>
-	<body class="dark">
+	<body class:list={["dark", pageFamily === 'site' && "bg-paper"]}>
 		<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
 			Skip to main content
 		</a>
@@ -209,7 +211,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 			</Providers>
 		</TooltipProvider>
 		<EmbedDetector client:load />
-		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} />
+		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} pageFamily={pageFamily} />
 		<CopyCodeScript />
 		<TabsScript />
 		<MermaidScript />

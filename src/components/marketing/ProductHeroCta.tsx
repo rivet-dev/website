@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { PRODUCT_HERO_PRIMARY_BUTTON_CLASS } from "./typography";
+import {
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+} from "./typography";
 
 /**
  * The hero CTA pair, lifted from the agentOS hero so every product hero is
@@ -71,7 +74,7 @@ export function ProductHeroCta({
 	setupLabel?: string;
 }) {
 	return (
-		<div className="flex w-full flex-col flex-wrap items-center gap-x-4 gap-y-3 sm:flex-row sm:justify-center">
+		<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
 			<CopyInstallCommand command={command} />
 			<SetupProjectButton href={setupHref} label={setupLabel} />
 		</div>

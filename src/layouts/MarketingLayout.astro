@@ -2,7 +2,7 @@
 import type { ComponentProps } from 'react';
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
-import { MARKETING_PAGE_ZOOM } from '@/components/marketing/typography';
+import { SITE_PAGE_CLASS } from '@/components/marketing/layout';
 
 interface Props {
 	title: string;
@@ -26,7 +26,7 @@ const { title, description, canonicalUrl, ogImage, keywords, active, robots, pro
 const pathname = Astro.url.pathname;
 ---
 
-<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} ogImage={ogImage} keywords={keywords} robots={robots}>
+<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} ogImage={ogImage} keywords={keywords} robots={robots} pageFamily="site">
 	{productId ? (
 		<Header
 			variant="full-width"
@@ -36,23 +36,13 @@ const pathname = Astro.url.pathname;
 			tabId={tabId}
 			initialPathname={pathname}
 			active={active}
+			pageFamily="site"
 			client:load
 		/>
 	) : (
-		<Header variant="floating" initialPathname={pathname} active={active} client:load />
+		<Header variant="floating" initialPathname={pathname} active={active} pageFamily="site" client:load />
 	)}
-	{/* Marketing pages ship at ~90% density, matching the agentOS reference
-	    page. zoom scales layout (unlike transform) and Header/Footer sit
-	    outside this wrapper, so both stay at 100%. */}
-	<div style={`zoom: ${MARKETING_PAGE_ZOOM}; overflow-x: clip;`}>
+	<div class={SITE_PAGE_CLASS}>
 		<slot />
 	</div>
 </BaseLayout>
-
-<!-- Marketing pages sit on the porcelain field. The body itself is painted
-     so overscroll and short pages never flash the dark docs background. -->
-<style is:global>
-	body {
-		background-color: #efefef;
-	}
-</style>

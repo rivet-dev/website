@@ -6,6 +6,7 @@ import {
   DEPLOY_GHOST_BUTTON_CLASS,
   DEPLOY_WHITE_BUTTON_CLASS,
 } from "./deployKit";
+import { BODY_CLASS } from "./typography";
 
 interface DeploymentOptionsProps {
   productName: string;
@@ -37,7 +38,7 @@ export const DeploymentOptions = ({
         <Laptop className="h-4 w-4 text-pine" aria-hidden="true" />
         <h3 className={DEPLOY_CARD_TITLE_CLASS}>Local</h3>
       </div>
-      <p className="text-sm leading-relaxed text-ink-soft">
+      <p className={BODY_CLASS}>
         Install {productName} and run it locally while you build.
       </p>
       <div className="flex-1" />
@@ -61,7 +62,7 @@ export const DeploymentOptions = ({
         <Cloud className="h-4 w-4 text-pine" aria-hidden="true" />
         <h3 className={DEPLOY_CARD_TITLE_CLASS}>Rivet Cloud</h3>
       </div>
-      <p className="text-sm leading-relaxed text-ink-soft">
+      <p className={BODY_CLASS}>
         Deploy {productName} on Rivet Cloud with managed infrastructure and
         persisted Actor data.
       </p>
@@ -81,7 +82,7 @@ export const DeploymentOptions = ({
         <Server className="h-4 w-4 text-pine" aria-hidden="true" />
         <h3 className={DEPLOY_CARD_TITLE_CLASS}>Self-Host</h3>
       </div>
-      <p className="text-sm leading-relaxed text-ink-soft">
+      <p className={BODY_CLASS}>
         Run the open-source Rivet control plane as a Rust binary or container on
         your infrastructure.
       </p>

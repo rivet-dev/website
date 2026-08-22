@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { SECTION_H2_BASE_CLASS } from '@/components/marketing/typography';
+import { SITE_NARROW_RAIL_CLASS, SITE_SECTION_CLASS } from '@/components/marketing/layout';
 import type { FaqItem } from '@/data/faqs/types';
 
 // Animated disclosure accordion (single open at a time) with a smooth
@@ -22,7 +23,6 @@ const themeStyles: Record<
 		answerLinks: string;
 		icon: string;
 		heading: string;
-		sectionBorder: string;
 		focus: string;
 	}
 > = {
@@ -33,7 +33,6 @@ const themeStyles: Record<
 		answerLinks: '[&_a]:text-white [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-zinc-300 [&_strong]:text-zinc-200 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mt-1',
 		icon: 'text-zinc-500',
 		heading: 'text-white',
-		sectionBorder: 'border-white/10',
 		focus: 'focus-visible:ring-sage/70 focus-visible:ring-offset-ink',
 	},
 	light: {
@@ -43,7 +42,6 @@ const themeStyles: Record<
 		answerLinks: '[&_a]:text-pine [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-ink [&_strong]:text-ink [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mt-1',
 		icon: 'text-ink-faint',
 		heading: 'text-ink',
-		sectionBorder: 'border-ink/10',
 		focus: 'focus-visible:ring-pine/60 focus-visible:ring-offset-paper',
 	},
 };
@@ -126,8 +124,8 @@ export function FaqSection({
 	const styles = themeStyles[theme];
 
 	return (
-		<section id={id} className={`border-t px-6 py-24 ${styles.sectionBorder} ${className}`}>
-			<div className="mx-auto max-w-3xl">
+		<section id={id} className={`${SITE_SECTION_CLASS} ${className}`}>
+			<div className={SITE_NARROW_RAIL_CLASS}>
 				<h2
 					className={`mb-12 text-center ${SECTION_H2_BASE_CLASS} ${styles.heading}`}
 				>

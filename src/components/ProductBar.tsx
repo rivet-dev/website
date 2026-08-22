@@ -81,13 +81,13 @@ function ProductLabel({
 				<span
 					aria-hidden="true"
 					className={cn(
-						"flex size-7 shrink-0 items-center justify-center rounded-lg",
+						"flex size-7 shrink-0 items-center justify-center rounded-[34.375%]",
 						accent?.fill ?? "bg-ink/20",
 					)}
 				>
 					<ProductMark
 						product={current}
-						className="h-[15px] w-[15px]"
+						className="h-7 w-7"
 						tone="cream"
 					/>
 				</span>

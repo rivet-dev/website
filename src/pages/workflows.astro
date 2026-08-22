@@ -10,7 +10,13 @@ import {
 	type WorkflowCodeTab,
 } from '@/components/marketing/workflows/WorkflowCodeTabs';
 import {
-	EYEBROW_CLASS,
+	WorkflowAgentDiagram,
+	WorkflowCoordinationDiagram,
+	WorkflowVersioningDiagram,
+} from '@/components/marketing/diagrams/workflowDiagrams';
+import {
+	CAPTION_CLASS,
+	CARD_TITLE_CLASS,
 	INK_PANEL_GHOST_BUTTON_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRODUCT_HERO_CTA_ROW_CLASS,
@@ -22,23 +28,29 @@ import {
 	SECTION_H2_CLASS,
 	SECTION_LEDE_CLASS,
 } from '@/components/marketing/typography';
+import { productLogos } from '@/sitemap/productLogos';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { workflowsFaqs } from '@/data/faqs/workflows';
 import { highlightCodeHtml } from '@/lib/highlight-code';
 import { loadSnippet } from '@/mdx/remark-code-snippet';
 import { requireDocsRoot } from '@/sitemap/docs-sources.node';
 import { getProduct } from '@/sitemap/products';
+import {
+	SITE_COMPACT_SECTION_CLASS,
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+} from '@/components/marketing/layout';
 
 const WORKFLOW_SOURCE_ROOT =
 	'https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/workflow';
 const ACTOR_EXAMPLE_ROOT =
 	'https://github.com/rivet-dev/rivet/blob/main/examples/docs/actors-workflows';
-const AGENTOS_EXAMPLE_ROOT =
+const BUG_FIXER_SOURCE_URL_ROOT =
 	'https://github.com/rivet-dev/agentos/blob/main/examples/workflows';
 const INSPECTOR_IMAGE =
 	'https://assets.rivet.dev/website/blog/2026-02-24-introducing-rivet-workflows/inspectorworkflow.png';
 
 const actorsRoot = requireDocsRoot('actors');
-const agentOSRoot = requireDocsRoot('agentos');
 const workflowsProduct = getProduct('workflows');
 
 if (!workflowsProduct) {
@@ -73,72 +85,6 @@ const progressTabs = await Promise.all([
 		file: 'examples/docs/actors-workflows/simple-workflow/index.ts',
 		documentationUrl: '/workflows/docs/quickstart',
 		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/simple-workflow/index.ts`,
-	}),
-]);
-
-const coordinationTabs = await Promise.all([
-	sourceTab({
-		key: 'approval',
-		label: 'Approval wait',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/approval-gate.ts',
-		documentationUrl: '/workflows/docs/queues',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/approval-gate.ts`,
-	}),
-	sourceTab({
-		key: 'fan-in-out',
-		label: 'Fan-out / fan-in',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/fan-in-out.ts',
-		documentationUrl: '/workflows/docs/timers-and-concurrency',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/fan-in-out.ts`,
-	}),
-	sourceTab({
-		key: 'timeouts',
-		label: 'Retries + timeout',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/timeouts.ts',
-		documentationUrl: '/workflows/docs/timers-and-concurrency',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/timeouts.ts`,
-	}),
-	sourceTab({
-		key: 'saga',
-		label: 'Cross-Actor saga',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/cross-actor-saga.ts',
-		documentationUrl: '/workflows/docs/failure-and-recovery',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/cross-actor-saga.ts`,
-	}),
-]);
-
-const agentWorkTabs = await Promise.all([
-	sourceTab({
-		key: 'bug-fixer',
-		label: 'bug-fixer.ts',
-		root: agentOSRoot,
-		file: 'examples/workflows/server.ts',
-		region: 'basic',
-		documentationUrl: '/workflows/docs/patterns',
-		sourceUrl: `${AGENTOS_EXAMPLE_ROOT}/server.ts#L1-L73`,
-	}),
-]);
-
-const versioningTabs = await Promise.all([
-	sourceTab({
-		key: 'version-gate',
-		label: 'Version gate',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/get-version.ts',
-		documentationUrl: '/workflows/docs/versioning',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/get-version.ts`,
-	}),
-	sourceTab({
-		key: 'removed-entry',
-		label: 'Removed entry',
-		root: actorsRoot,
-		file: 'examples/docs/actors-workflows/versioned-workflow.ts',
-		documentationUrl: '/workflows/docs/versioning',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/versioned-workflow.ts`,
 	}),
 ]);
 
@@ -185,19 +131,19 @@ const capabilities = [
 const compositionLayers = [
 	{
 		name: 'Actors',
-		role: 'Foundation',
+		logo: productLogos.actors.src,
 		body: 'Every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.',
 		href: '/actors',
 	},
 	{
 		name: 'agentOS',
-		role: 'Optional computer',
+		logo: productLogos.agentos.src,
 		body: 'Adds files, processes, a shell, and networking when a workflow drives an agent using real tools.',
 		href: '/agentos',
 	},
 	{
 		name: 'Dynamic Apps',
-		role: 'Optional delivery layer',
+		logo: productLogos['dynamic-apps'].src,
 		body: 'Adds a generated backend when the workflow should ship an application to users.',
 		href: '/dynamic-apps',
 	},
@@ -225,7 +171,7 @@ const compositionLayers = [
 >
 	<FaqJsonLd items={workflowsFaqs} />
 
-	<main id="main-content" tabindex="-1" class="paper-grain min-h-screen bg-paper font-sans text-ink-soft">
+	<main id="main-content" tabindex="-1">
 		<!-- Hero -->
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
 			<div class="mx-auto w-full max-w-7xl">
@@ -261,25 +207,20 @@ const compositionLayers = [
 						<style is:inline>
 							.workflow-demo-controls, .workflow-code-controls, [data-workflows-install-copy] { display: none !important; }
 						</style>
-						<p class="mt-4 text-center text-sm text-ink-soft">The recorded run remains readable without JavaScript. Enable JavaScript to simulate a restart, approve the wait, or replay the demo.</p>
+						<p class={`mt-4 text-center ${CAPTION_CLASS}`}>The recorded run remains readable without JavaScript. Enable JavaScript to simulate a restart, approve the wait, or replay the demo.</p>
 					</noscript>
 				</div>
 			</div>
 		</section>
 
 		<!-- Chapter 01 -->
-		<section class="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
-			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-16">
-				<div>
-					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Regular TypeScript, durable progress.</h2>
-					<p class={SECTION_LEDE_CLASS}>
-						A workflow is an Actor <code class="font-mono text-[0.92em] text-ink">run</code> handler wrapped in <code class="font-mono text-[0.92em] text-ink">workflow()</code>. Name each step with <code class="font-mono text-[0.92em] text-ink">ctx.step()</code>; its result is recorded, and after a restart the handler replays history and reuses completed results.
-					</p>
-				</div>
-				<div class="min-w-0">
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<h2 class={`max-w-3xl text-balance ${SECTION_H2_CLASS}`}>Regular TypeScript, durable progress.</h2>
+				<div class="mt-12 min-w-0">
 					<WorkflowCodeTabs tabs={progressTabs} client:visible />
 					<noscript>
-						<p class="mt-4 text-sm text-ink-soft">JavaScript is optional for reading this page. View the <a class="text-pine underline underline-offset-2" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine underline underline-offset-2" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
 					</noscript>
 				</div>
 			</div>
@@ -288,8 +229,8 @@ const compositionLayers = [
 				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
 					{actorInheritance.map((item) => (
 						<div class="border-t border-ink/15 pt-5">
-							<h3 class="text-base font-medium tracking-tight text-ink">{item.title}</h3>
-							<p class="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p>
+							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
+							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
 						</div>
 					))}
 				</div>
@@ -297,61 +238,76 @@ const compositionLayers = [
 		</section>
 
 		<!-- Chapter 02 -->
-		<section class="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="max-w-3xl">
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Wait, branch, and recover.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						Queue waits pause a run durably for approvals or external events. Timers, loops, joins, and races coordinate branches; per-step retries and timeouts absorb transient failures; rollback steps compensate multi-system changes.
+						Pause for approval, fan out, retry. Every step is recorded.
 					</p>
 				</div>
 				<div class="mt-12 min-w-0">
-					<WorkflowCodeTabs tabs={coordinationTabs} client:visible />
+					<WorkflowCoordinationDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+						Read about
+						<a class="text-pine underline underline-offset-2" href="/workflows/docs/queues">queue waits</a>,
+						<a class="text-pine underline underline-offset-2" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
+						<a class="text-pine underline underline-offset-2" href="/workflows/docs/failure-and-recovery">failure and recovery</a>.
+					</p>
 					<noscript>
-						<p class="mt-4 text-sm text-ink-soft">Browse the source-backed examples for <a class="text-pine underline underline-offset-2" href={coordinationTabs[0].sourceUrl}>approval waits</a>, <a class="text-pine underline underline-offset-2" href={coordinationTabs[1].sourceUrl}>joins</a>, <a class="text-pine underline underline-offset-2" href={coordinationTabs[2].sourceUrl}>timeouts</a>, and <a class="text-pine underline underline-offset-2" href={coordinationTabs[3].sourceUrl}>compensating actions</a>.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a step pausing on a wait, resuming on approval, fanning into three branches where one retries, then joining.</p>
 					</noscript>
 				</div>
 			</div>
 		</section>
 
 		<!-- Chapter 03 -->
-		<section class="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
 				<div>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Automate agent work.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						With agentOS, this workflow gives an agent a computer: clone a repo, ask the agent to fix an issue, run the tests. Every step is recorded and resumes after a restart.
+						The workflow gives an agent a computer and records every step.
 					</p>
 				</div>
 				<div class="min-w-0">
-					<WorkflowCodeTabs tabs={agentWorkTabs} client:visible />
+					<WorkflowAgentDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+						Read about
+						<a class="text-pine underline underline-offset-2" href="/workflows/docs/patterns">agent patterns</a> or
+						<a class="text-pine underline underline-offset-2" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
+					</p>
 					<noscript>
-						<p class="mt-4 text-sm text-ink-soft">Read the <a class="text-pine underline underline-offset-2" href={agentWorkTabs[0].sourceUrl}>agentOS bug-fix workflow source on GitHub</a>.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows an agent's computer with files, shell, and networking, and the row of recorded steps beneath it.</p>
 					</noscript>
 				</div>
 			</div>
 		</section>
 
 		<!-- Chapter 04 -->
-		<section class="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
 				<div>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Evolve running work.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						Deploys land while runs are mid-flight. Keep step names stable, gate changed behavior with <code class="font-mono text-[0.92em] text-ink">getVersion()</code>, and mark deleted steps with <code class="font-mono text-[0.92em] text-ink">removed()</code> so old histories still replay.
+						Deploy new code mid-run. Old runs keep their version; new runs take the latest.
 					</p>
 				</div>
 				<div class="min-w-0">
-					<WorkflowCodeTabs tabs={versioningTabs} client:visible />
+					<WorkflowVersioningDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`}>
+						Read about
+						<a class="text-pine underline underline-offset-2" href="/workflows/docs/versioning">versioning</a>.
+					</p>
 					<noscript>
-						<p class="mt-4 text-sm text-ink-soft">View the <a class="text-pine underline underline-offset-2" href={versioningTabs[0].sourceUrl}>version-gate</a> and <a class="text-pine underline underline-offset-2" href={versioningTabs[1].sourceUrl}>removed-entry</a> examples.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows one run crossing the deploy line and finishing on v1 while a new run starts on v2.</p>
 					</noscript>
 				</div>
 			</div>
 		</section>
 
 		<!-- Inspector -->
-		<section class="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
 					<div>
@@ -360,8 +316,8 @@ const compositionLayers = [
 					<div class="grid gap-6 sm:grid-cols-2">
 						{capabilities.map((capability) => (
 							<div class="border-t border-ink/15 pt-5">
-								<h3 class="text-base font-medium tracking-tight text-ink">{capability.title}</h3>
-								<p class="mt-2 text-sm leading-relaxed text-ink-soft">{capability.body}</p>
+								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
 							</div>
 						))}
 					</div>
@@ -371,8 +327,8 @@ const compositionLayers = [
 					<img
 						src={INSPECTOR_IMAGE}
 						alt="Rivet workflow inspector showing a run history with nested steps, statuses, durations, and recorded details"
-						width="4064"
-						height="2634"
+						width="3808"
+						height="2338"
 						loading="lazy"
 						class="block h-auto w-full rounded-md border border-ink/10"
 					/>
@@ -382,18 +338,25 @@ const compositionLayers = [
 		</section>
 
 		<!-- Composition -->
-		<section class="border-t border-ink/10 bg-paper px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="max-w-3xl">
-					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One foundation. Optional layers.</h2>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One foundation, composable with the rest of Rivet.</h2>
 				</div>
 
-				<div class="mt-12 grid overflow-hidden rounded-2xl border-l border-t border-ink/10 md:grid-cols-3">
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3">
 					{compositionLayers.map((layer) => (
 						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8">
-							<p class={`${EYEBROW_CLASS} normal-case`}>{layer.role}</p>
-							<h3 class="mt-5 text-xl font-medium tracking-[-0.01em] text-ink">{layer.name}</h3>
-							<p class="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">{layer.body}</p>
+							<div class="flex items-center gap-3">
+								<span
+									aria-hidden="true"
+									class="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink"
+								>
+									<span style={wordmarkMaskStyle(layer.logo)} class="block h-full w-full bg-cream"></span>
+								</span>
+								<h3 class="text-xl font-medium tracking-[-0.01em] text-ink">{layer.name}</h3>
+							</div>
+							<p class="mt-5 flex-1 text-[15px] leading-relaxed text-ink-soft">{layer.body}</p>
 							<span class="mt-7 text-sm font-medium text-pine transition-colors group-hover:text-ink">Product overview <span aria-hidden="true">→</span></span>
 						</a>
 					))}
@@ -402,7 +365,7 @@ const compositionLayers = [
 		</section>
 
 		<!-- Deployment -->
-		<section class="border-t border-ink/10 bg-paper-mid px-6 py-16 md:py-32">
+		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="mb-12 max-w-3xl">
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
@@ -416,8 +379,8 @@ const compositionLayers = [
 			</div>
 		</section>
 
-		<section class="border-t border-ink/10 bg-paper px-6 py-16 md:py-24" aria-labelledby="workflows-faq-heading">
-			<div class="mx-auto max-w-3xl">
+		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="workflows-faq-heading">
+			<div class={SITE_NARROW_RAIL_CLASS}>
 				<h2 id="workflows-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`}>Frequently asked questions</h2>
 				<div class="divide-y divide-ink/10 border-b border-ink/10">
 					{workflowsFaqs.map((item) => (
@@ -428,7 +391,7 @@ const compositionLayers = [
 									<path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
 								</svg>
 							</summary>
-							<div class="pt-3 text-sm leading-relaxed text-ink-soft [&_a]:text-pine [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-ink" set:html={item.answerHtml} />
+							<div class="pt-3 text-[15px] leading-relaxed text-ink-soft [&_a]:text-pine [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-ink" set:html={item.answerHtml} />
 						</details>
 					))}
 				</div>

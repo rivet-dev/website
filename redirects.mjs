@@ -179,6 +179,8 @@ const explicitRedirects = {
 	'/agentos/docs/apps': '/dynamic-apps/docs/',
 	'/docs/agent-os/apps': '/dynamic-apps/docs/',
 	'/agent-os/docs/apps': '/dynamic-apps/docs/',
+	// The standalone sales page folds into the talk-to-an-engineer flow.
+	'/sales': '/talk-to-an-engineer/',
 };
 
 // Every docs page moved out of the flat `/docs/...` hierarchy when the site

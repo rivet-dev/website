@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { InkPanel } from './editorial/InkPanel';
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from './layout';
 import { SECTION_H2_BASE_CLASS } from './typography';
 
 // The agentOS closing band: an ink-panel colophon carrying the page's final
@@ -28,17 +29,14 @@ export const ClosingCtaPanel = ({
 	description,
 	children,
 	footnote,
-	background = 'paper',
 	textureSrc,
 	veil,
 	className,
 }: ClosingCtaPanelProps) => (
 	<section
-		className={`border-t border-ink/10 ${
-			background === 'paper-mid' ? 'bg-paper-mid' : 'bg-paper'
-		} px-6 py-24 md:py-32 ${className ?? ''}`}
+		className={`bg-paper ${SITE_SECTION_CLASS} ${className ?? ''}`}
 	>
-		<div className='mx-auto max-w-7xl'>
+		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<InkPanel textureSrc={textureSrc} veil={veil}>
 				<div className='flex flex-col items-center px-6 py-16 text-center md:py-24'>
 					<h2
@@ -49,7 +47,7 @@ export const ClosingCtaPanel = ({
 						{title}
 					</h2>
 					{description ? (
-						<p className='mb-8 text-base leading-relaxed text-cream/70'>{description}</p>
+						<p className='mb-8 text-[17px] leading-relaxed text-cream/70'>{description}</p>
 					) : null}
 					<div className='flex flex-col flex-wrap items-center gap-x-4 gap-y-3 sm:flex-row sm:justify-center'>
 						{children}

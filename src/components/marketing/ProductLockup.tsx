@@ -1,5 +1,6 @@
 import { Icon } from "@rivet-gg/icons";
 import { productLogos } from "@/sitemap/productLogos";
+import { wordmarkMaskStyle } from "@/lib/product-accent";
 import type { Product } from "@/sitemap/products";
 
 /**
@@ -17,13 +18,17 @@ export function ProductLockup({ product }: { product: Product }) {
 	return (
 		<span className="flex items-center gap-3">
 			{logo ? (
-				// The asset is white-on-transparent; brightness-0 renders it as ink.
-				<img
-					src={logo.src}
-					alt=""
+				// The asset is white-on-transparent; masking a cream fill over an
+				// ink tile reproduces the Rivet badge treatment at hero scale.
+				<span
 					aria-hidden="true"
-					className="h-9 w-9 shrink-0 brightness-0 md:h-10 md:w-10"
-				/>
+					className="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink md:size-10"
+				>
+					<span
+						style={wordmarkMaskStyle(logo.src)}
+						className="block h-full w-full bg-cream"
+					/>
+				</span>
 			) : product.icon ? (
 				<Icon
 					icon={product.icon}

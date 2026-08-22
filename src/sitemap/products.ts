@@ -84,7 +84,7 @@ export interface Product {
 	name: string;
 	/** One line for the product switcher. */
 	description: string;
-	/** Verb eyebrow for the pillar framing (Run / Operate / Automate / Deploy). */
+	/** Verb eyebrow for the pillar framing (Orchestrate / Operate / Automate / Deploy). */
 	verb?: string;
 	/** Premise line for the verb framing. No terminal period. */
 	premise?: string;
