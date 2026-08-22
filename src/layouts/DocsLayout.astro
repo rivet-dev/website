@@ -29,7 +29,11 @@ const hasSidebar = (sidebar?.length ?? 0) > 0;
 	<div class="paper-grain selection-paper w-full relative z-10 font-sans">
 		<div
 			class:list={[
-				'mx-auto w-full min-h-content flex flex-col',
+				// Cap the whole shell (sidebar + article + TOC) and center it as one
+				// unit. Uncapped, the sidebar pins to the viewport edge while the
+				// article centers in the leftover track, opening a dead band between
+				// them on wide screens. 94rem = sidebar (20) + content (72) + slack.
+				'mx-auto w-full max-w-[94rem] min-h-content flex flex-col',
 				hasSidebar && 'md:grid md:grid-cols-docs',
 			]}
 			style="--header-height: 7.5625rem;"
