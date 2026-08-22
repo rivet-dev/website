@@ -393,12 +393,15 @@
 	/* Blueprint section boundary: a full-bleed hairline that breaks at the
 	   standard content rail's vertical guides, where a registration cross
 	   marks the intersection and a short guide segment fades away above and
-	   below. Rendered by <SectionRule /> placed between top-level sections;
-	   the guide position mirrors SITE_SECTION_CLASS gutters around the
-	   max-w-7xl rail so crosses sit exactly on the content edge. */
+	   below. Rendered by <SectionRule /> placed between top-level sections.
+	   The guide tracks the max-w-7xl rail edge but stands --rule-outset
+	   outside it so the crosses breathe instead of hugging the content;
+	   --rule-min keeps them clear of the viewport edge when the rail's
+	   SITE_SECTION_CLASS gutter is all the room there is. */
 	.site-rule {
-		--rule-gutter: 1rem;
-		--rule-guide: max(var(--rule-gutter), calc((100% - 80rem) / 2));
+		--rule-min: 1rem;
+		--rule-outset: 2.5rem;
+		--rule-guide: max(var(--rule-min), calc((100% - 80rem) / 2 - var(--rule-outset)));
 		--rule-cross: 1.25rem;
 		--rule-gap: 0.4375rem;
 		--rule-reach: calc(var(--rule-cross) / 2 + var(--rule-gap));
@@ -410,12 +413,12 @@
 	}
 	@media (min-width: 768px) {
 		.site-rule {
-			--rule-gutter: 3rem;
+			--rule-min: 1.5rem;
 		}
 	}
 	@media (min-width: 1681px) {
 		.site-rule {
-			--rule-gutter: 3.5rem;
+			--rule-min: 1.75rem;
 		}
 	}
 	.site-rule > span {
@@ -931,6 +934,23 @@
 	}
 }
 
+@keyframes workflow-node-loop {
+	0%,
+	5%,
+	76%,
+	100% {
+		fill: var(--workflow-node-fill);
+		stroke: rgba(244, 241, 231, 0.22);
+		transform: scale(1);
+	}
+	13%,
+	58% {
+		fill: var(--workflow-node-active-fill);
+		stroke: rgba(255, 255, 255, 0.6);
+		transform: scale(1.01);
+	}
+}
+
 /* Dynamic Apps uses paired circle outlines: each pair trades diagonal
    positions, pauses, and returns to origin while the card remains active. */
 .dynamic-app-circle {
@@ -988,23 +1008,6 @@
 	.dynamic-app-circle {
 		animation: none !important;
 		transform: none;
-	}
-}
-
-@keyframes workflow-node-loop {
-	0%,
-	5%,
-	76%,
-	100% {
-		fill: var(--workflow-node-fill);
-		stroke: rgba(244, 241, 231, 0.22);
-		transform: scale(1);
-	}
-	13%,
-	58% {
-		fill: var(--workflow-node-active-fill);
-		stroke: rgba(255, 255, 255, 0.6);
-		transform: scale(1.01);
 	}
 }
 
