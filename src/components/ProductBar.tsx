@@ -81,15 +81,13 @@ function ProductLabel({
 				<span
 					aria-hidden="true"
 					className={cn(
-						// 26px, not size-7: optically matched to the R badge inside the
-						// header logo above (80px lockup -> ~26.5px badge).
-						"flex size-[1.625rem] shrink-0 items-center justify-center rounded-[34.375%]",
+						"flex size-7 shrink-0 items-center justify-center rounded-[34.375%]",
 						accent?.fill ?? "bg-ink/20",
 					)}
 				>
 					<ProductMark
 						product={current}
-						className="h-full w-full"
+						className="h-7 w-7"
 						tone="cream"
 					/>
 				</span>

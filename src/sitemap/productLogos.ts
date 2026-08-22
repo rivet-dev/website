@@ -8,6 +8,7 @@
 import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
 import dynamicAppsLogoUrl from "@/images/products/dynamic-apps-logo.svg";
+import rivetCloudLogoUrl from "@/images/products/rivet-cloud-logo.svg";
 import workflowsLogoUrl from "@/images/products/workflows-logo.svg";
 
 export const productLogos: Record<string, { src: string }> = {
@@ -15,4 +16,5 @@ export const productLogos: Record<string, { src: string }> = {
 	agentos: agentosLogoUrl,
 	workflows: workflowsLogoUrl,
 	"dynamic-apps": dynamicAppsLogoUrl,
+	cloud: rivetCloudLogoUrl,
 };
