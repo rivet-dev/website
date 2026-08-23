@@ -39,9 +39,9 @@ const ACTORS: Integration[] = [
 		badge: "Beta",
 	},
 	{
-		title: "Vercel Workflows",
-		description: "Vercel Workflows backed by Rivet Actors.",
-		slug: "vercel-workflows",
+		title: "Workflow SDK",
+		description: "Vercel's Workflow SDK backed by Rivet Actors.",
+		slug: "workflow-sdk",
 		category: "Workflows",
 		icon: { src: "/images/vendors/workflow.svg" },
 		badge: "Beta",

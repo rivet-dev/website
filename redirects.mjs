@@ -22,8 +22,8 @@ const explicitRedirects = {
 	// Integrations moved out of the documentation URL hierarchy.
 	'/docs/integrations': '/integrations/',
 	'/docs/integrations/vercel-eve': '/integrations/vercel-eve/',
-	'/docs/integrations/vercel-workflow': '/integrations/vercel-workflows/',
-	'/integrations/vercel-workflow': '/integrations/vercel-workflows/',
+	'/docs/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
+	'/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
 	// The Tutorials tab became Learn.
 	'/actors/tutorials': '/actors/learn/',
 	'/agentos/tutorials': '/agentos/docs/',
@@ -42,7 +42,7 @@ const explicitRedirects = {
 	'/cookbook/vpc-air-gapped': '/actors/learn/vpc-air-gapped/',
 	'/integrations/flue': '/actors/integrations/flue/',
 	'/integrations/vercel-eve': '/actors/integrations/vercel-eve/',
-	'/integrations/vercel-workflows': '/actors/integrations/vercel-workflows/',
+	'/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
 	// Documentation restructure
 	'/docs/setup': '/actors/docs/',
 	// Dead links inside dated changelog posts. Neither target ever existed, so
@@ -121,7 +121,9 @@ const explicitRedirects = {
 	'/docs/integrations': '/actors/integrations/',
 	'/docs/integrations/flue': '/actors/integrations/flue/',
 	'/docs/integrations/vercel-eve': '/actors/integrations/vercel-eve/',
-	'/docs/integrations/vercel-workflows': '/actors/integrations/vercel-workflows/',
+	'/docs/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
+	// The Vercel Workflows page is named after the SDK it integrates with.
+	'/actors/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
 	// `/contact` was never a page here; sales is the live destination.
 	'/contact': '/sales/',
 
