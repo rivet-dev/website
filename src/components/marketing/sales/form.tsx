@@ -24,7 +24,7 @@ export function SalesForm() {
 		setIsSubmitting(true);
 
 		const formData = new FormData(event.currentTarget);
-		const data = Object.fromEntries(formData.entries().toArray());
+		const data = Object.fromEntries(Array.from(formData.entries()));
 
 		try {
 			posthog.capture("survey sent", {
