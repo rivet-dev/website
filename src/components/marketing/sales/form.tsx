@@ -58,7 +58,7 @@ export function SalesForm() {
 						documentation
 					</a>{" "}
 					or{" "}
-					<a href="/changelog" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
+					<a href="/blog/" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
 						changelog
 					</a>{" "}
 					for more information.

@@ -8,8 +8,9 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 - A process running the user's code with the Rivet SDK is a **worker**. Never "envoy", "runner", "node", "compute", or "data plane".
 - **Never use "agent" as a deployment noun.** Rivet ships agentOS and Actors is "where agents live"; the collision is unrecoverable.
 - **"envoy" never appears on the website.** Envoy Proxy is a top-tier CNCF project. Internal code keeps `pegboard-envoy` / `envoy-client`.
-- **"Rivet Compute" is retired with no replacement page.** Managed deploy is the quickstart's `rivet deploy` step; where prose must name the managed offering, it is **Rivet Cloud**.
-- **All Rivet Cloud links point at `https://dashboard.rivet.dev`**, including from the quickstart. There is no Rivet Cloud docs page.
+- **Rivet Compute is a live Rivet Cloud feature**, documented at `/cloud/docs/compute/`. Where prose must name the managed offering, it is **Rivet Cloud**. When describing what Rivet Cloud runs for the customer, say "your backend", never "your workers".
+- **Rivet Cloud docs live at `/cloud/docs/`.** Dashboard links point at `https://dashboard.rivet.dev`.
+- **Positioning canon:** the tagline is "Infrastructure for the agentic era." with the supporting line "Orchestrate agents. Operate their environment. Automate their work. Deploy what they build." The phrase "infrastructure for long-lived software" is retired.
 - **"Self-Host" names the section; "control plane" names the thing.** Pages inside it say "deploy the control plane on Kubernetes".
 - **Do not rewrite blog or changelog posts** to apply this terminology. They are dated records; dead links are handled by redirects.
 

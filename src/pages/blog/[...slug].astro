@@ -41,8 +41,7 @@ const breadcrumbSchema = {
 	"itemListElement": [
 		{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://rivet.dev/" },
 		{ "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://rivet.dev/blog/" },
-		{ "@type": "ListItem", "position": 3, "name": category.name, "item": `https://rivet.dev/blog/` },
-		{ "@type": "ListItem", "position": 4, "name": title, "item": `https://rivet.dev/blog/${slug}/` }
+		{ "@type": "ListItem", "position": 3, "name": title, "item": `https://rivet.dev/blog/${slug}/` }
 	]
 };
 ---
@@ -52,6 +51,8 @@ const breadcrumbSchema = {
 	description={description}
 	canonicalUrl={`https://rivet.dev/blog/${slug}/`}
 	ogImage={image?.src}
+	ogImageWidth={image?.width}
+	ogImageHeight={image?.height}
 	publishedTime={entry.data.published.toISOString()}
 	keywords={entry.data.keywords}
 	authorName={author.name}

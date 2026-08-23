@@ -84,14 +84,13 @@ const latest = changelogEntries.sort(
 const latestChangelogTitle = latest?.data.title ?? '';
 const latestChangelogHref = latest
 	? `/changelog/${latest.id.replace(/\/page$/, '')}/`
-	: '/changelog';
+	: '/blog/';
 ---
 
 <MarketingLayout
 	title="Rivet - Infrastructure for the Agentic Era"
-	description="Rivet is infrastructure for long-lived software. Actors give every agent, session, and user a durable process with its state inside; agentOS gives agents a computer in that same process. Open source under Apache 2.0."
+	description="Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build."
 	canonicalUrl="https://rivet.dev/"
-	keywords={["agentic infrastructure", "AI agents", "actors", "stateful", "workflows", "long-lived processes", "on-prem", "air-gapped", "self-hosted", "agentOS", "durable execution", "VPC", "agent sandbox"]}
 >
 	<main id="main-content" tabindex="-1">
 		<RedesignedHero latestChangelogTitle={latestChangelogTitle} latestChangelogHref={latestChangelogHref} thinkingImages={thinkingImages} client:load />

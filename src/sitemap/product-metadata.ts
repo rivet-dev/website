@@ -85,7 +85,7 @@ export const PRODUCTS: ProductMetadata[] = [
 	{
 		id: "actors",
 		name: "Actors",
-		tagline: "The primitive for stateful workloads",
+		tagline: "The primitive for agent orchestration",
 		verb: "Orchestrate",
 		premise: "Give every agent a durable process to live in",
 		repo: "rivet",
