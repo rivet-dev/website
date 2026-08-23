@@ -193,7 +193,6 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<link rel="mask-icon" href="/icons/safari-pinned-tab.svg?20240925" color="#1B1916" />
 		<meta name="msapplication-TileColor" content={themeColor} />
 		<meta name="theme-color" content={themeColor} />
-<<<<<<< HEAD
 		<script is:inline>
 			(() => {
 				const syncSiteMotionClass = (root) => {
@@ -208,11 +207,6 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		</script>
 		{pageFamily === 'site' && (
 			<script is:inline data-astro-rerun>
-=======
-		{pageFamily === 'site' && (
-			<script is:inline data-astro-rerun>
-				document.documentElement.classList.add('site-motion-ready');
->>>>>>> origin/main
 				window.setTimeout(() => {
 					if (document.documentElement.hasAttribute('data-site-motion-observer-ready')) return;
 					document

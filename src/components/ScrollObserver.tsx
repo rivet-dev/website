@@ -12,7 +12,6 @@ const OBSERVER_READY_ATTRIBUTE = 'data-site-motion-observer-ready';
 export function ScrollObserver() {
 	useEffect(() => {
 		let observer: IntersectionObserver | undefined;
-<<<<<<< HEAD
 		const pendingHydrationListeners = new Map<HTMLElement, EventListener>();
 
 		const clearPendingHydrationListeners = () => {
@@ -24,18 +23,12 @@ export function ScrollObserver() {
 
 		const revealAll = (elements: HTMLElement[]) => {
 			elements.forEach((element) => {
-=======
-
-		const revealAll = () => {
-			document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((element) => {
->>>>>>> origin/main
 				element.setAttribute(VISIBLE_ATTRIBUTE, '');
 			});
 		};
 
 		const observe = () => {
 			observer?.disconnect();
-<<<<<<< HEAD
 			clearPendingHydrationListeners();
 
 			const elements = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
@@ -75,28 +68,6 @@ export function ScrollObserver() {
 
 			if (!('IntersectionObserver' in window)) {
 				revealAll(observableElements);
-=======
-
-			const elements = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
-
-			elements.forEach((element) => {
-				const delay = Number(element.dataset.siteRevealDelay ?? 0);
-				if (Number.isFinite(delay) && delay > 0) {
-					element.style.setProperty('--site-reveal-delay', `${delay}ms`);
-				}
-
-				if (!element.hasAttribute('data-site-reveal-group')) return;
-
-				const stagger = Number(element.dataset.siteRevealStagger ?? 70);
-				Array.from(element.children).forEach((child, index) => {
-					if (!(child instanceof HTMLElement) || !child.hasAttribute('data-site-reveal-child')) return;
-					child.style.setProperty('--site-reveal-delay', `${Math.max(0, stagger) * index}ms`);
-				});
-			});
-
-			if (!('IntersectionObserver' in window)) {
-				revealAll();
->>>>>>> origin/main
 				return;
 			}
 
@@ -111,11 +82,7 @@ export function ScrollObserver() {
 				{ rootMargin: '-10% 0px', threshold: 0.01 },
 			);
 
-<<<<<<< HEAD
 			observableElements.forEach((element) => {
-=======
-			elements.forEach((element) => {
->>>>>>> origin/main
 				if (!element.hasAttribute(VISIBLE_ATTRIBUTE)) observer?.observe(element);
 			});
 		};
@@ -126,10 +93,7 @@ export function ScrollObserver() {
 
 		return () => {
 			observer?.disconnect();
-<<<<<<< HEAD
 			clearPendingHydrationListeners();
-=======
->>>>>>> origin/main
 			document.documentElement.removeAttribute(OBSERVER_READY_ATTRIBUTE);
 			document.removeEventListener('astro:page-load', observe);
 		};

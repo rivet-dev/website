@@ -68,11 +68,7 @@ const articleSchema = {
 	articleSection={category}
 	pageFamily="site"
 >
-<<<<<<< HEAD
 	{publishedTime && <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />}
-=======
-	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
->>>>>>> origin/main
 	<Header active="blog" variant="floating" pageFamily="site" client:load />
 	<div class:list={[SITE_PAGE_CLASS, 'relative z-10 w-full']}>
 		<slot />
