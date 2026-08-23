@@ -130,7 +130,7 @@ const appIsolation = [
 	},
 	{
 		title: 'Isolated by default',
-		body: 'Each app runs in its own agentOS VM with its own state and SQLite data. Tenants never share a process.',
+		body: 'Each app runs in its own agentOS VM with its own state and SQLite data. Tenants share no filesystem, memory, or crash fate.',
 	},
 	{
 		title: 'Scales to zero',
@@ -292,7 +292,7 @@ const compositionLayers = [
 				<div class="mt-12 min-w-0" data-site-reveal>
 					<WorkflowCodeTabs tabs={appsTabs} client:visible />
 					<noscript>
-						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine underline underline-offset-2" href={appsTabs[0].sourceUrl}>hello-world example source on GitHub</a>.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine caption-underline" href={appsTabs[0].sourceUrl}>hello-world example source on GitHub</a>.</p>
 					</noscript>
 				</div>
 			</div>
@@ -347,9 +347,9 @@ const compositionLayers = [
 					<AppsRoutingDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine underline underline-offset-2" href="/dynamic-apps/docs/routing">routing</a>,
-						<a class="text-pine underline underline-offset-2" href="/dynamic-apps/docs/authentication">authentication</a>, and
-						<a class="text-pine underline underline-offset-2" href="/dynamic-apps/docs/deploy">deploying apps</a>.
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/routing">routing</a>,
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/authentication">authentication</a>, and
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a request passing through your Hono server and its middleware, then the control plane routing it to a prewarmed agentOS VM that serves the generated app.</p>
@@ -373,8 +373,8 @@ const compositionLayers = [
 					<AppsRepairDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine underline underline-offset-2" href="/dynamic-apps/docs/deploy">deploying apps</a> or view the
-						<a class="text-pine underline underline-offset-2" href={AI_BUILDER_EXAMPLE_URL}>AI App Builder example</a>.
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a> or view the
+						<a class="text-pine caption-underline" href={AI_BUILDER_EXAMPLE_URL}>AI App Builder example</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a failed build returning diagnostics, a repaired build succeeding, and the previous release serving until the successful build replaces it.</p>

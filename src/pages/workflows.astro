@@ -224,7 +224,7 @@ const compositionLayers = [
 				<div class="mt-12 min-w-0" data-site-reveal>
 					<WorkflowCodeTabs tabs={progressTabs} client:visible />
 					<noscript>
-						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine underline underline-offset-2" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine caption-underline" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
 					</noscript>
 				</div>
 			</div>
@@ -256,9 +256,9 @@ const compositionLayers = [
 					<WorkflowCoordinationDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine underline underline-offset-2" href="/workflows/docs/queues">queue waits</a>,
-						<a class="text-pine underline underline-offset-2" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
-						<a class="text-pine underline underline-offset-2" href="/workflows/docs/failure-and-recovery">failure and recovery</a>.
+						<a class="text-pine caption-underline" href="/workflows/docs/queues">queue waits</a>,
+						<a class="text-pine caption-underline" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
+						<a class="text-pine caption-underline" href="/workflows/docs/failure-and-recovery">failure and recovery</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a step pausing on a wait, resuming on approval, fanning into three branches where one retries, then joining.</p>
@@ -282,8 +282,8 @@ const compositionLayers = [
 					<WorkflowAgentDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine underline underline-offset-2" href="/workflows/docs/patterns">agent patterns</a> or
-						<a class="text-pine underline underline-offset-2" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
+						<a class="text-pine caption-underline" href="/workflows/docs/patterns">agent patterns</a> or
+						<a class="text-pine caption-underline" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows an agent's computer with files, shell, and networking, and the row of recorded steps beneath it.</p>
@@ -307,7 +307,7 @@ const compositionLayers = [
 					<WorkflowVersioningDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine underline underline-offset-2" href="/workflows/docs/versioning">versioning</a>.
+						<a class="text-pine caption-underline" href="/workflows/docs/versioning">versioning</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows one run crossing the deploy line and finishing on v1 while a new run starts on v2.</p>

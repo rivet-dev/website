@@ -2,9 +2,9 @@ import { Cloud, Laptop, Server } from "lucide-react";
 import {
   DEPLOY_CARD_CLASS,
   DEPLOY_CARD_TITLE_CLASS,
-  DEPLOY_COMMAND_BLOCK_CLASS,
   DEPLOY_GHOST_BUTTON_CLASS,
   DEPLOY_WHITE_BUTTON_CLASS,
+  TerminalCommand,
 } from "./deployKit";
 import { BODY_CLASS } from "./typography";
 
@@ -43,11 +43,7 @@ export const DeploymentOptions = ({
       </p>
       <div className="flex-1" />
       <div className="mt-6 border-t border-ink/10 pt-6">
-        <div className={DEPLOY_COMMAND_BLOCK_CLASS}>
-          <code className="block overflow-x-auto whitespace-nowrap">
-            {installCommand}
-          </code>
-        </div>
+        <TerminalCommand command={installCommand} />
         <a
           href={quickstartHref}
           className={`mt-4 ${DEPLOY_GHOST_BUTTON_CLASS}`}

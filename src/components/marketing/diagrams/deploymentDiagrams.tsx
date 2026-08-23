@@ -6,30 +6,28 @@ import { Icon, faRailway, faVercel, faCloudflare, faAws, faKubernetes } from '@r
 
 // ---------------------------------------------------------------------------
 // The three deployment models drawn on one shared axis: every variant is the
-// identical worker → control plane → storage stack, and only the containment
+// identical backend → control plane → storage stack, and only the containment
 // boundary moves. Pine names what Rivet Cloud runs, ink names what you run,
-// and the dashed edge with the travelling dot is the worker dialling out
-// across the network boundary. Pine only — no ember; the page's one accent
-// CTA lives elsewhere. Restated from the self-host docs
-// (src/content/self-host/index.mdx).
+// and the dashed arrow is the backend dialling out across the network
+// boundary. Pine only — no ember; the page's one accent CTA lives elsewhere.
+// Restated from the self-host docs (src/content/self-host/index.mdx).
 // ---------------------------------------------------------------------------
 
 export type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
 
 export const DEPLOYMENT_DIAGRAM_ARIA: Record<DeploymentDiagramVariant, string> = {
 	managed:
-		'Fully managed architecture: the worker running your code, the control plane, and storage all run inside Rivet Cloud.',
+		'Fully managed architecture: your backend, the control plane, and storage all run inside Rivet Cloud.',
 	byoc:
-		'Bring-your-own-compute architecture: the worker running your code runs on your infrastructure — such as Railway, Vercel, Cloudflare, AWS, or Kubernetes — and connects outbound to the control plane and storage in Rivet Cloud.',
+		'Bring-your-own-compute architecture: your backend runs on your infrastructure — such as Railway, Vercel, Cloudflare, AWS, or Kubernetes — and connects outbound to the control plane and storage in Rivet Cloud.',
 	'self-hosted':
-		'Fully self-hosted architecture: the worker, control plane, and storage all run on infrastructure you control.',
+		'Fully self-hosted architecture: your backend, the control plane, and storage all run on infrastructure you control.',
 };
 
 const COMPUTE_PROVIDERS = [faRailway, faVercel, faCloudflare, faAws, faKubernetes];
 
 // Staged fade-in gated on scroll-into-view; settled instantly under reduced
-// motion. Same hook as workflowDiagrams.tsx, extended to expose `reduced` so
-// the travelling dot can be suppressed.
+// motion. Same hook as workflowDiagrams.tsx.
 const useDiagram = () => {
 	const ref = useRef<HTMLDivElement>(null);
 	const inView = useInView(ref, { once: true, margin: '-15% 0px' });
@@ -42,7 +40,7 @@ const useDiagram = () => {
 					animate: inView ? { opacity: 1 } : { opacity: 0 },
 					transition: { duration: 0.35, delay: 0.15 + order * 0.18, ease: 'easeOut' as const },
 				};
-	return { ref, show, reduced };
+	return { ref, show };
 };
 
 type Show = ReturnType<typeof useDiagram>['show'];
@@ -96,31 +94,29 @@ const Zone = ({
 	</motion.div>
 );
 
-// The one edge that crosses the network boundary: dashed, with a pine dot
-// travelling outward (worker dials out; no inbound path to your infra).
-const CrossConnector = ({ show, at, reduced }: { show: Show; at: number; reduced: boolean | null }) => (
-	<motion.div className='relative mx-auto flex min-h-7 flex-1 items-center justify-center gap-2' {...show(at)}>
-		<span aria-hidden='true' className='relative block h-full w-px border-l border-dashed border-ink/30'>
-			{!reduced && (
-				<motion.span
-					aria-hidden='true'
-					initial={{ top: 0, opacity: 0 }}
-					animate={{ top: ['0%', '80%'], opacity: [0, 1, 1, 0] }}
-					transition={{ duration: 1.3, repeat: Infinity, ease: 'easeInOut', delay: 1.2, repeatDelay: 0.9 }}
-					className='absolute -left-[2.5px] h-1 w-1 rounded-full bg-pine'
-				/>
-			)}
+// The one edge that crosses the network boundary: a dashed arrow pointing
+// from your backend into Rivet Cloud (your backend dials out; no inbound
+// path to your infra). The shaft sits on the diagram's center axis — the
+// label hangs off it absolutely so it cannot push the arrow off-center.
+const CrossConnector = ({ show, at }: { show: Show; at: number }) => (
+	<motion.div className='relative flex min-h-7 flex-1 justify-center' {...show(at)}>
+		<span aria-hidden='true' className='block w-px border-l border-dashed border-ink/30' />
+		<span
+			aria-hidden='true'
+			className='absolute bottom-0 left-1/2 -translate-x-1/2 border-x-[3px] border-t-[5px] border-x-transparent border-t-ink/30'
+		/>
+		<span className='absolute left-1/2 top-1/2 ml-2 -translate-y-1/2 font-mono text-[10px] text-ink-faint'>
+			outbound
 		</span>
-		<span className='font-mono text-[10px] text-ink-faint'>outbound</span>
 	</motion.div>
 );
 
-const Worker = () => <Node title='Worker' sub='your code' />;
+const Backend = () => <Node title='Your backend' sub='application code' />;
 const ControlPlane = () => <Node title='Control plane' sub='scheduling · routing' ink />;
 const Storage = () => <Node title='Storage' sub='actor state' />;
 
 export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVariant }) => {
-	const { ref, show, reduced } = useDiagram();
+	const { ref, show } = useDiagram();
 
 	return (
 		<div
@@ -133,7 +129,7 @@ export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVaria
 				<>
 					<Zone tone='ink' label='Your infrastructure' show={show} at={0}>
 						<motion.div {...show(1)}>
-							<Worker />
+							<Backend />
 						</motion.div>
 						<motion.div
 							aria-hidden='true'
@@ -145,7 +141,7 @@ export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVaria
 							))}
 						</motion.div>
 					</Zone>
-					<CrossConnector show={show} at={2} reduced={reduced} />
+					<CrossConnector show={show} at={2} />
 					<Zone tone='pine' label='Rivet Cloud' show={show} at={2.5}>
 						<motion.div {...show(3)}>
 							<ControlPlane />
@@ -165,7 +161,7 @@ export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVaria
 					at={0}
 				>
 					<motion.div {...show(1)}>
-						<Worker />
+						<Backend />
 					</motion.div>
 					<Connector show={show} at={1.5} />
 					<motion.div {...show(2)}>

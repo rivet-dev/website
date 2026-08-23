@@ -830,13 +830,111 @@
 	border-bottom-color: #1b1916;
 }
 
-/* Slow diagonal pan for the stack cards' dot grid; one 18px grid cell per
-   cycle so the loop is seamless. Animates transform (composited) rather than
-   background-position, which browsers snap to whole pixels and stutter.
-   Paused by default, runs on card hover. */
-@keyframes dot-drift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(18px, 18px, 0); }
+/* Dashed underline for caption/figure links beneath diagrams and images. A
+   dotted rule set on the text baseline, matching the footer's "Are you as well?"
+   treatment, so figure captions read as quiet annotations rather than solid
+   body links. */
+.caption-underline {
+	background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+	background-size: 6px 1px;
+	background-position: 0 100%;
+	background-repeat: repeat-x;
+	padding-bottom: 4px;
+}
+
+/* Two stacked copies of the field create a seamless upward loop. */
+.actors-logo-track {
+	position: absolute;
+	inset: 0 0 auto;
+	height: 240%;
+	transform: translate3d(0, 0, 0);
+	will-change: transform;
+	animation: actors-logo-rise 18s linear infinite;
+	animation-play-state: paused;
+}
+
+.actors-card:hover .actors-logo-track {
+	animation-play-state: running;
+}
+
+.actors-logo-field {
+	position: absolute;
+	top: var(--actors-logo-field-top);
+	left: 0;
+	width: 100%;
+	height: 50%;
+}
+
+/* Staggered centers keep a hairline gap between the larger marks. */
+.actors-card .actors-floating-logo {
+	position: absolute;
+	top: var(--actors-logo-top);
+	left: var(--actors-logo-left);
+	width: 44%;
+	aspect-ratio: 1;
+	transform: rotate(var(--actors-logo-tilt));
+	will-change: transform;
+	animation: actors-logo-float var(--actors-logo-float-duration) ease-in-out infinite;
+	animation-delay: var(--actors-logo-float-delay);
+	animation-play-state: paused;
+}
+
+.actors-card:hover .actors-floating-logo {
+	animation-play-state: running;
+}
+
+.actors-logo {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.actors-logo--outline {
+	opacity: var(--actors-logo-opacity);
+}
+
+/* The cover follows the logo's outer contour, removing both the glyphs and
+   the heavy inner stroke so the remaining line matches the other cards. */
+.actors-logo-center-cover {
+	position: absolute;
+	inset: 12%;
+	border-radius: 30%;
+	background: #2c5a7a;
+}
+
+@keyframes actors-logo-rise {
+	to {
+		transform: translate3d(0, -50%, 0);
+	}
+}
+
+@keyframes actors-logo-float {
+	0%,
+	100% {
+		transform: translate3d(0, 1px, 0) rotate(var(--actors-logo-tilt-left));
+	}
+
+	34% {
+		transform: translate3d(var(--actors-logo-float-x), var(--actors-logo-float-y), 0) rotate(var(--actors-logo-tilt-right));
+	}
+
+	43% {
+		transform: translate3d(var(--actors-logo-contact-x), var(--actors-logo-contact-y), 0) rotate(var(--actors-logo-tilt));
+	}
+
+	70% {
+		transform: translate3d(var(--actors-logo-float-back-x), -1px, 0) rotate(var(--actors-logo-tilt-left));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actors-card .actors-logo-track,
+	.actors-card .actors-floating-logo {
+		animation: none !important;
+	}
 }
 
 /* The Workflows stack card transposes the reference's vertical data field into
@@ -1008,6 +1106,72 @@
 	.dynamic-app-circle {
 		animation: none !important;
 		transform: none;
+	}
+}
+
+/* agentOS radiates a sine-eased family of circles from one origin. The
+   timelines remain paused at rest, preserving their phase between hovers. */
+.agentos-ring {
+	fill: none;
+	stroke-width: 1;
+	transform: scale(var(--agentos-ring-scale));
+	transform-box: view-box;
+	transform-origin: 330px 306px;
+	animation: agentos-ring-grow 7.2s infinite;
+	animation-delay: var(--agentos-ring-delay);
+	animation-play-state: paused;
+	animation-timing-function: linear(
+		0,
+		0.0076,
+		0.0302,
+		0.067,
+		0.117,
+		0.1786,
+		0.25,
+		0.329,
+		0.4132,
+		0.5,
+		0.5868,
+		0.671,
+		0.75,
+		0.8214,
+		0.883,
+		0.933,
+		0.9698,
+		0.9924,
+		1
+	);
+}
+
+.agentos-ring--bright {
+	stroke: rgba(244, 241, 231, 0.34);
+}
+
+.agentos-ring--soft {
+	stroke: rgba(244, 241, 231, 0.2);
+}
+
+.agentos-card:is(:hover, :focus-visible) .agentos-ring {
+	animation-play-state: running;
+}
+
+@keyframes agentos-ring-grow {
+	0% {
+		opacity: 1;
+		transform: scale(0.06);
+	}
+	90% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.16);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.agentos-ring {
+		animation: none !important;
 	}
 }
 

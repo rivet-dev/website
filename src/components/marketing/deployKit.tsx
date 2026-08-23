@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import {
 	CARD_TITLE_CLASS,
@@ -26,34 +23,24 @@ export const DEPLOY_BUTTON_BASE = 'w-full';
 export const DEPLOY_GHOST_BUTTON_CLASS = `${PRODUCT_HERO_SECONDARY_BUTTON_CLASS} !w-full no-underline`;
 export const DEPLOY_WHITE_BUTTON_CLASS = `${PRIMARY_INK_BUTTON_CLASS} !w-full no-underline`;
 
-// Terminal command block. Mirrors the cookbook command-block markup: a
-// horizontally-scrollable single-line command with an absolute copy button.
+// Terminal command block. The entire server-rendered surface is the copy
+// target; BaseLayout's delegated code-copy listener provides the interaction
+// without hydrating every deployment section.
 export const TerminalCommand = ({ command }: { command: string }) => {
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		try {
-			await navigator.clipboard.writeText(command);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch (err) {
-			console.error('Failed to copy command:', err);
-		}
-	};
-
 	return (
-		<div className={DEPLOY_COMMAND_BLOCK_CLASS}>
-			<div className='scrollbar-hide overflow-x-auto'>
-				<code className='select-all whitespace-nowrap'>{command}</code>
-			</div>
-			<button
-				type='button'
-				onClick={handleCopy}
-				aria-label={copied ? 'Copied' : 'Copy command'}
-				className='absolute right-1.5 top-1.5 rounded p-1.5 text-ink-faint transition-colors motion-reduce:transition-none hover:bg-ink/10 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine'
-			>
-				{copied ? <Check className='h-4 w-4 text-pine' /> : <Copy className='h-4 w-4' />}
-			</button>
-		</div>
+		<button
+			type='button'
+			data-copy-code
+			aria-label={`Copy ${command}`}
+			className={`${DEPLOY_COMMAND_BLOCK_CLASS} group block w-full cursor-pointer text-left transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
+		>
+			<span className='scrollbar-hide block overflow-x-auto'>
+				<code className='code whitespace-nowrap'>{command}</code>
+			</span>
+			<span className='pointer-events-none absolute right-1.5 top-1.5 rounded p-1.5 text-ink-faint transition-colors group-hover:text-ink'>
+				<Copy data-copy-icon='copy' className='h-4 w-4' aria-hidden='true' />
+				<Check data-copy-icon='check' className='hidden h-4 w-4 text-pine' aria-hidden='true' />
+			</span>
+		</button>
 	);
 };

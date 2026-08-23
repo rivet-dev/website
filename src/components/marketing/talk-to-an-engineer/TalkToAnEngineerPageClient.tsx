@@ -1,9 +1,8 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { TalkToAnEngineerForm } from "./form";
 import { HERO_H1_CLASS, SUBTITLE_CLASS } from "../typography";
-import { ProductMark } from "@/components/ProductBar";
+import { ProductBadge } from "@/components/ProductBar";
 import { visibleProducts } from "@/sitemap/products";
-import { productAccent } from "@/lib/product-accent";
 import {
 	SITE_CARD_CLASS,
 	SITE_STANDARD_RAIL_CLASS,
@@ -45,7 +44,6 @@ function ProductIconCluster() {
 			/>
 
 			{visibleProducts.map((product, i) => {
-				const accent = productAccent(product.id);
 				const tilt = TILT[i % TILT.length];
 				const offset = OFFSET[i % OFFSET.length];
 				const position = POSITIONS[i % POSITIONS.length];
@@ -81,11 +79,7 @@ function ProductIconCluster() {
 					>
 						{/* The product color is the tile, the mark rides in cream — the
 						    same lockup geometry as the header dropdown. */}
-						<span
-							className={`flex size-20 items-center justify-center rounded-[34.375%] ${accent?.fill ?? "bg-ink"}`}
-						>
-							<ProductMark product={product} tone="cream" className="size-20" />
-						</span>
+						<ProductBadge product={product} className="size-20" />
 
 						{/* Name shows only on hover, in a pill below the logo. */}
 						<span className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink opacity-0 shadow-[0_8px_24px_-12px_rgba(27,25,22,0.35)] transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none">

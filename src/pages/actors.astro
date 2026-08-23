@@ -1,7 +1,7 @@
 ---
 // Page lane: /actors is the canonical home of the Actor primitive and every
-// use case built on it: AI agents, realtime, multiplayer, collaborative state,
-// and durable workflows. There is no separate agent solution page.
+// use case built on it: agent orchestration, real-time and multiplayer, and
+// per-tenant databases. There is no separate agent solution page.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { BuiltInFeatures } from '@/components/marketing/sections/BuiltInFeatures';
@@ -44,24 +44,19 @@ if (!actorsProduct) {
 
 const useCases = [
 	{
-		title: 'AI agents',
-		body: 'An Actor preserves the identity, state, and session. Add agentOS when the agent also needs files, processes, shell, and networking.',
+		title: 'Agent orchestration',
+		body: 'One Actor per agent preserves identity, state, and session across long-running work. Add agentOS when the agent also needs files, processes, shell, and networking.',
 		href: '/agentos',
 	},
 	{
-		title: 'Realtime & multiplayer',
-		body: 'WebSockets and event broadcast built in. One Actor per room, match, or channel keeps every client in sync without a separate realtime service.',
+		title: 'Real-time / multiplayer',
+		body: 'WebSockets and event broadcast built in. One Actor per room, match, or channel keeps every client in sync without a separate real-time service.',
 		href: '/actors/docs/events',
 	},
 	{
-		title: 'Collaborative state',
-		body: 'One Actor per document or workspace. State stays co-located with the Actor, so concurrent edits share one authoritative process.',
-		href: '/actors/docs/sharing-and-joining-state',
-	},
-	{
-		title: 'Workflow foundation',
-		body: 'Actors supply durable identity, state, queues, storage, and realtime. Workflows adds recorded operations, retries, and replay as an Actor run handler.',
-		href: '/workflows',
+		title: 'Per-tenant databases',
+		body: 'One Actor per tenant, keyed by tenant ID, owns that tenant’s entire dataset. State stays fully isolated per tenant with no shared tables and no tenant_id filters.',
+		href: '/actors/learn/per-tenant-database',
 	},
 ];
 
@@ -71,7 +66,7 @@ const compositionLayers = [
 	{
 		name: 'agentOS',
 		logo: productLogos.agentos.src,
-		body: 'Adds files, processes, a shell, and networking when an agent needs a computer. Every agentOS session is an Actor.',
+		body: 'Adds files, processes, a shell, and networking when an agent needs a computer. Every agentOS VM is an Actor.',
 		href: '/agentos',
 	},
 	{
@@ -140,7 +135,7 @@ const compositionLayers = [
 				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One primitive, every stateful workload.</h2>
 				</div>
-				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
+				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 md:grid-cols-3" data-site-reveal-group>
 					{
 						useCases.map((useCase) => (
 							<div class="h-full" data-site-reveal-child>

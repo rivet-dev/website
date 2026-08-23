@@ -17,13 +17,13 @@ const stack = visibleProducts.map((product) => ({
   highlight: product.id === "actors",
 }));
 
-const workflowRails = Array.from({ length: 10 }, (_, index) => 26 + index * 26);
 const workflowSteps = [
-  { x: 180, y: 44, width: 108, height: 16 },
-  { x: 32, y: 96, width: 132, height: 16 },
-  { x: 160, y: 148, width: 128, height: 16 },
-  { x: 70, y: 200, width: 132, height: 16 },
+  { x: 164, y: 84, width: 108, height: 16 },
+  { x: 44, y: 132, width: 132, height: 16 },
+  { x: 144, y: 180, width: 128, height: 16 },
+  { x: 60, y: 228, width: 132, height: 16 },
 ] as const;
+const workflowRails = workflowSteps.map((step) => step.y + step.height / 2);
 
 const dynamicAppCircles = [
   { cx: 16, cy: 36, direction: "forward", tone: "bright", delay: 0 },
@@ -36,12 +36,63 @@ const dynamicAppCircles = [
   { cx: 256, cy: 252, direction: "backward", tone: "soft", delay: 300 },
 ] as const;
 
+const easeInOutSine = (progress: number) => (1 - Math.cos(Math.PI * progress)) / 2;
+
+const agentOSRings = Array.from({ length: 9 }, (_, index) => ({
+  scale: 0.06 + easeInOutSine(index / 9) * 1.1,
+  delay: index * -800,
+  tone: index % 3 === 0 ? "bright" : "soft",
+}));
+
+const actorLogoMarks = [
+  {
+    left: -19, top: -13.5, tilt: -5, rock: 3.5,
+    swayX: 6, bob: 4, duration: 7.6, delay: -1.4, opacity: 0.18,
+  },
+  {
+    left: 29, top: -11.5, tilt: 3, rock: 4,
+    swayX: -5, bob: 3, duration: 8.4, delay: -3.2, opacity: 0.24,
+  },
+  {
+    left: 75, top: -13, tilt: -2, rock: 3,
+    swayX: -6, bob: 5, duration: 6.9, delay: -4.8, opacity: 0.18,
+  },
+  {
+    left: 4, top: 13.5, tilt: 5, rock: 3.5,
+    swayX: 7, bob: 3, duration: 8.8, delay: -2.5, opacity: 0.2,
+  },
+  {
+    left: 52, top: 11.5, tilt: -4, rock: 4.5,
+    swayX: -7, bob: 4, duration: 7.2, delay: -5.3, opacity: 0.26,
+  },
+  {
+    left: -17, top: 36.5, tilt: 4, rock: 3,
+    swayX: 5, bob: 5, duration: 8.1, delay: -3.7, opacity: 0.17,
+  },
+  {
+    left: 30, top: 38.5, tilt: -5, rock: 3.5,
+    swayX: -6, bob: 3, duration: 6.6, delay: -1.9, opacity: 0.22,
+  },
+  {
+    left: 76, top: 36.5, tilt: 3, rock: 4,
+    swayX: -5, bob: 4, duration: 8.6, delay: -6.1, opacity: 0.18,
+  },
+  {
+    left: 6, top: 63.5, tilt: -3, rock: 4.5,
+    swayX: 7, bob: 5, duration: 7.4, delay: -4.4, opacity: 0.2,
+  },
+  {
+    left: 50, top: 61, tilt: 5, rock: 3,
+    swayX: -6, bob: 3, duration: 8.3, delay: -2.8, opacity: 0.24,
+  },
+] as const;
+
 // A quiet workflow field for the Workflows card. The rails stay visible at
 // rest; hover and keyboard focus trace each task from input to output.
 const WorkflowBackdrop = () => (
   <div
     aria-hidden="true"
-    className="pointer-events-none absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)]"
+    className="pointer-events-none absolute inset-0 overflow-hidden [-webkit-mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)] [mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)]"
   >
     <svg
       className="h-full w-full"
@@ -121,7 +172,7 @@ const WorkflowBackdrop = () => (
 const DynamicAppsBackdrop = () => (
   <div
     aria-hidden="true"
-    className="pointer-events-none absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)]"
+    className="pointer-events-none absolute inset-0 overflow-hidden [-webkit-mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)] [mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)]"
   >
     <svg
       className="h-full w-full"
@@ -142,6 +193,85 @@ const DynamicAppsBackdrop = () => (
         />
       ))}
     </svg>
+  </div>
+);
+
+// Rings share one lower-right origin. Their resting scales follow the same
+// sine-eased phases as their negative delays, so hover begins without a jump.
+const AgentOSBackdrop = () => (
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 overflow-hidden [-webkit-mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)] [mask-image:linear-gradient(to_bottom,black_55%,transparent_84%)]"
+  >
+    <svg
+      className="h-full w-full"
+      viewBox="0 0 320 400"
+      preserveAspectRatio="none"
+    >
+      {agentOSRings.map((ring, index) => (
+        <circle
+          key={index}
+          className={`agentos-ring agentos-ring--${ring.tone}`}
+          style={{
+            "--agentos-ring-scale": ring.scale,
+            "--agentos-ring-delay": `${ring.delay}ms`,
+          } as CSSProperties}
+          cx="168"
+          cy="144"
+          r="229.1"
+          vectorEffect="non-scaling-stroke"
+        />
+      ))}
+    </svg>
+  </div>
+);
+
+// Reuse the real Actors mark so its outline stays exact. A plate-colored
+// center cover removes the inner glyphs, while two identical fields make the
+// upward hover loop seamless as one replaces the other.
+const ActorsBackdrop = () => (
+  <div
+    aria-hidden="true"
+    className="actors-backdrop pointer-events-none absolute inset-0 overflow-hidden [-webkit-mask-image:linear-gradient(to_bottom,black_58%,transparent_86%)] [mask-image:linear-gradient(to_bottom,black_58%,transparent_86%)]"
+  >
+    <div className="actors-logo-track">
+      {[0, 1].map((cycle) => (
+        <div
+          key={cycle}
+          className="actors-logo-field"
+          style={{ "--actors-logo-field-top": `${cycle * 50}%` } as CSSProperties}
+        >
+          {actorLogoMarks.map((mark, index) => (
+            <span
+              key={index}
+              className="actors-floating-logo"
+              style={{
+                "--actors-logo-left": `${mark.left}%`,
+                "--actors-logo-top": `${mark.top}%`,
+                "--actors-logo-tilt": `${mark.tilt}deg`,
+                "--actors-logo-opacity": mark.opacity,
+                "--actors-logo-tilt-left": `${mark.tilt - mark.rock}deg`,
+                "--actors-logo-tilt-right": `${mark.tilt + mark.rock}deg`,
+                "--actors-logo-float-x": `${mark.swayX}px`,
+                "--actors-logo-contact-x": `${mark.swayX + (mark.swayX > 0 ? -2 : 2)}px`,
+                "--actors-logo-float-back-x": `${mark.swayX * -0.55}px`,
+                "--actors-logo-float-y": `${mark.bob * -1}px`,
+                "--actors-logo-contact-y": `${mark.bob * -1 + 2}px`,
+                "--actors-logo-float-duration": `${mark.duration}s`,
+                "--actors-logo-float-delay": `${mark.delay}s`,
+              } as CSSProperties}
+            >
+              <img
+                alt=""
+                className="actors-logo actors-logo--outline"
+                src={productLogos.actors.src}
+              />
+              <span className="actors-logo-center-cover" />
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
   </div>
 );
 
@@ -186,25 +316,24 @@ export const StackSection = () => (
             key={product.id}
             href={product.href}
             data-site-reveal-child=""
-            className={`group flex min-w-0 flex-col ${product.id === "workflows" ? "workflow-card focus-visible:outline-none" : product.id === "dynamic-apps" ? "dynamic-apps-card focus-visible:outline-none" : ""}`}
+            className={`group flex min-w-0 flex-col ${product.id === "workflows" ? "workflow-card focus-visible:outline-none" : product.id === "dynamic-apps" ? "dynamic-apps-card focus-visible:outline-none" : product.id === "agentos" ? "agentos-card focus-visible:outline-none" : product.id === "actors" ? "actors-card" : ""}`}
           >
             {/* Accent plate: verb, mark, name, and the premise live on the
-                product color. Workflows and Dynamic Apps use product-specific
-                fields; the other cards retain their drifting cream grid. */}
+                product color. Each product uses its own quiet background
+                field without competing with the foreground content. */}
             <div
-              className={`relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-xl p-6 ${accent?.fill ?? "bg-ink"} ${product.id === "workflows" || product.id === "dynamic-apps" ? "transition-shadow duration-200 group-focus-visible:ring-2 group-focus-visible:ring-cream/80 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-paper motion-reduce:transition-none" : ""}`}
+              className={`relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-xl p-6 ${accent?.fill ?? "bg-ink"} ${product.id === "workflows" || product.id === "dynamic-apps" || product.id === "agentos" ? "transition-shadow duration-200 group-focus-visible:ring-2 group-focus-visible:ring-cream/80 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-paper motion-reduce:transition-none" : ""}`}
             >
               {product.id === "workflows" ? (
                 <WorkflowBackdrop />
               ) : product.id === "dynamic-apps" ? (
                 <DynamicAppsBackdrop />
+              ) : product.id === "agentos" ? (
+                <AgentOSBackdrop />
+              ) : product.id === "actors" ? (
+                <ActorsBackdrop />
               ) : (
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black_25%,transparent_90%)]"
-                >
-                  <div className={`absolute -inset-[18px] bg-[url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='18'%20height='18'%3E%3Cpath%20d='M9%205.5v7M5.5%209h7'%20stroke='rgba(244,241,231,0.42)'%20stroke-width='1'/%3E%3C/svg%3E")] bg-[size:18px_18px] will-change-transform [animation:dot-drift_7s_linear_infinite_paused] group-hover:[animation-play-state:running] motion-reduce:[animation:none]`} />
-                </div>
+                null
               )}
               <span className="relative self-start rounded-full border border-cream/20 bg-cream/10 px-3 py-1 text-sm font-medium text-cream/90 backdrop-blur-md backdrop-saturate-[1.3] transition-colors duration-300 [transition-timing-function:cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none group-hover:border-cream/35 group-hover:bg-cream/25 group-hover:text-cream">
                 {product.verb}

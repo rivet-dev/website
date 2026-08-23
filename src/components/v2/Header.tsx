@@ -31,7 +31,7 @@ import sandboxAgentLogoUrl from "@/images/products/sandbox-agent-logo.svg";
 import { GitHubDropdown } from "./GitHubDropdown";
 import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";
-import { ProductBar, ProductMark } from "@/components/ProductBar";
+import { ProductBar, ProductBadge } from "@/components/ProductBar";
 import { productAccent } from "@/lib/product-accent";
 import {
 	findProductForPath,
@@ -281,22 +281,8 @@ function ProductsDropdown({
 										product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
 									)}
 								>
-									{/* The product color is the tile, not the mark. The mark's
-									    inset ring spans the full tile so the lockup matches the
-									    Rivet badge geometry (radius 34.375%, ring inset 14.3%). */}
-									<span
-										aria-hidden="true"
-										className={cn(
-											"flex size-8 shrink-0 items-center justify-center rounded-[34.375%]",
-											product.accent?.fill ?? "bg-ink/20",
-										)}
-									>
-										<ProductMark
-											product={product.product}
-											className="h-8 w-8"
-											tone="cream"
-										/>
-									</span>
+									{/* The product color is the tile, not the mark. */}
+									<ProductBadge product={product.product} className="size-8" />
 									<div className="min-w-0 flex-1">
 										<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
 											{product.label}
@@ -368,7 +354,7 @@ function ProductsDropdown({
 										lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
 									)}
 								>
-									<ProductMark product={product.product} className="h-6 w-6" tone="cream" />
+									<ProductBadge product={product.product} className="size-6" />
 									<div className="flex flex-col">
 										<div className={cn(
 											"font-medium text-sm transition-colors",
@@ -769,7 +755,7 @@ function DocsMobileNavigation({
 						rel={product.external ? "noopener noreferrer" : undefined}
 						className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
 					>
-						<ProductMark product={product.product} className="h-4 w-4" />
+						<ProductBadge product={product.product} className="size-6" />
 						{product.label}
 						{product.product.verb && (
 							<span className={`${EYEBROW_CLASS} ml-auto`}>
@@ -874,7 +860,7 @@ function DocsMobileNavigation({
 					rel={product.external ? "noopener noreferrer" : undefined}
 					className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
 				>
-					<ProductMark product={product.product} className="h-4 w-4" tone="cream" />
+					<ProductBadge product={product.product} className="size-6" />
 					{product.label}
 					{product.product.verb && (
 						<span className={`${EYEBROW_ON_INK_CLASS} ml-auto`}>

@@ -46,7 +46,7 @@ const SelfHostingComparison = () => {
   const deploymentModels = [
     {
       title: 'Fully managed',
-      description: 'Rivet Cloud runs your workers, the control plane, and storage. Nothing to operate.',
+      description: 'Rivet Cloud runs your backend, the control plane, and storage. Nothing to operate.',
       hint: 'Best for most teams shipping to production.',
       icon: faCloudArrowUp,
       diagram: 'managed' as const,
@@ -56,7 +56,7 @@ const SelfHostingComparison = () => {
     },
     {
       title: 'Bring your own compute',
-      description: 'Your workers run on your own infrastructure and connect outbound to the control plane in Rivet Cloud.',
+      description: 'Your backend runs on your own infrastructure and connects outbound to the control plane in Rivet Cloud.',
       hint: 'Best for serverless platforms and keeping compute in your VPC.',
       icon: faShareNodes,
       diagram: 'byoc' as const,
@@ -82,14 +82,14 @@ const SelfHostingComparison = () => {
         <div className="max-w-3xl" data-site-reveal>
           <h2 className={SECTION_H2_CLASS}>Compare Deployment Models</h2>
           <p className={SECTION_LEDE_CLASS}>
-            Every model runs the same three pieces — a worker running your code, the control plane,
+            Every model runs the same three pieces — your backend, the control plane,
             and storage. Choose who runs each piece.
           </p>
         </div>
 
         {/* Fused hairline grid (workflows composition pattern): three cells
             reading as one comparison object. Every column draws the identical
-            worker → control plane → storage stack; only the Rivet Cloud (pine)
+            backend → control plane → storage stack; only the Rivet Cloud (pine)
             vs your-infrastructure (ink) boundary moves, so the pine region
             visibly shrinks left to right. Subgrid keeps the five rows level
             across columns; browsers without subgrid fall back to auto rows. */}

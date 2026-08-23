@@ -1,71 +1,72 @@
-import { Check } from "lucide-react";
-import { PerimeterDiagram } from "../editorial/PerimeterDiagram";
+import { ConsolidatedStackDiagram } from "../diagrams/ConsolidatedStackDiagram";
+import { CatalogCard } from "../editorial/CatalogCard";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import {
-	BODY_CLASS,
+  BODY_CLASS,
   PRIMARY_INK_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
   SECTION_H2_CLASS,
-  SECTION_LEDE_CLASS,
 } from "../typography";
-import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
-const points = [
-  "Air-gapped and on-prem: no outbound connections, telemetry off with one flag",
-  "Customer VPCs: each deployment chooses its own network and storage boundary",
-  "Regulated environments: runs under the controls your team already operates",
-];
-
-// The checklist above carries the air-gap claim, so the diagram drops its
-// footer; the lede carries "one binary", so the control-plane node drops it.
-const perimeterNodes = [
-  { title: "Your backend", detail: "Actors run in your Node.js or Bun process" },
-  { title: "Rivet control plane", detail: "Schedules and routes your Actors" },
-  { title: "Your storage", detail: "File system, Postgres, or FoundationDB" },
+const pillars = [
+  {
+    title: "Single Rust binary",
+    body: "One process to install, monitor, and upgrade.",
+  },
+  {
+    title: "Kubernetes or systemd",
+    body: "Deploy with the Enterprise Helm chart or a systemd unit.",
+  },
+  {
+    title: "Mainstream databases",
+    body: "Run on Postgres or SQLite, with managed backups to S3.",
+  },
+  {
+    title: "Local dev matches production",
+    body: "Use the same binary, APIs, and control-plane behavior from laptop to production.",
+  },
 ];
 
 export const OnPremSection = () => (
-  <section className={`bg-paper ${SITE_SECTION_CLASS}`}>
+  <section
+    aria-labelledby="landing-deployment-title"
+    className={`bg-paper ${SITE_SECTION_CLASS}`}
+  >
     <div className={SITE_STANDARD_RAIL_CLASS}>
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-        <div data-site-reveal="">
-          <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
-            Run it where your data lives.
-          </h2>
-          <p className={SECTION_LEDE_CLASS}>
-            The control plane is one binary you control, deployed on your own
-            infrastructure.
-          </p>
+      <div className="max-w-3xl" data-site-reveal="">
+        <h2 id="landing-deployment-title" className={SECTION_H2_CLASS}>
+          Run the entire agent stack where your data lives.
+        </h2>
+      </div>
 
-          <ul className="mt-8 divide-y divide-ink/10 border-y border-ink/10">
-            {points.map((point) => (
-              <li
-                key={point}
-                className={`flex items-start gap-3 py-4 ${BODY_CLASS}`}
-              >
-                <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/60 bg-pine/[0.08]">
-                  <Check className="h-3 w-3 text-pine" aria-hidden="true" />
-                </span>
-                {point}
-              </li>
-            ))}
-          </ul>
+      <div className="mt-12" data-site-reveal="">
+        <ConsolidatedStackDiagram />
+      </div>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <a href="/talk-to-an-engineer" className={PRIMARY_INK_BUTTON_CLASS}>
-              Talk to an engineer
-            </a>
-            <a
-              href="/enterprise"
-              className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
-            >
-              Rivet for Enterprise
-            </a>
-          </div>
-        </div>
+      <ul
+        className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        data-site-reveal-group=""
+        data-site-reveal-stagger="70"
+      >
+        {pillars.map((pillar) => (
+          <li key={pillar.title} className="h-full" data-site-reveal-child="">
+            <CatalogCard title={pillar.title} className="flex h-full flex-col">
+              <p className={`mt-2 flex-1 ${BODY_CLASS}`}>{pillar.body}</p>
+            </CatalogCard>
+          </li>
+        ))}
+      </ul>
 
-        <div data-site-reveal="">
-          <PerimeterDiagram className="bg-paper" nodes={perimeterNodes} footer={null} />
-        </div>
+      <div
+        className="mt-10 flex flex-col gap-3 sm:flex-row"
+        data-site-reveal=""
+      >
+        <a href="/talk-to-an-engineer" className={PRIMARY_INK_BUTTON_CLASS}>
+          Talk to an engineer
+        </a>
+        <a href="/enterprise" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+          Explore Enterprise
+        </a>
       </div>
     </div>
   </section>

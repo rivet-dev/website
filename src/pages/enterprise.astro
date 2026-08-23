@@ -1,8 +1,10 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { jsonLdString } from '@/lib/jsonLd';
-import { PerimeterDiagram } from '@/components/marketing/editorial/PerimeterDiagram';
+import { DeploymentBoundaryDiagram } from '@/components/marketing/diagrams/ConsolidatedStackDiagram';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
+import { EnterpriseDeploymentModels } from '@/components/marketing/enterprise/EnterpriseDeploymentModels';
+import { EnterpriseObservabilitySection } from '@/components/marketing/enterprise/EnterpriseObservabilitySection';
 import {
 	BODY_CLASS,
 	HERO_H1_CLASS,
@@ -25,6 +27,7 @@ const title = 'Rivet Enterprise';
 const description =
 	'Run Rivet on-prem, in your VPC, embedded in your customers’ environments, or fully air-gapped. The control plane can start as one binary, with no required outbound connections.';
 const canonicalUrl = 'https://rivet.dev/enterprise/';
+const SHOW_DEPLOYMENT_MODELS = false;
 
 const breadcrumbSchema = {
 	'@context': 'https://schema.org',
@@ -40,24 +43,6 @@ const breadcrumbSchema = {
 	})),
 };
 
-const deploymentModels = [
-	{
-		index: '01',
-		title: 'Your VPC',
-		body: 'Start the same control plane that powers Rivet Cloud as one binary inside your perimeter. No outbound calls are required, and crash reporting switches off with one config flag.',
-	},
-	{
-		index: '02',
-		title: 'Embedded in your customers',
-		body: 'Ship the control plane inside a customer VPC, regulated environment, or on-prem hardware. The operator chooses the network and storage boundary.',
-	},
-	{
-		index: '03',
-		title: 'Air-gapped',
-		body: 'Deploy the control plane on disconnected networks using artifacts approved for that environment.',
-	},
-];
-
 const boundaryControls = [
 	'No required outbound control-plane connections',
 	'Crash reporting can be disabled with one configuration flag',
@@ -68,16 +53,20 @@ const boundaryControls = [
 
 const footprints = [
 	{
-		title: 'Single binary',
-		body: 'One process to install, monitor, and upgrade. Ideal for evaluation, embedded deployments, and air-gapped installs.',
+		title: 'Single Rust binary',
+		body: 'One process to install, monitor, and upgrade.',
 	},
 	{
-		title: 'Docker Compose',
-		body: 'A complete environment in one file. Stand up Rivet alongside your existing services without changing how you operate them.',
+		title: 'Kubernetes or systemd',
+		body: 'Deploy with the Enterprise Helm chart or a systemd unit.',
 	},
 	{
-		title: 'Kubernetes',
-		body: 'Scale out across nodes and regions when traffic demands it. The same artifact you evaluated runs in production.',
+		title: 'Mainstream databases',
+		body: 'Runs on Postgres and SQLite. Backups and S3 storage are managed for you.',
+	},
+	{
+		title: 'Local dev identical to production',
+		body: 'Local development is the same as what you deploy to production.',
 	},
 ];
 
@@ -106,12 +95,12 @@ const enterpriseEditionFeatures = [
 			<!-- Hero -->
 			<section class={SITE_UTILITY_HERO_CLASS}>
 				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+					<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
 						<div data-site-reveal-group data-site-reveal-stagger="40">
 							<h1 class={HERO_H1_CLASS} data-site-reveal-child>Run Rivet inside your perimeter.</h1>
 							<p class="mt-4 max-w-xl text-[17px] leading-relaxed text-ink-soft" data-site-reveal-child>
-								Deploy Rivet in your VPC, embed it in your customers’ environments, or run it
-								fully air-gapped. The same platform that powers Rivet Cloud, under your control.
+								Keep runtime, control plane, and data under the controls your team already
+								operates. The same platform that powers Rivet Cloud.
 							</p>
 							<div class="mt-8 flex flex-col gap-3 sm:flex-row" data-site-reveal-child>
 								<a href="/talk-to-an-engineer" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
@@ -122,8 +111,8 @@ const enterpriseEditionFeatures = [
 								</a>
 							</div>
 						</div>
-						<div data-site-reveal data-site-reveal-delay="120">
-							<PerimeterDiagram />
+						<div class="mx-auto w-full min-w-0 max-w-2xl lg:max-w-none" data-site-reveal data-site-reveal-delay="120">
+							<DeploymentBoundaryDiagram />
 						</div>
 					</div>
 				</div>
@@ -131,31 +120,23 @@ const enterpriseEditionFeatures = [
 
 			<SectionRule />
 
-			<!-- Deployment models -->
-			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
-				<div class={SITE_STANDARD_RAIL_CLASS}>
-					<div class="max-w-3xl" data-site-reveal>
-						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Three ways to deploy.</h2>
-						<p class={SECTION_LEDE_CLASS}>
-							Rivet ships as software you run, not a service you call out to. Pick the
-							boundary, and Rivet stays inside it.
-						</p>
-					</div>
-					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
-						{
-							deploymentModels.map((model) => (
-								<div class="h-full" data-site-reveal-child>
-									<CatalogCard title={model.title} className="h-full">
-										<p class={`mt-2 ${BODY_CLASS}`}>{model.body}</p>
-									</CatalogCard>
-								</div>
-							))
-						}
-					</div>
-				</div>
-			</section>
+			{
+				SHOW_DEPLOYMENT_MODELS && (
+					<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+						<div class={SITE_STANDARD_RAIL_CLASS}>
+							<div class="max-w-3xl" data-site-reveal>
+								<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Three ways to deploy.</h2>
+								<p class={SECTION_LEDE_CLASS}>
+									Start locally as a library and deploy inside your existing boundary.
+								</p>
+							</div>
+							<EnterpriseDeploymentModels client:visible />
+						</div>
+					</section>
+				)
+			}
 
-			<SectionRule />
+			{SHOW_DEPLOYMENT_MODELS && <SectionRule />}
 
 			<!-- Enterprise Edition contents -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
@@ -163,9 +144,7 @@ const enterpriseEditionFeatures = [
 					<div class="max-w-3xl" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Everything in Enterprise Edition.</h2>
 						<p class={SECTION_LEDE_CLASS}>
-							Additional operational features on top of the open-source control plane. The
-							multi-tenancy and operations layer for running Rivet in larger deployments,
-							in your own VPC, customer environments, or regulated networks.
+							The multi-tenancy and operations layer on top of the open-source control plane.
 						</p>
 					</div>
 					<ul class="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
@@ -194,9 +173,8 @@ const enterpriseEditionFeatures = [
 						<div>
 							<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Keep deployment inside your existing boundary.</h2>
 							<p class={SECTION_LEDE_CLASS}>
-								Use the self-hosted architecture inside environments governed by your existing
-								controls. Review Rivet configuration, dependencies, and operating procedures
-								with your security team for the requirements that apply to your deployment.
+								The control plane runs under the controls you already have. Nothing needs to
+								leave the boundary.
 							</p>
 						</div>
 						<ul class="space-y-4">
@@ -225,16 +203,15 @@ const enterpriseEditionFeatures = [
 					<div class="max-w-3xl" data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>A footprint your ops team will sign off on.</h2>
 						<p class={SECTION_LEDE_CLASS}>
-							The self-hosted control plane ships as a Rust binary and container, with documented
-							Docker Compose, Kubernetes, and VM deployment paths.
+							The same artifact runs from laptop to production.
 						</p>
 					</div>
-					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3" data-site-reveal-group data-site-reveal-stagger="70">
+					<div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group data-site-reveal-stagger="70">
 						{
 							footprints.map((fp) => (
 								<div class="h-full" data-site-reveal-child>
 									<CatalogCard title={fp.title} className="flex h-full flex-col">
-										<p class={`mt-2 ${BODY_CLASS}`}>{fp.body}</p>
+										<p class={`mt-2 flex-1 ${BODY_CLASS}`}>{fp.body}</p>
 									</CatalogCard>
 								</div>
 							))
@@ -242,6 +219,11 @@ const enterpriseEditionFeatures = [
 					</div>
 				</div>
 			</section>
+
+			<SectionRule />
+
+			<!-- Observability -->
+			<EnterpriseObservabilitySection />
 
 			<SectionRule />
 
