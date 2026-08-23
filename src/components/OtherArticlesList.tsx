@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { AUTHORS } from '@/lib/article';
+import { SITE_CARD_CLASS } from '@/components/marketing/layout';
 
 interface OtherArticlesListProps {
 	currentSlug: string;
@@ -33,15 +34,18 @@ export const OtherArticlesList = async ({
 	const formatter = new Intl.DateTimeFormat("en", {});
 
 	return (
-		<ul className="mt-2 hidden text-sm text-cream-100 xl:block">
+		<ul className="mt-4 hidden space-y-3 text-sm text-ink-soft xl:block">
 			{articlesWithTitles.map((article) => {
 				return (
-					<li key={article.slug} className="mb-3 flex">
-						<a href={`/blog/${article.slug}/`} className="hover:text-cream-300">
-							<p className="text-xs leading-tight">
+					<li key={article.slug}>
+						<a
+							href={`/blog/${article.slug}/`}
+							className={`${SITE_CARD_CLASS} block transition-colors hover:border-ink/25 hover:text-ink`}
+						>
+							<p className="text-sm font-medium leading-snug text-ink">
 								{article.title}
 							</p>
-							<div className="text-2xs text-charcole-800">
+							<div className="mt-2 text-xs text-ink-faint">
 								{article.author.name} @{" "}
 								<i>
 									{formatter.format(article.date)}

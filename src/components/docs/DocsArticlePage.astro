@@ -15,6 +15,7 @@ import { sitemap } from '@/sitemap/mod';
 import { findActiveTab } from '@/lib/sitemap';
 import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
+import { getProductMetadata } from '@/sitemap/product-metadata';
 import * as mdxComponents from '@/components/mdx';
 
 const {
@@ -28,6 +29,7 @@ const {
 	// Set when the same guide body is generated for several products, so every
 	// copy points search engines at one winner instead of letting Google pick.
 	canonicalUrl: canonicalUrlOverride,
+	robots,
 	// Extra MDX components for this page, e.g. the bound product slot renderer.
 	extraComponents = {},
 } = Astro.props;
@@ -96,6 +98,24 @@ const componentSourcePath = entry.filePath
 	? entry.filePath.replace(/^.*?src\/content\//, '')
 	: `docs/${entry.id}.mdx`;
 
+// Product documentation is authored in each product's repository and linked
+// into this site's content collection at build time. Keep edit links pointed at
+// that source of truth; website-owned collections (including generated
+// Self-Host variants) continue to point at this repository.
+const normalizedFilePath = entry.filePath?.replaceAll('\\', '/');
+const product = productId ? getProductMetadata(productId) : undefined;
+const productContentMarker = productId ? `src/content/docs/${productId}/` : undefined;
+const productContentPath = normalizedFilePath?.includes('/docs/content/')
+	? normalizedFilePath.slice(normalizedFilePath.lastIndexOf('/docs/content/') + '/docs/content/'.length)
+	: productContentMarker && normalizedFilePath?.includes(productContentMarker)
+		? normalizedFilePath.slice(normalizedFilePath.indexOf(productContentMarker) + productContentMarker.length)
+		: `${tabId}/${routeEntryId ? `${routeEntryId}.mdx` : 'index.mdx'}`;
+const editUrl = product && tabId !== 'self-host'
+	? product.localBundle
+		? `https://github.com/rivet-dev/website/edit/main/${product.localBundle}/docs/content/${productContentPath}`
+		: `https://github.com/rivet-dev/${product.repo}/edit/main/docs/content/${productContentPath}`
+	: `https://github.com/rivet-dev/website/edit/main/src/content/${componentSourcePath}`;
+
 // Build BreadcrumbList schema
 const breadcrumbItems = [
 	{ name: "Home", url: "https://rivet.dev/" },
@@ -124,6 +144,7 @@ const breadcrumbSchema = {
 	title={`${title} - Rivet`}
 	description={description}
 	canonicalUrl={canonicalUrl}
+	robots={robots}
 	sidebar={foundTab?.tab?.sidebar}
 	productId={productId}
 	tabId={tabId}
@@ -136,8 +157,8 @@ const breadcrumbSchema = {
 		</aside>
 	)}
 	<div class="flex justify-center w-full min-w-0">
-		<div class="flex gap-8 max-w-6xl w-full min-w-0">
-			<main class:list={["w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0", landing ? "" : "py-8 max-w-prose-docs"]}>
+		<div class:list={["flex gap-8 w-full min-w-0", isLanding ? "max-w-6xl" : "max-w-[86rem]"]}>
+			<main id="main-content" tabindex="-1" class:list={["w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0", landing ? "" : "py-8 max-w-prose-docs"]}>
 				{landing ? (
 					<DocsLanding {...landing} />
 				) : (
@@ -164,7 +185,7 @@ const breadcrumbSchema = {
 						</Prose>
 						<div class="border-t border-ink/10 mt-12 pt-6 flex flex-wrap items-center justify-between gap-4">
 							<a
-								href={`https://github.com/rivet-dev/rivet/edit/main/website/src/content/${componentSourcePath}`}
+								href={editUrl}
 								target="_blank"
 								rel="noreferrer"
 								class="inline-flex items-center gap-2 rounded-md border border-ink/15 bg-white/55 px-3 py-2 text-sm text-ink transition-colors hover:border-ink/30"

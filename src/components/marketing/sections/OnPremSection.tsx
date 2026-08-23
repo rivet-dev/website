@@ -1,82 +1,73 @@
-'use client';
+import { ConsolidatedStackDiagram } from "../diagrams/ConsolidatedStackDiagram";
+import { CatalogCard } from "../editorial/CatalogCard";
+import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
+import {
+  BODY_CLASS,
+  PRIMARY_INK_BUTTON_CLASS,
+  PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+  SECTION_H2_CLASS,
+} from "../typography";
 
-import { motion } from 'framer-motion';
-import { ArrowRight, Check } from 'lucide-react';
-import { PRODUCT_HERO_SECONDARY_BUTTON_CLASS, SECTION_H2_CLASS, SUBTITLE_CLASS } from '../typography';
-import { PerimeterDiagram } from '../editorial/PerimeterDiagram';
-
-const points = [
-	'Air-gapped and on-prem: no outbound calls, no telemetry leaving your boundary',
-	'Embed in your customers’ VPCs: they keep their data, you keep your product',
-	'FedRAMP, HIPAA, sovereign clouds: stay inside the boundary your controls already cover',
+const pillars = [
+  {
+    title: "Single Rust binary",
+    body: "One process to install, monitor, and upgrade.",
+  },
+  {
+    title: "Kubernetes or systemd",
+    body: "Deploy with the Enterprise Helm chart or a systemd unit.",
+  },
+  {
+    title: "Mainstream databases",
+    body: "Run on Postgres or SQLite, with managed backups to S3.",
+  },
+  {
+    title: "Local dev matches production",
+    body: "Use the same binary, APIs, and control-plane behavior from laptop to production.",
+  },
 ];
 
 export const OnPremSection = () => (
-	<section className='border-t border-ink/10 px-6 py-16 md:py-32'>
-		<div className='mx-auto max-w-7xl'>
-			<div className='grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20'>
-				<div>
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5, delay: 0.05 }}
-					>
-												<h2 className={`mb-4 ${SECTION_H2_CLASS}`}>Run it where your data lives.</h2>
-					</motion.div>
-					<motion.p
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5, delay: 0.1 }}
-						className='text-base leading-relaxed text-ink-soft md:text-lg'
-					>
-						A single binary you control. Deploy Rivet inside your VPC, your customer&rsquo;s VPC, or fully air-gapped, with the compliance you already have.
-					</motion.p>
-					<motion.ul
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5, delay: 0.15 }}
-						className='mt-8 space-y-4'
-					>
-						{points.map((point) => (
-							<li key={point} className='flex items-start gap-3 text-sm leading-relaxed text-ink-soft'>
-								<span className='mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-pine/30'>
-									<Check className='h-3 w-3 text-pine' />
-								</span>
-								{point}
-							</li>
-						))}
-					</motion.ul>
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5, delay: 0.2 }}
-						className='mt-10 flex flex-col gap-3 sm:flex-row'
-					>
-						<a
-							href='/talk-to-an-engineer'
-							className='inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-ink/85'
-						>
-							Talk to an engineer
-							<ArrowRight className='h-4 w-4' />
-						</a>
-						<a href='/enterprise' className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
-							Rivet for Enterprise
-						</a>
-					</motion.div>
-				</div>
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.5, delay: 0.15 }}
-				>
-					<PerimeterDiagram />
-				</motion.div>
-			</div>
-		</div>
-	</section>
+  <section
+    aria-labelledby="landing-deployment-title"
+    className={`bg-paper ${SITE_SECTION_CLASS}`}
+  >
+    <div className={SITE_STANDARD_RAIL_CLASS}>
+      <div className="max-w-3xl" data-site-reveal="">
+        <h2 id="landing-deployment-title" className={SECTION_H2_CLASS}>
+          Run the entire agent stack where your data lives.
+        </h2>
+      </div>
+
+      <div className="mt-12" data-site-reveal="">
+        <ConsolidatedStackDiagram />
+      </div>
+
+      <ul
+        className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        data-site-reveal-group=""
+        data-site-reveal-stagger="70"
+      >
+        {pillars.map((pillar) => (
+          <li key={pillar.title} className="h-full" data-site-reveal-child="">
+            <CatalogCard title={pillar.title} className="flex h-full flex-col">
+              <p className={`mt-2 flex-1 ${BODY_CLASS}`}>{pillar.body}</p>
+            </CatalogCard>
+          </li>
+        ))}
+      </ul>
+
+      <div
+        className="mt-10 flex flex-col gap-3 sm:flex-row"
+        data-site-reveal=""
+      >
+        <a href="/talk-to-an-engineer" className={PRIMARY_INK_BUTTON_CLASS}>
+          Talk to an engineer
+        </a>
+        <a href="/enterprise" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+          Explore Enterprise
+        </a>
+      </div>
+    </div>
+  </section>
 );

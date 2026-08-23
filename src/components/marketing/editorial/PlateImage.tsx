@@ -3,11 +3,10 @@ import { CAPTION_CLASS } from '../typography';
 
 // Classical image in a museum mat: warm cream mat, hairline frame, and a
 // printed catalog caption below, e.g.
-// "Fig. 01 — A Lady Writing · Johannes Vermeer · c. 1665". Hook-free.
+// "A Lady Writing · Johannes Vermeer · c. 1665". Hook-free.
 interface PlateImageProps {
 	src: string;
 	alt: string;
-	figure?: string;
 	title?: string;
 	artist?: string;
 	date?: string;
@@ -21,7 +20,6 @@ interface PlateImageProps {
 export const PlateImage = ({
 	src,
 	alt,
-	figure,
 	title,
 	artist,
 	date,
@@ -48,7 +46,6 @@ export const PlateImage = ({
 			</div>
 			{captionParts.length > 0 ? (
 				<figcaption className={`${CAPTION_CLASS} mt-4`}>
-					{figure ? <span className="font-medium text-ink-soft">{figure} — </span> : null}
 					{captionParts.join(' · ')}
 				</figcaption>
 			) : null}

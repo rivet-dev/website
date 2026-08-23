@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Code2, Play, RotateCcw, SquarePen } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { InkPanel } from '../editorial/InkPanel';
@@ -485,13 +485,43 @@ const SessionRow = ({
 
 // The runtime cards are tabs: real buttons with no interactive content nested
 // inside them. The active runtime's docs link sits below the demo window.
-const RuntimeTabs = ({ active, onChange }: { active: number; onChange: (idx: number) => void }) => {
+const runtimeTabId = (idBase: string, key: string) => `${idBase}-tab-${key}`;
+const runtimePanelId = (idBase: string, key: string) => `${idBase}-panel-${key}`;
+
+const RuntimeTabs = ({ active, onChange, idBase, reduced }: { active: number; onChange: (idx: number) => void; idBase: string; reduced: boolean }) => {
 	const indicatorId = useId();
+	const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, idx: number) => {
+		let nextIdx: number | undefined;
+		switch (event.key) {
+			case 'ArrowRight':
+				nextIdx = (idx + 1) % TABS.length;
+				break;
+			case 'ArrowLeft':
+				nextIdx = (idx - 1 + TABS.length) % TABS.length;
+				break;
+			case 'Home':
+				nextIdx = 0;
+				break;
+			case 'End':
+				nextIdx = TABS.length - 1;
+				break;
+			default:
+				return;
+		}
+
+		event.preventDefault();
+		onChange(nextIdx);
+		tabRefs.current[nextIdx]?.focus();
+	};
+
 	return (
 		<div className='mb-5'>
 			<div
 				role='tablist'
 				aria-label='Execution runtimes'
+				aria-orientation='horizontal'
 				className='scrollbar-hide flex w-full min-w-0 flex-nowrap gap-1 overflow-x-auto rounded-full border border-ink/15 bg-ink/[0.025] p-1.5'
 			>
 				{TABS.map((t, idx) => {
@@ -499,11 +529,18 @@ const RuntimeTabs = ({ active, onChange }: { active: number; onChange: (idx: num
 					return (
 						<button
 							key={t.key}
+							ref={(element) => {
+								tabRefs.current[idx] = element;
+							}}
+							id={runtimeTabId(idBase, t.key)}
 							type='button'
 							role='tab'
 							aria-selected={selected}
+							aria-controls={runtimePanelId(idBase, t.key)}
+							tabIndex={selected ? 0 : -1}
 							onClick={() => onChange(idx)}
-							className={`relative flex min-w-max flex-1 shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm transition-colors ${
+							onKeyDown={(event) => handleKeyDown(event, idx)}
+							className={`relative flex min-w-max flex-1 shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${
 								selected ? 'font-medium text-ink' : 'text-ink-faint hover:text-ink'
 							}`}
 						>
@@ -511,7 +548,7 @@ const RuntimeTabs = ({ active, onChange }: { active: number; onChange: (idx: num
 								<motion.span
 									layoutId={`runtime-tab-${indicatorId}`}
 									className='absolute inset-0 rounded-full bg-white shadow-sm ring-1 ring-inset ring-ink/15'
-									transition={{ type: 'spring', stiffness: 480, damping: 38 }}
+									transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 480, damping: 38 }}
 								/>
 							)}
 							<span className='relative z-[1] flex items-center gap-2'>
@@ -533,6 +570,8 @@ const RuntimeTabs = ({ active, onChange }: { active: number; onChange: (idx: num
 
 export const AgentSessionDemo = () => {
 	const reduced = useReducedMotion() ?? false;
+	const runtimeTabsUid = useId();
+	const runtimeTabsIdBase = `agent-session-${runtimeTabsUid.replace(/:/g, '')}`;
 	const [active, setActive] = useState(0);
 	const [started, setStarted] = useState(false);
 	const [playKey, setPlayKey] = useState(0);
@@ -575,9 +614,16 @@ export const AgentSessionDemo = () => {
 			onViewportEnter={() => setStarted(true)}
 			viewport={{ once: true, margin: '-20% 0px' }}
 		>
-			<RuntimeTabs active={active} onChange={handleTabChange} />
+			<RuntimeTabs active={active} onChange={handleTabChange} idBase={runtimeTabsIdBase} reduced={reduced} />
 
-			<InkPanel caption={showCode ? CODE_CAPTION : CAPTION}>
+			<div
+				role='tabpanel'
+				id={runtimePanelId(runtimeTabsIdBase, tab.key)}
+				aria-labelledby={runtimeTabId(runtimeTabsIdBase, tab.key)}
+				tabIndex={0}
+				className='focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper'
+			>
+				<InkPanel caption={showCode ? CODE_CAPTION : CAPTION}>
 				<div className='flex items-center gap-2 border-b border-cream/10 px-4 py-3'>
 					<div className='h-3 w-3 rounded-full bg-cream/15' />
 					<div className='h-3 w-3 rounded-full bg-cream/15' />
@@ -644,12 +690,22 @@ export const AgentSessionDemo = () => {
 						</div>
 					</div>
 				)}
-			</InkPanel>
-			<div className='mt-4 flex justify-end'>
-				<a href={tab.docsHref} className='whitespace-nowrap text-sm text-accent-deep underline underline-offset-2 transition-colors hover:text-accent'>
-					{tab.docsLabel} <span aria-hidden='true'>→</span>
-				</a>
+				</InkPanel>
+				<div className='mt-4 flex justify-end'>
+					<a href={tab.docsHref} className='whitespace-nowrap rounded-sm text-sm text-pine underline underline-offset-2 transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper'>
+						{tab.docsLabel} <span aria-hidden='true'>→</span>
+					</a>
+				</div>
 			</div>
+			{TABS.map((runtime, idx) => idx === active ? null : (
+				<div
+					key={runtime.key}
+					role='tabpanel'
+					id={runtimePanelId(runtimeTabsIdBase, runtime.key)}
+					aria-labelledby={runtimeTabId(runtimeTabsIdBase, runtime.key)}
+					hidden
+				/>
+			))}
 		</motion.div>
 	);
 };

@@ -18,8 +18,8 @@ import { cn } from "@rivet-gg/components";
  * The wordmarks are white-on-transparent SVGs, so they are painted as a masked
  * element rather than an `<img>`: the SVG supplies the silhouette and a
  * Tailwind background class supplies the hue. Glyph fallbacks take the same
- * accent as a text color. `tone="cream"` is for the dark Learn shell and the
- * dark mobile sheet, where the muted accents would sink into the background.
+ * accent as a text color. `tone="cream"` is for dark grounds: the accent tile
+ * inside `ProductBadge` and the dark Learn shell.
  */
 export function ProductMark({
 	product,
@@ -58,6 +58,35 @@ export function ProductMark({
 }
 
 /**
+ * The colored product lockup: a solid tile in the product accent with the
+ * cream mark spanning it. The tile radius (34.375%) and the SVG's inset ring
+ * reproduce the Rivet badge geometry, so this is the same treatment as the
+ * product bar on each product page. Size comes from the caller (`size-N`).
+ *
+ * Every place that lists products (header dropdowns, mobile sheet, product
+ * bar label, talk-to-an-engineer cluster) renders this rather than a bare
+ * `ProductMark`, so the lockup cannot drift between surfaces.
+ */
+export function ProductBadge({
+	product,
+	className,
+}: { product: Product; className?: string }) {
+	const accent = productAccent(product.id);
+	return (
+		<span
+			aria-hidden="true"
+			className={cn(
+				"flex shrink-0 items-center justify-center rounded-[34.375%]",
+				accent?.fill ?? "bg-ink",
+				className,
+			)}
+		>
+			<ProductMark product={product} tone="cream" className="h-full w-full" />
+		</span>
+	);
+}
+
+/**
  * Which product the subnav belongs to.
  *
  * Not a switcher: `Products` in the top row is the one place products are
@@ -71,27 +100,11 @@ function ProductLabel({
 	/** Used by docs sections that are not a product vertical (integrations). */
 	label?: string;
 }) {
-	const accent = current ? productAccent(current.id) : undefined;
-
 	// Same treatment as the Products dropdown: the color is the tile behind the
 	// mark, and the mark and name are left uncolored.
 	return (
 		<span className="flex h-9 items-center gap-2 pr-1 text-sm text-ink">
-			{current && (
-				<span
-					aria-hidden="true"
-					className={cn(
-						"flex size-7 shrink-0 items-center justify-center rounded-lg",
-						accent?.fill ?? "bg-ink/20",
-					)}
-				>
-					<ProductMark
-						product={current}
-						className="h-[15px] w-[15px]"
-						tone="cream"
-					/>
-				</span>
-			)}
+			{current && <ProductBadge product={current} className="size-7" />}
 			<span className="font-medium">{current?.name ?? label}</span>
 			{current?.badge && (
 				<span className="px-[6px] py-0 text-[10px] font-medium bg-ink/[0.06] border border-ink/10 text-ink-soft rounded-sm whitespace-nowrap">
@@ -131,9 +144,12 @@ export function ProductBar({
 	if (!product && !sectionLabel) return null;
 
 	return (
-		<div className="-mx-8 hidden h-14 items-center gap-5 bg-[#e9e9eb] px-8 md:flex">
+		// Quiet Linear-style tab strip sitting directly on the header glass: no
+		// band fill, no underline — the active tab is ink, the rest ink-faint,
+		// and the product accent lives only in the label tile.
+		<div className="hidden h-12 items-center gap-6 md:flex">
 			<ProductLabel current={product} label={sectionLabel} />
-			<div className="flex h-full items-center gap-4">
+			<div className="flex h-full items-center gap-6">
 				{product && visibleTabs(product).map((tab) => {
 					const accent = productAccent(product.id);
 					return (
@@ -142,8 +158,8 @@ export function ProductBar({
 							href={tab.href}
 							aria-current={tab.id === activeTabId ? "page" : undefined}
 							className={cn(
-								"flex h-full items-center rounded-none border-b-2 border-transparent px-0 text-sm text-ink-faint transition-colors hover:text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e9e9eb]",
-									accent?.activeBorder ?? "aria-current-page:border-pine",
+								"flex h-full items-center rounded-sm text-sm font-medium text-ink-faint transition-colors hover:text-ink aria-current-page:text-ink",
+								"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 								accent?.focusRing ?? "focus-visible:ring-pine",
 							)}
 						>

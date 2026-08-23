@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/astro"
 import posthog from "posthog-js";
 import { useState } from "react";
+import { PRODUCT_HERO_PRIMARY_BUTTON_CLASS } from "../typography";
 
 const fields = {
 	firstName: "$survey_response_27cd441e-3b34-4ea3-b2cf-e22b847046d9",
@@ -53,11 +54,11 @@ export function SalesForm() {
 				<p className="text-ink-soft">
 					We will get back to you within the next few days. In the meantime, feel
 					free to explore our{" "}
-					<a href="/actors/docs" className="text-pine hover:text-ink underline underline-offset-2">
+					<a href="/actors/docs" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
 						documentation
 					</a>{" "}
 					or{" "}
-					<a href="/changelog" className="text-pine hover:text-ink underline underline-offset-2">
+					<a href="/changelog" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
 						changelog
 					</a>{" "}
 					for more information.
@@ -66,7 +67,7 @@ export function SalesForm() {
 		);
 	}
 
-	const inputClasses = "block w-full rounded-md border border-ink/15 bg-white/55 px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-pine focus:outline-none transition-colors";
+	const inputClasses = "block w-full rounded-md border border-ink/15 bg-white/55 px-3 py-2 text-sm text-ink placeholder:text-ink-faint transition-colors focus:border-pine focus:outline-none focus-visible:ring-2 focus-visible:ring-pine/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
 	const labelClasses = "block text-sm font-medium text-ink-soft mb-1.5";
 
 	return (
@@ -140,7 +141,7 @@ export function SalesForm() {
 			<div className="mt-6 text-center">
 				<button
 					type="submit"
-					className="inline-flex items-center justify-center gap-2 rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+					className={`${PRODUCT_HERO_PRIMARY_BUTTON_CLASS} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed disabled:opacity-50`}
 					disabled={isSubmitting}
 				>
 					{isSubmitting ? "Submitting..." : "Let's talk"}

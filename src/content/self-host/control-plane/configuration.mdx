@@ -71,13 +71,33 @@ Use `samples: 1` for a uniform random pick that skips slot reads, or `samples: 2
 
 ## Telemetry
 
-The engine exports traces and metrics over OpenTelemetry.
+### OpenTelemetry export
+
+The engine exports traces and metrics over OpenTelemetry to a collector you run.
 
 | Variable | Purpose | Default |
 | --- | --- | --- |
 | `RIVET_OTEL_ENABLED` | Set to `1` to enable export | off |
 | `RIVET_OTEL_GRPC_ENDPOINT` | Collector endpoint | `http://localhost:4317` |
 | `RIVET_OTEL_SAMPLER_RATIO` | Trace sampling ratio | `0.001` |
+
+### Crash reporting
+
+The control plane sends crash reports to Rivet's error-tracking service by default. Disable it with one flag:
+
+```json
+{
+	"telemetry": {
+		"enabled": false
+	}
+}
+```
+
+Or as an environment variable:
+
+```bash
+RIVET__TELEMETRY__ENABLED=false
+```
 
 ## Next steps
 

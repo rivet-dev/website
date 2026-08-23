@@ -16,6 +16,9 @@ interface InkPanelProps {
 	bleed?: boolean;
 	textureSrc?: string;
 	texturePosition?: string;
+	// Set false to show the texture without the darkening veil, when the
+	// painting itself is dark enough to carry cream text.
+	veil?: boolean;
 	className?: string;
 	// Panels clip to their rounded corners by default. Opt into `visible` only
 	// when a child (e.g. a hover tooltip) must escape the panel's bounds. Safe
@@ -30,6 +33,7 @@ export const InkPanel = ({
 	bleed = false,
 	textureSrc,
 	texturePosition = 'center',
+	veil = true,
 	className,
 	overflow = 'hidden',
 }: InkPanelProps) => (
@@ -45,19 +49,21 @@ export const InkPanel = ({
 					className="absolute inset-0 bg-cover"
 					style={{ backgroundImage: `url('${textureSrc}')`, backgroundPosition: texturePosition }}
 				/>
-				<div
-					aria-hidden="true"
-					className="absolute inset-0"
-					style={{
-						background:
-							'linear-gradient(180deg, rgba(20,19,16,0.62), rgba(20,19,16,0.48) 50%, rgba(20,19,16,0.68))',
-					}}
-				/>
+				{veil ? (
+					<div
+						aria-hidden="true"
+						className="absolute inset-0"
+						style={{
+							background:
+								'linear-gradient(180deg, rgba(20,19,16,0.62), rgba(20,19,16,0.48) 50%, rgba(20,19,16,0.68))',
+						}}
+					/>
+				) : null}
 			</>
 		) : null}
 		<div className="relative">{children}</div>
 		{caption ? (
-			<div className="relative flex items-center justify-between gap-4 border-t border-cream/10 px-5 py-3 font-mono text-[11px] text-cream/45">
+			<div className="relative flex items-center justify-between gap-4 border-t border-cream/10 px-5 py-3 text-xs text-cream/45">
 				<span>{caption}</span>
 				{captionAside ? <span>{captionAside}</span> : null}
 			</div>

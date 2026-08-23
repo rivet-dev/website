@@ -89,7 +89,7 @@ const SATELLITES = {
 	tools: { title: 'Tools', subtitle: '+ Resources / MCP', icon: <Briefcase className='h-5 w-5 text-ink-soft' aria-hidden='true' /> },
 	session: { title: 'Session', icon: <ListChecks className='h-5 w-5 text-ink-soft' aria-hidden='true' /> },
 	sandbox: { title: 'Sandbox', icon: <SquareTerminal className='h-5 w-5 text-ink-soft' aria-hidden='true' /> },
-	orchestration: { title: 'Orchestration', icon: <Workflow className='h-5 w-5 text-ink-soft' aria-hidden='true' /> },
+	orchestration: { title: 'Coordination', icon: <Workflow className='h-5 w-5 text-ink-soft' aria-hidden='true' /> },
 } as const;
 
 // ---- Desktop cross geometry (viewBox 0 0 300 300) --------------------------
@@ -323,7 +323,7 @@ export const HarnessArchitecture = ({ footer }: { footer?: ReactNode }) => {
 		<div
 			className='relative rounded-3xl border border-ink/10 bg-white/55 p-4 sm:p-6'
 			role='img'
-			aria-label='agentOS architecture: the agent sits at the center of the OS, which routes requests and responses out to Tools and Resources over MCP, Session state, the Sandbox where code runs, and the Orchestration layer.'
+			aria-label='agentOS architecture: the agent sits at the center of the OS, which routes requests and responses to tools and resources over MCP, session state, a sandbox where code runs, and the coordination layer.'
 		>
 			<span className='absolute -top-3 left-5 inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-paper px-2.5 py-1 text-[11px] font-medium text-ink'>
 				<img src={AGENTOS_MARK} alt='' aria-hidden='true' className='h-3.5 w-3.5' />

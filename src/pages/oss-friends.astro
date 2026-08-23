@@ -1,6 +1,13 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { HERO_H1_CLASS } from '@/components/marketing/typography';
+import {
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
+import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
+import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
+import { SectionRule } from '@/components/marketing/SectionRule';
 
 // Fetch OSS friends data at build time
 let items: any[] = [];
@@ -18,40 +25,36 @@ try {
 	description="Other companies whose code & culture mirrors that at Rivet."
 	canonicalUrl="https://rivet.dev/oss-friends/"
 >
-	<div class="paper-grain min-h-screen font-sans text-ink-soft">
-		<div class="relative overflow-hidden pb-12 pt-32 md:pt-48">
-			<div class="mx-auto max-w-7xl px-6">
-				<div class="max-w-2xl">
-					<h1 class={`mb-6 ${HERO_H1_CLASS}`}>
+	<main id="main-content" tabindex="-1">
+		<section class={SITE_UTILITY_HERO_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-2xl" data-site-reveal-group data-site-reveal-stagger="40">
+					<h1 class={HERO_H1_CLASS} data-site-reveal-child>
 						Open Source Friends
 					</h1>
-					<p class="text-base leading-relaxed text-ink-soft">
+					<p class={SUBTITLE_CLASS} data-site-reveal-child>
 						Other companies whose code & culture mirrors that at Rivet.
 					</p>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		<div class="border-t border-ink/10 py-16">
-			<div class="mx-auto max-w-7xl px-6">
+		<SectionRule />
+
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{items.map((friend: any) => (
-						<a
-							href={friend.href}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="group flex flex-col border border-ink/10 bg-white/55 p-7 transition-colors hover:border-ink/25"
-						>
-							<h3 class="mb-2 text-base font-medium text-ink">
-								{friend.name}
-							</h3>
-							<p class="text-sm leading-relaxed text-ink-soft">
-								{friend.description}
-							</p>
-						</a>
+						<div class="h-full" data-site-reveal>
+							<CatalogCard href={friend.href} external title={friend.name} className="h-full">
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+									{friend.description}
+								</p>
+							</CatalogCard>
+						</div>
 					))}
 				</div>
 			</div>
-		</div>
-	</div>
+		</section>
+	</main>
 </MarketingLayout>

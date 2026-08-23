@@ -1,110 +1,282 @@
 ---
 // Page lane: /actors is the canonical home of the Actor primitive and every
-// use case built on it: AI agents, realtime, multiplayer, collaborative state,
-// and durable workflows. There is no separate agent solution page.
+// use case built on it: agent orchestration, real-time and multiplayer, and
+// per-tenant databases. There is no separate agent solution page.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { ProductHero } from '@/components/marketing/ProductHero';
+import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { BuiltInFeatures } from '@/components/marketing/sections/BuiltInFeatures';
 import { ProblemSection } from '@/components/marketing/sections/ProblemSection';
 import { BenchmarksSection } from '@/components/marketing/sections/BenchmarksSection';
-import { ObservabilitySection } from '@/components/marketing/sections/ObservabilitySection';
-import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
-import { ScrollObserver } from '@/components/ScrollObserver';
-import { FaqSection } from '@/components/faq/FaqSection';
+import { ActorsObservabilitySection } from '@/components/marketing/actors/ActorsObservabilitySection';
+import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqList } from '@/components/faq/FaqSection';
 import { actorsFaqs } from '@/data/faqs/actors';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { productLogos } from '@/sitemap/productLogos';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
 import {
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRODUCT_HERO_CTA_ROW_CLASS,
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
-	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
-	SUBTITLE_CLASS,
 } from '@/components/marketing/typography';
-import { productAccent } from '@/lib/product-accent';
+import { getProduct } from '@/sitemap/products';
+import {
+	SITE_COMPACT_SECTION_CLASS,
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+} from '@/components/marketing/layout';
 
-const actorsAccent = productAccent('actors');
+const actorsProduct = getProduct('actors');
+
+if (!actorsProduct) {
+	throw new Error('Missing Actors product metadata');
+}
 
 const useCases = [
 	{
-		title: 'AI agents',
-		body: "One Actor per agent. Persistent memory, tool execution, and long-running context that survives restarts — in your existing Node.js or Bun backend.",
-		href: '/agentos/docs',
+		title: 'Agent orchestration',
+		body: 'One Actor per agent preserves identity, state, and session across long-running work. Add agentOS when the agent also needs files, processes, shell, and networking.',
+		href: '/agentos',
 	},
 	{
-		title: 'Realtime & multiplayer',
-		body: 'WebSockets and event broadcast built in. One Actor per room, match, or channel keeps every client in sync without a separate realtime service.',
+		title: 'Real-time / multiplayer',
+		body: 'WebSockets and event broadcast built in. One Actor per room, match, or channel keeps every client in sync without a separate real-time service.',
 		href: '/actors/docs/events',
 	},
 	{
-		title: 'Collaborative state',
-		body: 'One Actor per document or workspace. State lives next to compute, so concurrent edits stay consistent without cache-invalidation gymnastics.',
-		href: '/actors/docs/sharing-and-joining-state',
+		title: 'Per-tenant databases',
+		body: 'One Actor per tenant, keyed by tenant ID, owns that tenant’s entire dataset. State stays fully isolated per tenant with no shared tables and no tenant_id filters.',
+		href: '/actors/learn/per-tenant-database',
+	},
+];
+
+// Every layer of Rivet is built on the Actor primitive. These reciprocate the
+// composition slabs on /workflows and /dynamic-apps.
+const compositionLayers = [
+	{
+		name: 'agentOS',
+		logo: productLogos.agentos.src,
+		body: 'Adds files, processes, a shell, and networking when an agent needs a computer. Every agentOS VM is an Actor.',
+		href: '/agentos',
 	},
 	{
-		title: 'Durable workflows',
-		body: 'Queues, schedules, and timers on the same primitive. Multi-step operations pick up where they left off, even across sleeps and deploys.',
-		href: '/actors/docs/queues',
+		name: 'Workflows',
+		logo: productLogos.workflows.src,
+		body: 'Adds recorded steps, retries, and replay for work that outlives a process. Every workflow is an Actor run handler.',
+		href: '/workflows',
+	},
+	{
+		name: 'Dynamic Apps',
+		logo: productLogos['dynamic-apps'].src,
+		body: 'Deploys the apps your agents build. Every app runs as Actors that scale to zero and wake on demand.',
+		href: '/dynamic-apps',
 	},
 ];
 ---
 
 <MarketingLayout
 	productId="actors"
+	active="product"
 	title="Rivet Actors - The Primitive for Stateful Workloads"
-	description="In-memory state, WebSockets, workflows, queues, scheduling, and more. One primitive that adapts to agents, collaboration, and durable execution."
+	description="Durable identity, in-memory state, queues, storage, and realtime connections for agents, collaboration, and other stateful workloads."
 	canonicalUrl="https://rivet.dev/actors/"
 	keywords={["actors", "stateful", "workflows", "websockets", "real-time", "backend infrastructure", "serverless", "open source", "self-hosted", "AI infrastructure", "long-running processes", "state management"]}
 >
 	<FaqJsonLd items={actorsFaqs} />
-	<ScrollObserver client:load>
-		<div class="paper-grain min-h-screen font-sans text-ink-soft">
-			<main>
-				<!-- Hero: heading, description, and the shared product CTA pair -->
-				<ProductHero
-					productId="actors"
-					subtitle="One Actor per agent, per session, per user. The same primitive powers realtime apps, multiplayer, and collaborative state."
-			docsHref="/actors/docs"
-					client:load
-				/>
 
-				<!-- Use cases -->
-				<section class="bg-paper-mid px-6 py-16 md:py-32">
-					<div class="mx-auto w-full max-w-7xl">
-						<div class="mb-12 max-w-3xl">
-							<h2 class={SECTION_H2_CLASS}>One primitive, every stateful workload.</h2>
-							<p class={SUBTITLE_CLASS}>
-								The same Actor that holds an agent's memory holds a game lobby, a shared document, or a running workflow.
-							</p>
-						</div>
-						<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-							{
-								useCases.map((useCase) => (
-									<CatalogCard
-										title={useCase.title}
-										href={useCase.href}
-										linkLabel="Read the docs"
-										className="flex h-full flex-col"
-									>
-										<p class="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">{useCase.body}</p>
-									</CatalogCard>
-								))
-							}
-						</div>
-					</div>
-				</section>
+	<main id="main-content" tabindex="-1">
+		<!-- Hero -->
+		<section class={PRODUCT_HERO_SECTION_CLASS}>
+			<div class={PRODUCT_HERO_INNER_CLASS}>
+				<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
+					<ProductLockup product={actorsProduct} />
+				</div>
+				<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">The primitive for agent orchestration, real-time, and per-tenant databases</h1>
+				<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
+					One Actor per agent, per session, per user. The same primitive powers realtime apps, multiplayer, and collaborative state.
+				</p>
+				<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
+						<button
+							type="button"
+							data-actors-install-copy
+							aria-label="Copy npm install rivetkit"
+							class="group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto"
+						>
+							<span aria-hidden="true" class="select-none text-pine">$</span>
+							<span class="whitespace-nowrap">npm install rivetkit</span>
+							<span data-actors-copy-feedback aria-live="polite" class="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">Copy</span>
+						</button>
+						<noscript>
+							<style is:inline>
+								[data-actors-install-copy] { display: none !important; }
+							</style>
+							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install rivetkit</code>
+						</noscript>
+					<a href="/actors/docs" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Documentation</a>
+				</div>
+			</div>
+		</section>
 
-				<BuiltInFeatures client:visible />
-				<ProblemSection client:visible />
-				<BenchmarksSection client:visible />
-				<ObservabilitySection client:visible />
-				<FaqSection items={actorsFaqs} theme="light" client:visible />
-				<RedesignedCTA client:visible />
-			</main>
-		</div>
-	</ScrollObserver>
+		<SectionRule />
+
+		<!-- Use cases -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One primitive, every stateful workload.</h2>
+				</div>
+				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 md:grid-cols-3" data-site-reveal-group>
+					{
+						useCases.map((useCase) => (
+							<div class="h-full" data-site-reveal-child>
+								<CatalogCard
+									flush
+									title={useCase.title}
+									href={useCase.href}
+									linkLabel="Read the docs"
+									className="flex min-h-64 h-full flex-col"
+								>
+									<p class="mt-3 flex-1 text-[15px] leading-relaxed text-ink-soft">{useCase.body}</p>
+								</CatalogCard>
+							</div>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+		<BuiltInFeatures />
+		<SectionRule />
+		<ProblemSection client:visible />
+		<SectionRule />
+		<BenchmarksSection />
+		<SectionRule />
+		<ActorsObservabilitySection />
+
+		<SectionRule />
+
+		<!-- Composition -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>The foundation the rest of Rivet builds on.</h2>
+				</div>
+
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3" data-site-reveal-group>
+					{compositionLayers.map((layer) => (
+						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8" data-site-reveal-child>
+							<div class="flex items-center gap-3">
+								<span
+									aria-hidden="true"
+									class="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink"
+								>
+									<span style={wordmarkMaskStyle(layer.logo)} class="block h-full w-full bg-cream"></span>
+								</span>
+								<h3 class="text-xl font-medium tracking-[-0.01em] text-ink">{layer.name}</h3>
+							</div>
+							<p class="mt-5 flex-1 text-[15px] leading-relaxed text-ink-soft">{layer.body}</p>
+							<span class="mt-7 text-sm font-medium text-pine transition-colors group-hover:text-ink">Product overview <span aria-hidden="true">→</span></span>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Deployment -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="mb-12 max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
+				</div>
+				<div data-site-reveal>
+					<DeploymentOptions
+						productName="Actors"
+						quickstartHref="/actors/docs"
+						selfHostHref="/actors/self-host/control-plane"
+						installCommand="npm install rivetkit"
+					/>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- FAQ -->
+		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="actors-faq-heading">
+			<div class={SITE_NARROW_RAIL_CLASS}>
+				<h2 id="actors-faq-heading" class={`mb-12 text-balance text-center ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
+				<div data-site-reveal>
+					<FaqList items={actorsFaqs} theme="light" client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Closing CTA: the hero owns this page's single ember action. -->
+		<ClosingCtaPanel
+			background="paper-mid"
+			title="Infrastructure for the agentic era."
+			description="Build with agents, build for agents, and run it where your data lives."
+		>
+			<a href="/actors/docs" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Start building</a>
+			<a href="/talk-to-an-engineer" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
+		</ClosingCtaPanel>
+	</main>
 </MarketingLayout>
+
+<script>
+	function bindActorsInstallCopy() {
+		document.querySelectorAll('[data-actors-install-copy]').forEach((element) => {
+			if (!(element instanceof HTMLButtonElement) || element.dataset.copyBound === 'true') return;
+			element.dataset.copyBound = 'true';
+			const feedback = element.querySelector('[data-actors-copy-feedback]');
+			element.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText('npm install rivetkit');
+					element.setAttribute('aria-label', 'Install command copied');
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Copied';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+					}
+					window.setTimeout(() => {
+						element.setAttribute('aria-label', 'Copy npm install rivetkit');
+						if (feedback instanceof HTMLElement) {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}
+					}, 2_000);
+				} catch {
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Select and copy';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+						window.setTimeout(() => {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}, 2_000);
+					}
+				}
+			});
+		});
+	}
+
+	bindActorsInstallCopy();
+	document.addEventListener('astro:page-load', bindActorsInstallCopy);
+</script>

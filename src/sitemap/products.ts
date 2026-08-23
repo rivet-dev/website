@@ -84,6 +84,10 @@ export interface Product {
 	name: string;
 	/** One line for the product switcher. */
 	description: string;
+	/** Verb eyebrow for the pillar framing (Orchestrate / Operate / Automate / Deploy). */
+	verb?: string;
+	/** Premise line for the verb framing. No terminal period. */
+	premise?: string;
 	/** Marketing page. */
 	href: string;
 	/**
@@ -191,6 +195,8 @@ export const products: Product[] = PRODUCTS.map((meta) => ({
 	id: meta.id,
 	name: meta.name,
 	description: meta.tagline,
+	verb: meta.verb,
+	premise: meta.premise,
 	href: `/${meta.id}`,
 	icon: PRODUCT_GLYPHS[meta.id],
 	hidden: meta.hidden,

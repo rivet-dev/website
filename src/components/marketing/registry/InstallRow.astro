@@ -1,5 +1,6 @@
 ---
 import { InkChip } from "../editorial/InkPanel";
+import { PRODUCT_HERO_SECONDARY_BUTTON_CLASS } from "../typography";
 
 // The "1. Install" row on a registry detail page: the install command in an
 // InkChip with a Copy button beside it. The button reuses the site's ghost
@@ -20,7 +21,7 @@ const { command, class: className } = Astro.props;
 	<button
 		type="button"
 		data-copy-command={command}
-		class="inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border border-ink/15 bg-white px-4 text-sm font-medium text-ink-soft transition-colors hover:border-ink/40 hover:bg-ink/[0.02] hover:text-ink"
+		class:list={[PRODUCT_HERO_SECONDARY_BUTTON_CLASS, "!w-auto shrink-0 cursor-pointer"]}
 	>
 		<svg
 			data-copy-icon="copy"

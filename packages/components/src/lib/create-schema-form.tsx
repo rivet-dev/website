@@ -1,6 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, type ButtonProps, Form } from "@rivet-gg/components";
+import { Button, type ButtonProps } from "../ui/button";
+import { Form } from "../ui/form";
 import { type ComponentProps, type ReactNode, useEffect } from "react";
 import {
 	type DefaultValues,

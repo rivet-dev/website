@@ -6,18 +6,17 @@ import { Button } from "@/components/Button";
 import routes from "@/generated/routes.json";
 import clsx from "clsx";
 import { VISIBLE_PRODUCTS } from "@/sitemap/product-metadata";
+import { SITE_WIDE_GUTTERED_RAIL_CLASS } from "@/components/marketing/layout";
 
 import imgLogo from "@/images/rivet-logos/icon-white.svg";
 import imgYC from "@/images/logos/yc.svg";
 import imgA16z from "@/images/logos/a16z.svg";
 import {
 	Icon,
-	faBluesky,
 	faDiscord,
 	faGithub,
 	faLinkedin,
 	faTwitter,
-	faYoutube,
 } from "@rivet-gg/icons";
 
 const footer = {
@@ -25,10 +24,9 @@ const footer = {
 	// points at the product's Overview page, matching the header switcher.
 	product: VISIBLE_PRODUCTS.map((item) => ({ name: item.name, href: `/${item.id}` })),
 	company: [
-		{ name: "Cloud Pricing", href: "/cloud#pricing" },
+		{ name: "Cloud Pricing", href: "/cloud" },
 		{ name: "Enterprise", href: "/enterprise" },
 		{ name: "Careers", href: "/careers" },
-		{ name: "Sales", href: "/sales" },
 		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },
 		{ name: "YC & Speedrun Deal", href: "/startups" },
 	],
@@ -41,13 +39,15 @@ const footer = {
 		{ name: "Blog", href: "/blog" },
 		{ name: "Open-Source Friends", href: "/oss-friends" },
 		{ name: "Press Kit", href: "https://releases.rivet.dev/press-kit.zip" },
+	],
+	compare: [
 		{
-			name: "Actors vs Durable Objects",
-			href: "/actors/compare/rivet-actors-vs-cloudflare-durable-objects",
+			name: "Temporal",
+			href: "/workflows/compare/rivet-workflows-vs-temporal",
 		},
 		{
-			name: "Workflows vs Temporal",
-			href: "/workflows/compare/rivet-workflows-vs-temporal",
+			name: "Cloudflare",
+			href: "/actors/compare/rivet-actors-vs-cloudflare-durable-objects",
 		},
 	],
 	legal: [
@@ -67,19 +67,9 @@ const footer = {
 			icon: faTwitter,
 		},
 		{
-			name: "Bluesky",
-			href: "https://bsky.app/profile/rivet.dev",
-			icon: faBluesky,
-		},
-		{
 			name: "GitHub",
 			href: "https://github.com/rivet-dev",
 			icon: faGithub,
-		},
-		{
-			name: "YouTube",
-			href: "https://www.youtube.com/@rivet-dev",
-			icon: faYoutube,
 		},
 		{
 			name: "LinkedIn",
@@ -159,11 +149,11 @@ function useOpeningsCount(initial) {
 	return count;
 }
 
-function SmallPrint({ initialOpenings }) {
+function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 	const openings = useOpeningsCount(initialOpenings);
 	return (
-		<div className="mx-auto max-w-7xl w-full py-16">
-			<div className="grid grid-cols-1 min-[440px]:grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
+		<div className={clsx("mx-auto w-full py-16", pageFamily === "site" ? "max-w-none" : "max-w-7xl")}>
+			<div className="grid grid-cols-1 min-[440px]:grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-7">
 				{/* Brand column */}
 				<div className="col-span-1 min-[440px]:col-span-2 md:col-span-4 lg:col-span-1 space-y-6">
 					<img className="h-8 w-8" src={imgLogo.src} alt="Rivet" />
@@ -186,7 +176,7 @@ function SmallPrint({ initialOpenings }) {
 
 				{/* Product */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Product</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Products</h3>
 					<ul className="space-y-3">
 						{footer.product.map((item) => (
 							<li key={item.name}>
@@ -204,7 +194,7 @@ function SmallPrint({ initialOpenings }) {
 
 				{/* Developers */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Developers</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Developers</h3>
 					<ul className="space-y-3">
 						{footer.devs.map((item) => (
 							<li key={item.name}>
@@ -222,7 +212,7 @@ function SmallPrint({ initialOpenings }) {
 
 				{/* Resources */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Resources</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Resources</h3>
 					<ul className="space-y-3">
 						{footer.resources.map((item) => (
 							<li key={item.name}>
@@ -238,9 +228,26 @@ function SmallPrint({ initialOpenings }) {
 					</ul>
 				</div>
 
+				{/* Compare */}
+				<div>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Compare</h3>
+					<ul className="space-y-3">
+						{footer.compare.map((item) => (
+							<li key={item.name}>
+								<a
+									href={item.href}
+									className="text-sm text-ink-soft hover:text-ink transition-colors"
+								>
+									{item.name}
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+
 				{/* Company */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Company</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Company</h3>
 					<ul className="space-y-3">
 						{footer.company.map((item) => (
 							<li key={item.name} className="flex items-center gap-2">
@@ -265,7 +272,7 @@ function SmallPrint({ initialOpenings }) {
 
 				{/* Legal */}
 				<div>
-					<h3 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-ink-faint mb-4">Legal</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Legal</h3>
 					<ul className="space-y-3">
 						{footer.legal.map((item) => (
 							<li key={item.name}>
@@ -317,7 +324,7 @@ function SmallPrint({ initialOpenings }) {
 						<rect y="8.8" width="14" height="1.2" fill="black" />
 						<rect width="5" height="5" fill="black" />
 					</svg>
-					Built in San Francisco, United States
+					Built in San Francisco, United States and around the world
 				</span>
 			</div>
 
@@ -339,7 +346,7 @@ function SmallPrint({ initialOpenings }) {
 // a dark override wrapper instead.
 const DARK_THEMED_PATH_PREFIXES = ['/learn'];
 
-export function Footer({ initialPathname = "", initialOpenings = null }) {
+export function Footer({ initialPathname = "", initialOpenings = null, pageFamily = "default" }) {
 	// usePathname returns "" during SSR; fall back to the server-provided path
 	// so docs pages do not flash a light footer before hydration.
 	const pathname = usePathname() || initialPathname;
@@ -347,6 +354,7 @@ export function Footer({ initialPathname = "", initialOpenings = null }) {
 
 	return (
 		<div
+			data-page-family={pageFamily}
 			className={
 				isDark
 					? '[&_*]:!border-white/10 [&_a]:!text-zinc-400 [&_a:hover]:!text-white [&_h3]:!text-zinc-500 [&_p]:!text-zinc-600 [&_span]:!text-zinc-500'
@@ -357,12 +365,16 @@ export function Footer({ initialPathname = "", initialOpenings = null }) {
 
 			<footer
 				aria-labelledby="footer-heading"
-				className="mx-auto max-w-screen-2xl px-6 lg:px-12"
+				className={
+					pageFamily === "site"
+						? SITE_WIDE_GUTTERED_RAIL_CLASS
+						: "mx-auto max-w-screen-2xl px-6 lg:px-12"
+				}
 			>
 				<h2 id="footer-heading" className="sr-only">
 					Footer
 				</h2>
-				<SmallPrint initialOpenings={initialOpenings} />
+				<SmallPrint initialOpenings={initialOpenings} pageFamily={pageFamily} />
 			</footer>
 		</div>
 	);

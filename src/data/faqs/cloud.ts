@@ -22,7 +22,7 @@ export const cloudFaqs: FaqItem[] = [
 	{
 		question: 'Do sleeping actors cost money?',
 		answerHtml:
-			'No. Sleeping actors consume no Awake Actor Hours. While an actor sleeps you only pay for its persisted state storage, so workloads that idle most of the time scale to zero compute cost. The actor wakes automatically when a request, message, or scheduled alarm arrives.',
+			'No. Sleeping Actors consume no Awake Actor Hours. While an Actor sleeps, persisted state storage can still be billed, but active execution is not. The Actor wakes when a request, message, or scheduled alarm arrives.',
 	},
 	{
 		question: 'Is Rivet free to self-host?',

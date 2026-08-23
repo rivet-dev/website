@@ -7,6 +7,33 @@
   // Use event delegation - only need one listener on document
   if (!(window as any).__copyCodeListenerAdded) {
     (window as any).__copyCodeListenerAdded = true;
+    const feedbackTimers = new WeakMap<HTMLElement, number>();
+
+    const showCopyFeedback = (copyButton: Element) => {
+      if (!(copyButton instanceof HTMLElement)) return false;
+
+      const copyIcon = copyButton.querySelector('[data-copy-icon="copy"]');
+      const checkIcon = copyButton.querySelector('[data-copy-icon="check"]');
+      if (!copyIcon && !checkIcon) return false;
+
+      const idleLabel = copyButton.dataset.copyIdleLabel ?? copyButton.getAttribute('aria-label');
+      if (idleLabel) copyButton.dataset.copyIdleLabel = idleLabel;
+      copyButton.setAttribute('aria-label', 'Copied to clipboard');
+      copyIcon?.classList.add('hidden');
+      checkIcon?.classList.remove('hidden');
+
+      const previousTimer = feedbackTimers.get(copyButton);
+      if (previousTimer !== undefined) window.clearTimeout(previousTimer);
+      feedbackTimers.set(
+        copyButton,
+        window.setTimeout(() => {
+          if (idleLabel) copyButton.setAttribute('aria-label', idleLabel);
+          copyIcon?.classList.remove('hidden');
+          checkIcon?.classList.add('hidden');
+        }, 2_000),
+      );
+      return true;
+    };
 
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
@@ -28,7 +55,9 @@
             const code = autofill.getAttribute('data-autofill-code') || '';
             if (code) {
               navigator.clipboard.writeText(code).then(() => {
-                window.dispatchEvent(new CustomEvent('rivet:copy-success'));
+                if (!showCopyFeedback(copyButton)) {
+                  window.dispatchEvent(new CustomEvent('rivet:copy-success'));
+                }
               });
             }
             return;
@@ -41,7 +70,9 @@
         const code = codeContainer.textContent || '';
         if (code) {
           navigator.clipboard.writeText(code).then(() => {
-            window.dispatchEvent(new CustomEvent('rivet:copy-success'));
+            if (!showCopyFeedback(copyButton)) {
+              window.dispatchEvent(new CustomEvent('rivet:copy-success'));
+            }
           });
         }
       }

@@ -1,4 +1,4 @@
-import { getConfig, useConfig } from "@rivet-gg/components";
+import { getConfig, useConfig } from "./lib/config";
 import * as Sentry from "@sentry/react";
 import posthog, { type PostHog } from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";

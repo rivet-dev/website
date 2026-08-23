@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { SECTION_H2_BASE_CLASS } from '@/components/marketing/typography';
+import { SITE_NARROW_RAIL_CLASS, SITE_SECTION_CLASS } from '@/components/marketing/layout';
 import type { FaqItem } from '@/data/faqs/types';
 
 // Animated disclosure accordion (single open at a time) with a smooth
@@ -21,7 +23,7 @@ const themeStyles: Record<
 		answerLinks: string;
 		icon: string;
 		heading: string;
-		sectionBorder: string;
+		focus: string;
 	}
 > = {
 	dark: {
@@ -31,7 +33,7 @@ const themeStyles: Record<
 		answerLinks: '[&_a]:text-white [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-zinc-300 [&_strong]:text-zinc-200 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mt-1',
 		icon: 'text-zinc-500',
 		heading: 'text-white',
-		sectionBorder: 'border-white/10',
+		focus: 'focus-visible:ring-sage/70 focus-visible:ring-offset-ink',
 	},
 	light: {
 		divider: 'divide-ink/10 border-ink/10',
@@ -40,7 +42,7 @@ const themeStyles: Record<
 		answerLinks: '[&_a]:text-pine [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-ink [&_strong]:text-ink [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mt-1',
 		icon: 'text-ink-faint',
 		heading: 'text-ink',
-		sectionBorder: 'border-ink/10',
+		focus: 'focus-visible:ring-pine/60 focus-visible:ring-offset-paper',
 	},
 };
 
@@ -66,13 +68,13 @@ export function FaqList({ items, theme = 'dark' }: FaqListProps) {
 							onClick={() => setOpenIndex(open ? null : index)}
 							aria-expanded={open}
 							aria-controls={answerId}
-							className={`flex w-full cursor-pointer items-center justify-between gap-4 text-left text-base font-medium ${styles.question}`}
+							className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-md text-left text-base font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${styles.focus} ${styles.question}`}
 						>
 							{item.question}
 							<svg
 								viewBox="0 0 16 16"
 								aria-hidden="true"
-								className={`h-4 w-4 flex-shrink-0 transition-transform duration-300 ease-out ${open ? 'rotate-45' : ''} ${styles.icon}`}
+								className={`h-4 w-4 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${open ? 'rotate-45' : ''} ${styles.icon}`}
 							>
 								<path
 									d="M8 2v12M2 8h12"
@@ -84,6 +86,8 @@ export function FaqList({ items, theme = 'dark' }: FaqListProps) {
 						</button>
 						<motion.div
 							id={answerId}
+							inert={!open}
+							aria-hidden={!open}
 							initial={false}
 							animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
 							transition={{ duration: reduceMotion ? 0 : 0.32, ease: [0.4, 0, 0.2, 1] }}
@@ -120,10 +124,10 @@ export function FaqSection({
 	const styles = themeStyles[theme];
 
 	return (
-		<section id={id} className={`border-t px-6 py-24 ${styles.sectionBorder} ${className}`}>
-			<div className="mx-auto max-w-3xl">
+		<section id={id} className={`${SITE_SECTION_CLASS} ${className}`}>
+			<div className={SITE_NARROW_RAIL_CLASS}>
 				<h2
-					className={`mb-12 text-center text-3xl font-medium tracking-[-0.015em] md:text-4xl ${styles.heading}`}
+					className={`mb-12 text-center ${SECTION_H2_BASE_CLASS} ${styles.heading}`}
 				>
 					{title}
 				</h2>

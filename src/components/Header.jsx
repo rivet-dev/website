@@ -240,7 +240,7 @@ export const Header = forwardRef(function Header(
 							<TopLevelNavItem href="/changelog">
 								Changelog
 							</TopLevelNavItem>
-							<TopLevelNavItem href="/cloud">
+							<TopLevelNavItem href="https://dashboard.rivet.dev">
 								Cloud
 							</TopLevelNavItem>
 						</div>

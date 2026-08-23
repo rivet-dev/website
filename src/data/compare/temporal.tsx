@@ -18,12 +18,12 @@ export const temporal: CompareEntry = {
 	rivetSummary:
 		'Rivet is an open-source runtime for stateful backends. Rivet Actors hold persistent state, serve HTTP and WebSocket traffic directly, and include durable workflows with steps, timers, and queue waits, so one runtime covers realtime serving and reliable multi-step execution.',
 	competitorSummary:
-		'Temporal is a durable execution platform built around workflow-as-code. Workflows run on your worker fleet, coordinate through the Temporal Service with full event-history replay, and recover from failures automatically. It is battle-tested at very large scale and orchestrates work behind your API rather than serving user traffic itself.',
+		'Temporal is a durable execution platform built around workflow-as-code. Workflows run on your worker fleet, coordinate through the Temporal Service, rebuild state from event history, and apply configured retry policies. It coordinates work behind your API rather than serving user traffic itself.',
 	whenToChooseRivet: [
 		{
 			title: 'Realtime and workflows in one runtime',
 			description:
-				'When your product needs WebSockets, presence, or per-user sessions alongside durable multi-step logic, without running a separate orchestrator next to your serving layer',
+				'When your product needs WebSockets, presence, or per-user sessions alongside durable multi-step logic, without running a separate workflow service next to your serving layer',
 		},
 		{
 			title: 'Low-latency interactive workloads',
@@ -38,19 +38,19 @@ export const temporal: CompareEntry = {
 		{
 			title: 'Lightweight self-hosting',
 			description:
-				'When you want a self-contained engine you can run yourself without operating a multi-service cluster with separate persistence and search stores',
+				'When you want an Apache-licensed control plane with documented Docker Compose and Kubernetes deployment paths',
 		},
 		{
 			title: 'Per-entity state and storage',
 			description:
-				'When each user, document, or agent should own its own persistent state, with KV and an embedded SQLite database co-located with compute',
+				'When each user, document, or agent should own persistent state, with KV and an embedded SQLite database co-located with the Actor',
 		},
 	],
 	whenToChooseCompetitor: [
 		{
-			title: 'Mature orchestration at massive scale',
+			title: 'Mature workflow orchestration',
 			description:
-				'When you need a durable execution platform proven on millions to billions of workflow executions in production at large enterprises',
+				'When you need an established durable execution platform with a long production history across large organizations',
 		},
 		{
 			title: 'Polyglot teams',
@@ -65,7 +65,7 @@ export const temporal: CompareEntry = {
 		{
 			title: 'Enterprise reliability requirements',
 			description:
-				'When you need multi-region or multi-cloud failover with a 99.99% SLA and enterprise controls such as SCIM and private networking',
+				'When you need contracted multi-region options and enterprise controls such as SCIM and private networking',
 		},
 	],
 	featureGroups: [
@@ -94,7 +94,7 @@ export const temporal: CompareEntry = {
 					feature: 'Self-hosting footprint',
 					rivet: {
 						status: 'yes',
-						text: 'Self-contained engine that runs with Docker Compose or Kubernetes',
+						text: 'Control plane that can start as one container, with Docker Compose and Kubernetes deployment paths',
 					},
 					competitor: {
 						status: 'partial',
@@ -110,7 +110,7 @@ export const temporal: CompareEntry = {
 						text: (
 							<>
 								Rivet Cloud with a free tier.{' '}
-								<a href="https://rivet.dev/cloud/">See pricing</a>.
+								<a href="https://dashboard.rivet.dev">Open Rivet Cloud</a>.
 							</>
 						),
 					},
@@ -194,14 +194,14 @@ export const temporal: CompareEntry = {
 						status: 'yes',
 						text: (
 							<>
-								Replay-safe workflows with steps, timers, queue waits, and rollback.{' '}
+								Replay-safe workflows with steps, timers, queue waits, and explicit compensating actions.{' '}
 								<a href="https://rivet.dev/workflows/docs/">Learn more</a>.
 							</>
 						),
 					},
 					competitor: {
 						status: 'yes',
-						text: 'Workflow-as-code with automatic retries, durable timers, and full event-history replay',
+						text: 'Workflow-as-code with configured retries, durable timers, and full event-history replay',
 					},
 					importance:
 						'Durable execution lets multi-step operations survive crashes and restarts without manual checkpointing',
@@ -293,7 +293,7 @@ export const temporal: CompareEntry = {
 					feature: 'Local development',
 					rivet: {
 						status: 'yes',
-						text: 'One dev process; the engine runs alongside your application',
+						text: 'One dev process; the local control plane runs alongside your application',
 					},
 					competitor: {
 						status: 'yes',
@@ -306,11 +306,11 @@ export const temporal: CompareEntry = {
 					feature: 'Cost model for chatty workloads',
 					rivet: {
 						status: 'yes',
-						text: 'Rivet Cloud bills primarily on compute (Awake Actor Hours), not per message',
+						text: 'Rivet Cloud documents resource-based usage units rather than a blanket charge for every Actor message',
 					},
 					competitor: {
 						status: 'partial',
-						text: 'Every workflow start, activity, retry, signal, query, update, and timer bills as an action, starting at $50 per million',
+						text: 'Temporal Cloud meters workflow actions under the terms of the selected plan',
 					},
 					importance:
 						'Realtime sessions send many small messages; per-message billing makes them structurally expensive',
@@ -319,8 +319,8 @@ export const temporal: CompareEntry = {
 		},
 	],
 	verdict: [
-		'Temporal is the more mature choice for pure backend orchestration. If your workload is multi-step business processes behind an API, with polyglot teams and strict audit requirements, its durable execution model is battle-tested at enormous scale and its replay debugging is unmatched.',
-		'Rivet covers durable workflows and the serving layer in one runtime. Choose Rivet when your product is interactive: agents, collaborative apps, multiplayer, or per-user sessions where the same entity that holds state must also serve WebSocket and HTTP traffic at low latency. You get steps, timers, and replay-safe workflows without operating a separate orchestrator or paying per message.',
+		'Temporal is the more established choice for pure backend workflow orchestration. If your workload is multi-step business processes behind an API, with polyglot teams and strict audit requirements, its event-history tooling and SDK breadth are important advantages.',
+		'Rivet covers durable workflows and the serving layer in one runtime. Choose Rivet when your product is interactive: agents, collaborative apps, multiplayer, or per-user sessions where the same entity that holds state must also serve WebSocket and HTTP traffic. You get steps, timers, and replay-safe workflows without operating a separate workflow service.',
 	],
 	migration: {
 		heading: 'Evaluating Rivet alongside Temporal?',
@@ -335,7 +335,7 @@ export const temporal: CompareEntry = {
 		{
 			question: 'Does Rivet support durable execution like Temporal?',
 			answerHtml:
-				'Yes. Rivet workflows persist progress automatically, replay safely after restarts and crashes, and support steps, durable timers, queue waits, and rollback. They run inside Rivet Actors, so durable logic lives next to the state it operates on. See the <a href="https://rivet.dev/workflows/docs/">workflow documentation</a>.',
+				'Yes. Rivet Workflows records progress and completed operation results, reuses that history after restarts, and supports steps, durable timers, queue waits, and explicit compensating actions. Workflows run inside Rivet Actors, so durable logic lives next to the state it operates on. See the <a href="https://rivet.dev/workflows/docs/">workflow documentation</a>.',
 		},
 		{
 			question: 'Can Temporal serve WebSockets or user-facing traffic?',
@@ -345,12 +345,12 @@ export const temporal: CompareEntry = {
 		{
 			question: 'How does pricing differ between Rivet Cloud and Temporal Cloud?',
 			answerHtml:
-				'Temporal Cloud bills per action: workflow starts, activities and their retries, signals, queries, updates, and timers all count, with plan minimums starting at $100 per month and no perpetual free tier. Rivet Cloud bills primarily on compute through Awake Actor Hours and includes a free tier, so message-heavy realtime sessions do not multiply costs. See <a href="https://rivet.dev/cloud/">Rivet Cloud pricing</a>.',
+				'Temporal Cloud and Rivet Cloud meter different resource units, so compare the current plan terms against the shape of your workload. Open <a href="https://dashboard.rivet.dev">Rivet Cloud</a> for the current Rivet offering.',
 		},
 		{
 			question: 'Is Rivet open source like Temporal?',
 			answerHtml:
-				'Yes. Rivet is licensed under Apache 2.0 and the Temporal server is MIT-licensed, and both can be self-hosted. Rivet ships as a self-contained engine, while a production Temporal cluster runs four services plus a database and usually Elasticsearch or OpenSearch. The source is at <a href="https://github.com/rivet-dev/rivet">github.com/rivet-dev/rivet</a>.',
+				'Yes. Rivet is licensed under Apache 2.0 and the Temporal server is MIT-licensed, and both can be self-hosted. The Rivet control plane can start as one process. A production Temporal deployment uses service roles plus persistence and may add a search store. Rivet source is at <a href="https://github.com/rivet-dev/rivet">github.com/rivet-dev/rivet</a>.',
 		},
 		{
 			question: 'Which languages do Rivet and Temporal support?',

@@ -114,8 +114,8 @@ export default {
 						"--tw-prose-quote-borders": "#2E4034",
 						"--tw-prose-captions": "#8A8478",
 						"--tw-prose-code": "#1B1916",
-						"--tw-prose-pre-code": "#F4F1E7",
-						"--tw-prose-pre-bg": "#1B1916",
+						"--tw-prose-pre-code": "#1B1916",
+						"--tw-prose-pre-bg": "#FFFFFF",
 						"--tw-prose-th-borders": "rgba(27, 25, 22, 0.15)",
 						"--tw-prose-td-borders": "rgba(27, 25, 22, 0.1)",
 						"--tw-prose-invert-body":
@@ -179,7 +179,7 @@ export default {
 				content: "calc(100vh - var(--header-height, 3.5rem))",
 			},
 			maxWidth: {
-				'prose-docs': '52rem',
+				'prose-docs': '58rem',
 			},
 		},
 	},

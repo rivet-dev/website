@@ -1,27 +1,538 @@
 ---
-// Dynamic Apps overview. The Apps section is the page: its heading, features,
-// and code visualization are the hero.
+// Dynamic Apps overview: deploy the apps agents build, chaptered like
+// /workflows. Composability, observability, and develop-locally each get a
+// named chapter.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { AppsHero, APPS_CODE } from '@/components/marketing/dynamic-apps/AppsHero';
-import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
+import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqList } from '@/components/faq/FaqSection';
+import { ProductLockup } from '@/components/marketing/ProductLockup';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
+import {
+	AppsVisualization,
+	APPS_CODE,
+} from '@/components/marketing/dynamic-apps/AppsVisualization';
+import {
+	WorkflowCodeTabs,
+	type WorkflowCodeTab,
+} from '@/components/marketing/workflows/WorkflowCodeTabs';
+import {
+	AppsRepairDiagram,
+	AppsRoutingDiagram,
+} from '@/components/marketing/diagrams/dynamicAppsDiagrams';
+import {
+	CAPTION_CLASS,
+	CARD_TITLE_CLASS,
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
+	SECTION_H2_CLASS,
+	SECTION_LEDE_CLASS,
+} from '@/components/marketing/typography';
+import { productLogos } from '@/sitemap/productLogos';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
+import { dynamicAppsFaqs } from '@/data/faqs/dynamic-apps';
 import { highlightCodeHtml } from '@/lib/highlight-code';
+import { loadSnippet } from '@/mdx/remark-code-snippet';
+import { requireDocsRoot } from '@/sitemap/docs-sources.node';
+import { getProduct } from '@/sitemap/products';
+import {
+	SITE_COMPACT_SECTION_CLASS,
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+} from '@/components/marketing/layout';
+
+const APPS_EXAMPLE_ROOT = 'https://github.com/rivet-dev/agentos/blob/main/examples';
+const AI_BUILDER_EXAMPLE_URL =
+	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-ai-builder';
+const STATIC_SITE_EXAMPLE_URL =
+	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-static-website';
+const INSPECTOR_IMAGE =
+	'https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png';
+const INSTALL_COMMAND = 'npm add @rivet-dev/agentos @rivet-dev/agentos-apps';
+
+// Dynamic Apps snippets live in the agentOS repo (`snippetFrom: "agentos"`).
+const agentosRoot = requireDocsRoot('agentos');
+const dynamicAppsProduct = getProduct('dynamic-apps');
+
+if (!dynamicAppsProduct) {
+	throw new Error('Missing Dynamic Apps product metadata');
+}
+
+async function sourceTab(input: {
+	key: string;
+	label: string;
+	root: string;
+	file: string;
+	region?: string;
+	documentationUrl: string;
+	sourceUrl: string;
+}): Promise<WorkflowCodeTab> {
+	const snippet = loadSnippet(input.root, input.file, input.region);
+	return {
+		key: input.key,
+		label: input.label,
+		raw: snippet.value,
+		highlighted: await highlightCodeHtml(snippet.value, snippet.lang),
+		documentationUrl: input.documentationUrl,
+		sourceUrl: input.sourceUrl,
+	};
+}
+
+const appsTabs = await Promise.all([
+	sourceTab({
+		key: 'deploy',
+		label: 'deploy.ts',
+		root: agentosRoot,
+		file: 'examples/apps-hello-world/src/deploy.ts',
+		documentationUrl: '/dynamic-apps/docs/deploy',
+		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/deploy.ts`,
+	}),
+	sourceTab({
+		key: 'server',
+		label: 'server.ts',
+		root: agentosRoot,
+		file: 'examples/apps-hello-world/src/server.ts',
+		documentationUrl: '/dynamic-apps/docs/routing',
+		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/server.ts`,
+	}),
+	sourceTab({
+		key: 'actors',
+		label: 'actors.ts',
+		root: agentosRoot,
+		file: 'examples/apps-hello-world/src/actors.ts',
+		documentationUrl: '/dynamic-apps/docs/quickstart',
+		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/actors.ts`,
+	}),
+	sourceTab({
+		key: 'generated-app',
+		label: 'app/src/index.ts',
+		root: agentosRoot,
+		file: 'examples/apps-sqlite/fixtures/app/src/index.ts',
+		documentationUrl: '/dynamic-apps/docs/state-and-data',
+		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-sqlite/fixtures/app/src/index.ts`,
+	}),
+]);
 
 const appsHighlightedCode = await highlightCodeHtml(APPS_CODE, 'typescript');
+
+// What every deployed app gets from running as its own isolated instance.
+const appIsolation = [
+	{
+		title: 'An app per user',
+		body: 'Address each app by ID. Every user, tenant, or session gets a deployment of its own.',
+	},
+	{
+		title: 'Isolated by default',
+		body: 'Each app runs in its own agentOS VM with its own state and SQLite data. Tenants share no filesystem, memory, or crash fate.',
+	},
+	{
+		title: 'Scales to zero',
+		body: 'A running app takes 22 MB of memory. An idle one takes none.',
+	},
+	{
+		title: 'Wakes on demand',
+		body: 'The control plane routes the next request to a prewarmed agentOS VM, state intact.',
+	},
+];
+
+const appCapabilities = [
+	{
+		title: 'REST APIs & frontends',
+		body: 'Serve HTTP APIs and generated interfaces from the same app.',
+		href: '/dynamic-apps/docs/quickstart',
+	},
+	{
+		title: 'SQLite',
+		body: 'Store durable relational data in an actor-owned SQLite database.',
+		href: '/dynamic-apps/docs/state-and-data',
+	},
+	{
+		title: 'Workflows & queues',
+		body: 'Run durable jobs that sleep, retry, and resume, plus ordered queue processing.',
+		href: '/dynamic-apps/docs/background-work',
+	},
+	{
+		title: 'Crons & schedules',
+		body: 'Schedule recurring work that runs even while the app is idle.',
+		href: '/dynamic-apps/docs/background-work',
+	},
+	{
+		title: 'Multiplayer',
+		body: 'Share realtime state between every user connected to an app.',
+		href: '/dynamic-apps/docs/realtime',
+	},
+	{
+		title: 'Static sites',
+		body: 'Serve a directory with an index.html directly, no server code required.',
+		href: STATIC_SITE_EXAMPLE_URL,
+	},
+];
+
+const observabilityCapabilities = [
+	{
+		title: 'SQLite viewer',
+		body: "Browse and query each app's SQLite data in realtime, across every deployment.",
+	},
+	{
+		title: 'Workflow state',
+		body: 'Inspect the progress, steps, and retries of jobs running inside an app.',
+	},
+	{
+		title: 'Event monitoring',
+		body: 'Follow actions, connection events, and application logs while an app serves traffic.',
+	},
+	{
+		title: 'REPL',
+		body: 'Debug a live app by calling its actions and subscribing to its events from the dashboard.',
+	},
+];
+
+const compositionLayers = [
+	{
+		name: 'Actors',
+		logo: productLogos.actors.src,
+		body: 'Every deployed app runs as Rivet Actors, which provide identity, durable state, queues, and scale to zero.',
+		href: '/actors',
+	},
+	{
+		name: 'agentOS',
+		logo: productLogos.agentos.src,
+		body: 'Builds and serves each app in a prewarmed VM with files, processes, and networking.',
+		href: '/agentos',
+	},
+	{
+		name: 'Workflows',
+		logo: productLogos.workflows.src,
+		body: 'Adds recorded steps, retries, and replay when a generated app runs multi-step work.',
+		href: '/workflows',
+	},
+];
 ---
 
 <MarketingLayout
 	productId="dynamic-apps"
 	tabId="overview"
 	active="product"
-	title="Dynamic Apps - Rivet"
-	description="Deploy an AI-generated backend for every user, as isolated durable instances."
+	title="Dynamic Apps: deploy the apps your agents build"
+	description="Deploy AI-generated apps as isolated, durable instances. Each app scales to zero at 22 MB, wakes on demand, and runs on your infrastructure or Rivet Cloud."
+	canonicalUrl="https://rivet.dev/dynamic-apps/"
+	keywords={[
+		'AI-generated apps',
+		'AI app deployment',
+		'deploy generated code',
+		'per-user backends',
+		'multi-tenant isolation',
+		'scale to zero',
+		'agentOS',
+		'open source infrastructure',
+	]}
 >
-	<main class="paper-grain font-sans text-ink-soft">
-		<AppsHero
-			highlightedCode={appsHighlightedCode}
-			docsHref="/dynamic-apps/docs"
-			client:load
-		/>
-		<RedesignedCTA client:visible />
+	<FaqJsonLd items={dynamicAppsFaqs} />
+
+	<main id="main-content" tabindex="-1">
+		<!-- Hero -->
+		<section class={PRODUCT_HERO_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class={PRODUCT_HERO_INNER_CLASS}>
+					<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
+						<ProductLockup product={dynamicAppsProduct} />
+					</div>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Deploy the apps your agents build.</h1>
+					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
+						Every app runs as an isolated, durable instance. 22 MB of memory while serving, zero while idle. Deploy on any cloud.
+					</p>
+					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
+						<button
+							type="button"
+							data-dynamic-apps-install-copy
+							aria-label={`Copy ${INSTALL_COMMAND}`}
+							class="group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[11px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto sm:text-[13px]"
+						>
+							<span aria-hidden="true" class="select-none text-pine">$</span>
+							<span class="whitespace-nowrap">{INSTALL_COMMAND}</span>
+							<span data-dynamic-apps-copy-feedback aria-live="polite" class="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">Copy</span>
+						</button>
+						<noscript>
+							<style is:inline>
+								[data-dynamic-apps-install-copy], .apps-visual-controls { display: none !important; }
+							</style>
+							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[11px] text-ink-soft sm:w-auto sm:text-[13px]"><span aria-hidden="true" class="text-pine">$</span> {INSTALL_COMMAND}</code>
+						</noscript>
+						<a href="/dynamic-apps/docs/quickstart" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+					</div>
+				</div>
+
+				<div class="mx-auto mt-14 max-w-5xl md:mt-20">
+					<AppsVisualization highlightedCode={appsHighlightedCode} client:load />
+					<noscript>
+						<p class={`mt-4 text-center ${CAPTION_CLASS}`}>The diagram remains readable without JavaScript: generated files pass through deployApp() and come out as a running app. The code behind it is in the chapters below.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 01: the whole loop in code -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Generate, deploy, route.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						An agent generates the files. One call builds and releases them. Your Hono server routes every request to the app.
+					</p>
+				</div>
+				<div class="mt-12 min-w-0" data-site-reveal>
+					<WorkflowCodeTabs tabs={appsTabs} client:visible />
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine caption-underline" href={appsTabs[0].sourceUrl}>hello-world example source on GitHub</a>.</p>
+					</noscript>
+				</div>
+			</div>
+
+			<div class="mx-auto mt-14 max-w-7xl md:mt-20">
+				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
+					{appIsolation.map((item) => (
+						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
+							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 02: what a generated app can contain -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>More than pages and APIs.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Generated apps get the same capabilities as any Rivet Actor: durable SQLite, workflows, realtime, queues, and cron jobs.
+					</p>
+				</div>
+				<div class="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group>
+					{appCapabilities.map((item) => (
+						<a href={item.href} class="group block border-t border-ink/15 pt-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine" data-site-reveal-child>
+							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
+							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
+							<span class="mt-3 inline-block text-sm font-medium text-pine transition-colors motion-reduce:transition-none group-hover:text-ink">Read the docs <span aria-hidden="true">→</span></span>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 03: routing through your server -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+				<div data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Your server, your rules.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Requests reach your Hono server first, so your routing, middleware, and auth apply. The control plane routes each request to a prewarmed agentOS VM serving the app.
+					</p>
+				</div>
+				<div class="min-w-0">
+					<AppsRoutingDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+						Read about
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/routing">routing</a>,
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/authentication">authentication</a>, and
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a>.
+					</p>
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a request passing through your Hono server and its middleware, then the control plane routing it to a prewarmed agentOS VM that serves the generated app.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 04: the repair loop -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+				<div data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Broken builds never ship.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						A failed build returns TypeScript diagnostics the agent uses to repair the files and deploy again. The active release keeps serving the whole time.
+					</p>
+				</div>
+				<div class="min-w-0">
+					<AppsRepairDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+						Read about
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a> or view the
+						<a class="text-pine caption-underline" href={AI_BUILDER_EXAMPLE_URL}>AI App Builder example</a>.
+					</p>
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a failed build returning diagnostics, a repaired build succeeding, and the previous release serving until the successful build replaces it.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Observability -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+					<div data-site-reveal>
+						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See inside every app.</h2>
+						<p class={SECTION_LEDE_CLASS}>
+							Deployed apps run as Rivet Actors, so the dashboard shows their data, jobs, events, and actions live.
+						</p>
+					</div>
+					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
+						{observabilityCapabilities.map((capability) => (
+							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<figure class="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3" data-site-reveal>
+					<img
+						src={INSPECTOR_IMAGE}
+						alt="Rivet dashboard inspecting a deployed app, showing Actor state, events, and callable actions"
+						width="2688"
+						height="2018"
+						loading="lazy"
+						class="block h-auto w-full rounded-md"
+					/>
+				</figure>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Composition -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One stack under every app.</h2>
+				</div>
+
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3" data-site-reveal-group>
+					{compositionLayers.map((layer) => (
+						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8" data-site-reveal-child>
+							<div class="flex items-center gap-3">
+								<span
+									aria-hidden="true"
+									class="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink"
+								>
+									<span style={wordmarkMaskStyle(layer.logo)} class="block h-full w-full bg-cream"></span>
+								</span>
+								<h3 class="text-xl font-medium tracking-[-0.01em] text-ink">{layer.name}</h3>
+							</div>
+							<p class="mt-5 flex-1 text-[15px] leading-relaxed text-ink-soft">{layer.body}</p>
+							<span class="mt-7 text-sm font-medium text-pine transition-colors group-hover:text-ink">Product overview <span aria-hidden="true">→</span></span>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Deployment -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="mb-12 max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Dynamic Apps is a library, not a hosted platform. Run it anywhere and customize the server, routing, authentication, and deployment flow.
+					</p>
+				</div>
+				<div data-site-reveal>
+					<DeploymentOptions
+						productName="Dynamic Apps"
+						quickstartHref="/dynamic-apps/docs/quickstart"
+						selfHostHref="/dynamic-apps/self-host/control-plane"
+						installCommand={INSTALL_COMMAND}
+					/>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="dynamic-apps-faq-heading">
+			<div class={SITE_NARROW_RAIL_CLASS}>
+				<h2 id="dynamic-apps-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
+				<div data-site-reveal>
+					<FaqList items={dynamicAppsFaqs} theme="light" client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Closing CTA: the hero owns this page's single ember action. -->
+		<ClosingCtaPanel
+			background="paper-mid"
+			title="An app for every user."
+			description="Deploy isolated, durable instances for the software your agents generate. They scale to zero and wake on demand."
+		>
+			<a href="/dynamic-apps/docs" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
+			<a href="/talk-to-an-engineer" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
+		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>
+
+<script>
+	function bindDynamicAppsInstallCopy() {
+		document.querySelectorAll('[data-dynamic-apps-install-copy]').forEach((element) => {
+			if (!(element instanceof HTMLButtonElement) || element.dataset.copyBound === 'true') return;
+			element.dataset.copyBound = 'true';
+			const feedback = element.querySelector('[data-dynamic-apps-copy-feedback]');
+			element.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText('npm add @rivet-dev/agentos @rivet-dev/agentos-apps');
+					element.setAttribute('aria-label', 'Install command copied');
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Copied';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+					}
+					window.setTimeout(() => {
+						element.setAttribute('aria-label', 'Copy npm add @rivet-dev/agentos @rivet-dev/agentos-apps');
+						if (feedback instanceof HTMLElement) {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}
+					}, 2_000);
+				} catch {
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Select and copy';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+						window.setTimeout(() => {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}, 2_000);
+					}
+				}
+			});
+		});
+	}
+
+	bindDynamicAppsInstallCopy();
+	document.addEventListener('astro:page-load', bindDynamicAppsInstallCopy);
+</script>

@@ -7,6 +7,7 @@ interface Props {
 	title: string;
 	description?: string;
 	canonicalUrl?: string;
+	robots?: string;
 	sidebar?: SidebarItem[];
 	/** Product vertical this page belongs to; omitted outside the verticals. */
 	productId?: string;
@@ -15,7 +16,7 @@ interface Props {
 	sectionLabel?: string;
 }
 
-const { title, description, canonicalUrl, sidebar, productId, tabId, sectionLabel } = Astro.props;
+const { title, description, canonicalUrl, robots, sidebar, productId, tabId, sectionLabel } = Astro.props;
 const pathname = Astro.url.pathname;
 // Some tabs are a single page rather than a section (Use Cases). Without a
 // sidebar the two-column docs grid would leave an empty gutter, so the content
@@ -23,15 +24,18 @@ const pathname = Astro.url.pathname;
 const hasSidebar = (sidebar?.length ?? 0) > 0;
 ---
 
-<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} themeColor="#EFEFEF">
+<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} robots={robots} themeColor="#EFEFEF">
 	<Header variant="full-width" showProductBar={true} light={true} active="docs" sidebarData={sidebar} initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} client:load />
 	<div class="paper-grain selection-paper w-full relative z-10 font-sans">
 		<div
 			class:list={[
-				'mx-auto w-full min-h-content flex flex-col',
+				// Full-width shell: sidebar at the viewport edge under the header
+				// logo, article + TOC centered in the remaining track (the centering
+				// and its width cap live in DocsArticlePage).
+				'w-full min-h-content flex flex-col',
 				hasSidebar && 'md:grid md:grid-cols-docs',
 			]}
-			style="--header-height: 8.0625rem;"
+			style="--header-height: 7.5625rem;"
 		>
 			<slot />
 		</div>

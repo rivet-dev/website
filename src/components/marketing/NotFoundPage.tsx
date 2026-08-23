@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SITE_UTILITY_HERO_CLASS } from './layout';
+import { PRIMARY_INK_BUTTON_CLASS } from './typography';
 
 interface NotFoundPageProps {
   thinkingImage: string;
@@ -16,14 +18,16 @@ const colors = [
   '#56524A', // ink-soft
 ];
 
-const BouncingPill = () => {
+const BouncingPill = ({ reduceMotion }: { reduceMotion: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const pillRef = useRef<HTMLSpanElement>(null);
+  const pillRef = useRef<HTMLHeadingElement>(null);
   const [position, setPosition] = useState({ x: 50, y: 50 });
   const [colorIndex, setColorIndex] = useState(0);
   const velocityRef = useRef({ x: 0.4, y: 0.25 });
 
   useEffect(() => {
+    if (reduceMotion) return;
+
     let animationFrameId: number;
     let lastTime = 0;
     const targetInterval = 30; // ms between updates
@@ -76,13 +80,13 @@ const BouncingPill = () => {
 
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [reduceMotion]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden">
-      <span
+      <h1
         ref={pillRef}
-        className="absolute inline-flex items-center gap-2 rounded-full bg-paper/70 backdrop-blur-md border border-ink/15 px-3 py-1.5 text-sm text-ink-soft transition-colors duration-200"
+        className="absolute m-0 inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper/70 px-3 py-1.5 text-sm font-medium text-ink-soft backdrop-blur-md transition-colors duration-200 motion-reduce:transition-none"
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
@@ -90,46 +94,52 @@ const BouncingPill = () => {
       >
         <span className="font-medium transition-colors duration-200" style={{ color: colors[colorIndex] }}>404</span>
         Page not found
-      </span>
+      </h1>
     </div>
   );
 };
 
 export const NotFoundPage = ({ thinkingImage }: NotFoundPageProps) => {
+  const reduceMotion = useReducedMotion() ?? false;
+
   return (
-    <section className="paper-grain depth-wash relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className={`${SITE_UTILITY_HERO_CLASS} flex min-h-screen flex-col items-center justify-center`}
+    >
       <div className="flex flex-col items-center gap-8">
         {/* Thinking image */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        <motion.figure
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative w-[280px] h-[350px] sm:w-[320px] sm:h-[400px]"
+          transition={{ duration: reduceMotion ? 0 : 0.6 }}
+          className="relative m-0 h-[350px] w-[280px] sm:h-[400px] sm:w-[320px]"
         >
-          <div className="absolute inset-0 overflow-hidden border border-ink/15 bg-paper-mid p-2.5">
+          <div className="absolute inset-0 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2.5">
             <img
               src={thinkingImage}
               alt="Paul Delaroche, Napoleon at Fontainebleau (1845)"
-              className="h-full w-full object-cover outline outline-1 outline-ink/10"
+              className="h-full w-full rounded-lg border border-ink/10 object-cover"
             />
           </div>
 
           {/* Bouncing 404 pill */}
-          <BouncingPill />
-        </motion.div>
+          <BouncingPill reduceMotion={reduceMotion} />
+        </motion.figure>
 
         {/* Primary button */}
         <motion.a
           href="/"
-          initial={{ opacity: 0, y: 10 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-ink px-4 py-2 text-sm font-medium text-cream transition-colors hover:bg-ink/85"
+          transition={{ duration: reduceMotion ? 0 : 0.5, delay: reduceMotion ? 0 : 0.5 }}
+          className={PRIMARY_INK_BUTTON_CLASS}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
         </motion.a>
       </div>
-    </section>
+    </main>
   );
 };

@@ -1,4 +1,4 @@
-import originalTheme from "tm-themes/themes/ayu-dark.json";
+import originalTheme from "tm-themes/themes/ayu-light.json";
 
 export const BACKGROUND_PROPERTIES = [
 	"activityBar.background",
@@ -31,8 +31,8 @@ export const BACKGROUND_PROPERTIES = [
 
 const theme = structuredClone(originalTheme) as any;
 
-const replaceColor = "#0b0e14";
-const newColor = "#0a0a0a";
+const replaceColor = "#fcfcfc";
+const newColor = "#ffffff";
 
 for (const key in theme.colors) {
 	if (theme.colors[key] === replaceColor) {

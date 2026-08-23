@@ -1,24 +1,466 @@
 ---
-// Workflows overview. Hero only until the rest of the marketing page is written.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { ProductHero } from '@/components/marketing/ProductHero';
-import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
+import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqList } from '@/components/faq/FaqSection';
+import { ProductLockup } from '@/components/marketing/ProductLockup';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
+import { WorkflowRunDemo } from '@/components/marketing/workflows/WorkflowRunDemo';
+import {
+	WorkflowCodeTabs,
+	type WorkflowCodeTab,
+} from '@/components/marketing/workflows/WorkflowCodeTabs';
+import {
+	WorkflowAgentDiagram,
+	WorkflowCoordinationDiagram,
+	WorkflowVersioningDiagram,
+} from '@/components/marketing/diagrams/workflowDiagrams';
+import {
+	CAPTION_CLASS,
+	CARD_TITLE_CLASS,
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
+	SECTION_H2_CLASS,
+	SECTION_LEDE_CLASS,
+} from '@/components/marketing/typography';
+import { productLogos } from '@/sitemap/productLogos';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
+import { workflowsFaqs } from '@/data/faqs/workflows';
+import { highlightCodeHtml } from '@/lib/highlight-code';
+import { loadSnippet } from '@/mdx/remark-code-snippet';
+import { requireDocsRoot } from '@/sitemap/docs-sources.node';
+import { getProduct } from '@/sitemap/products';
+import {
+	SITE_COMPACT_SECTION_CLASS,
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+} from '@/components/marketing/layout';
+
+const WORKFLOW_SOURCE_ROOT =
+	'https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/workflow';
+const ACTOR_EXAMPLE_ROOT =
+	'https://github.com/rivet-dev/rivet/blob/main/examples/docs/actors-workflows';
+const BUG_FIXER_SOURCE_URL_ROOT =
+	'https://github.com/rivet-dev/agentos/blob/main/examples/workflows';
+const INSPECTOR_IMAGE =
+	'https://assets.rivet.dev/website/blog/2026-02-24-introducing-rivet-workflows/inspectorworkflow.png';
+
+const actorsRoot = requireDocsRoot('actors');
+const workflowsProduct = getProduct('workflows');
+
+if (!workflowsProduct) {
+	throw new Error('Missing Workflows product metadata');
+}
+
+async function sourceTab(input: {
+	key: string;
+	label: string;
+	root: string;
+	file: string;
+	region?: string;
+	documentationUrl: string;
+	sourceUrl: string;
+}): Promise<WorkflowCodeTab> {
+	const snippet = loadSnippet(input.root, input.file, input.region);
+	return {
+		key: input.key,
+		label: input.label,
+		raw: snippet.value,
+		highlighted: await highlightCodeHtml(snippet.value, snippet.lang),
+		documentationUrl: input.documentationUrl,
+		sourceUrl: input.sourceUrl,
+	};
+}
+
+const progressTabs = await Promise.all([
+	sourceTab({
+		key: 'invoice',
+		label: 'invoice.ts',
+		root: actorsRoot,
+		file: 'examples/docs/actors-workflows/simple-workflow/index.ts',
+		documentationUrl: '/workflows/docs/quickstart',
+		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/simple-workflow/index.ts`,
+	}),
+]);
+
+// What every run gets from the Actor it lives in. These double as the
+// differentiators against cluster-based durable execution, stated positively.
+const actorInheritance = [
+	{
+		title: 'A run per user, session, or agent',
+		body: 'Address each workflow by key; every run keeps its own state, queue, and history.',
+	},
+	{
+		title: 'State beside the steps',
+		body: "Steps read and write the run's durable state in-process.",
+	},
+	{
+		title: 'Waiting costs nothing',
+		body: 'A run blocked on a queue wait or timer sleeps until the message or deadline arrives.',
+	},
+	{
+		title: 'Progress in realtime',
+		body: 'Broadcast step progress to connected clients as it happens.',
+	},
+];
+
+const capabilities = [
+	{
+		title: 'Step history',
+		body: "Every step's status, from pending through complete or failed.",
+	},
+	{
+		title: 'Timing and retries',
+		body: 'Durations, attempt counts, backoff delays, and terminal errors.',
+	},
+	{
+		title: 'Inputs and outputs',
+		body: 'The recorded values each step received and returned.',
+	},
+	{
+		title: 'Replay',
+		body: 'Re-run eligible steps after the underlying problem is fixed.',
+	},
+];
+
+const compositionLayers = [
+	{
+		name: 'Actors',
+		logo: productLogos.actors.src,
+		body: 'Every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.',
+		href: '/actors',
+	},
+	{
+		name: 'agentOS',
+		logo: productLogos.agentos.src,
+		body: 'Adds files, processes, a shell, and networking when a workflow drives an agent using real tools.',
+		href: '/agentos',
+	},
+	{
+		name: 'Dynamic Apps',
+		logo: productLogos['dynamic-apps'].src,
+		body: 'Adds a generated backend when the workflow should ship an application to users.',
+		href: '/dynamic-apps',
+	},
+];
+
 ---
 
 <MarketingLayout
 	productId="workflows"
 	tabId="overview"
 	active="product"
-	title="Workflows - Rivet"
-	description="Durable, replayable multi-step operations."
+	title="Workflows: durable agent automation"
+	description="Durable TypeScript workflows built on Rivet Actors: recorded steps, retries, human approvals, and runs that resume after restarts and deploys."
+	canonicalUrl="https://rivet.dev/workflows/"
+	keywords={[
+		'agent workflows',
+		'durable execution',
+		'TypeScript workflows',
+		'workflow coordination',
+		'human in the loop',
+		'open source infrastructure',
+		'self-hosted workflows',
+		'Rivet Actors',
+	]}
 >
-	<main class="paper-grain font-sans text-ink-soft">
-		<ProductHero
-			productId="workflows"
-			subtitle="Progress is saved automatically, replay follows the same recorded steps, and workflows can pause for queue messages then continue."
-			docsHref="/workflows/docs"
-			client:load
-		/>
-		<RedesignedCTA client:visible />
+	<FaqJsonLd items={workflowsFaqs} />
+
+	<main id="main-content" tabindex="-1">
+		<!-- Hero -->
+		<section class={PRODUCT_HERO_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class={PRODUCT_HERO_INNER_CLASS}>
+					<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
+						<ProductLockup product={workflowsProduct} />
+					</div>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Automate agent work that outlives a process.</h1>
+					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
+						Durable workflows built on Rivet Actors. Steps record their results, wait for people or systems, and resume after crashes and deploys.
+					</p>
+					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
+						<button
+							type="button"
+							data-workflows-install-copy
+							aria-label="Copy npm install rivetkit"
+							class="group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto"
+						>
+							<span aria-hidden="true" class="select-none text-pine">$</span>
+							<span class="whitespace-nowrap">npm install rivetkit</span>
+							<span data-workflows-copy-feedback aria-live="polite" class="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">Copy</span>
+						</button>
+						<noscript>
+							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install rivetkit</code>
+						</noscript>
+						<a href="/workflows/docs/quickstart" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+					</div>
+				</div>
+
+				<div class="mx-auto mt-14 max-w-5xl md:mt-20">
+					<WorkflowRunDemo client:load />
+					<noscript>
+						<style is:inline>
+							.workflow-demo-controls, .workflow-code-controls, [data-workflows-install-copy] { display: none !important; }
+						</style>
+						<p class={`mt-4 text-center ${CAPTION_CLASS}`}>The recorded run remains readable without JavaScript. Enable JavaScript to simulate a restart, approve the wait, or replay the demo.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 01 -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<h2 class={`max-w-3xl text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Regular TypeScript, durable progress.</h2>
+				<div class="mt-12 min-w-0" data-site-reveal>
+					<WorkflowCodeTabs tabs={progressTabs} client:visible />
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine caption-underline" href={progressTabs[0].sourceUrl}>invoice workflow source on GitHub</a>.</p>
+					</noscript>
+				</div>
+			</div>
+
+			<div class="mx-auto mt-14 max-w-7xl md:mt-20">
+				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
+					{actorInheritance.map((item) => (
+						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
+							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 02 -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Wait, branch, and recover.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Pause for approval, fan out, retry. Every step is recorded.
+					</p>
+				</div>
+				<div class="mt-12 min-w-0">
+					<WorkflowCoordinationDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+						Read about
+						<a class="text-pine caption-underline" href="/workflows/docs/queues">queue waits</a>,
+						<a class="text-pine caption-underline" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
+						<a class="text-pine caption-underline" href="/workflows/docs/failure-and-recovery">failure and recovery</a>.
+					</p>
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a step pausing on a wait, resuming on approval, fanning into three branches where one retries, then joining.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 03 -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+				<div data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Automate agent work.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						The workflow gives an agent a computer and records every step.
+					</p>
+				</div>
+				<div class="min-w-0">
+					<WorkflowAgentDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+						Read about
+						<a class="text-pine caption-underline" href="/workflows/docs/patterns">agent patterns</a> or
+						<a class="text-pine caption-underline" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
+					</p>
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows an agent's computer with files, shell, and networking, and the row of recorded steps beneath it.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 04 -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+				<div data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Evolve running work.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Deploy new code mid-run. Old runs keep their version; new runs take the latest.
+					</p>
+				</div>
+				<div class="min-w-0">
+					<WorkflowVersioningDiagram client:visible />
+					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+						Read about
+						<a class="text-pine caption-underline" href="/workflows/docs/versioning">versioning</a>.
+					</p>
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows one run crossing the deploy line and finishing on v1 while a new run starts on v2.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Inspector -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+					<div data-site-reveal>
+						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See the history behind every run.</h2>
+					</div>
+					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
+						{capabilities.map((capability) => (
+							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<figure class="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3" data-site-reveal>
+					<img
+						src={INSPECTOR_IMAGE}
+						alt="Rivet workflow inspector showing a run history with nested steps, statuses, durations, and recorded details"
+						width="3808"
+						height="2338"
+						loading="lazy"
+						class="block h-auto w-full rounded-md border border-ink/10"
+					/>
+				</figure>
+
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Composition -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>One foundation, composable with the rest of Rivet.</h2>
+				</div>
+
+				<div class="mt-12 grid overflow-hidden rounded-xl border-l border-t border-ink/10 md:grid-cols-3" data-site-reveal-group>
+					{compositionLayers.map((layer) => (
+						<a href={layer.href} class="group flex min-h-64 flex-col border-b border-r border-ink/10 bg-white/55 p-6 transition-colors motion-reduce:transition-none hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine md:p-8" data-site-reveal-child>
+							<div class="flex items-center gap-3">
+								<span
+									aria-hidden="true"
+									class="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink"
+								>
+									<span style={wordmarkMaskStyle(layer.logo)} class="block h-full w-full bg-cream"></span>
+								</span>
+								<h3 class="text-xl font-medium tracking-[-0.01em] text-ink">{layer.name}</h3>
+							</div>
+							<p class="mt-5 flex-1 text-[15px] leading-relaxed text-ink-soft">{layer.body}</p>
+							<span class="mt-7 text-sm font-medium text-pine transition-colors group-hover:text-ink">Product overview <span aria-hidden="true">→</span></span>
+						</a>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Deployment -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto max-w-7xl">
+				<div class="mb-12 max-w-3xl" data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Develop locally. Deploy your way.</h2>
+				</div>
+				<div data-site-reveal>
+					<DeploymentOptions
+						productName="Workflows"
+						quickstartHref="/workflows/docs/quickstart"
+						selfHostHref="/workflows/self-host/control-plane"
+						installCommand="npm install rivetkit"
+					/>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`${SITE_COMPACT_SECTION_CLASS}`} aria-labelledby="workflows-faq-heading">
+			<div class={SITE_NARROW_RAIL_CLASS}>
+				<h2 id="workflows-faq-heading" class={`mb-12 text-center text-balance ${SECTION_H2_CLASS}`} data-site-reveal>Frequently asked questions</h2>
+				<div data-site-reveal>
+					<FaqList items={workflowsFaqs} theme="light" client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Closing CTA: the hero owns this page's single ember action. -->
+		<ClosingCtaPanel
+			title="Ship a workflow that survives its first restart."
+			description="Read the documentation or explore the Apache 2.0 source."
+			background="paper-mid"
+		>
+			<a href="/workflows/docs" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
+			<a href={WORKFLOW_SOURCE_ROOT} target="_blank" rel="noreferrer" class={INK_PANEL_GHOST_BUTTON_CLASS}>GitHub source</a>
+		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>
+
+<script>
+	function bindWorkflowsInstallCopy() {
+		document.querySelectorAll('[data-workflows-install-copy]').forEach((element) => {
+			if (!(element instanceof HTMLButtonElement) || element.dataset.copyBound === 'true') return;
+			element.dataset.copyBound = 'true';
+			const feedback = element.querySelector('[data-workflows-copy-feedback]');
+			element.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText('npm install rivetkit');
+					element.setAttribute('aria-label', 'Install command copied');
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Copied';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+					}
+					window.setTimeout(() => {
+						element.setAttribute('aria-label', 'Copy npm install rivetkit');
+						if (feedback instanceof HTMLElement) {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}
+					}, 2_000);
+				} catch {
+					if (feedback instanceof HTMLElement) {
+						feedback.textContent = 'Select and copy';
+						feedback.classList.remove('opacity-0');
+						feedback.classList.add('opacity-100');
+						window.setTimeout(() => {
+							feedback.textContent = 'Copy';
+							feedback.classList.remove('opacity-100');
+							feedback.classList.add('opacity-0');
+						}, 2_000);
+					}
+				}
+			});
+		});
+	}
+
+	bindWorkflowsInstallCopy();
+	document.addEventListener('astro:page-load', bindWorkflowsInstallCopy);
+</script>

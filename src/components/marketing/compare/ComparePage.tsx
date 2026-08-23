@@ -5,27 +5,33 @@ import { formatTimestamp } from '@/lib/formatDate';
 import { compareEntries, compareHref, getCompareEntry } from '@/data/compare';
 import type { CompareEntry } from '@/data/compare/types';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
-import { Spirograph } from '@/components/marketing/art/Spirograph';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import {
+	SITE_NARROW_RAIL_CLASS,
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
 import {
 	CAPTION_CLASS,
 	HERO_H1_CLASS,
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	SECTION_H2_CLASS,
-	SUBTITLE_CLASS,
+	SECTION_LEDE_CENTERED_CLASS,
+	SECTION_LEDE_CLASS,
 } from '@/components/marketing/typography';
 import { ComparisonTable } from './ComparisonTable';
 
-// This component is server-rendered by Astro with no client directive, so it
-// must stay hook-free with no framer-motion. Comparison pages are SEO entry
-// pages and ship zero island JavaScript.
+// Mounted with client:visible from [product]/compare/[slug].astro because the
+// FAQ accordion (FaqList) is stateful. Comparison pages are SEO entry pages,
+// so keep the island lean: no framer-motion or other heavy client deps.
 interface ComparePageProps {
 	slug: string;
 }
-
-// Warm oil-paint texture behind the closing band, mirroring the sitewide CTA
-// colophon. The veil keeps text readable even if the image fails to load.
-const FOOTER_PAINTING_SRC =
-	'https://assets.rivet.dev/website/images/textures/footer-abstract.webp';
 
 function SectionHeading({
 	title,
@@ -38,26 +44,28 @@ function SectionHeading({
 }) {
 	return (
 		<div className={center ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}>
-			<h2 className={SECTION_H2_CLASS}>{title}</h2>
-			{subtitle && <p className={SUBTITLE_CLASS}>{subtitle}</p>}
+			<h2 className={`text-balance ${SECTION_H2_CLASS}`}>{title}</h2>
+			{subtitle && (
+				<p className={center ? SECTION_LEDE_CENTERED_CLASS : SECTION_LEDE_CLASS}>{subtitle}</p>
+			)}
 		</div>
 	);
 }
 
 function HeroSection({ entry }: { entry: CompareEntry }) {
 	return (
-		<section className="px-6 pb-24 pt-32 md:pb-28 md:pt-44">
-			<div className="mx-auto w-full max-w-7xl">
-				<div className="max-w-3xl">
+		<section className={SITE_UTILITY_HERO_CLASS}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
+				<div className="max-w-3xl" data-site-reveal>
 					<h1 className={HERO_H1_CLASS}>
 						{entry.rivetProductName} vs <br />
 						{entry.competitorName}
 					</h1>
-					<p className="mt-7 max-w-2xl text-lg leading-8 text-ink-soft">{entry.heroSubtitle}</p>
-					<div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+					<p className={`${SECTION_LEDE_CLASS} !max-w-2xl`}>{entry.heroSubtitle}</p>
+					<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
 						<a
 							href="/actors/docs/quickstart/backend"
-							className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-accent-deep px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent"
+							className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}
 						>
 							Get Started with {entry.rivetProductName}
 							<Icon icon={faArrowRight} />
@@ -81,26 +89,18 @@ function HeroSection({ entry }: { entry: CompareEntry }) {
 function ChoiceList({
 	heading,
 	choices,
-	headingTone = 'faint',
 }: {
 	heading: string;
 	choices: CompareEntry['whenToChooseRivet'];
-	headingTone?: 'pine' | 'faint';
 }) {
 	return (
 		<div>
-			<div
-				className={`font-mono text-[11px] font-medium uppercase tracking-[0.18em] ${
-					headingTone === 'pine' ? 'text-pine' : 'text-ink-faint'
-				}`}
-			>
-				{heading}
-			</div>
+			<div className="text-sm font-medium text-ink-faint">{heading}</div>
 			<div className="mt-5 space-y-5">
 				{choices.map((choice) => (
 					<div key={choice.title}>
 						<div className="text-[15px] font-medium text-ink">{choice.title}</div>
-						<div className="mt-1 text-sm leading-relaxed text-ink-soft">{choice.description}</div>
+						<div className="mt-1 text-[15px] leading-relaxed text-ink-soft">{choice.description}</div>
 					</div>
 				))}
 			</div>
@@ -133,7 +133,7 @@ function OverviewPanel({
 				</span>
 			}
 		>
-			<p className="mt-4 text-sm leading-relaxed text-ink-soft">{summary}</p>
+			<p className="mt-4 text-[15px] leading-relaxed text-ink-soft">{summary}</p>
 			<div className="my-7 h-px bg-ink/10" />
 			{children}
 		</CatalogCard>
@@ -142,13 +142,15 @@ function OverviewPanel({
 
 function OverviewSection({ entry }: { entry: CompareEntry }) {
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-7xl">
-				<SectionHeading
-					title="Two approaches, side by side"
-					subtitle="What each platform is, and the situations where it is the right choice."
-				/>
-				<div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
+				<div data-site-reveal>
+					<SectionHeading
+						title="Two approaches, side by side"
+						subtitle="What each platform is, and the situations where it is the right choice."
+					/>
+				</div>
+				<div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2" data-site-reveal>
 					<OverviewPanel
 						icon={<Icon icon={faRivet} className="h-4 w-4" />}
 						name={entry.rivetProductName}
@@ -158,17 +160,16 @@ function OverviewSection({ entry }: { entry: CompareEntry }) {
 						<ChoiceList
 							heading={`When to choose ${entry.rivetProductName}`}
 							choices={entry.whenToChooseRivet}
-							headingTone="pine"
 						/>
 						<div className="mt-8">
 							<a
 								href="/actors/docs/quickstart/backend"
-								className="group inline-flex items-center gap-2 text-sm font-medium text-pine hover:text-ink"
+								className="group inline-flex items-center gap-2 rounded-sm text-sm font-medium text-pine hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 							>
 								Get started with {entry.rivetProductName}
 								<Icon
 									icon={faArrowRight}
-									className="transition-transform group-hover:translate-x-0.5"
+									className="transition-transform motion-reduce:transition-none group-hover:translate-x-0.5"
 								/>
 							</a>
 						</div>
@@ -192,13 +193,15 @@ function OverviewSection({ entry }: { entry: CompareEntry }) {
 
 function ComparisonSection({ entry }: { entry: CompareEntry }) {
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-7xl">
-				<SectionHeading
-					title="Feature comparison"
-					subtitle="A detailed breakdown of capabilities across both platforms."
-				/>
-				<div className="mt-14">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
+				<div data-site-reveal>
+					<SectionHeading
+						title="Feature comparison"
+						subtitle="A detailed breakdown of capabilities across both platforms."
+					/>
+				</div>
+				<div className="mt-14" data-site-reveal>
 					<ComparisonTable
 						featureGroups={entry.featureGroups}
 						competitorName={entry.competitorName}
@@ -213,8 +216,8 @@ function ComparisonSection({ entry }: { entry: CompareEntry }) {
 
 function VerdictSection({ entry }: { entry: CompareEntry }) {
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-2xl text-center">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`} data-site-reveal>
 				<SectionHeading title="Which should you pick?" center />
 				<div className="mt-8 space-y-5">
 					{entry.verdict.map((paragraph, index) => (
@@ -222,8 +225,8 @@ function VerdictSection({ entry }: { entry: CompareEntry }) {
 							key={paragraph}
 							className={
 								index === 0
-									? 'text-lg leading-8 text-ink'
-									: 'text-base leading-relaxed text-ink-soft'
+									? 'text-[17px] leading-relaxed text-ink'
+									: 'text-[15px] leading-relaxed text-ink-soft'
 							}
 						>
 							{paragraph}
@@ -237,10 +240,10 @@ function VerdictSection({ entry }: { entry: CompareEntry }) {
 
 function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['migration']> }) {
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-2xl text-center">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={`${SITE_NARROW_RAIL_CLASS} text-center`} data-site-reveal>
 				<SectionHeading title={migration.heading} center />
-				<p className="mt-8 text-base leading-relaxed text-ink-soft">{migration.body}</p>
+				<p className="mt-8 text-[15px] leading-relaxed text-ink-soft">{migration.body}</p>
 				<div className="mt-8">
 					<a
 						href="/talk-to-an-engineer"
@@ -256,8 +259,8 @@ function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['
 
 function FaqSectionLight({ entry }: { entry: CompareEntry }) {
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-3xl">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={SITE_NARROW_RAIL_CLASS} data-site-reveal>
 				<SectionHeading title="Frequently asked questions" />
 				<div className="mt-10">
 					<FaqList items={entry.faq} theme="light" />
@@ -274,10 +277,12 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 	}
 
 	return (
-		<section className="border-t border-ink/10 px-6 py-16 md:py-32">
-			<div className="mx-auto max-w-7xl">
-				<SectionHeading title="Other comparisons" />
-				<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+		<section className={SITE_SECTION_CLASS}>
+			<div className={SITE_STANDARD_RAIL_CLASS}>
+				<div data-site-reveal>
+					<SectionHeading title="Other comparisons" />
+				</div>
+				<div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2" data-site-reveal>
 					{others.map((other) => (
 						<CatalogCard
 							key={other.slug}
@@ -285,7 +290,7 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 							title={other.title}
 							linkLabel="Read the comparison"
 						>
-							<p className="mt-2 text-sm leading-relaxed text-ink-soft">{other.description}</p>
+							<p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{other.description}</p>
 						</CatalogCard>
 					))}
 				</div>
@@ -294,60 +299,20 @@ function OtherComparisonsSection({ entry }: { entry: CompareEntry }) {
 	);
 }
 
+// The sitewide flat ink colophon, matching the product-page closing CTAs.
 function CTASection() {
 	return (
-		<section className="selection-paper bg-paper px-4 py-14 text-center md:px-6 md:py-24">
-			<div className="relative mx-auto flex min-h-[26rem] max-w-screen-2xl items-center justify-center overflow-hidden px-6 py-20 text-cream md:min-h-[34rem] md:px-10 lg:aspect-[2563/1440] lg:min-h-0">
-				<img
-					aria-hidden="true"
-					src={FOOTER_PAINTING_SRC}
-					alt=""
-					loading="lazy"
-					decoding="async"
-					className="absolute inset-0 h-full w-full object-contain object-center"
-				/>
-				<div
-					aria-hidden="true"
-					className="absolute inset-0"
-					style={{
-						background:
-							'linear-gradient(180deg, rgba(20,19,16,0.66), rgba(20,19,16,0.5) 50%, rgba(20,19,16,0.72))',
-					}}
-				/>
-				<div className="relative mx-auto max-w-3xl">
-					<div className="mb-8 flex justify-center" aria-hidden="true">
-						<Spirograph
-							variant="moire"
-							size={56}
-							stroke="#93A286"
-							strokeWidth={2.6}
-							strokeOpacity={0.7}
-							copies={12}
-						/>
-					</div>
-					<h2 className="text-3xl font-medium tracking-[-0.015em] text-cream md:text-5xl">
-						The primitive for stateful workloads.
-					</h2>
-					<p className="mt-6 text-base leading-relaxed text-cream/65">
-						The next generation of software needs a new kind of backend. This is it.
-					</p>
-					<div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-						<a
-							href="/actors/docs"
-							className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-white px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-white/90"
-						>
-							Start Building
-						</a>
-						<a
-							href="/talk-to-an-engineer"
-							className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-cream/30 px-4 py-2 text-sm text-cream transition-colors hover:border-cream/60"
-						>
-							Talk to an Engineer
-						</a>
-					</div>
-				</div>
-			</div>
-		</section>
+		<ClosingCtaPanel
+			title="Infrastructure for the agentic era."
+			description="Build with agents, build for agents, and run it where your data lives."
+		>
+			<a href="/docs" className={INK_PANEL_LIGHT_BUTTON_CLASS}>
+				Start building
+			</a>
+			<a href="/talk-to-an-engineer" className={INK_PANEL_GHOST_BUTTON_CLASS}>
+				Talk to an engineer
+			</a>
+		</ClosingCtaPanel>
 	);
 }
 
@@ -356,19 +321,27 @@ export function ComparePage({ slug }: ComparePageProps) {
 	if (!entry) {
 		throw new Error(`Unknown compare entry: ${slug}`);
 	}
-
 	return (
-		<div className="paper-grain min-h-screen font-sans text-ink-soft">
-			<main>
-				<HeroSection entry={entry} />
-				<OverviewSection entry={entry} />
-				<ComparisonSection entry={entry} />
-				<VerdictSection entry={entry} />
-				{entry.migration && <MigrationSection migration={entry.migration} />}
-				<FaqSectionLight entry={entry} />
-				<OtherComparisonsSection entry={entry} />
-				<CTASection />
-			</main>
-		</div>
+		<main id="main-content" tabIndex={-1}>
+			<HeroSection entry={entry} />
+			<SectionRule />
+			<OverviewSection entry={entry} />
+			<SectionRule />
+			<ComparisonSection entry={entry} />
+			<SectionRule />
+			<VerdictSection entry={entry} />
+			<SectionRule />
+			{entry.migration && (
+				<>
+					<MigrationSection migration={entry.migration} />
+					<SectionRule />
+				</>
+			)}
+			<FaqSectionLight entry={entry} />
+			<SectionRule />
+			<OtherComparisonsSection entry={entry} />
+			<SectionRule />
+			<CTASection />
+		</main>
 	);
 }

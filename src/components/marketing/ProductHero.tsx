@@ -3,9 +3,11 @@ import { getProduct } from "@/sitemap/products";
 import {
 	PRODUCT_HERO_CTA_ROW_CLASS,
 	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
 } from "./typography";
 
 /**
@@ -32,7 +34,7 @@ export function ProductHero({
 
 	return (
 		<section className={PRODUCT_HERO_SECTION_CLASS}>
-			<div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
+			<div className={PRODUCT_HERO_INNER_CLASS}>
 				{product && (
 					<div className="mb-7 flex">
 						<ProductLockup product={product} />
@@ -43,14 +45,13 @@ export function ProductHero({
 					{heading}
 				</h1>
 
-				<p className="mb-7 max-w-3xl text-base leading-relaxed text-ink-soft md:text-lg">
+				<p className={PRODUCT_HERO_SUBTITLE_CLASS}>
 					{subtitle}
 				</p>
 
 				<div className={PRODUCT_HERO_CTA_ROW_CLASS}>
 				<a href={docsHref} className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
 					Documentation
-					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
 				</a>
 				<a
 					href="/talk-to-an-engineer"

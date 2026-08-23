@@ -110,7 +110,7 @@ export function Navigation({ navigation, ...props }) {
 				<TopLevelNavItem href="/changelog" icon={faNewspaper}>
 					Changelog
 				</TopLevelNavItem>
-				<TopLevelNavItem href="/cloud" icon={faCoin}>
+				<TopLevelNavItem href="https://dashboard.rivet.dev" icon={faCoin}>
 					Cloud
 				</TopLevelNavItem>
 
