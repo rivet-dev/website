@@ -1,6 +1,5 @@
 "use client";
 import { usePathname } from "@/hooks/usePathname";
-import { ActiveLink } from "@/components/ActiveLink";
 import { SidebarAccentProvider, Tree } from "@/components/DocsNavigation";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import type { SidebarItem } from "@/lib/sitemap";
@@ -26,8 +25,6 @@ import {
 	DropdownMenuTrigger,
 } from "@rivet-gg/components";
 import { faChevronDown } from "@rivet-gg/icons";
-import cloudLogoUrl from "@/images/products/rivet-cloud-logo.svg";
-import sandboxAgentLogoUrl from "@/images/products/sandbox-agent-logo.svg";
 import { GitHubDropdown } from "./GitHubDropdown";
 import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";

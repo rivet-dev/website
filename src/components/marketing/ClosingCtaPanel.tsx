@@ -15,8 +15,6 @@ interface ClosingCtaPanelProps {
 	children?: ReactNode;
 	/** Quiet line under the buttons (e.g. a "Questions? Contact us" aside). */
 	footnote?: ReactNode;
-	/** Slot into the page's paper / paper-mid section alternation. */
-	background?: 'paper' | 'paper-mid';
 	/** Oil-painting backdrop for the colophon; omit for the flat ink plate. */
 	textureSrc?: string;
 	/** Set false to show the texture without the darkening veil. */

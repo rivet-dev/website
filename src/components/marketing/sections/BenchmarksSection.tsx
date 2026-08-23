@@ -1,6 +1,23 @@
 import { SECTION_H2_CLASS } from "../typography";
-import { BenchInfoTooltip } from "../bench/BenchCard";
+import type { ReactNode } from "react";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
+
+function BenchInfoTooltip({ children }: { children: ReactNode }) {
+  return (
+    <span className="group/tip ml-1.5 inline-flex align-middle">
+      <svg
+        className="h-3.5 w-3.5 cursor-help text-ink/30 transition-colors group-hover/tip:text-ink/70"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+      >
+        <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm1 12H7V7h2v5zm-1-6a1 1 0 110-2 1 1 0 010 2z" />
+      </svg>
+      <span className="pointer-events-none absolute inset-x-3 bottom-12 z-50 rounded-lg border border-cream/15 bg-ink p-3 text-left text-[11px] leading-relaxed text-cream/80 opacity-0 shadow-xl transition-opacity duration-200 group-hover/tip:pointer-events-auto group-hover/tip:opacity-100 [&_a]:text-cream [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-medium [&_strong]:text-cream">
+        {children}
+      </span>
+    </span>
+  );
+}
 
 interface BarEntry {
   label: string;

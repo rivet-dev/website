@@ -8,7 +8,7 @@ export const SITE_PAGE_CLASS =
 export const SITE_GUTTER_CLASS =
 	'px-4 md:px-12 min-[1681px]:px-14';
 
-export const SITE_WIDE_RAIL_CLASS =
+const SITE_WIDE_RAIL_CLASS =
 	'mx-auto w-full max-w-[1800px]';
 export const SITE_WIDE_GUTTERED_RAIL_CLASS =
 	`${SITE_WIDE_RAIL_CLASS} ${SITE_GUTTER_CLASS}`;

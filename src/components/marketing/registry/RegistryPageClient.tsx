@@ -95,13 +95,6 @@ function entryHref(hrefBase: string, entry: RegistryCardEntry) {
 	return `${hrefBase}/${entry.slug}`;
 }
 
-function categoryLabelFor(entry: RegistryCardEntry) {
-	return (
-		CATEGORY_ORDER.find((category) => entry.types.includes(category.type))
-			?.label ?? "Package"
-	);
-}
-
 const PILL_BASE =
 	"inline-flex h-7 shrink-0 items-center justify-center gap-1 rounded-md px-3 text-sm font-medium transition-colors duration-200 motion-reduce:transition-none";
 const PILL_ACTIVE =

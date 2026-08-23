@@ -46,7 +46,7 @@ function monogramTint(title: string) {
 	return MONOGRAM_TINTS[hash % MONOGRAM_TINTS.length];
 }
 
-export interface RegistryIconTileProps {
+interface RegistryIconTileProps {
 	title: string;
 	image?: string;
 	icon?: RegistryIconName;

@@ -3,7 +3,6 @@ import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { jsonLdString } from '@/lib/jsonLd';
 import { DeploymentBoundaryDiagram } from '@/components/marketing/diagrams/ConsolidatedStackDiagram';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
-import { EnterpriseDeploymentModels } from '@/components/marketing/enterprise/EnterpriseDeploymentModels';
 import { EnterpriseObservabilitySection } from '@/components/marketing/enterprise/EnterpriseObservabilitySection';
 import {
 	BODY_CLASS,
@@ -27,7 +26,6 @@ const title = 'Enterprise';
 const description =
 	'Run Rivet on-prem, in your VPC, embedded in your customers’ environments, or fully air-gapped. The control plane can start as one binary, with no required outbound connections.';
 const canonicalUrl = 'https://rivet.dev/enterprise/';
-const SHOW_DEPLOYMENT_MODELS = false;
 
 const breadcrumbSchema = {
 	'@context': 'https://schema.org',
@@ -119,24 +117,6 @@ const enterpriseEditionFeatures = [
 			</section>
 
 			<SectionRule />
-
-			{
-				SHOW_DEPLOYMENT_MODELS && (
-					<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
-						<div class={SITE_STANDARD_RAIL_CLASS}>
-							<div class="max-w-3xl" data-site-reveal>
-								<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Three ways to deploy.</h2>
-								<p class={SECTION_LEDE_CLASS}>
-									Start locally as a library and deploy inside your existing boundary.
-								</p>
-							</div>
-							<EnterpriseDeploymentModels client:visible />
-						</div>
-					</section>
-				)
-			}
-
-			{SHOW_DEPLOYMENT_MODELS && <SectionRule />}
 
 			<!-- Enterprise Edition contents -->
 			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
@@ -231,7 +211,6 @@ const enterpriseEditionFeatures = [
 			<ClosingCtaPanel
 				title="Bring Rivet inside your boundary."
 				description="Walk through your deployment model with an engineer, or start with the self-hosting docs and run it yourself."
-				background="paper-mid"
 			>
 				<a href="/talk-to-an-engineer" class={INK_PANEL_LIGHT_BUTTON_CLASS}>
 					Talk to an engineer

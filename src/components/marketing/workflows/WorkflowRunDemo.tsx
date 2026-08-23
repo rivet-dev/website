@@ -171,7 +171,7 @@ export function WorkflowRunDemo() {
           className="divide-y divide-ink/10 px-4 py-2 sm:px-6"
           aria-label="Workflow steps"
         >
-          {stages.map((stage, index) => {
+          {stages.map((stage) => {
             const StageIcon = stage.icon;
             return (
               <li

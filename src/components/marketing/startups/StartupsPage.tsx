@@ -159,12 +159,10 @@ const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mo
 interface CollapsibleSectionProps {
 	title: string;
 	children: React.ReactNode;
-	defaultOpen?: boolean;
-	background?: 'paper' | 'paper-mid';
 }
 
-function CollapsibleSection({ title, children, defaultOpen = false }: CollapsibleSectionProps) {
-	const [isOpen, setIsOpen] = useState(defaultOpen);
+function CollapsibleSection({ title, children }: CollapsibleSectionProps) {
+	const [isOpen, setIsOpen] = useState(false);
 	const sectionId = useId();
 	const triggerId = `${sectionId}-trigger`;
 	const panelId = `${sectionId}-panel`;
@@ -324,7 +322,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			<SectionRule />
 
 			{/* What You Get */}
-			<CollapsibleSection title="What you get" background="paper-mid">
+			<CollapsibleSection title="What you get">
 				<p className="mb-12 max-w-xl text-[17px] leading-relaxed text-ink-soft">
 					Everything you need to build and scale stateful workloads at startup speed.
 				</p>
@@ -357,7 +355,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 			<SectionRule />
 
 			{/* How to Claim */}
-			<CollapsibleSection title="How to claim" background="paper-mid">
+			<CollapsibleSection title="How to claim">
 				<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
 					{steps.map((step, idx) => (
 						<div key={idx} className="flex flex-col border-t border-ink/10 pt-6">
