@@ -32,7 +32,7 @@ const footer = {
 	],
 	devs: [
 		{ name: "Documentation", href: "/docs" },
-		{ name: "Changelog", href: "/changelog" },
+		{ name: "Changelog", href: "/blog/" },
 		{ name: "Status Page", href: "https://rivet.betteruptime.com/" },
 	],
 	resources: [

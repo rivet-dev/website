@@ -20,8 +20,6 @@ import { fileURLToPath } from 'node:url';
 
 const explicitRedirects = {
 	// Integrations moved out of the documentation URL hierarchy.
-	'/docs/integrations': '/integrations/',
-	'/docs/integrations/vercel-eve': '/integrations/vercel-eve/',
 	'/docs/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
 	'/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
 	// The Tutorials tab became Learn.
@@ -39,7 +37,6 @@ const explicitRedirects = {
 	'/cookbook/live-cursors': '/actors/learn/live-cursors/',
 	'/cookbook/multiplayer-game': '/actors/learn/multiplayer-game/',
 	'/cookbook/per-tenant-database': '/actors/learn/per-tenant-database/',
-	'/cookbook/vpc-air-gapped': '/actors/learn/vpc-air-gapped/',
 	'/integrations/flue': '/actors/integrations/flue/',
 	'/integrations/vercel-eve': '/actors/integrations/vercel-eve/',
 	'/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
@@ -49,11 +46,7 @@ const explicitRedirects = {
 	// these point at the nearest real page rather than being rewritten in the
 	// posts, which are historical records.
 	'/docs/actors/ai-and-user-generated-actors': '/agentos/docs/',
-	'/integrations/better-auth': '/integrations/',
-	// Managed deploy has no docs page: it collapses into the quickstart's final
-	// step. Point at the quickstart rather than the dashboard, so a docs URL
-	// keeps its search signal instead of bouncing to an external app.
-	'/docs/deploy/rivet-compute': '/actors/docs/quickstart/backend/',
+	'/integrations/better-auth': '/actors/integrations/',
 	'/docs/deploy/cli': '/actors/docs/cli/',
 	'/docs/actors/queue': '/actors/docs/queues/',
 	'/docs/actors/websockets': '/actors/docs/websocket-handler/',
@@ -111,11 +104,11 @@ const explicitRedirects = {
 	'/changelog': '/blog/',
 	// agentOS briefly lived at https://agentos-sdk.dev and is now a product
 	// vertical on this site, so these land on `/agentos/*` rather than off-site.
-	'/agent-os': '/agentos',
-	'/agent-os/pricing': '/pricing',
-	'/agent-os/use-cases': '/agentos/use-cases',
-	'/agent-os/registry': '/agentos/registry',
-	'/registry': '/agentos/registry',
+	'/agent-os': '/agentos/',
+	'/agent-os/pricing': '/cloud/',
+	'/agent-os/use-cases': '/agentos/use-cases/',
+	'/agent-os/registry': '/agentos/registry/',
+	'/registry': '/agentos/registry/',
 	// The integrations pages live under the Actors vertical now. These two are
 	// not covered by legacyDocsRedirects because they moved tab, not just prefix.
 	'/docs/integrations': '/actors/integrations/',
@@ -124,8 +117,9 @@ const explicitRedirects = {
 	'/docs/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
 	// The Vercel Workflows page is named after the SDK it integrates with.
 	'/actors/integrations/vercel-workflows': '/actors/integrations/workflow-sdk/',
-	// `/contact` was never a page here; sales is the live destination.
-	'/contact': '/sales/',
+	// `/contact` was never a page here; `/sales` itself now redirects, so land
+	// directly on the live destination to avoid a 301 chain.
+	'/contact': '/talk-to-an-engineer/',
 
 	// Retired pages. These were live URLs, so they redirect rather than 404.
 	// `/pricing` was a page that did nothing but redirect; a real 301 here beats
@@ -163,11 +157,11 @@ const explicitRedirects = {
 	// Its docs page and the hand-written markdown exports are both gone.
 	'/docs/general/docs-for-llms': '/actors/docs/general/skill/',
 	'/actors/docs/general/docs-for-llms': '/actors/docs/general/skill/',
-	'/install': '/agentos/docs/quickstart',
+	'/install': '/agentos/docs/quickstart/',
 	// The "From Unix to Agents" essay has no page on this site; the product
 	// overview is the closest surviving destination.
-	'/from-unix-to-agents': '/agentos',
-	'/docs/agent-os': '/agentos/docs',
+	'/from-unix-to-agents': '/agentos/',
+	'/docs/agent-os': '/agentos/docs/',
 	// The agentOS workspace cookbook was never rewritten; land on its docs.
 	'/cookbook/ai-agent-workspace': '/agentos/docs/',
 	// Workflows became its own product vertical. The legacy `/docs/actors/...`

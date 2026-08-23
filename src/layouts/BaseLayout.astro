@@ -18,6 +18,8 @@ interface Props {
 	canonicalUrl?: string;
 	ogImage?: string;
 	ogType?: string;
+	ogImageWidth?: number;
+	ogImageHeight?: number;
 	publishedTime?: string;
 	keywords?: string[];
 	articleAuthor?: string;
@@ -29,10 +31,12 @@ interface Props {
 
 const {
 	title,
-	description = "Rivet is infrastructure for long-lived software.",
+	description = "Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build.",
 	canonicalUrl,
-	ogImage = "https://assets.rivet.dev/website/public/promo/og.png",
+	ogImage = "https://assets.rivet.dev/website/public/promo/og-agentic-era.png",
 	ogType = "website",
+	ogImageWidth = 2400,
+	ogImageHeight = 1260,
 	publishedTime,
 	keywords,
 	articleAuthor,
@@ -42,10 +46,12 @@ const {
 	pageFamily = 'default',
 } = Astro.props;
 
-// Only add " - Rivet" suffix if not already present (handles Rivet, Rivet Actors, Rivet Templates)
+// Only add " - Rivet" suffix if the title isn't already branded: either it ends
+// with the suffix (handles Rivet, Rivet Actors, Rivet Templates) or it starts
+// with a "Rivet … - " brand prefix (homepage, product pages).
 const formattedTitle = !title
 	? 'Rivet'
-	: / - Rivet( Actors| Templates)?$/.test(title)
+	: /^Rivet( [A-Za-z]+)? - | - Rivet( Actors| Templates)?$/.test(title)
 		? title
 		: `${title} - Rivet`;
 
@@ -82,7 +88,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" data-page-family={pageFamily}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,12 +115,12 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={absoluteOgImage} />
 		<meta property="og:image:alt" content={formattedTitle} />
-		<meta property="og:image:width" content="1200" />
-		<meta property="og:image:height" content="630" />
-		{publishedTime && <meta property="article:published_time" content={publishedTime} />}
-		{articleAuthor && <meta property="article:author" content={articleAuthor} />}
-		{articleSection && <meta property="article:section" content={articleSection} />}
-		{Array.isArray(keywords) && keywords.map((keyword) => <meta property="article:tag" content={keyword.toLowerCase()} />)}
+		<meta property="og:image:width" content={String(ogImageWidth)} />
+		<meta property="og:image:height" content={String(ogImageHeight)} />
+		{ogType === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
+		{ogType === 'article' && articleAuthor && <meta property="article:author" content={articleAuthor} />}
+		{ogType === 'article' && articleSection && <meta property="article:section" content={articleSection} />}
+		{ogType === 'article' && Array.isArray(keywords) && keywords.map((keyword) => <meta property="article:tag" content={keyword.toLowerCase()} />)}
 
 		<!-- JSON-LD Structured Data -->
 		<script type="application/ld+json" set:html={JSON.stringify({
@@ -159,7 +165,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 					"name": "Rivet",
 					"applicationCategory": "DeveloperApplication",
 					"operatingSystem": "Cross-platform",
-					"description": "Rivet is infrastructure for long-lived software.",
+					"description": "Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build.",
 					"url": "https://rivet.dev",
 					"author": { "@id": "https://rivet.dev/#organization" },
 					"license": "https://opensource.org/licenses/Apache-2.0",
@@ -184,12 +190,23 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<link rel="icon" type="image/png" sizes="32x32" href="https://assets.rivet.dev/website/public/icons/favicon-32x32.png?20240925" />
 		<link rel="icon" type="image/png" sizes="16x16" href="https://assets.rivet.dev/website/public/icons/favicon-16x16.png?20240925" />
 		<link rel="manifest" href="/icons/site.webmanifest?20240925" />
-		<link rel="mask-icon" href="/icons/safari-pinned-tab.svg?20240925" color="#5bbad5" />
+		<link rel="mask-icon" href="/icons/safari-pinned-tab.svg?20240925" color="#1B1916" />
 		<meta name="msapplication-TileColor" content={themeColor} />
 		<meta name="theme-color" content={themeColor} />
+		<script is:inline>
+			(() => {
+				const syncSiteMotionClass = (root) => {
+					root.classList.toggle('site-motion-ready', root.dataset.pageFamily === 'site');
+				};
+
+				syncSiteMotionClass(document.documentElement);
+				document.addEventListener('astro:before-swap', (event) => {
+					syncSiteMotionClass(event.newDocument.documentElement);
+				});
+			})();
+		</script>
 		{pageFamily === 'site' && (
 			<script is:inline data-astro-rerun>
-				document.documentElement.classList.add('site-motion-ready');
 				window.setTimeout(() => {
 					if (document.documentElement.hasAttribute('data-site-motion-observer-ready')) return;
 					document

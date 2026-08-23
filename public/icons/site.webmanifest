@@ -1,5 +1,5 @@
 {
-	"name": "Rivet - The Primitive for Stateful Workloads",
+	"name": "Rivet - Infrastructure for the Agentic Era",
 	"short_name": "Rivet",
 	"icons": [
 		{
@@ -13,7 +13,7 @@
 			"type": "image/png"
 		}
 	],
-	"theme_color": "#000000",
-	"background_color": "#000000",
+	"theme_color": "#EFEFEF",
+	"background_color": "#EFEFEF",
 	"display": "standalone"
 }

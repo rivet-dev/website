@@ -12,19 +12,46 @@ const OBSERVER_READY_ATTRIBUTE = 'data-site-motion-observer-ready';
 export function ScrollObserver() {
 	useEffect(() => {
 		let observer: IntersectionObserver | undefined;
+		const pendingHydrationListeners = new Map<HTMLElement, EventListener>();
 
-		const revealAll = () => {
-			document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((element) => {
+		const clearPendingHydrationListeners = () => {
+			pendingHydrationListeners.forEach((listener, island) => {
+				island.removeEventListener('astro:hydrate', listener);
+			});
+			pendingHydrationListeners.clear();
+		};
+
+		const revealAll = (elements: HTMLElement[]) => {
+			elements.forEach((element) => {
 				element.setAttribute(VISIBLE_ATTRIBUTE, '');
 			});
 		};
 
 		const observe = () => {
 			observer?.disconnect();
+			clearPendingHydrationListeners();
 
 			const elements = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
+			const observableElements: HTMLElement[] = [];
 
 			elements.forEach((element) => {
+				// An island can replace its server-rendered children while it hydrates.
+				// Wait for that boundary before mutating reveal state so the visible
+				// attribute cannot be discarded by a nested island's hydration pass.
+				const hydratingIsland = element.closest<HTMLElement>('astro-island[ssr]');
+				if (hydratingIsland) {
+					if (!pendingHydrationListeners.has(hydratingIsland)) {
+						const handleHydration = () => {
+							pendingHydrationListeners.delete(hydratingIsland);
+							observe();
+						};
+						pendingHydrationListeners.set(hydratingIsland, handleHydration);
+						hydratingIsland.addEventListener('astro:hydrate', handleHydration, { once: true });
+					}
+					return;
+				}
+				observableElements.push(element);
+
 				const delay = Number(element.dataset.siteRevealDelay ?? 0);
 				if (Number.isFinite(delay) && delay > 0) {
 					element.style.setProperty('--site-reveal-delay', `${delay}ms`);
@@ -40,7 +67,7 @@ export function ScrollObserver() {
 			});
 
 			if (!('IntersectionObserver' in window)) {
-				revealAll();
+				revealAll(observableElements);
 				return;
 			}
 
@@ -55,7 +82,7 @@ export function ScrollObserver() {
 				{ rootMargin: '-10% 0px', threshold: 0.01 },
 			);
 
-			elements.forEach((element) => {
+			observableElements.forEach((element) => {
 				if (!element.hasAttribute(VISIBLE_ATTRIBUTE)) observer?.observe(element);
 			});
 		};
@@ -66,6 +93,7 @@ export function ScrollObserver() {
 
 		return () => {
 			observer?.disconnect();
+			clearPendingHydrationListeners();
 			document.documentElement.removeAttribute(OBSERVER_READY_ATTRIBUTE);
 			document.removeEventListener('astro:page-load', observe);
 		};

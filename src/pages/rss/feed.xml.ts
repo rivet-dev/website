@@ -13,11 +13,11 @@ export const GET: APIRoute = async ({ site }) => {
 	const posts = await getCollection('posts');
 
 	const feed = new Feed({
-		title: 'Rivet',
-		description: 'Rivet news',
+		title: 'Rivet Blog',
+		description: 'Product updates, engineering deep dives, and changelog entries from Rivet.',
 		id: siteUrl,
 		link: siteUrl,
-		image: `${siteUrl}/favicon.ico`,
+		image: 'https://assets.rivet.dev/website/public/icons/android-chrome-512x512.png',
 		favicon: `${siteUrl}/favicon.ico`,
 		copyright: `All rights reserved ${new Date().getFullYear()} Rivet Gaming, Inc.`,
 		feedLinks: {

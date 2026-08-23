@@ -8,6 +8,9 @@ interface Props {
 	description?: string;
 	canonicalUrl?: string;
 	ogImage?: string;
+	ogImageWidth?: number;
+	ogImageHeight?: number;
+	ogType?: string;
 	publishedTime?: string;
 	modifiedTime?: string;
 	keywords?: string[];
@@ -16,7 +19,7 @@ interface Props {
 	category?: string;
 }
 
-const { title, description, canonicalUrl, ogImage, publishedTime, modifiedTime, keywords, authorName, authorSocials, category } = Astro.props;
+const { title, description, canonicalUrl, ogImage, ogImageWidth, ogImageHeight, ogType = 'article', publishedTime, modifiedTime, keywords, authorName, authorSocials, category } = Astro.props;
 
 // Build sameAs array from author socials
 const authorSameAs = authorSocials ? Object.values(authorSocials).filter(Boolean) : [];
@@ -56,14 +59,16 @@ const articleSchema = {
 	description={description}
 	canonicalUrl={canonicalUrl}
 	ogImage={ogImage}
-	ogType="article"
+	ogImageWidth={ogImageWidth}
+	ogImageHeight={ogImageHeight}
+	ogType={ogType}
 	publishedTime={publishedTime}
 	keywords={keywords}
 	articleAuthor={authorName}
 	articleSection={category}
 	pageFamily="site"
 >
-	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+	{publishedTime && <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />}
 	<Header active="blog" variant="floating" pageFamily="site" client:load />
 	<div class:list={[SITE_PAGE_CLASS, 'relative z-10 w-full']}>
 		<slot />
