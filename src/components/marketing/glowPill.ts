@@ -5,7 +5,7 @@ import type { MouseEvent } from 'react';
 // main.css) which lights ONLY the pill's border ring as the cursor moves. No
 // `overflow-hidden` here — it would clip the border-aligned ring. Append to a
 // pill's existing className.
-export const GLOW_PILL_CLASS = 'glow-pill relative';
+const GLOW_PILL_CLASS = 'glow-pill relative';
 
 // The full porcelain pill surface: structural glow classes plus the hairline
 // ring, paper fill, and compact metric shared by the hero, integrations, and

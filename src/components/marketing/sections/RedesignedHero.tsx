@@ -225,12 +225,15 @@ const CopyInstallButton = () => {
 
   return (
     <div className="group relative w-full sm:w-auto">
+      {/* No <noscript> here: Astro's view-transition router strips noscript
+          elements from swapped-in pages, which desyncs React hydration for any
+          island that renders one (the mismatch regenerates the tree and blanks
+          the hero). The scripting media query provides the no-JS fallback. */}
       <button
         type="button"
-        data-home-install-copy
         aria-label="Copy npx skills add rivet-dev/skills"
         onClick={handleCopy}
-        className="inline-flex w-full items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto [@media(scripting:none)]:hidden"
       >
         {copied ? (
           <Check className="h-4 w-4 text-pine" />
@@ -239,15 +242,10 @@ const CopyInstallButton = () => {
         )}
         npx skills add rivet-dev/skills
       </button>
-      <noscript>
-        <style>
-          {"[data-home-install-copy] { display: none !important; }"}
-        </style>
-        <code className="flex w-full select-all items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto">
-          <Terminal className="h-4 w-4" aria-hidden="true" />
-          npx skills add rivet-dev/skills
-        </code>
-      </noscript>
+      <code className="hidden w-full select-all items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto [@media(scripting:none)]:flex">
+        <Terminal className="h-4 w-4" aria-hidden="true" />
+        npx skills add rivet-dev/skills
+      </code>
       <div className="pointer-events-none absolute left-1/2 top-full mt-4 -translate-x-1/2 translate-y-2 whitespace-nowrap text-xs text-ink-faint opacity-0 transition-all duration-200 ease-out motion-reduce:translate-y-0 motion-reduce:transition-none group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
         Give this to your coding agent
       </div>

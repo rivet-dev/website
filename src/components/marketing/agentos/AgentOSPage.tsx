@@ -1,11 +1,10 @@
 'use client';
 
-import { useId, useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useId, useState, useEffect, useRef, useCallback } from 'react';
 import {
 	ArrowRight,
 	Layers,
 	Wrench,
-	ExternalLink,
 	Activity,
 	HardDrive,
 	Users,
@@ -26,8 +25,6 @@ import {
 	CalendarClock,
 	Gauge,
 	AppWindow,
-	Database,
-	Rocket,
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import actorsLogoUrl from '@/images/products/actors-logo.svg';
@@ -36,8 +33,16 @@ import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
+import {
+	benchColdStart,
+	benchWorkloads,
+	BENCHMARK_DATE,
+	SANDBOX_COLDSTART_PROVIDER,
+	SANDBOX_COST_PROVIDER,
+	sandboxCostPerSec,
+} from '@/data/bench';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
-import { CopyInstallCommand } from '@/components/marketing/ProductHeroCta';
+import { CopyInstallCommand } from '@/components/marketing/CopyInstallCommand';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import {
@@ -54,22 +59,14 @@ import {
 	SECTION_H2_CLASS,
 	SECTION_LEDE_CENTERED_CLASS,
 	SECTION_LEDE_CLASS,
-	SectionHeading,
 } from '@/components/marketing/typography';
 import {
 	SITE_CARD_CLASS,
 	SITE_SECTION_CLASS,
 	SITE_STANDARD_RAIL_CLASS,
 } from '@/components/marketing/layout';
-import { ColdStartTimeline } from '@/components/marketing/diagrams/ColdStartTimeline';
 import { AgentSessionDemo } from '@/components/marketing/diagrams/AgentSessionDemo';
-import { AgentOsTopologyCell, SandboxTopologyCell } from '@/components/marketing/diagrams/TopologyCells';
 import { Reveal } from '@/components/marketing/motion';
-
-// Porcelain card surface shared by the architecture cards and feature bento:
-// a flat translucent fill and hairline ring, with no drop shadow.
-const CARD_SURFACE =
-	'rounded-xl border border-ink/10 bg-white/55 ' + 'transition-[background-color,border-color] duration-300 ' + 'hover:border-ink/15 hover:bg-white ' + 'motion-reduce:transition-none';
 
 interface HeroTabCode {
 	key: string;
@@ -1477,383 +1474,6 @@ const RegistrySection = () => {
 	);
 };
 
-// --- Benchmarks ---
-// Benchmark data (computed from raw inputs in bench.ts)
-import { benchColdStart, benchWorkloads, BENCHMARK_DATE, SANDBOX_COLDSTART_PROVIDER, SANDBOX_COST_PROVIDER, sandboxCostPerSec, type WorkloadKey } from '@/data/bench';
-
-function BenchInfoTooltip({ children }: { children: React.ReactNode }) {
-	// Anchored to the icon itself: the wrapper is positioned and the tooltip
-	// opens directly above it. The pb-2 gap lives inside the hover target so
-	// the pointer can travel from icon to tooltip (for the links) without a
-	// dead zone. The tooltip stays an ink plate — the site's surface for data
-	// asides — floating over the light card.
-	return (
-		<span className='group/tip relative ml-1.5 inline-flex align-middle'>
-			<svg className='h-3.5 w-3.5 cursor-help text-ink/30 transition-colors group-hover/tip:text-ink/60' viewBox='0 0 16 16' fill='currentColor'>
-				<path d='M8 0a8 8 0 100 16A8 8 0 008 0zm1 12H7V7h2v5zm-1-6a1 1 0 110-2 1 1 0 010 2z' />
-			</svg>
-			<span className='pointer-events-none absolute bottom-full left-0 z-50 pb-2 opacity-0 transition-opacity duration-200 group-hover/tip:pointer-events-auto group-hover/tip:opacity-100'>
-				<span className='block w-max max-w-[min(20rem,80vw)] rounded-lg border border-cream/15 bg-ink p-3 text-left text-[11px] leading-relaxed text-cream/80 shadow-xl [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-medium [&_strong]:text-cream'>
-					{children}
-				</span>
-			</span>
-		</span>
-	);
-}
-
-// Pill options in the card's caption bar, reusing the site's rounded-full
-// ring pill (carousel chevrons, the cards' ? buttons); the active option is
-// filled ink like the primary buttons.
-function BenchToggle({ options, active, onChange }: { options: string[]; active: number; onChange: (idx: number) => void }) {
-	return (
-		<div className='flex flex-wrap items-center gap-1.5'>
-			{options.map((label, i) => {
-				const isActive = i === active;
-				return (
-					<button
-						key={label}
-						type='button'
-						onClick={() => onChange(i)}
-						aria-pressed={isActive}
-						className={`whitespace-nowrap rounded-full px-2.5 py-1 font-sans text-[11px] font-medium transition-colors ${
-							isActive ? 'bg-ink text-cream' : 'text-ink-soft ring-1 ring-inset ring-ink/15 hover:text-ink hover:ring-ink/30'
-						}`}
-					>
-						{label}
-					</button>
-				);
-			})}
-		</div>
-	);
-}
-
-interface BenchRowEntry {
-	label: React.ReactNode;
-	value: string;
-	highlight?: boolean;
-}
-
-// Splits a stat string into a leading symbol prefix, the numeric portion, and a
-// trailing unit suffix so the number can be counted up while the units stay put.
-// Returns null when there is no number to animate (e.g. "Infinite").
-function parseStatNumber(text: string) {
-	const match = text.match(/^([^\d-]*)(-?[\d,]*\.?\d+)(.*)$/);
-	if (!match) return null;
-	const [, prefix, rawNumber, suffix] = match;
-	const normalized = rawNumber.replace(/,/g, '');
-	const decimals = normalized.includes('.') ? normalized.split('.')[1].length : 0;
-	return {
-		prefix,
-		suffix,
-		value: Number.parseFloat(normalized),
-		decimals,
-		grouped: rawNumber.includes(','),
-	};
-}
-
-// Counts the numeric part of a stat from 0 up to its value. The first run is
-// gated on `active` (the card scrolling into view) and only fires once; later
-// value changes (toggling workload or tier) re-trigger the count from the
-// previous value. Honors reduced-motion by rendering the final value outright.
-function CountUpStat({ text, active }: { text: string; active: boolean }) {
-	const parsed = useMemo(() => parseStatNumber(text), [text]);
-	const reducedMotion = useReducedMotion();
-	const target = parsed?.value ?? 0;
-
-	const [display, setDisplay] = useState(0);
-	const startedRef = useRef(false);
-	const fromRef = useRef(0);
-	const rafRef = useRef(0);
-
-	useEffect(() => {
-		if (!parsed) return;
-		if (reducedMotion) {
-			setDisplay(target);
-			fromRef.current = target;
-			startedRef.current = true;
-			return;
-		}
-		// Not yet scrolled into view: stay primed at zero for the first count-up.
-		if (!active) {
-			if (!startedRef.current) setDisplay(0);
-			return;
-		}
-		const from = startedRef.current ? fromRef.current : 0;
-		startedRef.current = true;
-		const duration = 850;
-		let start = 0;
-		const step = (now: number) => {
-			if (!start) start = now;
-			const t = Math.min(1, (now - start) / duration);
-			const eased = 1 - (1 - t) ** 3;
-			setDisplay(from + (target - from) * eased);
-			if (t < 1) {
-				rafRef.current = requestAnimationFrame(step);
-			} else {
-				fromRef.current = target;
-			}
-		};
-		rafRef.current = requestAnimationFrame(step);
-		return () => cancelAnimationFrame(rafRef.current);
-	}, [parsed, target, active, reducedMotion]);
-
-	if (!parsed) return <>{text}</>;
-
-	const formatted = parsed.grouped
-		? display.toLocaleString(undefined, {
-				minimumFractionDigits: parsed.decimals,
-				maximumFractionDigits: parsed.decimals,
-			})
-		: display.toFixed(parsed.decimals);
-
-	return (
-		<span className='tabular-nums'>
-			{parsed.prefix}
-			{formatted}
-			{parsed.suffix}
-		</span>
-	);
-}
-
-// Light data card on the site's card surface: title, headline multiplier,
-// comparison rows, and an optional tier toggle in the caption bar. The
-// agentOS row carries pine, matching the ledger's "agentOS" column above.
-function BenchCard({
-	title,
-	statNote,
-	verb,
-	toggle,
-	rows,
-	note,
-	onHelp,
-	helpLabel,
-	helpTip,
-}: {
-	title: string;
-	statNote: string;
-	verb: string;
-	toggle?: React.ReactNode;
-	rows: BenchRowEntry[];
-	note?: string;
-	onHelp?: () => void;
-	helpLabel?: string;
-	helpTip?: React.ReactNode;
-}) {
-	// Trigger the count-up the first time the card scrolls into view, once.
-	const [inView, setInView] = useState(false);
-
-	return (
-		<motion.div className={`flex h-full flex-col p-6 md:p-8 ${CARD_SURFACE}`} onViewportEnter={() => setInView(true)} viewport={{ once: true, margin: '-10% 0px' }}>
-			<div className='flex min-h-[2.5rem] items-start justify-between gap-3'>
-				<span className='text-sm font-medium text-ink'>{title}</span>
-				{onHelp ? (
-					<button
-						type='button'
-						onClick={onHelp}
-						aria-label={helpLabel}
-						title={helpLabel}
-						className='flex h-5 w-5 flex-none items-center justify-center rounded-full text-[11px] font-medium text-ink-soft ring-1 ring-inset ring-ink/15 transition-colors hover:text-ink hover:ring-ink/30'
-					>
-						?
-					</button>
-				) : helpTip ? (
-					// Anchored under the ? itself, opening down-left from the card corner.
-					<span className='group/tip relative inline-flex'>
-						<span className='flex h-5 w-5 flex-none cursor-help items-center justify-center rounded-full text-[11px] font-medium text-ink-soft ring-1 ring-inset ring-ink/15 transition-colors group-hover/tip:text-ink group-hover/tip:ring-ink/30'>
-							?
-						</span>
-						<span className='pointer-events-none absolute right-0 top-full z-50 pt-2 opacity-0 transition-opacity duration-200 group-hover/tip:opacity-100'>
-							<span className='block w-max max-w-[min(18rem,80vw)] rounded-lg border border-cream/15 bg-ink p-3 text-left text-[11px] leading-relaxed text-cream/80 shadow-xl'>{helpTip}</span>
-						</span>
-					</span>
-				) : null}
-			</div>
-
-			{/* Verdict: the headline multiplier */}
-			<div className='mt-5 flex items-baseline gap-2'>
-				<span className='font-sans text-[2.75rem] font-medium leading-[1.0] tracking-[-0.02em] tabular-nums text-ink md:text-5xl'>
-					<CountUpStat text={statNote} active={inView} />
-				</span>
-				<span className='font-sans text-lg font-medium text-ink-faint md:text-xl'>{verb}</span>
-			</div>
-
-			{/* Comparison ledger: ours vs theirs, same unit, right-aligned */}
-			<div className='mb-6 mt-6 divide-y divide-ink/10 border-y border-ink/10'>
-				{rows.map((row, i) => (
-					<div key={i} className='flex items-baseline justify-between gap-4 py-2.5'>
-						<span className={`inline-flex min-w-0 items-baseline text-sm ${row.highlight ? 'font-medium text-pine' : 'text-ink-faint'}`}>{row.label}</span>
-						<span className={`whitespace-nowrap font-mono text-[15px] tabular-nums ${row.highlight ? 'font-medium text-ink' : 'font-normal text-ink-faint'}`}>{row.value}</span>
-					</div>
-				))}
-			</div>
-
-			{/* Caption bar flush with the card foot: holds the tier options or a
-          one-line measurement note. */}
-			{toggle || note ? (
-				<div className='-mx-6 -mb-6 mt-auto border-t border-ink/10 px-6 py-2.5 text-[11px] font-medium leading-relaxed text-ink-faint md:-mx-8 md:-mb-8 md:px-8'>{toggle ?? note}</div>
-			) : null}
-		</motion.div>
-	);
-}
-
-function BenchColdStartChart({ onHelp }: { onHelp?: () => void }) {
-	const groups = benchColdStart;
-	// Default to p50 so the hero chip's claim and this card's first-shown number agree.
-	const [active, setActive] = useState(0);
-	const g = groups[active];
-
-	return (
-		<BenchCard
-			title='Cold Start'
-			statNote={`${Math.round(g.sandbox / g.agentOS)}x`}
-			verb='faster'
-			onHelp={onHelp}
-			helpLabel='Watch how a cold start breaks down'
-			toggle={<BenchToggle options={groups.map((t) => t.label)} active={active} onChange={setActive} />}
-			rows={[
-				{
-					label: (
-						<>
-							agentOS
-							<BenchInfoTooltip>
-								<strong>What&apos;s measured:</strong> Time from requesting an execution to first code running.
-								<br />
-								<br />
-								<strong>Why the gap:</strong> agentOS runs agents in-process — WASM inside your host. No VM to boot, no network hop, no disk image. Sandboxes must boot an entire environment, allocate
-								memory, and establish a network connection before code can run.
-								<br />
-								<br />
-								<strong>Sandbox baseline:</strong> {SANDBOX_COLDSTART_PROVIDER}, the fastest mainstream sandbox provider as of {BENCHMARK_DATE}.
-								<br />
-								<br />
-								<strong>agentOS:</strong> Median of 10,000 runs (100 iterations x 100 samples) on Intel i7-12700KF.
-							</BenchInfoTooltip>
-						</>
-					),
-					value: `${g.agentOS} ms`,
-					highlight: true,
-				},
-				{ label: 'Fastest sandbox', value: `${g.sandbox.toLocaleString()} ms` },
-			]}
-		/>
-	);
-}
-
-function BenchMemoryBar({ workload }: { workload: WorkloadKey }) {
-	const mem = benchWorkloads[workload].memory;
-	const [memMult, memVerb] = mem.multiplier.split(' ');
-
-	return (
-		<BenchCard
-			title='Memory Per Instance'
-			statNote={memMult}
-			verb={memVerb}
-			rows={[
-				{
-					label: (
-						<>
-							agentOS
-							<BenchInfoTooltip>
-								<strong>What&apos;s measured:</strong> Memory footprint added per concurrent execution.
-								<br />
-								<br />
-								<strong>Why the gap:</strong> In-process isolates share the host's memory. Each additional execution only adds its own heap and stack. Sandboxes allocate a dedicated environment with a
-								minimum memory reservation, even if the code inside uses far less.
-								<br />
-								<br />
-								<strong>Sandbox baseline:</strong> {SANDBOX_COST_PROVIDER}, the cheapest mainstream sandbox provider as of {BENCHMARK_DATE}. Default sandbox: 1 vCPU + 1 GiB RAM.
-								<br />
-								<br />
-								<strong>agentOS:</strong>{' '}
-								{workload === 'agent'
-									? `${benchWorkloads.agent.memory.agentOS} for a full Pi coding agent session with MCP servers and file system mounts.`
-									: `${benchWorkloads.shell.memory.agentOS} for the minimal shell workload under sustained load.`}
-							</BenchInfoTooltip>
-						</>
-					),
-					value: mem.agentOS,
-					highlight: true,
-				},
-				{ label: 'Cheapest sandbox', value: mem.sandbox },
-			]}
-			helpTip='Sandboxes reserve idle RAM per agent.'
-		/>
-	);
-}
-
-function BenchCostChart({ workload }: { workload: WorkloadKey }) {
-	const tiers = benchWorkloads[workload].cost;
-	const sandboxCost = benchWorkloads[workload].sandboxCost;
-	// Default to AWS ARM so the hero chip's claim and this card's first-shown number agree.
-	const [active, setActive] = useState(() =>
-		Math.max(
-			0,
-			tiers.findIndex((tier) => tier.label === 'AWS ARM'),
-		),
-	);
-	const t = tiers[active];
-	const [costMult, costVerb] = t.multiplier.split(' ');
-
-	return (
-		<BenchCard
-			title='Cost Per Execution-Second'
-			statNote={costMult}
-			verb={costVerb}
-			toggle={<BenchToggle options={tiers.map((tier) => tier.label)} active={active} onChange={setActive} />}
-			rows={[
-				{
-					label: (
-						<>
-							agentOS
-							<BenchInfoTooltip>
-								<strong>What&apos;s measured:</strong> <code className='rounded bg-cream/10 px-1 py-0.5 text-[10px]'>server price per second / concurrent executions per server</code>
-								<br />
-								<br />
-								<strong>Why it&apos;s cheaper:</strong> Each execution uses {benchWorkloads[workload].memory.agentOS} instead of a {benchWorkloads[workload].memory.sandbox} sandbox minimum. And you
-								run on your own hardware, which is significantly cheaper than per-second sandbox billing.
-								<br />
-								<br />
-								<strong>Sandbox baseline:</strong> {SANDBOX_COST_PROVIDER}, the cheapest mainstream sandbox provider as of {BENCHMARK_DATE}. Default sandbox: 1 vCPU + 1 GiB RAM at $0.0504/vCPU-h +
-								$0.0162/GiB-h.
-								<br />
-								<br />
-								<strong>agentOS:</strong> {benchWorkloads[workload].memory.agentOS} baseline per execution, assuming 70% utilization (industry-standard HPA scaling threshold). Select a hardware tier
-								above to compare.
-							</BenchInfoTooltip>
-						</>
-					),
-					value: t.value,
-					highlight: true,
-				},
-				{ label: 'Cheapest sandbox', value: sandboxCost },
-			]}
-			helpTip='Assumes one agent per sandbox, needed for isolation.'
-		/>
-	);
-}
-
-function BenchmarkSection({ onShowColdStart }: { onShowColdStart?: () => void }) {
-	// Single measured workload; the coding-agent variant lives on in bench.ts
-	// data but is not surfaced here.
-	const workload: WorkloadKey = 'shell';
-
-	return (
-		<motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-			<div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-				<div id='bench-cold-start' className='scroll-mt-24'>
-					<BenchColdStartChart onHelp={onShowColdStart} />
-				</div>
-				<div id='bench-memory' className='scroll-mt-24'>
-					<BenchMemoryBar workload={workload} />
-				</div>
-				<div id='bench-cost' className='scroll-mt-24'>
-					<BenchCostChart workload={workload} />
-				</div>
-			</div>
-		</motion.div>
-	);
-}
-
 // --- Floating foundation map ---
 // Execution, filesystem, and orchestration split evenly across the section.
 // The bubbles name recognizable integrations and patterns without turning the
@@ -2725,116 +2345,6 @@ const SecondaryFeaturesSection = () => (
 	</section>
 );
 
-// --- Argument (why a library, not a sandbox service) ---
-// The topology makes the architectural contrast first; the benchmark block
-// below provides the measured proof for startup, memory, and cost.
-
-// Modal wrapper for the cold-start timeline, opened from the benchmarks
-// header. Mounting the timeline on open replays its sequence each time.
-const ColdStartModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-		document.addEventListener('keydown', onKey);
-		const prevOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-		return () => {
-			document.removeEventListener('keydown', onKey);
-			document.body.style.overflow = prevOverflow;
-		};
-	}, [open, onClose]);
-
-	return (
-		<AnimatePresence>
-			{open && (
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					exit={{ opacity: 0 }}
-					transition={{ duration: 0.2 }}
-					className='fixed inset-0 z-[60] flex items-center justify-center bg-ink/50 p-4 md:p-8'
-					onClick={onClose}
-				>
-					<motion.div
-						role='dialog'
-						aria-modal='true'
-						aria-label='Cold-start timeline'
-						initial={{ opacity: 0, y: 14, scale: 0.98 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						exit={{ opacity: 0, y: 10, scale: 0.98 }}
-						transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-						onClick={(e) => e.stopPropagation()}
-						className='relative max-h-full w-full max-w-3xl overflow-y-auto rounded-2xl bg-paper p-6 shadow-[0_24px_70px_-20px_rgba(20,20,22,0.45)] ring-1 ring-ink/10 md:p-9'
-					>
-						<ColdStartTimeline onClose={onClose} />
-					</motion.div>
-				</motion.div>
-			)}
-		</AnimatePresence>
-	);
-};
-
-const ComparisonSection = () => (
-	<section className={`${SITE_SECTION_CLASS}`}>
-		<div className={SITE_STANDARD_RAIL_CLASS}>
-			<Reveal>
-				<SectionHeading
-					title={
-						<>
-							An isolated OS for every agent.
-							<br />
-							Much lighter than a full sandbox VM.
-						</>
-					}
-					subtitle='Per-agent isolation without duplicating a complete VM stack for every agent.'
-					className='mb-10 max-w-3xl md:mb-12'
-				/>
-			</Reveal>
-
-			{/* Complete VM stacks versus compact isolated OS instances. */}
-			<Reveal>
-				<div id='versus' className={`scroll-mt-24 overflow-hidden p-6 md:p-8 ${CARD_SURFACE}`}>
-					<div className='grid gap-6 md:grid-cols-2'>
-						<div>
-							<p className='mb-2 text-sm text-ink-soft'>Full sandbox per agent</p>
-							<SandboxTopologyCell />
-						</div>
-						<div>
-							<p className='mb-2 text-sm text-ink-soft'>Isolated OS per agent</p>
-							<AgentOsTopologyCell />
-						</div>
-					</div>
-				</div>
-			</Reveal>
-		</div>
-	</section>
-);
-
-const BenchmarksSection = () => {
-	const [showColdStart, setShowColdStart] = useState(false);
-
-	return (
-		<>
-			<section className={`${SITE_SECTION_CLASS}`}>
-				<div className={SITE_STANDARD_RAIL_CLASS}>
-					<Reveal>
-						<div className='mb-8 flex items-baseline justify-between gap-4'>
-							<h2 className={SECTION_H2_CLASS}>What staying in-process saves.</h2>
-							<a href='/agentos/docs/performance' className='inline-flex shrink-0 items-center gap-1 text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
-								Benchmark document
-								<ExternalLink className='h-3 w-3' />
-							</a>
-						</div>
-					</Reveal>
-					<BenchmarkSection onShowColdStart={() => setShowColdStart(true)} />
-				</div>
-			</section>
-
-			<ColdStartModal open={showColdStart} onClose={() => setShowColdStart(false)} />
-		</>
-	);
-};
-
 // --- Deployment ---
 // The same Local -> Rivet Cloud -> Self-Host decision used by the homepage and
 // Workflows page.
@@ -2875,7 +2385,7 @@ const DeploymentSection = () => {
 // The page opens with the argument (an OS, not a sandbox) and closes with the
 // action. Repeats the hero CTAs so the reader never scrolls back up to act.
 const ClosingCta = () => (
-	<ClosingCtaPanel background='paper-mid' title='Turn your backend into the agent platform.' description='Open source under Apache 2.0. One npm install away.'>
+	<ClosingCtaPanel title='Turn your backend into the agent platform.' description='Open source under Apache 2.0. One npm install away.'>
 		<SetupWithAgent variant='light' />
 		<a href='/agentos/docs' className={INK_PANEL_GHOST_BUTTON_CLASS}>
 			Read the Docs

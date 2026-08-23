@@ -13,9 +13,9 @@ import { Icon, faRailway, faVercel, faCloudflare, faAws, faKubernetes } from '@r
 // Restated from the self-host docs (src/content/self-host/index.mdx).
 // ---------------------------------------------------------------------------
 
-export type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
+type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
 
-export const DEPLOYMENT_DIAGRAM_ARIA: Record<DeploymentDiagramVariant, string> = {
+const DEPLOYMENT_DIAGRAM_ARIA: Record<DeploymentDiagramVariant, string> = {
 	managed:
 		'Fully managed architecture: your backend, the control plane, and storage all run inside Rivet Cloud.',
 	byoc:

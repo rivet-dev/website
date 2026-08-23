@@ -1,8 +1,7 @@
 "use client";
-import { useMobileNavigationStore } from "@/components/MobileNavigation";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import { Toaster, toast } from "@rivet-gg/components";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 
 function PageViewTracker() {
 	useEffect(() => {
@@ -17,14 +16,6 @@ function PageViewTracker() {
 				$current_url: url,
 			});
 		});
-	}, []);
-
-	return null;
-}
-
-function RouteChangeObserver() {
-	useEffect(() => {
-		useMobileNavigationStore.getState().close();
 	}, []);
 
 	return null;
@@ -69,7 +60,6 @@ export function Providers({ children }) {
 			<Suspense fallback={null}>
 				<PageViewTracker />
 			</Suspense>
-			<RouteChangeObserver />
 			<CopyCodeListener />
 			<Toaster theme="dark" />
 		</NavigationStateProvider>

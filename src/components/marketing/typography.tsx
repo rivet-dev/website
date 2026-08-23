@@ -83,11 +83,6 @@ export const INK_PANEL_LIGHT_BUTTON_CLASS =
 export const INK_PANEL_GHOST_BUTTON_CLASS =
 	`${PRODUCT_HERO_BUTTON_BASE} ${INK_BUTTON_FOCUS_CLASS} border border-cream/25 text-cream hover:border-cream/50 hover:bg-cream/[0.04]`;
 
-// Frosted-glass companion for textured colophons: a translucent cream fill
-// with backdrop blur, so the painting reads through the button.
-export const INK_PANEL_GLASS_BUTTON_CLASS =
-	`${PRODUCT_HERO_BUTTON_BASE} ${INK_BUTTON_FOCUS_CLASS} border border-cream/25 bg-cream/10 text-cream backdrop-blur-md backdrop-saturate-[1.3] hover:border-cream/45 hover:bg-cream/20`;
-
 // Compact header controls: one h-8 metric for every control in the site
 // header (search trigger, GitHub, Sign In) so the row reads as a single
 // instrument cluster. Page CTAs keep the px-4 py-2 metric above.
