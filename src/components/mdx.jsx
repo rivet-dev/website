@@ -1,9 +1,12 @@
 import { Heading } from '@/components/Heading';
 import { SchemaPreview as Schema } from '@/components/SchemaPreview';
 import { Icon, faInfoCircle, faExclamationTriangle, faLightbulbOn } from '@rivet-gg/icons';
+import { canonicalizeInternalHref } from '@/lib/internalHref';
 
 // In Astro, we use regular anchor tags instead of Next.js Link
-export const a = (props) => <a {...props} />;
+export const a = ({ href, ...props }) => (
+  <a href={canonicalizeInternalHref(href)} {...props} />
+);
 
 // Handle both string URLs and Astro image objects (which have { src, width, height })
 export const img = ({ src, ...props }) => {

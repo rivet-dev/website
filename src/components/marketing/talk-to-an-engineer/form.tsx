@@ -57,7 +57,7 @@ export function TalkToAnEngineerForm() {
 				<p className="text-ink-soft">
 					We will get back to you promptly. In the meantime, feel free to
 					explore our{" "}
-					<a href="/actors/docs" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
+					<a href="/actors/docs/" className="text-pine underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine">
 						documentation
 					</a>{" "}
 					or{" "}

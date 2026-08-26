@@ -5,11 +5,9 @@ import type { CollectionEntry } from 'astro:content';
 // the asset conventions in the root CLAUDE.md.
 const ASSETS_BASE = 'https://assets.rivet.dev';
 
-// Hero images are authored at a fixed 2:1 ratio. We assume these dimensions
-// rather than reading them from each remote file so the build stays hermetic
-// (no network calls to probe image sizes). The values feed the `<img>` intrinsic
-// hint and the changelog feed; they are rendered responsively, so the displayed
-// size is controlled by CSS.
+// Most hero images are authored at a fixed 2:1 ratio. These defaults keep the
+// build hermetic; exceptional sources can declare their intrinsic dimensions in
+// frontmatter. The values feed social metadata and responsive page rendering.
 export const HERO_IMAGE_WIDTH = 2048;
 export const HERO_IMAGE_HEIGHT = 1024;
 
@@ -17,22 +15,51 @@ export interface PostImage {
 	src: string;
 	width: number;
 	height: number;
+	format: string;
+}
+
+export type PostImageConfig =
+	| boolean
+	| {
+			file?: string;
+			format?: string;
+			width?: number;
+			height?: number;
+	  };
+
+function formatFromFile(file: string): string | undefined {
+	const path = file.split(/[?#]/, 1)[0];
+	return path.match(/\.([a-zA-Z0-9]+)$/)?.[1]?.toLowerCase();
 }
 
 // Resolve a post's hero image from its `image` frontmatter flag. The presence of
 // the flag means the post has a hero image; the file is always named
 // `image.{format}` under the post's slug. Returns null when the post has no hero.
 export function getPostImage(entry: CollectionEntry<'posts'>): PostImage | null {
-	const config = entry.data.image;
+	const config = entry.data.image as PostImageConfig | undefined;
 	if (!config) return null;
 
 	const slug = entry.id.replace(/\/page$/, '');
-	const format = typeof config === 'object' && config.format ? config.format : 'png';
+	const configuredFile = typeof config === 'object' ? config.file : undefined;
+	const format = (
+		typeof config === 'object' && config.format
+			? config.format
+			: configuredFile
+				? formatFromFile(configuredFile)
+				: undefined
+	)?.toLowerCase() ?? 'png';
 	const file = typeof config === 'object' && config.file ? config.file : `image.${format}`;
+	const width = typeof config === 'object' ? config.width : undefined;
+	const height = typeof config === 'object' ? config.height : undefined;
+
+	if ((width === undefined) !== (height === undefined)) {
+		throw new Error(`Post image ${entry.id} must define width and height together`);
+	}
 
 	return {
 		src: `${ASSETS_BASE}/website/blog/${slug}/${file}`,
-		width: HERO_IMAGE_WIDTH,
-		height: HERO_IMAGE_HEIGHT,
+		width: width ?? HERO_IMAGE_WIDTH,
+		height: height ?? HERO_IMAGE_HEIGHT,
+		format,
 	};
 }

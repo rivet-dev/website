@@ -6,11 +6,11 @@ export default function SetupNextSteps() {
       <ul className="space-y-3 text-blue-800">
         <li className="flex items-start">
           <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">1</span>
-          <span>Explore the <a href="/actors/docs" className="underline hover:no-underline">Actors documentation</a> to learn more about building stateful services</span>
+          <span>Explore the <a href="/actors/docs/" className="underline hover:no-underline">Actors documentation</a> to learn more about building stateful services</span>
         </li>
         <li className="flex items-start">
           <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">2</span>
-          <span>Check out <a href="/integrations" className="underline hover:no-underline">Integrations</a> to connect with your favorite frameworks</span>
+          <span>Check out <a href="/actors/integrations/" className="underline hover:no-underline">Integrations</a> to connect with your favorite frameworks</span>
         </li>
         <li className="flex items-start">
           <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">3</span>

@@ -32,7 +32,7 @@ export function deploySidebar(productId: string): SidebarItem[] {
 	const platformPage = (role: "worker" | "control-plane") =>
 		platformsFor(productId, role).map((platform) => ({
 			title: platform.shortTitle ?? platform.displayName,
-			href: `${base}/${role === "worker" ? "workers" : "control-plane"}/${platform.slug}`,
+				href: `${base}/${role === "worker" ? "workers" : "control-plane"}/${platform.slug}/`,
 			icon: platform.icon,
 		}));
 
@@ -42,7 +42,7 @@ export function deploySidebar(productId: string): SidebarItem[] {
 			pages: [
 				{
 					title: "Overview",
-					href: base,
+					href: `${base}/`,
 					icon: faSquareInfo,
 				},
 			],
@@ -52,12 +52,12 @@ export function deploySidebar(productId: string): SidebarItem[] {
 			pages: [
 				{
 					title: "Overview",
-					href: `${base}/control-plane`,
+					href: `${base}/control-plane/`,
 					icon: faSquareInfo,
 				},
 				{
 					title: "Production Checklist",
-					href: `${base}/control-plane/production-checklist`,
+					href: `${base}/control-plane/production-checklist/`,
 					icon: faClipboardListCheck,
 				},
 				{
@@ -74,7 +74,7 @@ export function deploySidebar(productId: string): SidebarItem[] {
 						REFERENCE_PAGES.has(page),
 					).map((page) => ({
 						title: PAGE_TITLES[page] ?? page,
-						href: `${base}/control-plane/${page}`,
+						href: `${base}/control-plane/${page}/`,
 					})),
 				},
 			],
@@ -84,12 +84,12 @@ export function deploySidebar(productId: string): SidebarItem[] {
 			pages: [
 				{
 					title: "Overview",
-					href: `${base}/workers`,
+					href: `${base}/workers/`,
 					icon: faSquareInfo,
 				},
 				{
 					title: "Production Checklist",
-					href: `${base}/workers/production-checklist`,
+					href: `${base}/workers/production-checklist/`,
 					icon: faClipboardListCheck,
 				},
 				{

@@ -20,6 +20,6 @@ export function createSelfHostLink(routePrefix: string) {
 		children: React.ReactNode;
 	}) {
 		const path = to.replace(/^\/+|\/+$/g, "");
-		return <a href={path ? `${routePrefix}/${path}` : `${routePrefix}/`}>{children}</a>;
+		return <a href={path ? `${routePrefix}/${path}/` : `${routePrefix}/`}>{children}</a>;
 	};
 }

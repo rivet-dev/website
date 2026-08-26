@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { CARD_TITLE_CLASS, EYEBROW_CLASS } from '../typography';
+import { canonicalizeInternalHref } from '@/lib/internalHref';
 
 // Porcelain catalog entry: rounded hairline border, translucent white fill
 // over the porcelain field, optional pine footer link. Hook-free.
@@ -63,7 +64,7 @@ export const CatalogCard = ({
 
 	return href ? (
 		<a
-			href={href}
+			href={canonicalizeInternalHref(href)}
 			className={cardClass}
 			{...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
 		>

@@ -4,6 +4,7 @@ import { execSync } from "child_process";
 import { visit } from "unist-util-visit";
 import { remarkCodeSnippet } from "./remark-code-snippet";
 import { snippetRootForContentPath } from "../sitemap/docs-sources.node";
+import { canonicalizeInternalHref } from "../lib/internalHref";
 
 // Remark plugin to add last modified time from git history
 function remarkModifiedTime() {
@@ -58,10 +59,54 @@ function remarkCodeFenceMetaToAnnotation() {
 	};
 }
 
+/**
+ * Canonicalize authored internal links at the MDX boundary. This covers plain
+ * Markdown links as well as literal `<a href="…">` elements without changing
+ * relative, file, query-string, fragment, or external URLs.
+ */
+function remarkCanonicalInternalLinks() {
+	return (tree: unknown) => {
+		visit(tree, (node: unknown) => {
+			const link = node as {
+				type?: string;
+				url?: string;
+				name?: string;
+				attributes?: Array<{
+					type?: string;
+					name?: string;
+					value?: unknown;
+				}>;
+			};
+
+			if (link.type === "link" && typeof link.url === "string") {
+				link.url = canonicalizeInternalHref(link.url);
+				return;
+			}
+
+			if (
+				(link.type === "mdxJsxFlowElement" ||
+					link.type === "mdxJsxTextElement") &&
+				link.name === "a"
+			) {
+				const href = link.attributes?.find(
+					(attribute) =>
+						attribute.type === "mdxJsxAttribute" &&
+						attribute.name === "href" &&
+						typeof attribute.value === "string",
+				);
+				if (href && typeof href.value === "string") {
+					href.value = canonicalizeInternalHref(href.value);
+				}
+			}
+		});
+	};
+}
+
 export const remarkPlugins = [
 	// Inline <CodeSnippet file="…" /> example files before anything else reads
 	// the code body, so embedded source flows through the normal Shiki pipeline.
 	[remarkCodeSnippet, snippetRootForContentPath],
+	remarkCanonicalInternalLinks,
 	mdxAnnotations.remark,
 	remarkCodeFenceMetaToAnnotation,
 	remarkGfm,

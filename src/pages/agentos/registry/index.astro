@@ -34,7 +34,7 @@ const entries: RegistryCardEntry[] = registry.map((entry) => ({
 	tabId="registry"
 	active="product"
 	title="Registry - agentOS - Rivet"
-	description="Browse agents, bindings, file systems, and sandbox mounting for agentOS."
+	description="Browse agents, file systems, browsers, bindings, software packages, and sandbox mounting integrations for durable agentOS environments."
 	canonicalUrl="https://rivet.dev/agentos/registry/"
 >
 	<main id="main-content" tabindex="-1">
@@ -51,7 +51,7 @@ const entries: RegistryCardEntry[] = registry.map((entry) => ({
 
 		<section class={SITE_SECTION_CLASS}>
 			<div class={SITE_STANDARD_RAIL_CLASS}>
-				<RegistryPageClient entries={entries} hrefBase="/agentos/registry" client:load />
+				<RegistryPageClient entries={entries} hrefBase="/agentos/registry/" client:load />
 			</div>
 		</section>
 	</main>

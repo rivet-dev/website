@@ -30,6 +30,7 @@ import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";
 import { ProductBar, ProductBadge } from "@/components/ProductBar";
 import { productAccent } from "@/lib/product-accent";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 import {
 	findProductForPath,
 	visibleProducts as productVerticals,
@@ -53,7 +54,7 @@ function TextNavItem({
 		<div className={cn("px-2.5 py-2", className)}>
 			<RivetHeader.NavItem asChild>
 				<a
-					href={href}
+					href={canonicalizeInternalHref(href)}
 					className={cn(
 						"text-zinc-400 hover:text-white transition-colors duration-200",
 						ariaCurrent === "page" && "text-white",
@@ -272,7 +273,7 @@ function ProductsDropdown({
 									</div>
 								)}
 								<a
-									href={product.href}
+									href={canonicalizeInternalHref(product.href)}
 									className={cn(
 										"flex items-center gap-3 rounded-xl px-3 py-2.5 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
 										product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
@@ -345,7 +346,7 @@ function ProductsDropdown({
 						{products.map((product) => (
 							<React.Fragment key={product.href}>
 								<a
-									href={product.href}
+									href={canonicalizeInternalHref(product.href)}
 									className={cn(
 										"group flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer",
 										lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
@@ -370,7 +371,7 @@ function ProductsDropdown({
 								{product.subItems?.map((sub) => (
 									<a
 										key={sub.href}
-										href={sub.href}
+										href={canonicalizeInternalHref(sub.href)}
 										className={cn(
 											"group flex items-center gap-2.5 py-1.5 pl-12 pr-3 rounded-lg transition-colors cursor-pointer",
 											lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
@@ -747,7 +748,7 @@ function DocsMobileNavigation({
 				{products.map((product) => (
 					<a
 						key={product.href}
-						href={product.href}
+						href={canonicalizeInternalHref(product.href)}
 						target={product.external ? "_blank" : undefined}
 						rel={product.external ? "noopener noreferrer" : undefined}
 						className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
@@ -766,7 +767,7 @@ function DocsMobileNavigation({
 				{mainLinks.map(({ href, label }) => (
 					<a
 						key={href}
-						href={href}
+						href={canonicalizeInternalHref(href)}
 						className="text-ink py-2 px-2 hover:bg-ink/5 rounded-sm transition-colors"
 					>
 						{label}
@@ -792,7 +793,7 @@ function DocsMobileNavigation({
 							<DropdownMenuContent className="w-[calc(100vw-3rem)] bg-white border border-ink/10 text-ink [&_[role=menuitem]]:text-ink [&_[role=menuitem][data-highlighted]]:bg-ink/[0.06] [&_[role=menuitem][data-highlighted]]:text-ink">
 								{sections.map(({ id, label, href }) => (
 									<DropdownMenuItem key={id} asChild>
-										<a href={href}>{label}</a>
+										<a href={canonicalizeInternalHref(href)}>{label}</a>
 									</DropdownMenuItem>
 								))}
 							</DropdownMenuContent>
@@ -852,7 +853,7 @@ function DocsMobileNavigation({
 			{products.map((product) => (
 				<a
 					key={product.href}
-					href={product.href}
+					href={canonicalizeInternalHref(product.href)}
 					target={product.external ? "_blank" : undefined}
 					rel={product.external ? "noopener noreferrer" : undefined}
 					className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
@@ -871,7 +872,7 @@ function DocsMobileNavigation({
 			{mainLinks.map(({ href, label }) => (
 				<a
 					key={href}
-					href={href}
+					href={canonicalizeInternalHref(href)}
 					className="text-white py-2 px-2 hover:bg-white/5 rounded-sm transition-colors"
 				>
 					{label}
@@ -901,7 +902,7 @@ function DocsMobileNavigation({
 									asChild
 									className="text-white hover:bg-white/5 focus:bg-white/5"
 								>
-									<a href={href}>{label}</a>
+									<a href={canonicalizeInternalHref(href)}>{label}</a>
 								</DropdownMenuItem>
 							))}
 						</DropdownMenuContent>

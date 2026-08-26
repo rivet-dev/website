@@ -1,5 +1,6 @@
 import { faSquareInfo } from "@rivet-gg/icons";
 import type { SidebarItem } from "@/lib/sitemap";
+import type { SeoOverrides } from "@/lib/seo";
 
 /**
  * Integrations, per product.
@@ -11,7 +12,7 @@ import type { SidebarItem } from "@/lib/sitemap";
  * `scripts/check-sitemap.ts` under bare tsx, which cannot resolve an `.svg`
  * import.
  */
-export interface Integration {
+export interface Integration extends SeoOverrides {
 	title: string;
 	description: string;
 	/** Slug under `/{product}/integrations/`. */
@@ -103,7 +104,7 @@ export function integrationSidebar(productId: string): SidebarItem[] {
 			pages: [
 				{
 					title: "Overview",
-					href: `/${productId}/integrations`,
+					href: `/${productId}/integrations/`,
 					icon: faSquareInfo,
 				},
 			],
@@ -114,7 +115,7 @@ export function integrationSidebar(productId: string): SidebarItem[] {
 				.filter((item) => item.category === title)
 				.map(({ title, slug, icon, badge }) => ({
 					title,
-					href: `/${productId}/integrations/${slug}`,
+					href: `/${productId}/integrations/${slug}/`,
 					icon,
 					badge,
 				})),

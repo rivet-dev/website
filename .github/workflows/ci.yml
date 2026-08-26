@@ -38,6 +38,11 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check built SEO
+        run: pnpm check:seo
+        env:
+          CHECK_REMOTE_ASSETS: "1"
+
   vendor-guard:
     # vendor/ is written only by the sync-docs action. A human edit here is
     # silently overwritten on the next sync, so reject it at review time.

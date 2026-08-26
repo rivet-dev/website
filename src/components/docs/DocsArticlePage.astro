@@ -17,6 +17,13 @@ import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
 import * as mdxComponents from '@/components/mdx';
+import { jsonLdString } from '@/lib/jsonLd';
+import {
+	contextualSeoDescription,
+	contextualSeoTitle,
+	resolveSeoMetadata,
+	type SeoOverrides,
+} from '@/lib/seo';
 
 const {
 	entry,
@@ -26,6 +33,7 @@ const {
 	productId,
 	tabId,
 	sectionLabel,
+	seoContextLabel = sectionLabel ?? 'Documentation',
 	// Set when the same guide body is generated for several products, so every
 	// copy points search engines at one winner instead of letting Google pick.
 	canonicalUrl: canonicalUrlOverride,
@@ -57,7 +65,17 @@ const tableOfContents = headings
 		return acc;
 	}, [] as Array<{ title: string; id: string; children: Array<{ title: string; id: string; children: never[] }> }>);
 
-const { title, description } = entry.data as { title: string; description: string };
+const { title, description, seoTitle, seoDescription } = entry.data as {
+	title: string;
+	description: string;
+} & SeoOverrides;
+const seo = resolveSeoMetadata({
+	title: seoTitle ?? contextualSeoTitle(title, seoContextLabel),
+	description: contextualSeoDescription(
+		seoDescription ?? description,
+		`Explore ${title} in ${seoContextLabel} with practical guidance, configuration details, and production-ready examples.`,
+	),
+});
 const entrySlugPath = getContentSlugPath(entry.id);
 // A section's own overview page has the section root as its id (the glob loader
 // collapses `<dir>/index.mdx`), so it resolves to an empty slug rather than
@@ -141,8 +159,8 @@ const breadcrumbSchema = {
 ---
 
 <DocsLayout
-	title={`${title} - Rivet`}
-	description={description}
+	title={seo.title}
+	description={seo.description}
 	canonicalUrl={canonicalUrl}
 	robots={robots}
 	sidebar={foundTab?.tab?.sidebar}
@@ -150,7 +168,7 @@ const breadcrumbSchema = {
 	tabId={tabId}
 	sectionLabel={sectionLabel}
 >
-	<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+	<script type="application/ld+json" set:html={jsonLdString(breadcrumbSchema)} />
 	{hasSidebar && (
 		<aside class="hidden md:block border-r border-ink/10">
 			<DocsNavigation sidebar={foundTab.tab.sidebar} tabKey={foundTab.tab.title} currentPath={fullPath} productId={productId} client:load transition:persist="docs-sidebar" />

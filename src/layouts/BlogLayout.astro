@@ -2,6 +2,8 @@
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
 import { SITE_PAGE_CLASS } from '@/components/marketing/layout';
+import { jsonLdString } from '@/lib/jsonLd';
+import { stripSeoMarkup } from '@/lib/seo';
 
 interface Props {
 	title: string;
@@ -17,9 +19,11 @@ interface Props {
 	authorName?: string;
 	authorSocials?: { twitter?: string; github?: string; bluesky?: string };
 	category?: string;
+	articleHeadline?: string;
+	articleDescription?: string;
 }
 
-const { title, description, canonicalUrl, ogImage, ogImageWidth, ogImageHeight, ogType = 'article', publishedTime, modifiedTime, keywords, authorName, authorSocials, category } = Astro.props;
+const { title, description, canonicalUrl, ogImage, ogImageWidth, ogImageHeight, ogType = 'article', publishedTime, modifiedTime, keywords, authorName, authorSocials, category, articleHeadline = title, articleDescription = description } = Astro.props;
 
 // Build sameAs array from author socials
 const authorSameAs = authorSocials ? Object.values(authorSocials).filter(Boolean) : [];
@@ -27,8 +31,8 @@ const authorSameAs = authorSocials ? Object.values(authorSocials).filter(Boolean
 const articleSchema = {
 	"@context": "https://schema.org",
 	"@type": "Article",
-	"headline": title,
-	"description": description,
+	"headline": stripSeoMarkup(articleHeadline),
+	"description": stripSeoMarkup(articleDescription),
 	"url": canonicalUrl,
 	"datePublished": publishedTime,
 	"dateModified": modifiedTime || publishedTime,
@@ -68,7 +72,7 @@ const articleSchema = {
 	articleSection={category}
 	pageFamily="site"
 >
-	{publishedTime && <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />}
+	{publishedTime && <script type="application/ld+json" set:html={jsonLdString(articleSchema)} />}
 	<Header active="blog" variant="floating" pageFamily="site" client:load />
 	<div class:list={[SITE_PAGE_CLASS, 'relative z-10 w-full']}>
 		<slot />

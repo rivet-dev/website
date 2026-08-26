@@ -1,6 +1,7 @@
 "use client";
 
 import { productAccent } from "@/lib/product-accent";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 import { useEffect, useState } from "react";
 import { Terminal, ArrowRight, Check } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -276,7 +277,7 @@ function ProductVerb({
   const a = productAccent(accent);
   return (
     <a
-      href={href}
+      href={canonicalizeInternalHref(href)}
       className={`rounded-sm font-medium text-ink underline decoration-2 underline-offset-4 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${a?.underline ?? ""} ${a?.focusRing ?? "focus-visible:ring-pine"}`}
     >
       {children}
@@ -296,7 +297,7 @@ export const RedesignedHero = ({
           <div className="max-w-2xl">
             <div data-site-hero-reveal data-site-reveal-delay="0" className="mb-7">
               <a
-                href={latestChangelogHref}
+                href={canonicalizeInternalHref(latestChangelogHref)}
                 className={`${GLOW_PILL_SURFACE_CLASS} group gap-2`}
                 onMouseMove={handleGlowPillMouseMove}
               >
@@ -350,7 +351,7 @@ export const RedesignedHero = ({
               data-site-reveal-delay="120"
               className="flex flex-col gap-3 sm:flex-row"
             >
-              <a href="/docs" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+              <a href="/docs/" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
                 Start Building
               </a>
               <CopyInstallButton />

@@ -22,7 +22,7 @@ export function StepRunServer({ file = "index.ts", showDescription = true }: Ste
 			</CodeGroup>
 
 			{showDescription && (
-				<p>Your server is now running. See <a href="/actors/docs/general/http-server">Server Setup</a> for runtime-specific configurations.</p>
+				<p>Your server is now running. See <a href="/actors/docs/general/http-server/">Server Setup</a> for runtime-specific configurations.</p>
 			)}
 		</>
 	);

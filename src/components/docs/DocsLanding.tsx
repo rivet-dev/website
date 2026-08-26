@@ -2,6 +2,7 @@ import { Icon } from "@rivet-gg/icons";
 import actorsLogo from "@/images/products/actors-logo.svg";
 import { EYEBROW_CLASS } from "@/components/marketing/typography";
 import { wordmarkMaskStyle } from "@/lib/product-accent";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 export interface DocsLandingItem {
 	title: string;
@@ -80,7 +81,7 @@ const gridStyle = {
 function LandingCard({ item }: { item: DocsLandingItem }) {
 	return (
 		<a
-			href={item.href}
+			href={canonicalizeInternalHref(item.href)}
 			className={`group flex flex-col overflow-hidden rounded-xl border border-ink/10 bg-white/55 no-underline transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${item.hoverBorderClassName ?? "hover:border-ink/25"}`}
 		>
 			<div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-ink/10">

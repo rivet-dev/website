@@ -1,4 +1,5 @@
 import { integrationsFor } from "@/data/integrations";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * Card grid on a product's Integrations overview page. Reads the same list the
@@ -12,7 +13,7 @@ export function IntegrationCards({ product }: { product: string }) {
 			{items.map((item) => (
 				<a
 					key={item.slug}
-					href={`/${product}/integrations/${item.slug}`}
+					href={canonicalizeInternalHref(`/${product}/integrations/${item.slug}`)}
 					className="group flex gap-4 rounded-lg border border-ink/10 bg-white/55 p-4 no-underline transition-colors hover:border-ink/25"
 				>
 					<img

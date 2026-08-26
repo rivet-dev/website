@@ -1,6 +1,7 @@
 import type { RegistryIconName } from "./registry-icons";
+import type { SeoOverrides } from "@/lib/seo";
 
-export interface RegistryEntryBase {
+export interface RegistryEntryBase extends SeoOverrides {
 	slug: string;
 	title: string;
 	description: string;

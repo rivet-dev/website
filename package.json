@@ -18,6 +18,7 @@
 		"gen:markdown": "tsx ./scripts/generate-markdown.ts",
 		"gen:skills": "tsx ./scripts/generate-skills.ts",
 		"check:sitemap": "tsx ./scripts/check-sitemap.ts",
+		"check:seo": "tsx ./scripts/check-seo.ts",
 		"assemble": "tsx ./scripts/assemble.ts",
 		"predev": "pnpm assemble"
 	},
@@ -82,6 +83,7 @@
 		"@types/escape-html": "^1.0.4",
 		"@types/lodash": "^4.17.21",
 		"eslint": "9.39.1",
+		"parse5": "^8.0.1",
 		"playwright": "^1.57.0",
 		"prettier": "^3.6.2",
 		"prettier-plugin-tailwindcss": "^0.7.1",

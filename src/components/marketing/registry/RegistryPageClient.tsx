@@ -14,6 +14,7 @@ import {
 import { SITE_WIDE_CALLOUT_CLASS } from "../layout";
 import { InkPanel } from "../editorial/InkPanel";
 import { RegistryIconTile } from "./RegistryIconTile";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 // The slim, serializable slice of a RegistryEntry the storefront renders. The
 // index page maps the full registry into this shape so multi-line config
@@ -92,7 +93,7 @@ function entryHref(hrefBase: string, entry: RegistryCardEntry) {
 	// External entries (deploy targets) link straight to their guide; there is
 	// no detail page for them.
 	if (entry.status === "external" && entry.href) return entry.href;
-	return `${hrefBase}/${entry.slug}`;
+	return canonicalizeInternalHref(`${hrefBase.replace(/\/$/, "")}/${entry.slug}`);
 }
 
 const PILL_BASE =

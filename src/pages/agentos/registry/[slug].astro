@@ -20,6 +20,12 @@ import {
 // Share the docs highlighter so registry code matches the docs code blocks
 // exactly (ayu-dark), instead of a separate light palette.
 import { highlightCodeHtml } from "@/lib/highlight-code";
+import {
+	contextualSeoDescription,
+	contextualSeoTitle,
+	resolveSeoMetadata,
+} from "@/lib/seo";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 export function getStaticPaths() {
 	// External entries (deploy targets) link out from the index card and have
@@ -33,6 +39,13 @@ export function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
+const seo = resolveSeoMetadata({
+	title: entry.seoTitle ?? contextualSeoTitle(entry.title, "agentOS Registry"),
+	description: contextualSeoDescription(
+		entry.seoDescription ?? entry.description,
+		`Learn how to install, configure, and use ${entry.title} with agentOS for durable agent environments.`,
+	),
+});
 
 const TYPE_LABELS: Record<string, string> = {
 	"file-system": "File System",
@@ -77,13 +90,14 @@ const npmHref = packageName
 // Docs link: an entry's own docsHref (always set for agents) wins; config
 // entries, built-in docs entries, software, and sandbox mounting providers
 // fall back to the relevant documentation page for their type.
-const docsHref =
+const docsHref = canonicalizeInternalHref(
 	entry.docsHref ??
 	(isSoftware
 		? "/agentos/docs/software"
 		: isSandboxExt
 			? "/agentos/docs/sandboxes"
-			: null);
+			: null),
+);
 
 const configId = entry.status === "config" ? entry.configId : null;
 const agentId = entry.status === "docs" ? (entry.agentId ?? null) : null;
@@ -214,15 +228,15 @@ const ribbon: MetaCell[] = [
 	productId="agentos"
 	tabId="registry"
 	active="product"
-	title={`${entry.title} - agentOS Registry - Rivet`}
-	description={entry.description}
+	title={seo.title}
+	description={seo.description}
 	canonicalUrl={`https://rivet.dev/agentos/registry/${entry.slug}/`}
 >
 	<main id="main-content" tabindex="-1">
 		<section class={SITE_UTILITY_HERO_CLASS}>
 			<div class={SITE_NARROW_RAIL_CLASS}>
 				<a
-					href="/agentos/registry"
+					href="/agentos/registry/"
 					data-site-reveal
 					class="mb-8 inline-flex items-center rounded-sm text-sm text-ink-faint no-underline transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 				>

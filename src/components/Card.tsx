@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import type { PropsWithChildren } from "react";
 import { Icon, faArrowRight } from "@rivet-gg/icons";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 interface CardProps extends PropsWithChildren<{ className?: string }> {
 	title?: string;
@@ -70,7 +71,7 @@ export function Card({
 
 	if (href) {
 		return (
-			<a href={href} className="flex group w-full no-underline" target={target}>
+			<a href={canonicalizeInternalHref(href)} className="flex group w-full no-underline" target={target}>
 				{content}
 			</a>
 		);

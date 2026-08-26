@@ -3,6 +3,7 @@ import { TalkToAnEngineerForm } from "./form";
 import { HERO_H1_CLASS, SUBTITLE_CLASS } from "../typography";
 import { ProductBadge } from "@/components/ProductBar";
 import { visibleProducts } from "@/sitemap/products";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 import {
 	SITE_CARD_CLASS,
 	SITE_STANDARD_RAIL_CLASS,
@@ -51,7 +52,7 @@ function ProductIconCluster() {
 				return (
 					<motion.a
 						key={product.id}
-						href={product.href}
+						href={canonicalizeInternalHref(product.href)}
 						aria-label={product.name}
 						initial={reduceMotion ? false : { opacity: 0, y: 24, rotate: tilt }}
 						whileInView={

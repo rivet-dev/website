@@ -4,6 +4,7 @@ import { Heading } from "@/components/Heading";
 import { Icon } from "@rivet-gg/icons";
 
 import { Button, cn } from "@rivet-gg/components";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 export function Resource({ children, ...props }) {
 	// Adds line break opportunities after periods
@@ -22,8 +23,8 @@ export function Resource({ children, ...props }) {
 		<Button
 			variant="outline"
 			className="not-prose flex h-auto flex-col items-start pb-4 pt-8 text-left border-ink/15 bg-white/55 text-ink hover:border-ink/30 hover:bg-white/70"
-			href={props.href}
 			{...props}
+			href={canonicalizeInternalHref(props.href)}
 			startIcon={<Icon icon={props.icon} />}
 			asChild
 		>

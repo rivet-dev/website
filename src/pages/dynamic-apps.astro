@@ -146,27 +146,27 @@ const appCapabilities = [
 	{
 		title: 'REST APIs & frontends',
 		body: 'Serve HTTP APIs and generated interfaces from the same app.',
-		href: '/dynamic-apps/docs/quickstart',
+		href: '/dynamic-apps/docs/quickstart/',
 	},
 	{
 		title: 'SQLite',
 		body: 'Store durable relational data in an actor-owned SQLite database.',
-		href: '/dynamic-apps/docs/state-and-data',
+		href: '/dynamic-apps/docs/state-and-data/',
 	},
 	{
 		title: 'Workflows & queues',
 		body: 'Run durable jobs that sleep, retry, and resume, plus ordered queue processing.',
-		href: '/dynamic-apps/docs/background-work',
+		href: '/dynamic-apps/docs/background-work/',
 	},
 	{
 		title: 'Crons & schedules',
 		body: 'Schedule recurring work that runs even while the app is idle.',
-		href: '/dynamic-apps/docs/background-work',
+		href: '/dynamic-apps/docs/background-work/',
 	},
 	{
 		title: 'Multiplayer',
 		body: 'Share realtime state between every user connected to an app.',
-		href: '/dynamic-apps/docs/realtime',
+		href: '/dynamic-apps/docs/realtime/',
 	},
 	{
 		title: 'Static sites',
@@ -199,19 +199,19 @@ const compositionLayers = [
 		name: 'Actors',
 		logo: productLogos.actors.src,
 		body: 'Every deployed app runs as Rivet Actors, which provide identity, durable state, queues, and scale to zero.',
-		href: '/actors',
+		href: '/actors/',
 	},
 	{
 		name: 'agentOS',
 		logo: productLogos.agentos.src,
 		body: 'Builds and serves each app in a prewarmed VM with files, processes, and networking.',
-		href: '/agentos',
+		href: '/agentos/',
 	},
 	{
 		name: 'Workflows',
 		logo: productLogos.workflows.src,
 		body: 'Adds recorded steps, retries, and replay when a generated app runs multi-step work.',
-		href: '/workflows',
+		href: '/workflows/',
 	},
 ];
 ---
@@ -266,7 +266,7 @@ const compositionLayers = [
 							</style>
 							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[11px] text-ink-soft sm:w-auto sm:text-[13px]"><span aria-hidden="true" class="text-pine">$</span> {INSTALL_COMMAND}</code>
 						</noscript>
-						<a href="/dynamic-apps/docs/quickstart" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+						<a href="/dynamic-apps/docs/quickstart/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
 					</div>
 				</div>
 
@@ -348,9 +348,9 @@ const compositionLayers = [
 					<AppsRoutingDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine caption-underline" href="/dynamic-apps/docs/routing">routing</a>,
-						<a class="text-pine caption-underline" href="/dynamic-apps/docs/authentication">authentication</a>, and
-						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a>.
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/routing/">routing</a>,
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/authentication/">authentication</a>, and
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy/">deploying apps</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a request passing through your Hono server and its middleware, then the control plane routing it to a prewarmed agentOS VM that serves the generated app.</p>
@@ -374,7 +374,7 @@ const compositionLayers = [
 					<AppsRepairDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy">deploying apps</a> or view the
+						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy/">deploying apps</a> or view the
 						<a class="text-pine caption-underline" href={AI_BUILDER_EXAMPLE_URL}>AI App Builder example</a>.
 					</p>
 					<noscript>
@@ -488,8 +488,8 @@ const compositionLayers = [
 			title="An app for every user."
 			description="Deploy isolated, durable instances for the software your agents generate. They scale to zero and wake on demand."
 		>
-			<a href="/dynamic-apps/docs" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
-			<a href="/talk-to-an-engineer" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
+			<a href="/dynamic-apps/docs/" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
+			<a href="/talk-to-an-engineer/" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
 		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>

@@ -135,19 +135,19 @@ const compositionLayers = [
 		name: 'Actors',
 		logo: productLogos.actors.src,
 		body: 'Every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.',
-		href: '/actors',
+		href: '/actors/',
 	},
 	{
 		name: 'agentOS',
 		logo: productLogos.agentos.src,
 		body: 'Adds files, processes, a shell, and networking when a workflow drives an agent using real tools.',
-		href: '/agentos',
+		href: '/agentos/',
 	},
 	{
 		name: 'Dynamic Apps',
 		logo: productLogos['dynamic-apps'].src,
 		body: 'Adds a generated backend when the workflow should ship an application to users.',
-		href: '/dynamic-apps',
+		href: '/dynamic-apps/',
 	},
 ];
 
@@ -200,7 +200,7 @@ const compositionLayers = [
 						<noscript>
 							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install rivetkit</code>
 						</noscript>
-						<a href="/workflows/docs/quickstart" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+						<a href="/workflows/docs/quickstart/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
 					</div>
 				</div>
 
@@ -257,9 +257,9 @@ const compositionLayers = [
 					<WorkflowCoordinationDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine caption-underline" href="/workflows/docs/queues">queue waits</a>,
-						<a class="text-pine caption-underline" href="/workflows/docs/timers-and-concurrency">timers and concurrency</a>, and
-						<a class="text-pine caption-underline" href="/workflows/docs/failure-and-recovery">failure and recovery</a>.
+						<a class="text-pine caption-underline" href="/workflows/docs/queues/">queue waits</a>,
+						<a class="text-pine caption-underline" href="/workflows/docs/timers-and-concurrency/">timers and concurrency</a>, and
+						<a class="text-pine caption-underline" href="/workflows/docs/failure-and-recovery/">failure and recovery</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a step pausing on a wait, resuming on approval, fanning into three branches where one retries, then joining.</p>
@@ -283,7 +283,7 @@ const compositionLayers = [
 					<WorkflowAgentDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine caption-underline" href="/workflows/docs/patterns">agent patterns</a> or
+						<a class="text-pine caption-underline" href="/workflows/docs/patterns/">agent patterns</a> or
 						<a class="text-pine caption-underline" href={`${BUG_FIXER_SOURCE_URL_ROOT}/server.ts#L1-L73`}>view the source</a>.
 					</p>
 					<noscript>
@@ -308,7 +308,7 @@ const compositionLayers = [
 					<WorkflowVersioningDiagram client:visible />
 					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
 						Read about
-						<a class="text-pine caption-underline" href="/workflows/docs/versioning">versioning</a>.
+						<a class="text-pine caption-underline" href="/workflows/docs/versioning/">versioning</a>.
 					</p>
 					<noscript>
 						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows one run crossing the deploy line and finishing on v1 while a new run starts on v2.</p>
@@ -416,7 +416,7 @@ const compositionLayers = [
 			title="Ship a workflow that survives its first restart."
 			description="Read the documentation or explore the Apache 2.0 source."
 		>
-			<a href="/workflows/docs" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
+			<a href="/workflows/docs/" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Documentation</a>
 			<a href={WORKFLOW_SOURCE_ROOT} target="_blank" rel="noreferrer" class={INK_PANEL_GHOST_BUTTON_CLASS}>GitHub source</a>
 		</ClosingCtaPanel>
 	</main>
