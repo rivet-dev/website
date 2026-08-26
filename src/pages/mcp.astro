@@ -1,11 +1,12 @@
 ---
 // MCP landing page. Served on its own host (mcp.rivet.dev) via a redirect, so
 // it carries no product bar.
+import * as shiki from 'shiki';
+import codeTheme from '@/lib/textmate-code-theme';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import { InkPanel, InkChip } from '@/components/marketing/editorial/InkPanel';
-import { highlightCodeHtml } from '@/lib/highlight-code';
 import { Icon, faClaude, faOpenai, faCursor, faGemini, faLaptopCode, faVscode } from '@rivet-gg/icons';
 import {
 	BODY_CLASS,
@@ -113,17 +114,25 @@ const LOCAL_CONFIG = `{
   }
 }`;
 
-// Highlighted at build time so the page ships no client-side highlighter.
-const codeModeHtml = await highlightCodeHtml(CODE_MODE_EXAMPLE, 'typescript');
-const remoteConfigHtml = await highlightCodeHtml(REMOTE_CONFIG, 'json');
-const localConfigHtml = await highlightCodeHtml(LOCAL_CONFIG, 'json');
+// Highlighted at build time with the same theme the documentation uses, so
+// code reads identically on both surfaces.
+const highlighter = await shiki.getSingletonHighlighter({
+	langs: ['typescript', 'json'],
+	themes: [codeTheme],
+});
+const highlight = (code: string, lang: string) =>
+	highlighter.codeToHtml(code, { lang, theme: codeTheme.name });
 
-// The marketing code plate, matching WorkflowCodeTabs: a paper card, not an
-// ink panel, so the light token palette reads.
+const codeModeHtml = highlight(CODE_MODE_EXAMPLE, 'typescript');
+const remoteConfigHtml = highlight(REMOTE_CONFIG, 'json');
+const localConfigHtml = highlight(LOCAL_CONFIG, 'json');
+
+// The documentation code plate, minus its filename bar and copy button.
 const CODE_CARD_CLASS =
-	'w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-ink/10 bg-white/55 text-ink';
-const CODE_BODY_CLASS =
-	'overflow-auto bg-white/45 p-5 font-mono text-[12px] leading-6 text-ink-soft sm:p-6 [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.line]:block [&_.line]:whitespace-pre';
+	'not-prose relative overflow-hidden rounded-xl border border-ink/10';
+const CODE_SCROLL_CLASS = 'overflow-x-auto bg-white text-sm';
+const CODE_INNER_CLASS = 'w-fit min-w-full p-4';
+const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:!p-0';
 ---
 
 <MarketingLayout
@@ -188,7 +197,11 @@ const CODE_BODY_CLASS =
 
 				<div class="mt-6" data-site-reveal>
 					<div class={CODE_CARD_CLASS}>
-						<div class={CODE_BODY_CLASS} set:html={codeModeHtml} />
+						<div class={CODE_SCROLL_CLASS}>
+							<div class={CODE_INNER_CLASS}>
+								<span class={CODE_SHIKI_CLASS} set:html={codeModeHtml} />
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -232,10 +245,14 @@ const CODE_BODY_CLASS =
 								<InkChip command={client.command} variant="paper" />
 							) : (
 								<div class={CODE_CARD_CLASS}>
-									<div
-										class={CODE_BODY_CLASS}
-										set:html={client.config === 'local' ? localConfigHtml : remoteConfigHtml}
-									/>
+									<div class={CODE_SCROLL_CLASS}>
+										<div class={CODE_INNER_CLASS}>
+											<span
+												class={CODE_SHIKI_CLASS}
+												set:html={client.config === 'local' ? localConfigHtml : remoteConfigHtml}
+											/>
+										</div>
+									</div>
 								</div>
 							)}
 						</div>
