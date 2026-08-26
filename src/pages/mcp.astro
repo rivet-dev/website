@@ -195,15 +195,56 @@ const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&
 					))}
 				</dl>
 
-				<div class="mt-6" data-site-reveal>
-					<div class={CODE_CARD_CLASS}>
-						<div class={CODE_SCROLL_CLASS}>
-							<div class={CODE_INNER_CLASS}>
-								<span class={CODE_SHIKI_CLASS} set:html={codeModeHtml} />
+				<!-- One turn end to end, so the code reads as the agent's work rather
+				     than something the reader has to write. -->
+				<ol class="mt-12" data-site-reveal>
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">You ask</p>
+						<p class={`mt-1 ${BODY_CLASS}`}>
+							&ldquo;Which chat rooms are still awake, and what has Acme been saying?&rdquo;
+						</p>
+					</li>
+
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">
+							Your agent looks up what it can do
+							<span class="ml-2 font-mono text-[13px] font-normal text-pine">search</span>
+						</p>
+						<div class="mt-2 flex flex-wrap gap-2">
+							{['rivet.actors.list', 'rivet.actor.action'].map((op) => (
+								<span class="rounded-md border border-ink/15 bg-white/55 px-2.5 py-1 font-mono text-[12px] text-ink-soft">
+									{op}
+								</span>
+							))}
+						</div>
+					</li>
+
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">
+							It writes one script and runs it
+							<span class="ml-2 font-mono text-[13px] font-normal text-pine">execute</span>
+						</p>
+						<p class={`mt-1 ${BODY_CLASS}`}>You never write this, and never see it unless you ask.</p>
+						<div class={`mt-3 ${CODE_CARD_CLASS}`}>
+							<div class={CODE_SCROLL_CLASS}>
+								<div class={CODE_INNER_CLASS}>
+									<span class={CODE_SHIKI_CLASS} set:html={codeModeHtml} />
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
+					</li>
+
+					<li class="relative pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent-deep"></span>
+						<p class="text-sm font-medium text-ink">One answer comes back</p>
+						<p class="mt-2 font-mono text-[13px] text-ink-soft">
+							3 rooms awake, 128 messages from Acme
+						</p>
+					</li>
+				</ol>
 			</div>
 		</section>
 
