@@ -1,21 +1,32 @@
 ---
 // MCP landing page. Served on its own host (mcp.rivet.dev) via a redirect, so
-// it uses the standalone floating header rather than a product bar.
+// it carries no product bar.
 import * as shiki from 'shiki';
 import codeTheme from '@/lib/textmate-code-theme';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
 import { InkPanel, InkChip } from '@/components/marketing/editorial/InkPanel';
 import { Icon, faClaude, faOpenai, faCursor, faGemini, faLaptopCode, faVscode } from '@rivet-gg/icons';
-import { RedesignedCTA } from '@/components/marketing/sections/RedesignedCTA';
 import {
+	BODY_CLASS,
+	CARD_TITLE_CLASS,
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRODUCT_HERO_CTA_ROW_CLASS,
 	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
-	SUBTITLE_CLASS,
+	SECTION_LEDE_CLASS,
 } from '@/components/marketing/typography';
+import {
+	SITE_CARD_CLASS,
+	SITE_SECTION_CLASS,
+} from '@/components/marketing/layout';
 
 const ENDPOINT = 'https://mcp.rivet.dev/mcp';
 
@@ -55,13 +66,33 @@ const scopes = [
 	},
 ];
 
-const REMOTE_CONFIG = `{
-  "mcpServers": {
-    "rivet": {
-      "url": "${ENDPOINT}"
-    }
-  }
-}`;
+const tools = [
+	{
+		name: 'search',
+		title: 'It looks up what it can do',
+		body: 'Your agent asks what is available in the namespace it is connected to, and gets back the handful of operations that actually apply.',
+	},
+	{
+		name: 'execute',
+		title: 'Then it writes the code',
+		body: 'Ordinary JavaScript, so listing your actors, picking the right one, and calling it happen in a single step instead of six round trips.',
+	},
+];
+
+const limits = [
+	{
+		title: 'It cannot reach anything else',
+		body: 'Code runs with no network, no environment variables, no files, and no way to start a process.',
+	},
+	{
+		title: 'Every call goes through Rivet',
+		body: 'Requests only leave through Rivet, which checks them against what you approved and attaches your credentials for you.',
+	},
+	{
+		title: 'Read-only until you say otherwise',
+		body: 'A hosted connection starts read-only and its access expires in 15 minutes. Deleting things and touching credentials is never on the table.',
+	},
+];
 
 const CODE_MODE_EXAMPLE = `// "Which chat rooms are still awake, and what has Acme been saying?"
 const { actors } = await rivet.actors.list({ name: "chat-room" });
@@ -73,6 +104,14 @@ const history = await rivet.actor.action({
 });
 
 return { awake: awake.length, history };`;
+
+const REMOTE_CONFIG = `{
+  "mcpServers": {
+    "rivet": {
+      "url": "${ENDPOINT}"
+    }
+  }
+}`;
 
 const LOCAL_CONFIG = `{
   "mcpServers": {
@@ -117,95 +156,89 @@ const localConfigHtml = highlighter.codeToHtml(LOCAL_CONFIG, {
 
 const CODE_PLATE_CLASS =
 	'overflow-x-auto px-5 py-5 font-mono text-[13px] leading-relaxed [&_pre]:!m-0 [&_pre]:!p-0';
-
-const tools = [
-	{
-		name: 'search',
-		title: 'It looks up what it can do',
-		body: 'Your agent asks what is available in the namespace it is connected to, and gets back the handful of operations that actually apply.',
-	},
-	{
-		name: 'execute',
-		title: 'Then it writes the code',
-		body: 'Ordinary JavaScript, so listing your actors, picking the right one, and calling it happen in a single step instead of six round trips.',
-	},
-];
-
-const limits = [
-	{
-		title: 'It cannot reach anything else',
-		body: 'Code runs with no network, no environment variables, no files, and no way to start a process.',
-	},
-	{
-		title: 'Every call goes through Rivet',
-		body: 'Requests only leave through Rivet, which checks them against what you approved and attaches your credentials for you.',
-	},
-	{
-		title: 'Read-only until you say otherwise',
-		body: 'A hosted connection starts read-only and its access expires in 15 minutes. Deleting things and touching credentials is never on the table.',
-	},
-];
 ---
 
 <MarketingLayout
-	title="MCP - Rivet"
-	description="Connect AI clients to Rivet Cloud, Rivet Actors, and the Actor Inspector over the Model Context Protocol."
+	title="MCP: connect your AI client to Rivet"
+	description="Rivet's MCP server gives Claude Code, Codex, Cursor, and any other MCP client a sandboxed Code Mode surface over Rivet Cloud, your Rivet Actors, and the Actor Inspector."
+	canonicalUrl="https://rivet.dev/mcp/"
+	keywords={[
+		'MCP server',
+		'Model Context Protocol',
+		'Claude Code MCP',
+		'Codex MCP',
+		'Cursor MCP',
+		'AI agent tooling',
+		'Rivet Actors',
+	]}
 >
-	<main class="paper-grain font-sans text-ink-soft">
+	<main id="main-content" tabindex="-1">
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
-			<div class="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
-				<h1 class={PRODUCT_HERO_H1_CLASS}>Give your agent a real handle on your backend</h1>
-
-				<p class="mb-7 max-w-3xl text-base leading-relaxed text-ink-soft md:text-lg">
-					Connect your AI client to Rivet and it can see what is running, read state,
-					and call your actors. It writes ordinary JavaScript to do it, in a sandbox
-					that cannot reach anything you did not hand it.
-				</p>
-
-				<div class={PRODUCT_HERO_CTA_ROW_CLASS}>
-					<a href="#connect" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Connect a client</a>
-					<a href="/talk-to-an-engineer" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
-						Talk to an engineer
-					</a>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class={PRODUCT_HERO_INNER_CLASS}>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal>
+						Give your agent a real handle on your backend
+					</h1>
+					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="40">
+						Connect your AI client to Rivet and it can see what is running, read state,
+						and call your actors. It writes ordinary JavaScript to do it, in a sandbox
+						that cannot reach anything you did not hand it.
+					</p>
+					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="80">
+						<a href="#connect" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Connect a client</a>
+						<a href="/talk-to-an-engineer" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+							Talk to an engineer
+						</a>
+					</div>
 				</div>
 			</div>
 		</section>
 
-		<section class="bg-paper px-6 py-16 md:py-24">
-			<div class="mx-auto max-w-5xl">
-				<h2 class={SECTION_H2_CLASS}>Two tools instead of forty</h2>
-				<p class={`${SUBTITLE_CLASS} max-w-2xl`}>
-					Most MCP servers hand your agent a wall of tools and hope it picks the right
-					one. Rivet gives it two: one to find out what is there, one to go do it.
-				</p>
+		<SectionRule />
 
-				<dl class="mt-10 grid gap-4 md:grid-cols-2">
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Two tools instead of forty</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Most MCP servers hand your agent a wall of tools and hope it picks the right
+						one. Rivet gives it two: one to find out what is there, one to go do it.
+					</p>
+				</div>
+
+				<dl class="mt-12 grid gap-x-8 gap-y-6 md:grid-cols-2" data-site-reveal-group>
 					{tools.map((tool) => (
-						<div class="rounded-xl border border-ink/10 bg-white/55 p-6">
-							<dt class="text-base font-medium text-ink">
+						<div class={SITE_CARD_CLASS} data-site-reveal-child>
+							<dt class={CARD_TITLE_CLASS}>
 								{tool.title}
 								<span class="ml-2 font-mono text-[13px] font-normal text-pine">{tool.name}</span>
 							</dt>
-							<dd class="mt-2 text-sm leading-relaxed text-ink-soft">{tool.body}</dd>
+							<dd class={`mt-2 ${BODY_CLASS}`}>{tool.body}</dd>
 						</div>
 					))}
 				</dl>
 
-				<InkPanel className="mt-4">
-					<div class={CODE_PLATE_CLASS} set:html={codeModeHtml} />
-				</InkPanel>
+				<div class="mt-6" data-site-reveal>
+					<InkPanel>
+						<div class={CODE_PLATE_CLASS} set:html={codeModeHtml} />
+					</InkPanel>
+				</div>
 			</div>
 		</section>
 
-		<section id="connect" class="scroll-mt-24 bg-paper px-6 py-16 md:py-24">
-			<div class="mx-auto max-w-5xl">
-				<h2 class={SECTION_H2_CLASS}>Add it to your client</h2>
-				<p class={`${SUBTITLE_CLASS} max-w-2xl`}>
-					Run one command, then approve the Rivet sign-in your client opens. Anything
-					else that speaks MCP can point at the endpoint directly.
-				</p>
+		<SectionRule />
 
-				<div class="mt-10" data-tabs>
+		<section id="connect" class={`scroll-mt-24 ${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Add it to your client</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Run one command, then approve the Rivet sign-in your client opens. Anything
+						else that speaks MCP can point at the endpoint directly.
+					</p>
+				</div>
+
+				<div class="mt-12" data-tabs data-site-reveal>
 					<div class="flex flex-wrap gap-x-6 border-b border-ink/10" role="tablist">
 						{clients.map((client, index) => (
 							<button
@@ -213,7 +246,7 @@ const limits = [
 								role="tab"
 								data-tab={index}
 								aria-selected={index === 0}
-								class="-mb-px flex items-center gap-2 border-b-2 border-transparent pb-3 text-sm text-ink-faint transition-colors hover:text-ink aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
+								class="-mb-px flex items-center gap-2 border-b-2 border-transparent pb-3 text-sm text-ink-faint transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
 							>
 								<Icon icon={client.icon} className="h-3.5 w-3.5" />
 								{client.name}
@@ -223,10 +256,9 @@ const limits = [
 
 					{clients.map((client, index) => (
 						<div data-panel={index} class={index === 0 ? 'pt-6' : 'hidden pt-6'}>
+							<p class="mb-2 hidden text-sm font-medium text-ink" data-panel-name>{client.name}</p>
 							{client.note ? (
-								<p class="mb-4 max-w-2xl text-sm leading-relaxed text-ink-soft">
-									{client.note}
-								</p>
+								<p class={`mb-4 max-w-2xl ${BODY_CLASS}`}>{client.note}</p>
 							) : null}
 							{client.command ? (
 								<InkChip command={client.command} variant="paper" />
@@ -240,11 +272,20 @@ const limits = [
 							)}
 						</div>
 					))}
+
+					<noscript>
+						<!-- Without JS every client stays on the page, each under its own name. -->
+						<style is:inline>
+							[data-tabs] [role='tablist'] { display: none; }
+							[data-tabs] [data-panel] { display: block !important; }
+							[data-tabs] [data-panel-name] { display: block; }
+						</style>
+					</noscript>
 				</div>
 
-				<div class="mt-12">
-					<h3 class="text-base font-medium text-ink">Scope the connection</h3>
-					<p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
+				<div class="mt-14 md:mt-20" data-site-reveal>
+					<h3 class={CARD_TITLE_CLASS}>Scope the connection</h3>
+					<p class={`mt-2 max-w-2xl ${BODY_CLASS}`}>
 						Add the target to the endpoint to hold the whole session inside it. Leave
 						it off and the client can reach everything you can.
 					</p>
@@ -259,58 +300,80 @@ const limits = [
 							</div>
 						))}
 					</dl>
+
+					<p class={`mt-5 max-w-2xl ${BODY_CLASS}`}>
+						Fill in your own values. They are the same slugs as the ones in your
+						dashboard URL, <span class="whitespace-nowrap font-mono text-[13px] text-ink">/orgs/ORG/projects/PROJECT/ns/NS</span>, so you can copy them
+						straight out of <a href="https://dashboard.rivet.dev" class="text-pine caption-underline">the dashboard</a>.
+					</p>
 				</div>
 			</div>
 		</section>
 
-		<section class="bg-paper px-6 py-16 md:py-24">
-			<div class="mx-auto max-w-5xl">
-				<h2 class={SECTION_H2_CLASS}>Model-written code, held at arm's length</h2>
+		<SectionRule />
 
-				<dl class="mt-10 grid gap-4 md:grid-cols-3">
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Model-written code, held at arm's length</h2>
+				</div>
+
+				<dl class="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group>
 					{limits.map((limit) => (
-						<div class="rounded-xl border border-ink/10 bg-white/55 p-6">
-							<dt class="text-base font-medium text-ink">{limit.title}</dt>
-							<dd class="mt-2 text-sm leading-relaxed text-ink-soft">{limit.body}</dd>
+						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<dt class={CARD_TITLE_CLASS}>{limit.title}</dt>
+							<dd class={`mt-2 ${BODY_CLASS}`}>{limit.body}</dd>
 						</div>
 					))}
 				</dl>
 			</div>
 		</section>
 
-		<section class="bg-paper px-6 py-16 md:py-24">
-			<div class="mx-auto grid max-w-5xl gap-8 md:grid-cols-2 md:items-center">
-				<div>
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-2 md:items-center">
+				<div data-site-reveal>
 					<h2 class={SECTION_H2_CLASS}>The Inspector, inline</h2>
-					<p class={SUBTITLE_CLASS}>
+					<p class={SECTION_LEDE_CLASS}>
 						Ask your agent about an actor and the Rivet Inspector opens inside the
 						conversation. Its state, who is connected, what is queued: the same view
 						you would open in the dashboard, without leaving the chat.
 					</p>
-					<p class="mt-4 text-sm leading-relaxed text-ink-soft">
+					<p class={`mt-4 max-w-xl ${BODY_CLASS}`}>
 						You see the one actor you asked about and nothing else, and it goes away
 						when the conversation does. Clients that cannot draw it get the same
 						details written out.
 					</p>
 				</div>
 
-				<InkPanel>
-					<div class="space-y-3 px-5 py-6 font-mono text-[13px] text-cream/85">
-						<p class="text-sage">chat-room · acme</p>
-						<div class="space-y-2">
-							{['State', 'Connections', 'Queue', 'Workflow', 'Database'].map((tab) => (
-								<div class="flex items-center justify-between border-b border-cream/10 pb-2">
-									<span>{tab}</span>
-									<span class="text-cream/40">available</span>
-								</div>
-							))}
+				<div data-site-reveal data-site-reveal-delay="40">
+					<InkPanel>
+						<div class="space-y-3 px-5 py-6 font-mono text-[13px] text-cream/85">
+							<p class="text-sage">chat-room · acme</p>
+							<div class="space-y-2">
+								{['State', 'Connections', 'Queue', 'Workflow', 'Database'].map((tab) => (
+									<div class="flex items-center justify-between border-b border-cream/10 pb-2">
+										<span>{tab}</span>
+										<span class="text-cream/40">available</span>
+									</div>
+								))}
+							</div>
 						</div>
-					</div>
-				</InkPanel>
+					</InkPanel>
+				</div>
 			</div>
 		</section>
 
-		<RedesignedCTA client:visible />
+		<SectionRule />
+
+		<ClosingCtaPanel
+			title="Point your agent at your own backend."
+			description="Add the endpoint to your client, or talk to us about running it on your infrastructure."
+		>
+			<a href="#connect" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Add it to your client</a>
+			<a href="/talk-to-an-engineer" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
+		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>
 
