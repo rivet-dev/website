@@ -1,4 +1,294 @@
 {
+  "@awesome.me/kit-63db24046b/icons/kit/custom": {
+    "icons": [
+      {
+        "icon": "faActors",
+        "aliases": [
+          "faActors"
+        ]
+      },
+      {
+        "icon": "faActorsBorderless",
+        "aliases": [
+          "faActorsBorderless"
+        ]
+      },
+      {
+        "icon": "faAiSdk",
+        "aliases": [
+          "faAiSdk"
+        ]
+      },
+      {
+        "icon": "faBetterAuth",
+        "aliases": [
+          "faBetterAuth"
+        ]
+      },
+      {
+        "icon": "faClaude",
+        "aliases": [
+          "faClaude"
+        ]
+      },
+      {
+        "icon": "faCursor",
+        "aliases": [
+          "faCursor"
+        ]
+      },
+      {
+        "icon": "faDrizzle",
+        "aliases": [
+          "faDrizzle"
+        ]
+      },
+      {
+        "icon": "faDuckdb",
+        "aliases": [
+          "faDuckdb"
+        ]
+      },
+      {
+        "icon": "faDurableStreams",
+        "aliases": [
+          "faDurableStreams"
+        ]
+      },
+      {
+        "icon": "faEve",
+        "aliases": [
+          "faEve"
+        ]
+      },
+      {
+        "icon": "faFlue",
+        "aliases": [
+          "faFlue"
+        ]
+      },
+      {
+        "icon": "faFreestyle",
+        "aliases": [
+          "faFreestyle"
+        ]
+      },
+      {
+        "icon": "faGb",
+        "aliases": [
+          "faGb"
+        ]
+      },
+      {
+        "icon": "faGemini",
+        "aliases": [
+          "faGemini"
+        ]
+      },
+      {
+        "icon": "faGoogleCloud",
+        "aliases": [
+          "faGoogleCloud"
+        ]
+      },
+      {
+        "icon": "faHetzner",
+        "aliases": [
+          "faHetzner"
+        ]
+      },
+      {
+        "icon": "faHetznerH",
+        "aliases": [
+          "faHetznerH"
+        ]
+      },
+      {
+        "icon": "faKubernetes",
+        "aliases": [
+          "faKubernetes"
+        ]
+      },
+      {
+        "icon": "faLinear",
+        "aliases": [
+          "faLinear"
+        ]
+      },
+      {
+        "icon": "faLivestore",
+        "aliases": [
+          "faLivestore"
+        ]
+      },
+      {
+        "icon": "faLogs",
+        "aliases": [
+          "faLogs"
+        ]
+      },
+      {
+        "icon": "faNetlify",
+        "aliases": [
+          "faNetlify"
+        ]
+      },
+      {
+        "icon": "faNextjs",
+        "aliases": [
+          "faNextjs"
+        ]
+      },
+      {
+        "icon": "faOpentelemetry",
+        "aliases": [
+          "faOpentelemetry"
+        ]
+      },
+      {
+        "icon": "faPglite",
+        "aliases": [
+          "faPglite"
+        ]
+      },
+      {
+        "icon": "faProject",
+        "aliases": [
+          "faProject"
+        ]
+      },
+      {
+        "icon": "faPrometheus",
+        "aliases": [
+          "faPrometheus"
+        ]
+      },
+      {
+        "icon": "faRailway",
+        "aliases": [
+          "faRailway"
+        ]
+      },
+      {
+        "icon": "faRegex",
+        "aliases": [
+          "faRegex"
+        ]
+      },
+      {
+        "icon": "faRender",
+        "aliases": [
+          "faRender"
+        ]
+      },
+      {
+        "icon": "faRivet",
+        "aliases": [
+          "faRivet"
+        ]
+      },
+      {
+        "icon": "faSelect",
+        "aliases": [
+          "faSelect"
+        ]
+      },
+      {
+        "icon": "faSentry",
+        "aliases": [
+          "faSentry"
+        ]
+      },
+      {
+        "icon": "faSqlite",
+        "aliases": [
+          "faSqlite"
+        ]
+      },
+      {
+        "icon": "faSupabase",
+        "aliases": [
+          "faSupabase"
+        ]
+      },
+      {
+        "icon": "faTanstack",
+        "aliases": [
+          "faTanstack"
+        ]
+      },
+      {
+        "icon": "faTinybase",
+        "aliases": [
+          "faTinybase"
+        ]
+      },
+      {
+        "icon": "faTldraw",
+        "aliases": [
+          "faTldraw"
+        ]
+      },
+      {
+        "icon": "faTs",
+        "aliases": [
+          "faTs"
+        ]
+      },
+      {
+        "icon": "faVercel",
+        "aliases": [
+          "faVercel"
+        ]
+      },
+      {
+        "icon": "faVscode",
+        "aliases": [
+          "faVscode"
+        ]
+      },
+      {
+        "icon": "faWord",
+        "aliases": [
+          "faWord"
+        ]
+      },
+      {
+        "icon": "faWorkflow",
+        "aliases": [
+          "faWorkflow"
+        ]
+      },
+      {
+        "icon": "faWorkflowBorderless",
+        "aliases": [
+          "faWorkflowBorderless"
+        ]
+      },
+      {
+        "icon": "faXstate",
+        "aliases": [
+          "faXstate"
+        ]
+      },
+      {
+        "icon": "faYjs",
+        "aliases": [
+          "faYjs"
+        ]
+      }
+    ]
+  },
+  "@awesome.me/kit-63db24046b/icons/js/custom-icons-duotone.js": {
+    "icons": [
+      {
+        "icon": "faHono",
+        "aliases": [
+          "faHono"
+        ]
+      }
+    ]
+  },
   "@fortawesome/free-solid-svg-icons": {
     "icons": [
       {
@@ -4179,12 +4469,6 @@
         "icon": "faGem",
         "aliases": [
           "faGem"
-        ]
-      },
-      {
-        "icon": "faGemini",
-        "aliases": [
-          "faGemini"
         ]
       },
       {
@@ -9571,12 +9855,6 @@
         ]
       },
       {
-        "icon": "faClaude",
-        "aliases": [
-          "faClaude"
-        ]
-      },
-      {
         "icon": "faCloudflare",
         "aliases": [
           "faCloudflare"
@@ -10701,12 +10979,6 @@
         "icon": "faKorvue",
         "aliases": [
           "faKorvue"
-        ]
-      },
-      {
-        "icon": "faKubernetes",
-        "aliases": [
-          "faKubernetes"
         ]
       },
       {
@@ -24370,175 +24642,5 @@
       }
     ],
     "prefix": "fas"
-  },
-  "@awesome.me/kit-63db24046b/icons/kit/custom": {
-    "icons": [
-      {
-        "icon": "faActors",
-        "aliases": [
-          "faActors"
-        ]
-      },
-      {
-        "icon": "faActorsBorderless",
-        "aliases": [
-          "faActorsBorderless"
-        ]
-      },
-      {
-        "icon": "faCursor",
-        "aliases": [
-          "faCursor"
-        ]
-      },
-      {
-        "icon": "faFreestyle",
-        "aliases": [
-          "faFreestyle"
-        ]
-      },
-      {
-        "icon": "faGb",
-        "aliases": [
-          "faGb"
-        ]
-      },
-      {
-        "icon": "faGoogleCloud",
-        "aliases": [
-          "faGoogleCloud"
-        ]
-      },
-      {
-        "icon": "faHetzner",
-        "aliases": [
-          "faHetzner"
-        ]
-      },
-      {
-        "icon": "faHetznerH",
-        "aliases": [
-          "faHetznerH"
-        ]
-      },
-      {
-        "icon": "faLinear",
-        "aliases": [
-          "faLinear"
-        ]
-      },
-      {
-        "icon": "faLogs",
-        "aliases": [
-          "faLogs"
-        ]
-      },
-      {
-        "icon": "faNetlify",
-        "aliases": [
-          "faNetlify"
-        ]
-      },
-      {
-        "icon": "faNextjs",
-        "aliases": [
-          "faNextjs"
-        ]
-      },
-      {
-        "icon": "faProject",
-        "aliases": [
-          "faProject"
-        ]
-      },
-      {
-        "icon": "faRailway",
-        "aliases": [
-          "faRailway"
-        ]
-      },
-      {
-        "icon": "faRegex",
-        "aliases": [
-          "faRegex"
-        ]
-      },
-      {
-        "icon": "faRender",
-        "aliases": [
-          "faRender"
-        ]
-      },
-      {
-        "icon": "faRivet",
-        "aliases": [
-          "faRivet"
-        ]
-      },
-      {
-        "icon": "faSelect",
-        "aliases": [
-          "faSelect"
-        ]
-      },
-      {
-        "icon": "faSqlite",
-        "aliases": [
-          "faSqlite"
-        ]
-      },
-      {
-        "icon": "faSupabase",
-        "aliases": [
-          "faSupabase"
-        ]
-      },
-      {
-        "icon": "faTs",
-        "aliases": [
-          "faTs"
-        ]
-      },
-      {
-        "icon": "faVercel",
-        "aliases": [
-          "faVercel"
-        ]
-      },
-      {
-        "icon": "faVscode",
-        "aliases": [
-          "faVscode"
-        ]
-      },
-      {
-        "icon": "faWord",
-        "aliases": [
-          "faWord"
-        ]
-      },
-      {
-        "icon": "faWorkflow",
-        "aliases": [
-          "faWorkflow"
-        ]
-      },
-      {
-        "icon": "faWorkflowBorderless",
-        "aliases": [
-          "faWorkflowBorderless"
-        ]
-      }
-    ]
-  },
-  "@awesome.me/kit-63db24046b/icons/js/custom-icons-duotone.js": {
-    "icons": [
-      {
-        "icon": "faHono",
-        "aliases": [
-          "faHono"
-        ]
-      }
-    ]
   }
 }
