@@ -8,6 +8,7 @@ import sentry from "@sentry/astro";
 // generation, inlined from the former @rivet-dev/docs-theme package.
 import { docsPipeline } from './src/integrations/docs-pipeline';
 import { redirects } from './redirects.mjs';
+import { getRouteSeoPolicy } from './src/lib/routeSeoPolicy';
 
 // Wildcard sub-path redirects (`wildcardRedirects` in redirects.mjs) are applied
 // only at the Caddy layer in production. Astro's static output treats a redirect
@@ -44,19 +45,9 @@ export default defineConfig({
 			applyBaseStyles: false,
 		}),
 		sitemap({
-			// Cookbooks and comparison guides are intentionally hidden from the site
-			// and kept out of SEO, so exclude them from the sitemap.
-			//
-			// Self-host guides are generated for every product from one source and
-			// all canonicalize to the Actors variant, so only that variant belongs
-			// in the sitemap. Submitting the copies asks Google to index pages the
-			// canonical tag then excludes.
-			filter: (page) =>
-				!page.includes('/api/') &&
-				!page.includes('/internal/') &&
-				!page.includes('/cookbook') &&
-				!page.includes('/compare') &&
-				!/\/(?!actors\/)[^/]+\/self-host\//.test(page),
+			// The same policy emits page-level robots directives and decides sitemap
+			// membership, so a hidden route cannot accidentally be submitted.
+			filter: (page) => getRouteSeoPolicy(page).sitemap,
 		}),
 		sentry({
       		project: "website",

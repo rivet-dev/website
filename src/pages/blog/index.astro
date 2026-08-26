@@ -4,6 +4,7 @@ import BlogLayout from '@/layouts/BlogLayout.astro';
 import { CATEGORIES } from '@/lib/article';
 import { formatTimestamp } from '@/lib/formatDate';
 import { getPostImage } from '@/lib/postImage';
+import PostImage from '@/components/PostImage.astro';
 import {
 	CARD_TITLE_CLASS,
 	HERO_H1_CLASS,
@@ -69,8 +70,8 @@ for (const entry of changelogPosts) {
 ---
 
 <BlogLayout
-	title="Blog - Rivet"
-	description="Engineering deep dives, product updates, and changelog entries from the Rivet team."
+	title="Rivet Engineering Blog & Product Changelog"
+	description="Engineering deep dives, product launches, platform updates, and changelog notes from the team building Rivet infrastructure."
 	ogType="website"
 >
 	<main id="main-content" tabindex="-1" style="--header-height: 5rem;">
@@ -138,11 +139,10 @@ for (const entry of changelogPosts) {
 								<div class="w-full">
 									{article.image && (
 										<div class="relative w-full">
-											<img
-												src={article.image.src}
+											<PostImage
+												image={article.image}
+												variant="card"
 												alt={article.title}
-												width={1200}
-												height={600}
 												class="aspect-[2/1] w-full rounded-xl border border-ink/10 object-cover"
 												loading="lazy"
 												decoding="async"

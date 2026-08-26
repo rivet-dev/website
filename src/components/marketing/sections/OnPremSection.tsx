@@ -61,10 +61,10 @@ export const OnPremSection = () => (
         className="mt-10 flex flex-col gap-3 sm:flex-row"
         data-site-reveal=""
       >
-        <a href="/talk-to-an-engineer" className={PRIMARY_INK_BUTTON_CLASS}>
+        <a href="/talk-to-an-engineer/" className={PRIMARY_INK_BUTTON_CLASS}>
           Talk to an engineer
         </a>
-        <a href="/enterprise" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+        <a href="/enterprise/" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
           Explore Enterprise
         </a>
       </div>

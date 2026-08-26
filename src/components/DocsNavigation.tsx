@@ -15,6 +15,7 @@ import {
 	useEffect,
 	useRef,
 } from "react";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * Accent of the product vertical this sidebar belongs to.
@@ -192,7 +193,7 @@ export function NavLink({
 	return (
 		<ActiveLink
 			strict
-			href={href}
+			href={canonicalizeInternalHref(href)}
 			target={external && "_blank"}
 			className={cn(
 				"group flex w-full items-center border-l-2 border-l-ink/15 py-2 text-sm text-ink-soft transition-colors hover:text-ink hover:border-l-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",

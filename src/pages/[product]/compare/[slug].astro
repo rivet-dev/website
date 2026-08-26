@@ -4,6 +4,7 @@ import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { ComparePage } from '@/components/marketing/compare/ComparePage';
 import { compareEntries, compareHref, getCompareEntry } from '@/data/compare';
 import { jsonLdString } from '@/lib/jsonLd';
+import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
 
 export async function getStaticPaths() {
 	return compareEntries.map((entry) => ({
@@ -21,6 +22,7 @@ if (!entry) {
 }
 
 const canonicalUrl = `https://rivet.dev${compareHref(entry)}/`;
+const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 
 const breadcrumbSchema = {
 	'@context': 'https://schema.org',
@@ -56,7 +58,7 @@ const webPageSchema = {
 	description={entry.description}
 	canonicalUrl={canonicalUrl}
 	keywords={entry.keywords}
-	robots="noindex, nofollow"
+	robots={robots}
 >
 	<script type="application/ld+json" set:html={jsonLdString(breadcrumbSchema)} />
 	<script type="application/ld+json" set:html={jsonLdString(webPageSchema)} />

@@ -11,6 +11,8 @@ import CopyCodeScript from '@/components/CopyCodeScript.astro';
 import TabsScript from '@/components/TabsScript.astro';
 import MermaidScript from '@/components/MermaidScript.astro';
 import { ScrollObserver } from '@/components/ScrollObserver';
+import { jsonLdString } from '@/lib/jsonLd';
+import { stripSeoMarkup } from '@/lib/seo';
 
 interface Props {
 	title: string;
@@ -46,14 +48,17 @@ const {
 	pageFamily = 'default',
 } = Astro.props;
 
+const seoTitle = stripSeoMarkup(title);
+const seoDescription = stripSeoMarkup(description);
+
 // Only add " - Rivet" suffix if the title isn't already branded: either it ends
 // with the suffix (handles Rivet, Rivet Actors, Rivet Templates) or it starts
 // with a "Rivet … - " brand prefix (homepage, product pages).
-const formattedTitle = !title
+const formattedTitle = !seoTitle
 	? 'Rivet'
-	: /^Rivet( [A-Za-z]+)? - | - Rivet( Actors| Templates)?$/.test(title)
-		? title
-		: `${title} - Rivet`;
+	: /^Rivet( [A-Za-z]+)? - | - Rivet( Actors| Templates)?$/.test(seoTitle)
+		? seoTitle
+		: `${seoTitle} - Rivet`;
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://rivet.dev';
 
@@ -93,7 +98,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{formattedTitle}</title>
-		<meta name="description" content={description} />
+		<meta name="description" content={seoDescription} />
 		{robots && <meta name="robots" content={robots} />}
 
 		<link rel="canonical" href={effectiveCanonicalUrl} />
@@ -103,7 +108,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<meta name="twitter:site" content="@rivet_dev" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={formattedTitle} />
-		<meta name="twitter:description" content={description} />
+		<meta name="twitter:description" content={seoDescription} />
 		<meta name="twitter:image" content={absoluteOgImage} />
 
 		<!-- Open Graph -->
@@ -112,7 +117,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<meta property="og:url" content={effectiveCanonicalUrl} />
 		<meta property="og:site_name" content="Rivet" />
 		<meta property="og:title" content={formattedTitle} />
-		<meta property="og:description" content={description} />
+		<meta property="og:description" content={seoDescription} />
 		<meta property="og:image" content={absoluteOgImage} />
 		<meta property="og:image:alt" content={formattedTitle} />
 		<meta property="og:image:width" content={String(ogImageWidth)} />
@@ -123,7 +128,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		{ogType === 'article' && Array.isArray(keywords) && keywords.map((keyword) => <meta property="article:tag" content={keyword.toLowerCase()} />)}
 
 		<!-- JSON-LD Structured Data -->
-		<script type="application/ld+json" set:html={JSON.stringify({
+		<script type="application/ld+json" set:html={jsonLdString({
 			"@context": "https://schema.org",
 			"@graph": [
 				{
@@ -153,27 +158,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 					"@id": "https://rivet.dev/#website",
 					"url": "https://rivet.dev",
 					"name": "Rivet",
-					"publisher": { "@id": "https://rivet.dev/#organization" },
-					"potentialAction": {
-						"@type": "SearchAction",
-						"target": "https://rivet.dev/docs/?q={search_term_string}",
-						"query-input": "required name=search_term_string"
-					}
-				},
-				{
-					"@type": "SoftwareApplication",
-					"name": "Rivet",
-					"applicationCategory": "DeveloperApplication",
-					"operatingSystem": "Cross-platform",
-					"description": "Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build.",
-					"url": "https://rivet.dev",
-					"author": { "@id": "https://rivet.dev/#organization" },
-					"license": "https://opensource.org/licenses/Apache-2.0",
-					"offers": {
-						"@type": "Offer",
-						"price": "0",
-						"priceCurrency": "USD"
-					}
+					"publisher": { "@id": "https://rivet.dev/#organization" }
 				}
 			]
 		})} />

@@ -55,6 +55,14 @@ const explicitRedirects = {
 	'/docs/actors/scheduling': '/actors/docs/schedule/',
 	'/docs/actors/external-sql': '/actors/docs/state/',
 	'/docs/actors/raw-sql': '/actors/docs/sqlite/',
+	// Empty moved-page stubs were retired. Preserve both their current product
+	// URLs and legacy flat-docs spellings as one-hop redirects.
+	'/actors/docs/helper-types': '/actors/docs/types/',
+	'/docs/actors/helper-types': '/actors/docs/types/',
+	'/actors/docs/scaling': '/actors/docs/design-patterns/',
+	'/docs/actors/scaling': '/actors/docs/design-patterns/',
+	'/actors/docs/sharing-and-joining-state': '/actors/docs/design-patterns/',
+	'/docs/actors/sharing-and-joining-state': '/actors/docs/design-patterns/',
 	'/docs/actors/ephemeral-variables': '/actors/docs/state/',
 	'/docs/actors/persistence': '/actors/docs/state/',
 	'/docs/actors/postgres': '/actors/docs/state/',

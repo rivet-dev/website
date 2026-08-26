@@ -71,8 +71,6 @@ redir /docs/general/skill /actors/docs/general/skill/{http.request.uri.prefixed_
 redir /docs/general/skill/ /actors/docs/general/skill/{http.request.uri.prefixed_query} 301
 redir /docs/general/wasm-vs-native-sdk /actors/docs/general/wasm-vs-native-sdk/{http.request.uri.prefixed_query} 301
 redir /docs/general/wasm-vs-native-sdk/ /actors/docs/general/wasm-vs-native-sdk/{http.request.uri.prefixed_query} 301
-redir /docs/actors/helper-types /actors/docs/helper-types/{http.request.uri.prefixed_query} 301
-redir /docs/actors/helper-types/ /actors/docs/helper-types/{http.request.uri.prefixed_query} 301
 redir /docs/actors/http-api /actors/docs/http-api/{http.request.uri.prefixed_query} 301
 redir /docs/actors/http-api/ /actors/docs/http-api/{http.request.uri.prefixed_query} 301
 redir /docs/actors /actors/docs/{http.request.uri.prefixed_query} 301
@@ -109,12 +107,8 @@ redir /docs/actors/quickstart/supabase /actors/docs/quickstart/supabase/{http.re
 redir /docs/actors/quickstart/supabase/ /actors/docs/quickstart/supabase/{http.request.uri.prefixed_query} 301
 redir /docs/actors/request-handler /actors/docs/request-handler/{http.request.uri.prefixed_query} 301
 redir /docs/actors/request-handler/ /actors/docs/request-handler/{http.request.uri.prefixed_query} 301
-redir /docs/actors/scaling /actors/docs/scaling/{http.request.uri.prefixed_query} 301
-redir /docs/actors/scaling/ /actors/docs/scaling/{http.request.uri.prefixed_query} 301
 redir /docs/actors/schedule /actors/docs/schedule/{http.request.uri.prefixed_query} 301
 redir /docs/actors/schedule/ /actors/docs/schedule/{http.request.uri.prefixed_query} 301
-redir /docs/actors/sharing-and-joining-state /actors/docs/sharing-and-joining-state/{http.request.uri.prefixed_query} 301
-redir /docs/actors/sharing-and-joining-state/ /actors/docs/sharing-and-joining-state/{http.request.uri.prefixed_query} 301
 redir /docs/actors/sqlite-drizzle /actors/docs/sqlite-drizzle/{http.request.uri.prefixed_query} 301
 redir /docs/actors/sqlite-drizzle/ /actors/docs/sqlite-drizzle/{http.request.uri.prefixed_query} 301
 redir /docs/actors/sqlite /actors/docs/sqlite/{http.request.uri.prefixed_query} 301
@@ -239,6 +233,18 @@ redir /docs/actors/external-sql /actors/docs/state/{http.request.uri.prefixed_qu
 redir /docs/actors/external-sql/ /actors/docs/state/{http.request.uri.prefixed_query} 301
 redir /docs/actors/raw-sql /actors/docs/sqlite/{http.request.uri.prefixed_query} 301
 redir /docs/actors/raw-sql/ /actors/docs/sqlite/{http.request.uri.prefixed_query} 301
+redir /actors/docs/helper-types /actors/docs/types/{http.request.uri.prefixed_query} 301
+redir /actors/docs/helper-types/ /actors/docs/types/{http.request.uri.prefixed_query} 301
+redir /docs/actors/helper-types /actors/docs/types/{http.request.uri.prefixed_query} 301
+redir /docs/actors/helper-types/ /actors/docs/types/{http.request.uri.prefixed_query} 301
+redir /actors/docs/scaling /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /actors/docs/scaling/ /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /docs/actors/scaling /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /docs/actors/scaling/ /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /actors/docs/sharing-and-joining-state /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /actors/docs/sharing-and-joining-state/ /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /docs/actors/sharing-and-joining-state /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
+redir /docs/actors/sharing-and-joining-state/ /actors/docs/design-patterns/{http.request.uri.prefixed_query} 301
 redir /docs/actors/ephemeral-variables /actors/docs/state/{http.request.uri.prefixed_query} 301
 redir /docs/actors/ephemeral-variables/ /actors/docs/state/{http.request.uri.prefixed_query} 301
 redir /docs/actors/persistence /actors/docs/state/{http.request.uri.prefixed_query} 301
@@ -397,9 +403,27 @@ redir /agent-os/docs/apps /dynamic-apps/docs/{http.request.uri.prefixed_query} 3
 redir /agent-os/docs/apps/ /dynamic-apps/docs/{http.request.uri.prefixed_query} 301
 redir /sales /talk-to-an-engineer/{http.request.uri.prefixed_query} 301
 redir /sales/ /talk-to-an-engineer/{http.request.uri.prefixed_query} 301
-redir /registry/* /agentos{http.request.uri.path}{http.request.uri.prefixed_query} 301
-redir /typedoc/* /actors/docs{http.request.uri.prefixed_query} 301
-redir /learn/* /actors{http.request.uri.path}{http.request.uri.prefixed_query} 301
-redir /compare/* /actors{http.request.uri.path}{http.request.uri.prefixed_query} 301
-redir /docs/agent-os/* /agentos/docs{http.request.uri.prefixed_query} 301
-redir /agent-os/* /agentos{http.request.uri.prefixed_query} 301
+@wildcard0Trailing path /registry/*/
+redir @wildcard0Trailing /agentos{http.request.uri.path}{http.request.uri.prefixed_query} 301
+@wildcard0Bare {
+	path /registry/*
+	not path */
+}
+redir @wildcard0Bare /agentos{http.request.uri.path}/{http.request.uri.prefixed_query} 301
+redir /typedoc/* /actors/docs/{http.request.uri.prefixed_query} 301
+@wildcard2Trailing path /learn/*/
+redir @wildcard2Trailing /actors{http.request.uri.path}{http.request.uri.prefixed_query} 301
+@wildcard2Bare {
+	path /learn/*
+	not path */
+}
+redir @wildcard2Bare /actors{http.request.uri.path}/{http.request.uri.prefixed_query} 301
+@wildcard3Trailing path /compare/*/
+redir @wildcard3Trailing /actors{http.request.uri.path}{http.request.uri.prefixed_query} 301
+@wildcard3Bare {
+	path /compare/*
+	not path */
+}
+redir @wildcard3Bare /actors{http.request.uri.path}/{http.request.uri.prefixed_query} 301
+redir /docs/agent-os/* /agentos/docs/{http.request.uri.prefixed_query} 301
+redir /agent-os/* /agentos/{http.request.uri.prefixed_query} 301

@@ -30,6 +30,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import actorsLogoUrl from '@/images/products/actors-logo.svg';
 import workflowsLogoUrl from '@/images/products/workflows-logo.svg';
 import { wordmarkMaskStyle } from '@/lib/product-accent';
+import { canonicalizeInternalHref } from '@/lib/internalHref';
 import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
 import { AGENT_PROMPT } from '@/data/agentPrompt';
@@ -725,7 +726,7 @@ const Hero = () => {
 					{/* Benchmark highlights — proof for "faster, lighter, cheaper", linked to the benchmarks below */}
 					<motion.div {...introMotion(4, 10)} className='mb-8 flex flex-wrap items-start justify-center gap-x-8 gap-y-3'>
 						{heroStats.map((stat) => (
-							<a key={stat.label} href={stat.href} aria-label={`${stat.value} ${stat.label} (${stat.sub}) — jump to the benchmark`} className='group inline-flex flex-col items-center gap-0.5'>
+							<a key={stat.label} href={canonicalizeInternalHref(stat.href)} aria-label={`${stat.value} ${stat.label} (${stat.sub}) — jump to the benchmark`} className='group inline-flex flex-col items-center gap-0.5'>
 								<span className='inline-flex items-baseline gap-1.5'>
 									<span className='text-xl font-medium text-pine md:text-2xl'>{stat.value}</span>
 									<span className='text-sm text-ink-soft transition-colors group-hover:text-ink md:text-base'>{stat.label}</span>
@@ -1024,7 +1025,7 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 			</div>
 			{active && (
 				<div className='mt-4 flex justify-end'>
-					<a href={active.docsHref} className='inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
+					<a href={canonicalizeInternalHref(active.docsHref)} className='inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
 						{active.docsLogo ? <ProductMiniMark logoSrc={active.docsLogo} className='size-4' /> : null}
 						{active.docsLabel ?? `${active.label} docs`} <span aria-hidden='true'>→</span>
 					</a>
@@ -1051,7 +1052,7 @@ const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
 						<h2 className={SECTION_H2_CLASS}>Coordinate agents. Automate durable work.</h2>
 						<p className={SECTION_LEDE_CLASS}>
 							agentOS owns the agent&apos;s computer: its files, processes, shell, and network. Connect agents and share live sessions here; use{' '}
-							<a href='/workflows' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
+							<a href='/workflows/' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
 								<ProductMiniMark logoSrc={workflowsLogoUrl.src} className='mr-1 size-4 align-[-3px]' />
 								Workflows
 							</a>{' '}
@@ -1076,7 +1077,7 @@ const ActorsAttribution = () => (
 				<p className='text-xs font-medium text-ink'>Powered by Rivet Actors</p>
 				<p className='mt-1.5 max-w-sm text-xs leading-relaxed text-ink-soft'>Each agent lives in an Actor with durable identity, state, queues, storage, and realtime connections.</p>
 				<a
-					href='/actors'
+					href='/actors/'
 					className='mt-2 inline-flex items-center gap-1 text-xs font-medium text-ink-soft underline decoration-ink/20 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/50'
 				>
 					Learn more
@@ -1197,7 +1198,7 @@ const FilesystemSection = ({ highlightedCode }: { highlightedCode: string }) => 
 							<p className={SECTION_LEDE_CLASS}>
 								Every agent gets its own persistent POSIX filesystem. Mount S3, Google Drive, host directories, or a full sandbox at a normal path, then use familiar files and shell tools everywhere.
 							</p>
-							<a href='/agentos/docs/filesystem' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
+							<a href='/agentos/docs/filesystem/' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
 								Explore the filesystem
 								<ArrowRight className='h-3.5 w-3.5' />
 							</a>
@@ -1282,7 +1283,7 @@ const ExecutionSection = () => (
 									);
 								})}
 							</ul>
-							<a href='/agentos/docs/processes' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
+							<a href='/agentos/docs/processes/' className='mt-6 inline-flex items-center gap-2 text-sm font-medium text-pine underline underline-offset-4 transition-colors hover:text-ink'>
 								Explore execution docs
 								<ArrowRight className='h-3.5 w-3.5' />
 							</a>
@@ -1322,7 +1323,7 @@ const RegistryAppTile = ({ entry, hidden }: { entry: (typeof registry)[number]; 
 	const action = entry.status === 'external' ? 'Deploy' : entry.status === 'docs' ? 'Docs' : entry.status === 'config' ? 'Use' : entry.status === 'available' ? 'Get' : 'Soon';
 	return (
 		<a
-			href={external ? entry.href : `/agentos/registry/${entry.slug}`}
+			href={canonicalizeInternalHref(external ? entry.href : `/agentos/registry/${entry.slug}`)}
 			target={external ? '_blank' : undefined}
 			rel={external ? 'noopener noreferrer' : undefined}
 			aria-hidden={hidden}
@@ -1462,7 +1463,7 @@ const RegistrySection = () => {
 							<RegistryMarqueeRow apps={registryRowB} direction='right' />
 						</div>
 						<div className='mt-8 flex items-center justify-center'>
-							<a href='/agentos/integrations' className={PRIMARY_INK_BUTTON_CLASS}>
+							<a href='/agentos/integrations/' className={PRIMARY_INK_BUTTON_CLASS}>
 								Explore the Registry
 								<ArrowRight className='h-4 w-4' />
 							</a>
@@ -1649,7 +1650,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 
 	return (
 		<motion.a
-			href={card.href}
+			href={canonicalizeInternalHref(card.href)}
 			onClick={(event) => scrollToFoundationSection(event, card.href, reduceMotion)}
 			animate='rest'
 			whileHover={reduceMotion ? undefined : 'active'}
@@ -1723,7 +1724,7 @@ const FloatingFoundation = () => {
 				))}
 			</div>
 			<motion.a
-				href='/dynamic-apps'
+				href='/dynamic-apps/'
 				initial={reduceMotion ? false : { opacity: 0, y: 20 }}
 				whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
 				viewport={{ once: true }}
@@ -1766,7 +1767,7 @@ const AgentCompatibilitySection = () => {
 								return (
 									<motion.a
 										key={agent.name}
-										href={agent.href}
+									href={canonicalizeInternalHref(agent.href)}
 										aria-label={agent.name}
 										variants={{
 											rest: { rotate: tilt, marginLeft: i === 0 ? 0 : -18 },
@@ -1798,7 +1799,7 @@ const AgentCompatibilitySection = () => {
 								return (
 									<motion.a
 										key={framework.name}
-										href={framework.href}
+									href={canonicalizeInternalHref(framework.href)}
 										aria-label={framework.comingSoon ? `${framework.name} (coming soon)` : framework.name}
 										variants={{
 											rest: { rotate: tilt, marginLeft: i === 0 ? 0 : -10 },
@@ -1834,7 +1835,7 @@ const AgentCompatibilitySection = () => {
 							})}
 						</motion.div>
 					</div>
-					<a href='/agentos/docs/agents/custom' className='mx-auto mt-9 flex w-fit items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
+					<a href='/agentos/docs/agents/custom/' className='mx-auto mt-9 flex w-fit items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
 						Or build your own agent
 						<ArrowRight className='h-3.5 w-3.5' />
 					</a>
@@ -1966,7 +1967,7 @@ function RuntimeBenchInfo({ label, details, align = 'left' }: { label: string; d
 						</span>
 					))}
 					<a
-						href='/agentos/docs/performance#reproducing'
+						href='/agentos/docs/performance/#reproducing'
 						className='mt-3 inline-flex font-medium text-cream underline decoration-cream/30 underline-offset-4 transition-colors hover:text-white hover:decoration-cream/70'
 					>
 						Methodology &amp; reproduction →
@@ -2225,7 +2226,7 @@ const RuntimeArgumentSection = () => (
 			</Reveal>
 			<Reveal>
 				<div className='mt-10 flex justify-center'>
-					<a href='/agentos/docs/architecture' className='inline-flex items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
+					<a href='/agentos/docs/architecture/' className='inline-flex items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
 						Read about the architecture
 						<ArrowRight className='h-3.5 w-3.5' />
 					</a>
@@ -2327,7 +2328,7 @@ const SecondaryFeaturesSection = () => (
 						return (
 							<a
 								key={feature.title}
-								href={feature.docsHref}
+							href={canonicalizeInternalHref(feature.docsHref)}
 								className={`group block cursor-pointer transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 motion-reduce:transition-none ${SITE_CARD_CLASS}`}
 							>
 								<span className='flex items-center gap-3'>
@@ -2387,7 +2388,7 @@ const DeploymentSection = () => {
 const ClosingCta = () => (
 	<ClosingCtaPanel title='Turn your backend into the agent platform.' description='Open source under Apache 2.0. One npm install away.'>
 		<SetupWithAgent variant='light' />
-		<a href='/agentos/docs' className={INK_PANEL_GHOST_BUTTON_CLASS}>
+		<a href='/agentos/docs/' className={INK_PANEL_GHOST_BUTTON_CLASS}>
 			Read the Docs
 			<ArrowRight className='h-4 w-4' />
 		</a>

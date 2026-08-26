@@ -4,6 +4,12 @@ import BlogLayout from '@/layouts/BlogLayout.astro';
 import BlogArticle from '@/components/BlogArticle.astro';
 import { getPostImage } from '@/lib/postImage';
 import { AUTHORS, CATEGORIES } from '@/lib/article';
+import {
+	contextualSeoDescription,
+	contextualSeoTitle,
+	resolveSeoMetadata,
+	type SeoOverrides,
+} from '@/lib/seo';
 
 type AuthorInfo = {
 	name: string;
@@ -32,7 +38,20 @@ const { entry, image } = Astro.props;
 const slug = entry.id.replace(/\/page$/, '');
 const author = AUTHORS[entry.data.author] as AuthorInfo;
 const category = { ...CATEGORIES[entry.data.category], id: entry.data.category };
-const { title, description } = entry.data as unknown as { title: string; description: string };
+const { title, description, seoTitle, seoDescription } = entry.data as unknown as {
+	title: string;
+	description: string;
+} & SeoOverrides;
+const fallbackSeoTitle = `${title} - Rivet`.length < 30
+	? contextualSeoTitle(title, 'Rivet Engineering Blog')
+	: title;
+const seo = resolveSeoMetadata({
+	title: seoTitle ?? fallbackSeoTitle,
+	description: contextualSeoDescription(
+		seoDescription ?? description,
+		`Read the full Rivet engineering article for implementation details, design tradeoffs, and practical examples.`,
+	),
+});
 
 // BreadcrumbList schema
 const breadcrumbSchema = {
@@ -47,8 +66,8 @@ const breadcrumbSchema = {
 ---
 
 <BlogLayout
-	title={title}
-	description={description}
+	title={seo.title}
+	description={seo.description}
 	canonicalUrl={`https://rivet.dev/blog/${slug}/`}
 	ogImage={image?.src}
 	ogImageWidth={image?.width}
@@ -58,6 +77,8 @@ const breadcrumbSchema = {
 	authorName={author.name}
 	authorSocials={author.socials}
 	category={category.name}
+	articleHeadline={title}
+	articleDescription={description}
 >
 	<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 	<BlogArticle entry={entry} image={image} section="blog" />

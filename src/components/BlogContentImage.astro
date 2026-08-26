@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props {
+	src: string | ImageMetadata;
+	alt?: string;
+	class?: string;
+	className?: string;
+	width?: number | string;
+	height?: number | string;
+	loading?: 'eager' | 'lazy';
+	decoding?: 'async' | 'auto' | 'sync';
+	[key: string]: unknown;
+}
+
+const {
+	src,
+	alt,
+	class: classAttribute,
+	className,
+	width,
+	height,
+	loading = 'lazy',
+	decoding = 'async',
+	...rest
+} = Astro.props;
+
+const attributes = rest as HTMLAttributes<'img'>;
+const resolvedSrc = typeof src === 'object' ? src.src : src;
+const resolvedWidth = typeof src === 'object' ? src.width : width;
+const resolvedHeight = typeof src === 'object' ? src.height : height;
+const resolvedClass = classAttribute ?? className;
+
+const SOFTWARE_REGISTRY_IMAGE =
+	'https://assets.rivet.dev/website/blog/2026-07-26-sandboxes-vs-webassembly-lambda-vs-workers-round-two/software-registry.png';
+const optimizeSoftwareRegistry = resolvedSrc.split('?', 1)[0] === SOFTWARE_REGISTRY_IMAGE;
+---
+
+{optimizeSoftwareRegistry ? (
+	<Image
+		{...attributes}
+		src={resolvedSrc}
+		width={1600}
+		height={1665}
+		widths={[480, 800, 1200, 1600]}
+		sizes="(min-width: 800px) 800px, calc(100vw - 2rem)"
+		format="webp"
+		quality={80}
+		alt={alt ?? ''}
+		class={resolvedClass}
+		loading={loading}
+		decoding={decoding}
+		data-blog-content-image="software-registry"
+	/>
+) : (
+	<img
+		{...attributes}
+		src={resolvedSrc}
+		alt={alt}
+		width={resolvedWidth}
+		height={resolvedHeight}
+		class={resolvedClass}
+		loading={loading}
+		decoding={decoding}
+	/>
+)}

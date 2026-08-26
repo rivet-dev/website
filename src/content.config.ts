@@ -1,11 +1,17 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+const seoOverrides = {
+	seoTitle: z.string().optional(),
+	seoDescription: z.string().optional(),
+};
+
 const docs = defineCollection({
 	loader: glob({ pattern: '**/*.mdx', base: './src/content/docs' }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
+		...seoOverrides,
 		// Rivet-internal: opts a page into skill-file generation. Product repos
 		// do not carry it, so it defaults off.
 		skill: z.boolean().optional().default(false),
@@ -20,6 +26,7 @@ const selfHost = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
+		...seoOverrides,
 	}),
 });
 
@@ -28,6 +35,7 @@ const guides = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
+		...seoOverrides,
 	}),
 });
 
@@ -36,6 +44,7 @@ const posts = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
+		...seoOverrides,
 		author: z.enum(['nathan-flurry', 'nicholas-kissel', 'forest-anderson', 'andrew-theberge']),
 		published: z.coerce.date(),
 		category: z.enum(['changelog', 'monthly-update', 'launch-week', 'technical', 'guide', 'frogs']),
@@ -48,7 +57,19 @@ const posts = defineCollection({
 		// Resolved via `getPostImage` in `@/lib/postImage`.
 		image: z.union([
 			z.boolean(),
-			z.object({ format: z.string().optional(), file: z.string().optional() }),
+			z.object({
+				format: z.string().optional(),
+				file: z.string().optional(),
+				width: z.number().int().positive().optional(),
+				height: z.number().int().positive().optional(),
+			}).superRefine((image, context) => {
+				if ((image.width === undefined) !== (image.height === undefined)) {
+					context.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Post image width and height must be provided together.',
+					});
+				}
+			}),
 		]).optional(),
 		unpublished: z.boolean().optional(),
 	}),

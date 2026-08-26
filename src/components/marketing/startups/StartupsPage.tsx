@@ -378,7 +378,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 					<>
 						Questions?{' '}
 						<a
-							href="/support"
+							href="/support/"
 							className="rounded-sm text-cream underline underline-offset-2 transition-colors motion-reduce:transition-none hover:text-cream/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
 						>
 							Contact us

@@ -74,14 +74,29 @@ for (const [from, to] of Object.entries(redirects)) {
 // request path is kept and only the new parent is prepended, so
 // `/registry/pi` -> `/agentos/registry/pi`. Every other rule drops the captured
 // suffix and collapses all sub-paths onto the target.
-for (const { from, to } of wildcardRedirects) {
+for (const [index, { from, to }] of wildcardRedirects.entries()) {
 	assertSafe(from, 'source');
 	assertSafeTarget(to);
-	const target =
-		to !== from && to.endsWith(from)
-			? `${to.slice(0, -from.length)}{http.request.uri.path}`
-			: to;
-	lines.push(`redir ${from}/* ${target}${PREFIXED_QUERY} 301`);
+	if (to !== from && to.endsWith(from)) {
+		const parent = to.slice(0, -from.length);
+		const matcher = `wildcard${index}`;
+		// Preserve the suffix for re-parenting rules while normalizing both input
+		// forms directly to the canonical trailing-slash destination.
+		lines.push(`@${matcher}Trailing path ${from}/*/`);
+		lines.push(
+			`redir @${matcher}Trailing ${parent}{http.request.uri.path}${PREFIXED_QUERY} 301`,
+		);
+		lines.push(`@${matcher}Bare {`);
+		lines.push(`\tpath ${from}/*`);
+		lines.push('\tnot path */');
+		lines.push('}');
+		lines.push(
+			`redir @${matcher}Bare ${parent}{http.request.uri.path}/${PREFIXED_QUERY} 301`,
+		);
+	} else {
+		const target = to.endsWith('/') ? to : `${to}/`;
+		lines.push(`redir ${from}/* ${target}${PREFIXED_QUERY} 301`);
+	}
 }
 
 const outPath = fileURLToPath(new URL('../redirects.caddy', import.meta.url));

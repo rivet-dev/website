@@ -1,0 +1,50 @@
+---
+import { Image } from 'astro:assets';
+import type { HTMLAttributes } from 'astro/types';
+import type { PostImage } from '@/lib/postImage';
+
+type Variant = 'hero' | 'card';
+
+interface Props extends Omit<HTMLAttributes<'img'>, 'alt' | 'height' | 'sizes' | 'src' | 'srcset' | 'width'> {
+	image: PostImage;
+	alt: string;
+	variant: Variant;
+}
+
+const { image, alt, variant, ...attributes } = Astro.props;
+const isAnimated = image.format === 'gif';
+
+const profile = isAnimated
+	? variant === 'hero'
+		? { widths: [400, 600, 800], quality: 40 }
+		: { widths: [320, 480], quality: 60 }
+	: variant === 'hero'
+		? { widths: [480, 800, 1200, 1600], quality: 80 }
+		: { widths: [320, 480, 640, 800], quality: 80 };
+
+const widths = profile.widths.filter((width) => width <= image.width);
+const targetWidth = Math.min(profile.widths.at(-1) ?? image.width, image.width);
+if (!widths.includes(targetWidth)) widths.push(targetWidth);
+
+// Post imagery is displayed in a 2:1 frame everywhere. Crop at build time so
+// non-2:1 sources (notably the Inspector animation) do not ship hidden pixels.
+const targetHeight = Math.round(targetWidth / 2);
+const sizes = variant === 'hero'
+	? '(min-width: 800px) 800px, calc(100vw - 2rem)'
+	: '(min-width: 1280px) 360px, (min-width: 768px) 45vw, calc(100vw - 5rem)';
+---
+
+<Image
+	{...attributes}
+	src={image.src}
+	width={targetWidth}
+	height={targetHeight}
+	widths={widths}
+	sizes={sizes}
+	fit="cover"
+	format="webp"
+	quality={profile.quality}
+	alt={alt}
+	data-post-image={variant}
+	data-post-image-format={image.format}
+/>

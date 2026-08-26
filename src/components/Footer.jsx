@@ -7,6 +7,7 @@ import routes from "@/generated/routes.json";
 import clsx from "clsx";
 import { VISIBLE_PRODUCTS } from "@/sitemap/product-metadata";
 import { SITE_WIDE_GUTTERED_RAIL_CLASS } from "@/components/marketing/layout";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 import imgLogo from "@/images/rivet-logos/icon-white.svg";
 import imgYC from "@/images/logos/yc.svg";
@@ -84,7 +85,7 @@ function PageLink({ label, page, previous = false }) {
 	return (
 		<>
 			<Button
-				href={page.href}
+				href={canonicalizeInternalHref(page.href)}
 				aria-label={`${label}: ${page.title}`}
 				variant="secondary"
 				arrow={previous ? "left" : "right"}
@@ -181,7 +182,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.product.map((item) => (
 							<li key={item.name}>
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									target={item.target}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
@@ -199,7 +200,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.devs.map((item) => (
 							<li key={item.name}>
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									target={item.target}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
@@ -217,7 +218,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.resources.map((item) => (
 							<li key={item.name}>
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									target={item.newTab ? "_blank" : null}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
@@ -235,7 +236,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.compare.map((item) => (
 							<li key={item.name}>
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
 									{item.name}
@@ -252,7 +253,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.company.map((item) => (
 							<li key={item.name} className="flex items-center gap-2">
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
 									{item.name}
@@ -277,7 +278,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 						{footer.legal.map((item) => (
 							<li key={item.name}>
 								<a
-									href={item.href}
+									href={canonicalizeInternalHref(item.href)}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
 									{item.name}
@@ -302,7 +303,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 					</div>
 				</div>
 				<a
-					href="/startups"
+					href="/startups/"
 					className="text-xs text-ink-faint hover:text-ink transition-colors"
 					style={{
 						backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',

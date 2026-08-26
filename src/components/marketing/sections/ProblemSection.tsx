@@ -17,6 +17,7 @@ import { codeToHtml } from "shiki";
 import { BODY_CLASS, EYEBROW_CLASS, SECTION_H2_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import heroTheme from "@/lib/agent-os-hero-code-theme";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 // Client-side shiki highlighting hook
 const useHighlightedCode = (code: string) => {
@@ -345,7 +346,7 @@ const UseCaseDetails = ({ config }: { config: UseCaseConfig }) => (
         return (
           <a
             key={idx}
-            href={feature.href}
+            href={canonicalizeInternalHref(feature.href)}
             className="group flex w-fit items-center gap-3 rounded-sm text-ink-soft transition-colors duration-200 motion-reduce:transition-none hover:text-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           >
             <Icon className="h-4 w-4 flex-shrink-0 text-ink-faint transition-colors duration-200 motion-reduce:transition-none group-hover:text-pine" />

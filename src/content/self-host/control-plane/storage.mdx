@@ -11,7 +11,7 @@ The control plane is stateful. Pick a backend by how many control plane nodes yo
 | **Scalability** | One node | Primary/replica failover | Linear horizontal scaling |
 | **Fault tolerance** | None | Primary/replica failover | Automatic recovery with no data loss |
 | **Suited to** | Development, single-node production, air-gapped hosts | Light-to-moderate multi-node workloads | Battle-tested at global scale |
-| **Availability** | Open source | Open source | [Enterprise](/sales) |
+| **Availability** | Open source | Open source | [Enterprise](/talk-to-an-engineer/) |
 
 Multi-node deployments also need a pub/sub backend so nodes can coordinate. See [Pub/sub](#pubsub-nats) below.
 
@@ -47,7 +47,7 @@ In a container or as a service the path defaults to `./data/db`, relative to the
 
 ## PostgreSQL
 
-The recommended backend for multi-node deployments. It is production-ready for light-to-moderate workloads, up to roughly 1,000 concurrent actors. Past that, or for high-throughput realtime workloads, contact [enterprise support](/sales) about FoundationDB.
+The recommended backend for multi-node deployments. It is production-ready for light-to-moderate workloads, up to roughly 1,000 concurrent actors. Past that, or for high-throughput realtime workloads, contact [enterprise support](/talk-to-an-engineer/) about FoundationDB.
 
 <CodeGroup>
 
@@ -149,7 +149,7 @@ RIVET__POSTGRES__SSL__ROOT_CERT_PATH="/path/to/supabase-ca.crt"
 
 A distributed, ordered key-value store originally built by Apple, and the backend behind iCloud, Snowflake's metadata layer, Datadog, and Tigris. Its strict serializability, fault tolerance, and linear scaling make it the right fit for large deployments.
 
-FoundationDB requires an enterprise license. Cluster setup is handled during onboarding. Contact [enterprise support](/sales) to get started.
+FoundationDB requires an enterprise license. Cluster setup is handled during onboarding. Contact [enterprise support](/talk-to-an-engineer/) to get started.
 
 ## Pub/sub (NATS)
 

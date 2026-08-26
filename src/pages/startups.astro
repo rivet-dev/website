@@ -5,23 +5,25 @@ import StartupsPage from '@/components/marketing/startups/StartupsPage';
 const imgFounders = { src: "https://assets.rivet.dev/website/images/yc-founders.jpg", width: 5925, height: 3942, format: "jpg" };
 const imgSpeedrun = { src: "https://assets.rivet.dev/website/images/a16z-speedrun.jpg", width: 2048, height: 1365, format: "jpg" };
 const optimizedFounders = await getImage({
-	src: imgFounders,
+	src: imgFounders.src,
 	width: 1280,
+	height: Math.round((imgFounders.height / imgFounders.width) * 1280),
 	format: 'webp',
 	quality: 90
 });
 
 const optimizedSpeedrun = await getImage({
-	src: imgSpeedrun,
+	src: imgSpeedrun.src,
 	width: 1280,
+	height: Math.round((imgSpeedrun.height / imgSpeedrun.width) * 1280),
 	format: 'webp',
 	quality: 90
 });
 ---
 
-<MarketingLayout
-	title="Startups - Rivet"
-	description="50% off Rivet Cloud for YC and a16z Speedrun companies. Infrastructure for the agentic era at startup speed."
+	<MarketingLayout
+	title="Cloud Infrastructure for YC and a16z Startups"
+	description="Get 50% off Rivet Cloud for YC and a16z Speedrun companies. Build on infrastructure for the agentic era with support designed for startups."
 	canonicalUrl="https://rivet.dev/startups/"
 >
 	<StartupsPage

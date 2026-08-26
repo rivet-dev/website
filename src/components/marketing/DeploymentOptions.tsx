@@ -7,6 +7,7 @@ import {
   TerminalCommand,
 } from "./deployKit";
 import { BODY_CLASS } from "./typography";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 interface DeploymentOptionsProps {
   productName: string;
@@ -45,7 +46,7 @@ export const DeploymentOptions = ({
       <div className="mt-6 border-t border-ink/10 pt-6">
         <TerminalCommand command={installCommand} />
         <a
-          href={quickstartHref}
+          href={canonicalizeInternalHref(quickstartHref)}
           className={`mt-4 ${DEPLOY_GHOST_BUTTON_CLASS}`}
         >
           Open the quickstart
@@ -83,7 +84,7 @@ export const DeploymentOptions = ({
         your infrastructure.
       </p>
       <div className="flex-1" />
-      <a href={selfHostHref} className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
+      <a href={canonicalizeInternalHref(selfHostHref)} className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
         Read self-hosting docs
       </a>
     </article>

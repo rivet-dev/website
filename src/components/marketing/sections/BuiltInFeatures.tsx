@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { BODY_CLASS, CARD_TITLE_CLASS, SECTION_H2_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 const features = [
   {
@@ -80,7 +81,7 @@ export const BuiltInFeatures = () => (
           return (
             <a
               key={feature.title}
-              href={feature.href}
+              href={canonicalizeInternalHref(feature.href)}
               data-site-reveal-child
               className="group flex flex-col border-t border-ink/15 py-6 transition-colors hover:border-pine/50"
             >

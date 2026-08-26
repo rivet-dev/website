@@ -11,6 +11,7 @@ import {
 import { productLogos } from "@/sitemap/productLogos";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * A product's mark, carrying that product's accent color.
@@ -155,7 +156,7 @@ export function ProductBar({
 					return (
 						<a
 							key={tab.id}
-							href={tab.href}
+							href={canonicalizeInternalHref(tab.href)}
 							aria-current={tab.id === activeTabId ? "page" : undefined}
 							className={cn(
 								"flex h-full items-center rounded-sm text-sm font-medium text-ink-faint transition-colors hover:text-ink aria-current-page:text-ink",

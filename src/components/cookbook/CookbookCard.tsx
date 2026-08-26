@@ -1,3 +1,5 @@
+import { canonicalizeInternalHref } from "@/lib/internalHref";
+
 export interface CookbookCardCover {
 	src: string;
 	objectPosition?: string;
@@ -35,7 +37,7 @@ export function CookbookCard({ page }: { page: CookbookPageCardData }) {
 			{/* Soft ground beneath the card, mirroring the hero reel's hover glow. */}
 			<div className="pointer-events-none absolute -inset-3 rounded-xl bg-ink/5 opacity-0 blur-xl transition-all duration-300 ease-out group-hover:scale-105 group-hover:opacity-100" />
 			<a
-				href={page.href}
+				href={canonicalizeInternalHref(page.href)}
 				style={{ boxShadow: "0 10px 28px -12px rgba(27, 25, 22, 0.16)" }}
 				className="relative block aspect-[5/7] overflow-hidden bg-ink [container-type:inline-size]"
 			>

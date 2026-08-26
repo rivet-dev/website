@@ -1,7 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
 import { getPostImage } from '@/lib/postImage';
+import type { PostImage as PostImageData } from '@/lib/postImage';
 import { ArticleSocials } from '@/components/ArticleSocials';
+import BlogContentImage from '@/components/BlogContentImage.astro';
+import PostImage from '@/components/PostImage.astro';
 import { Prose } from '@/components/Prose';
 import { formatTimestamp } from '@/lib/formatDate';
 import { CATEGORIES } from '@/lib/article';
@@ -25,12 +28,13 @@ import {
 interface Props {
 	// biome-ignore lint/suspicious/noExplicitAny: content collection entry
 	entry: any;
-	image?: { src: string; width: number; height: number } | null;
+	image?: PostImageData | null;
 	section: 'blog' | 'changelog';
 }
 
 const { entry, image, section } = Astro.props;
 const { Content, headings } = await render(entry);
+const blogMdxComponents = { ...mdxComponents, img: BlogContentImage };
 
 const { title, description } = entry.data as unknown as { title: string; description: string };
 
@@ -86,13 +90,12 @@ const otherArticles = allPosts
 				</div>
 
 				{image && (
-					<img
-						src={image.src}
+					<PostImage
+						image={image}
+						variant="hero"
 						data-site-reveal
 						data-site-reveal-delay="80"
 						alt={title}
-						width={image.width}
-						height={image.height}
 						class="aspect-[2/1] w-full rounded-xl border border-ink/10 object-cover"
 						loading="eager"
 						decoding="async"
@@ -128,7 +131,7 @@ const otherArticles = allPosts
 						)}
 
 						<Prose as="div" surface="paper" className="blog-prose w-full max-w-none">
-							<Content components={mdxComponents} />
+							<Content components={blogMdxComponents} />
 						</Prose>
 
 						<div class="mt-16 border-t border-ink/10 pt-8">
@@ -180,11 +183,10 @@ const otherArticles = allPosts
 							class:list={[SITE_CARD_CLASS, 'group flex flex-col transition-colors hover:border-ink/25']}
 						>
 							{article.image && (
-								<img
-									src={article.image.src}
+								<PostImage
+									image={article.image}
+									variant="card"
 									alt={article.title}
-									width={600}
-									height={300}
 									class="aspect-[2/1] w-full rounded-xl border border-ink/10 object-cover transition-colors group-hover:border-ink/25"
 									loading="lazy"
 									decoding="async"

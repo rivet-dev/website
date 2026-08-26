@@ -6,6 +6,8 @@ category: technical
 keywords: ["sqlite", "s3", "tiered storage", "storage engine", "actors", "vfs", "zero-disk compute", "object storage", "multi-tenancy", "agents"]
 title: "How We Built the First Zero-Disk, S3-Tiered Storage Engine for SQLite"
 description: "How Rivet keeps SQLite writes fast and durable while cold data offloads to object storage."
+seoTitle: "Zero-Disk S3 Storage for SQLite"
+seoDescription: "Learn how Rivet built a zero-disk SQLite storage engine with fast durable writes, S3 tiering, instant startup, and point-in-time recovery."
 ---
 
 Every Rivet Actor gets its own **isolated SQLite database**. In practice, that means running **millions of databases** that start instantly, cost nothing but storage while idle, and never touch a local disk.

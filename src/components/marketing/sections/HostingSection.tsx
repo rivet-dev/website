@@ -34,7 +34,7 @@ export const HostingSection = () => (
             ({ displayName, shortTitle, slug }) => (
               <a
                 key={displayName}
-                href={`/actors/self-host/workers/${slug}`}
+                href={`/actors/self-host/workers/${slug}/`}
                 className={PLATFORM_LINK_CLASS}
               >
                 {shortTitle || displayName}

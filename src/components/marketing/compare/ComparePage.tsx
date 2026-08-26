@@ -64,14 +64,14 @@ function HeroSection({ entry }: { entry: CompareEntry }) {
 					<p className={`${SECTION_LEDE_CLASS} !max-w-2xl`}>{entry.heroSubtitle}</p>
 					<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
 						<a
-							href="/actors/docs/quickstart/backend"
+							href="/actors/docs/quickstart/backend/"
 							className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}
 						>
 							Get Started with {entry.rivetProductName}
 							<Icon icon={faArrowRight} />
 						</a>
 						<a
-							href="/talk-to-an-engineer"
+							href="/talk-to-an-engineer/"
 							className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
 						>
 							Talk to an engineer
@@ -163,7 +163,7 @@ function OverviewSection({ entry }: { entry: CompareEntry }) {
 						/>
 						<div className="mt-8">
 							<a
-								href="/actors/docs/quickstart/backend"
+								href="/actors/docs/quickstart/backend/"
 								className="group inline-flex items-center gap-2 rounded-sm text-sm font-medium text-pine hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 							>
 								Get started with {entry.rivetProductName}
@@ -246,7 +246,7 @@ function MigrationSection({ migration }: { migration: NonNullable<CompareEntry['
 				<p className="mt-8 text-[15px] leading-relaxed text-ink-soft">{migration.body}</p>
 				<div className="mt-8">
 					<a
-						href="/talk-to-an-engineer"
+							href="/talk-to-an-engineer/"
 						className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
 					>
 						Talk to an engineer
@@ -306,10 +306,10 @@ function CTASection() {
 			title="Infrastructure for the agentic era."
 			description="Build with agents, build for agents, and run it where your data lives."
 		>
-			<a href="/docs" className={INK_PANEL_LIGHT_BUTTON_CLASS}>
+			<a href="/docs/" className={INK_PANEL_LIGHT_BUTTON_CLASS}>
 				Start building
 			</a>
-			<a href="/talk-to-an-engineer" className={INK_PANEL_GHOST_BUTTON_CLASS}>
+			<a href="/talk-to-an-engineer/" className={INK_PANEL_GHOST_BUTTON_CLASS}>
 				Talk to an engineer
 			</a>
 		</ClosingCtaPanel>

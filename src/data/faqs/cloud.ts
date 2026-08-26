@@ -27,12 +27,12 @@ export const cloudFaqs: FaqItem[] = [
 	{
 		question: 'Is Rivet free to self-host?',
 		answerHtml:
-			'Yes. Rivet is open source under the Apache 2.0 license and free to run on your own infrastructure with no usage limits. It ships as a single Rust binary or Docker image. See the <a href="https://rivet.dev/actors/self-host">self-hosting docs</a> to get started, or use Rivet Cloud if you prefer managed infrastructure.',
+			'Yes. Rivet is open source under the Apache 2.0 license and free to run on your own infrastructure with no usage limits. It ships as a single Rust binary or Docker image. See the <a href="https://rivet.dev/actors/self-host/">self-hosting docs</a> to get started, or use Rivet Cloud if you prefer managed infrastructure.',
 	},
 	{
 		question: 'Can Rivet run in my VPC, on-prem, or air-gapped?',
 		answerHtml:
-			'Yes. The open-source release runs in your VPC, on-prem, or fully air-gapped with no usage limits, using filesystem or Postgres storage. For production deployments in regulated networks, the Enterprise Edition adds the FoundationDB persistence layer, hardening guidance, and priority support. <a href="https://rivet.dev/sales/">Contact sales</a> for details.',
+			'Yes. The open-source release runs in your VPC, on-prem, or fully air-gapped with no usage limits, using filesystem or Postgres storage. For production deployments in regulated networks, the Enterprise Edition adds the FoundationDB persistence layer, hardening guidance, and priority support. <a href="https://rivet.dev/talk-to-an-engineer/">Contact sales</a> for details.',
 	},
 	{
 		question: 'What support is included with each plan?',
@@ -42,6 +42,6 @@ export const cloudFaqs: FaqItem[] = [
 	{
 		question: 'Do you offer discounts for startups or high-volume usage?',
 		answerHtml:
-			'Yes. New Rivet Cloud customers from Y Combinator or a16z Speedrun, including alumni, get 50% off the Team plan for 12 months through our <a href="https://rivet.dev/startups/">startup deal</a>. For high-volume workloads, Enterprise plans include volume pricing; <a href="https://rivet.dev/sales/">contact sales</a> for a custom quote.',
+			'Yes. New Rivet Cloud customers from Y Combinator or a16z Speedrun, including alumni, get 50% off the Team plan for 12 months through our <a href="https://rivet.dev/startups/">startup deal</a>. For high-volume workloads, Enterprise plans include volume pricing; <a href="https://rivet.dev/talk-to-an-engineer/">contact sales</a> for a custom quote.',
 	},
 ];

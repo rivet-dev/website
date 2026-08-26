@@ -57,6 +57,11 @@ const { entry, productId, productName, guideSlug } = Astro.props;
 const canonicalPath = guideSlug === 'index'
 	? `/${CANONICAL_PRODUCT}/self-host/`
 	: `/${CANONICAL_PRODUCT}/self-host/${guideSlug}/`;
+const seoContextLabel = guideSlug.startsWith('workers')
+	? `${productName} Worker Self-Host`
+	: guideSlug.startsWith('control-plane')
+		? `${productName} Control Plane Self-Host`
+		: `${productName} Self-Host`;
 ---
 
 <DocsArticlePage
@@ -66,6 +71,7 @@ const canonicalPath = guideSlug === 'index'
 	breadcrumbName={`${productName} Self-Host`}
 	productId={productId}
 	tabId="self-host"
+	seoContextLabel={seoContextLabel}
 	canonicalUrl={`https://rivet.dev${canonicalPath}`}
 	extraComponents={{
 		ProductSlot: createProductSlot(slotsFor(productId, guideSlug)),

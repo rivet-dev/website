@@ -5,6 +5,7 @@ import {
   SECTION_H2_CLASS,
 } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 const integrations = integrationsFor("actors");
 
@@ -124,7 +125,7 @@ export const IntegrationsSection = () => (
                 {group.items.map((item) => (
                   <a
                     key={item.name}
-                    href={item.href}
+                    href={canonicalizeInternalHref(item.href)}
                     {...(item.external
                       ? { target: "_blank", rel: "noopener noreferrer" }
                       : {})}

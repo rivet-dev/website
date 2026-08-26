@@ -17,6 +17,7 @@ import {
 } from '@rivet-gg/icons';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
+import { canonicalizeInternalHref } from '@/lib/internalHref';
 import {
   CARD_TITLE_CLASS,
   EYEBROW_ON_INK_CLASS,
@@ -112,7 +113,7 @@ const SelfHostingComparison = () => {
 
               <p className="mt-4 text-xs leading-relaxed text-ink-faint">{model.hint}</p>
               <a
-                href={model.href}
+                href={canonicalizeInternalHref(model.href)}
                 className={`mt-6 ${model.primary ? DEPLOY_WHITE_BUTTON_CLASS : DEPLOY_GHOST_BUTTON_CLASS}`}
               >
                 {model.cta}
@@ -131,12 +132,12 @@ const SelfHostingComparison = () => {
               <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-ink-soft">
                 Add multi-tenancy, access controls, backups, and deployment guidance to a self-hosted deployment.
               </p>
-              <a href="/enterprise" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
+              <a href="/enterprise/" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
                 Explore Enterprise
               </a>
             </div>
           </div>
-          <a href="/talk-to-an-engineer" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+          <a href="/talk-to-an-engineer/" className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
             Talk to an Engineer
           </a>
         </aside>
@@ -516,7 +517,7 @@ const Pricing = () => {
                                                 ))}
                                             </div>
 
-                                            <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer" : "https://dashboard.rivet.dev"}
+                                            <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer/" : "https://dashboard.rivet.dev"}
                                                 className={`mt-auto ${
                                                     plan.highlight
                                                     ? PRODUCT_HERO_PRIMARY_BUTTON_CLASS
@@ -550,7 +551,7 @@ const Pricing = () => {
                                             </div>
                                         </div>
                                         <a
-                                            href="/startups"
+                                            href="/startups/"
                                             className={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}
                                         >
                                             Claim the deal

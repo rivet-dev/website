@@ -6,6 +6,7 @@ import { SIDEBAR_ICONS } from "@/generated/sidebar-icons";
 import { PRODUCTS, VISIBLE_PRODUCTS, type ProductMetadata } from "./product-metadata";
 import { deploySidebar } from "./self-host";
 import { integrationSidebar } from "@/data/integrations";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * Sidebars come from each product's own repo, collected into
@@ -22,6 +23,10 @@ function hydrateIcons<T>(node: T): T {
 		if (key === "icon" && typeof value === "string") {
 			const icon = SIDEBAR_ICONS[value];
 			if (icon) out.icon = icon;
+			continue;
+		}
+		if (key === "href" && typeof value === "string") {
+			out.href = canonicalizeInternalHref(value);
 			continue;
 		}
 		out[key] = hydrateIcons(value);
@@ -123,12 +128,12 @@ function tabs(
 		meta.optionalTabs.includes(tab);
 
 	const all: ProductTab[] = [
-		{ id: "overview", title: "Overview", href: `/${id}`, sidebar: [] },
+		{ id: "overview", title: "Overview", href: `/${id}/`, sidebar: [] },
 		{
 			// A single page, not a section: no sidebar.
 			id: "use-cases",
 			title: "Use Cases",
-			href: `/${id}/use-cases`,
+			href: `/${id}/use-cases/`,
 			sidebar: [],
 		},
 		...(has("learn")
@@ -136,7 +141,7 @@ function tabs(
 					{
 						id: "learn" as const,
 						title: "Learn",
-						href: `/${id}/learn`,
+						href: `/${id}/learn/`,
 						sidebar: sidebars.learn,
 					},
 				]
@@ -144,7 +149,7 @@ function tabs(
 		{
 			id: "docs",
 			title: "Documentation",
-			href: `/${id}/docs`,
+			href: `/${id}/docs/`,
 			sidebar: sidebars.docs,
 		},
 		...(has("integrations")
@@ -152,7 +157,7 @@ function tabs(
 					{
 						id: "integrations" as const,
 						title: "Integrations",
-						href: `/${id}/integrations`,
+						href: `/${id}/integrations/`,
 						// Built here, not from the bundle: the sidebar carries vendor
 						// logos and category groups, which a product repo's sidebar.json
 						// has no way to express.
@@ -166,7 +171,7 @@ function tabs(
 						// A standalone catalog with its own layout, not a docs section.
 						id: "registry" as const,
 						title: "Registry",
-						href: `/${id}/registry`,
+						href: `/${id}/registry/`,
 						sidebar: [],
 					},
 				]
@@ -174,7 +179,7 @@ function tabs(
 		{
 			id: "self-host",
 			title: "Self-Host",
-			href: `/${id}/self-host`,
+			href: `/${id}/self-host/`,
 			sidebar: deploySidebar(id),
 		},
 	];
@@ -197,7 +202,7 @@ export const products: Product[] = PRODUCTS.map((meta) => ({
 	description: meta.tagline,
 	verb: meta.verb,
 	premise: meta.premise,
-	href: `/${meta.id}`,
+	href: `/${meta.id}/`,
 	icon: PRODUCT_GLYPHS[meta.id],
 	hidden: meta.hidden,
 	badge: meta.badge,

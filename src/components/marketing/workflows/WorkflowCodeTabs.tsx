@@ -2,6 +2,7 @@
 
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { useId, useRef, useState } from "react";
+import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 export interface WorkflowCodeTab {
   key: string;
@@ -123,7 +124,7 @@ export function WorkflowCodeTabs({ tabs }: { tabs: WorkflowCodeTab[] }) {
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-ink/10 bg-white/35 px-5 py-3 text-xs text-ink-faint">
         <a
           className="inline-flex items-center gap-1.5 rounded-sm text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-          href={activeTab.documentationUrl}
+          href={canonicalizeInternalHref(activeTab.documentationUrl)}
         >
           Read the documentation
           <ExternalLink className="h-3 w-3" aria-hidden="true" />

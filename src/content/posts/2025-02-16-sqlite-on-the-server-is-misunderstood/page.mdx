@@ -6,6 +6,8 @@ category: technical
 keywords: ['sqlite', 'durable-object', 'turso']
 title: "SQLite-on-the-Server Is Misunderstood: Better At Hyper-Scale Than Micro-Scale"
 description: "We're Rivet, a new open-source, self-hostable serverless platform. We've been in the weeds with SQLite-on-the-server recently and – boy – do we have a lot of thoughts to share. Give us a star on GitHub, we'll be sharing a lot more about SQLite soon!"
+seoTitle: "Why SQLite Works Better at Hyper-Scale"
+seoDescription: "Learn why SQLite-on-the-server fits hyper-scale systems when each tenant gets an isolated database with local reads, durable storage, and simple operations."
 ---
 
 export const SqliteMicroscale = { src: "https://assets.rivet.dev/website/blog/2025-02-16-sqlite-on-the-server-is-misunderstood/sqlite-microscale.png", width: 2500, height: 1786, format: "png" };
@@ -24,7 +26,7 @@ Before jumping in to my perspective on the benefits of SQLite at scale, it's hel
 
 ### Why Developers Love SQLite for Micro-Scale Deployments
 
-<img src={SqliteMicroscale.src} />
+<img src={SqliteMicroscale.src} alt="Comparison of an all-in-one SQLite server with a replicated SQLite database behind an HTTP server" />
 
 Most developers consider server-side SQLite a simple, cost-effective choice for small-scale applications. It's often valued for:
 
@@ -43,7 +45,7 @@ However, this post focuses on [Cloudflare Durable Objects](https://developers.cl
 
 ## Databases at Hyper-Scale Today: Sharded Databases & Partitioning Keys
 
-<img src={Cassandra.src} />
+<img src={Cassandra.src} alt="A sharded database cluster distributes query partitions across multiple servers" />
 
 In high-scale systems, companies frequently struggle scaling databases like [Postgres](https://www.postgresql.org/) or [MySQL](https://www.mysql.com/). Instead, they often turn to sharded databases such as [Cassandra](https://cassandra.apache.org/), [ScyllaDB](https://www.scylladb.com/), [DynamoDB](https://aws.amazon.com/dynamodb/), [Vitess](https://vitess.io/) (sharded MySQL), and [Citus](https://www.citusdata.com/) (sharded Postgres).
 
@@ -105,7 +107,7 @@ These databases provide:
 
 ### A Better Hyper-Scale Database: SQLite Database Per Partition
 
-<img src={SqliteHyperscale.src} />
+<img src={SqliteHyperscale.src} alt="A cluster of independent SQLite databases serves queries through an HTTP server" />
 
 Using SQLite with Cloudflare Durable Objects & Turso allows defining databases per entity, effectively replacing partitioning keys.
 
