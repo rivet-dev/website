@@ -192,12 +192,121 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		</script>
 		{pageFamily === 'site' && (
 			<script is:inline data-astro-rerun>
-				window.setTimeout(() => {
-					if (document.documentElement.hasAttribute('data-site-motion-observer-ready')) return;
-					document
-						.querySelectorAll('[data-site-reveal], [data-site-reveal-group], [data-site-hero-reveal]')
-						.forEach((element) => element.setAttribute('data-site-reveal-visible', ''));
-				}, 2000);
+				(() => {
+					const revealSelector = '[data-site-reveal], [data-site-reveal-group], [data-site-hero-reveal]';
+					const visibleAttribute = 'data-site-reveal-visible';
+
+					const isInsideDirectHydratingIsland = (element) => {
+						let ancestor = element.parentElement;
+
+						while (ancestor) {
+							if (ancestor.matches('astro-island[ssr]')) {
+								let boundary = element.parentElement;
+								let isSlottedContent = false;
+
+								while (boundary && boundary !== ancestor) {
+									if (boundary.tagName === 'ASTRO-SLOT') {
+										isSlottedContent = true;
+										break;
+									}
+									boundary = boundary.parentElement;
+								}
+
+								if (!isSlottedContent) return true;
+							}
+
+							ancestor = ancestor.parentElement;
+						}
+
+						return false;
+					};
+
+					const revealContent = (viewportOnly, waitForDirectIsland = false) => {
+						document.querySelectorAll(revealSelector).forEach((element) => {
+							if (waitForDirectIsland && isInsideDirectHydratingIsland(element)) return;
+
+							const bounds = element.getBoundingClientRect();
+							const isInViewport = bounds.bottom >= 0 && bounds.top <= window.innerHeight;
+
+							if (!viewportOnly || isInViewport) {
+								element.setAttribute(visibleAttribute, '');
+							}
+						});
+					};
+
+					const installPendingRevealFallback = () => {
+						if (!('IntersectionObserver' in window)) return () => {};
+
+						const timers = new Map();
+						const observer = new IntersectionObserver(
+							(entries) => {
+								entries.forEach((entry) => {
+									const existingTimer = timers.get(entry.target);
+
+									if (!entry.isIntersecting) {
+										if (existingTimer) window.clearTimeout(existingTimer);
+										timers.delete(entry.target);
+										return;
+									}
+									if (existingTimer) return;
+
+									const timer = window.setTimeout(() => {
+										if (entry.target.isConnected && !entry.target.hasAttribute(visibleAttribute)) {
+											entry.target.setAttribute(visibleAttribute, '');
+										}
+										observer.unobserve(entry.target);
+										timers.delete(entry.target);
+									}, 2000);
+
+									timers.set(entry.target, timer);
+								});
+							},
+							{ rootMargin: '-10% 0px', threshold: 0.01 },
+						);
+
+						document.querySelectorAll(revealSelector).forEach((element) => {
+							if (!element.hasAttribute(visibleAttribute)) observer.observe(element);
+						});
+
+						return () => {
+							observer.disconnect();
+							timers.forEach((timer) => window.clearTimeout(timer));
+							timers.clear();
+						};
+					};
+
+					const startRevealFallback = () => {
+						// Release content that is already on screen as soon as the body has
+						// finished parsing. Slotted Astro HTML is stable across hydration;
+						// React-rendered island content waits for the observer or watchdog.
+						revealContent(true, true);
+
+						let cleanupPendingFallback = () => {};
+						const watchdog = window.setTimeout(() => {
+							const observerReady = document.documentElement.hasAttribute('data-site-motion-observer-ready');
+
+							// A mounted observer may still be waiting on a slower parent island.
+							// Recheck the viewport, or release everything if the observer failed.
+							revealContent(observerReady);
+							if (observerReady) cleanupPendingFallback = installPendingRevealFallback();
+						}, 2000);
+
+						document.addEventListener(
+							'astro:before-swap',
+							() => {
+								window.clearTimeout(watchdog);
+								cleanupPendingFallback();
+							},
+							{ once: true },
+						);
+					};
+
+					if (document.readyState === 'loading') {
+						document.addEventListener('DOMContentLoaded', startRevealFallback, { once: true });
+					} else {
+						startRevealFallback();
+					}
+				})();
 			</script>
 		)}
 

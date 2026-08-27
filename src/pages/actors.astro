@@ -4,6 +4,7 @@
 // per-tenant databases. There is no separate agent solution page.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
+import { ProductMotif } from '@/components/marketing/ProductMotif';
 import { BuiltInFeatures } from '@/components/marketing/sections/BuiltInFeatures';
 import { ProblemSection } from '@/components/marketing/sections/ProblemSection';
 import { BenchmarksSection } from '@/components/marketing/sections/BenchmarksSection';
@@ -97,7 +98,8 @@ const compositionLayers = [
 	<main id="main-content" tabindex="-1">
 		<!-- Hero -->
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
-			<div class={PRODUCT_HERO_INNER_CLASS}>
+			<ProductMotif productId="actors" surface="hero" />
+			<div class={`relative z-10 ${PRODUCT_HERO_INNER_CLASS}`}>
 				<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
 					<ProductLockup product={actorsProduct} />
 				</div>

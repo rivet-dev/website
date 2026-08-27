@@ -82,7 +82,7 @@ function ProductsDropdown({
 	const lightDropdownRef = useRef<HTMLDivElement>(null);
 	const lightTriggerRef = useRef<HTMLButtonElement>(null);
 	const focusFromPointerRef = useRef(false);
-	const openAtTriggerPointerDownRef = useRef<boolean | null>(null);
+	const pinnedOpenRef = useRef(false);
 	const lightDropdownId = useId();
 
 	// The product verticals, in registry order. Each item opens the product's
@@ -113,6 +113,7 @@ function ProductsDropdown({
 			) {
 				return;
 			}
+			pinnedOpenRef.current = false;
 			setIsOpen(false);
 		}, 150);
 	};
@@ -129,6 +130,7 @@ function ProductsDropdown({
 	const handleOpenChange = (open: boolean) => {
 		if (!open) {
 			cancelClose();
+			pinnedOpenRef.current = false;
 			setIsOpen(false);
 		}
 	};
@@ -152,6 +154,7 @@ function ProductsDropdown({
 				clearTimeout(closeTimeoutRef.current);
 				closeTimeoutRef.current = null;
 			}
+			pinnedOpenRef.current = false;
 			setIsOpen(false);
 		};
 
@@ -168,15 +171,10 @@ function ProductsDropdown({
 				className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
-				onPointerDownCapture={(event) => {
+				onPointerDownCapture={() => {
 					// Pointer activation focuses the button before `click`. Let `click`
 					// perform the toggle so touch users do not immediately reopen it.
 					focusFromPointerRef.current = true;
-					openAtTriggerPointerDownRef.current =
-						event.target instanceof Node &&
-						lightTriggerRef.current?.contains(event.target)
-							? isOpen
-							: null;
 					queueMicrotask(() => {
 						focusFromPointerRef.current = false;
 					});
@@ -194,6 +192,7 @@ function ProductsDropdown({
 						return;
 					}
 					cancelClose();
+					pinnedOpenRef.current = false;
 					setIsOpen(false);
 				}}
 				onKeyDown={(event) => {
@@ -202,6 +201,7 @@ function ProductsDropdown({
 					event.stopPropagation();
 					cancelClose();
 					lightTriggerRef.current?.focus();
+					pinnedOpenRef.current = false;
 					setIsOpen(false);
 				}}
 			>
@@ -223,11 +223,8 @@ function ProductsDropdown({
 						onMouseEnter={handleMouseEnter}
 						onClick={() => {
 							cancelClose();
-							const openAtPointerDown = openAtTriggerPointerDownRef.current;
-							openAtTriggerPointerDownRef.current = null;
-							setIsOpen((open) =>
-								openAtPointerDown === null ? !open : !openAtPointerDown,
-							);
+							pinnedOpenRef.current = !pinnedOpenRef.current;
+							setIsOpen(pinnedOpenRef.current);
 						}}
 					>
 						Products

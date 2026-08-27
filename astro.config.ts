@@ -84,6 +84,7 @@ export default defineConfig({
 			include: [
 				'mermaid',
 				'framer-motion',
+				'@rivet-gg/icons',
 				'clsx',
 				'sonner',
 				'@radix-ui/react-slot',

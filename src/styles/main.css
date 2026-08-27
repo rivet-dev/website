@@ -597,6 +597,120 @@
 	padding-bottom: 4px;
 }
 
+/* The four product motifs share geometry across the homepage cards and their
+   corresponding product heroes. Cards keep the cream-on-accent treatment;
+   heroes use quiet neutral ink over the porcelain depth wash. */
+.product-motif--card {
+	--motif-line-soft: rgba(244, 241, 231, 0.2);
+	--motif-line-strong: rgba(244, 241, 231, 0.34);
+	--motif-node-stroke: rgba(244, 241, 231, 0.22);
+}
+
+.product-motif--card.product-motif--workflows {
+	--motif-line-soft: rgba(244, 241, 231, 0.18);
+}
+
+.product-motif--hero {
+	--motif-line-soft: rgba(27, 25, 22, 0.075);
+	--motif-line-strong: rgba(27, 25, 22, 0.115);
+	--motif-node-stroke: rgba(27, 25, 22, 0.095);
+	height: min(42rem, 100%);
+	z-index: 0;
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		transparent 5%,
+		rgba(0, 0, 0, 0.38) 30%,
+		black 56%,
+		rgba(0, 0, 0, 0.5) 78%,
+		transparent 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		transparent 5%,
+		rgba(0, 0, 0, 0.38) 30%,
+		black 56%,
+		rgba(0, 0, 0, 0.5) 78%,
+		transparent 100%
+	);
+}
+
+.product-motif--hero:is(.product-motif--workflows, .product-motif--dynamic-apps) {
+	--motif-line-soft: rgba(27, 25, 22, 0.09);
+	--motif-line-strong: rgba(27, 25, 22, 0.135);
+	--motif-node-stroke: rgba(27, 25, 22, 0.11);
+}
+
+/* Cut the motif out of the message field itself. Masking the artwork instead
+   of painting paper over it preserves the existing depth wash while keeping
+   every lockup, headline, description, and action on an uninterrupted field. */
+.product-motif--hero > * {
+	-webkit-mask-image: radial-gradient(
+		ellipse 72% 52% at 50% 50%,
+		transparent 0%,
+		transparent 46%,
+		rgba(0, 0, 0, 0.08) 50%,
+		rgba(0, 0, 0, 0.55) 58%,
+		black 68%
+	);
+	mask-image: radial-gradient(
+		ellipse 72% 52% at 50% 50%,
+		transparent 0%,
+		transparent 46%,
+		rgba(0, 0, 0, 0.08) 50%,
+		rgba(0, 0, 0, 0.55) 58%,
+		black 68%
+	);
+}
+
+.product-motif--hero svg {
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+@media (max-width: 639px) {
+	.product-motif--hero {
+		height: min(42rem, 100%);
+		-webkit-mask-image: linear-gradient(
+			to bottom,
+			transparent 2%,
+			rgba(0, 0, 0, 0.65) 14%,
+			black 28%,
+			black 66%,
+			rgba(0, 0, 0, 0.55) 82%,
+			transparent 100%
+		);
+		mask-image: linear-gradient(
+			to bottom,
+			transparent 2%,
+			rgba(0, 0, 0, 0.65) 14%,
+			black 28%,
+			black 66%,
+			rgba(0, 0, 0, 0.55) 82%,
+			transparent 100%
+		);
+	}
+
+	.product-motif--hero > * {
+		-webkit-mask-image: radial-gradient(
+			ellipse 110% 64% at 50% 51%,
+			transparent 0%,
+			transparent 50%,
+			rgba(0, 0, 0, 0.12) 58%,
+			rgba(0, 0, 0, 0.56) 66%,
+			black 74%
+		);
+		mask-image: radial-gradient(
+			ellipse 110% 64% at 50% 51%,
+			transparent 0%,
+			transparent 50%,
+			rgba(0, 0, 0, 0.12) 58%,
+			rgba(0, 0, 0, 0.56) 66%,
+			black 74%
+		);
+	}
+}
+
 /* Two stacked copies of the field create a seamless upward loop. */
 .actors-logo-track {
 	position: absolute;
@@ -621,17 +735,32 @@
 }
 
 /* Staggered centers keep a hairline gap between the larger marks. */
-.actors-card .actors-floating-logo {
+.actors-floating-logo {
 	position: absolute;
 	top: var(--actors-logo-top);
 	left: var(--actors-logo-left);
-	width: 44%;
 	aspect-ratio: 1;
 	transform: rotate(var(--actors-logo-tilt));
 	will-change: transform;
+}
+
+.product-motif--card .actors-floating-logo {
+	width: 44%;
 	animation: actors-logo-float var(--actors-logo-float-duration) ease-in-out infinite;
 	animation-delay: var(--actors-logo-float-delay);
 	animation-play-state: paused;
+}
+
+.product-motif--hero .actors-logo-track {
+	height: 180%;
+	animation: none;
+	will-change: auto;
+}
+
+.product-motif--hero .actors-floating-logo {
+	width: clamp(12rem, 28vw, 26rem);
+	animation: none;
+	will-change: auto;
 }
 
 .actors-card:hover .actors-floating-logo {
@@ -651,13 +780,25 @@
 	opacity: var(--actors-logo-opacity);
 }
 
-/* The cover follows the logo's outer contour, removing both the glyphs and
-   the heavy inner stroke so the remaining line matches the other cards. */
+/* The card uses the complete product mark; this accent-token cover removes
+   the inner glyphs while preserving the exact outer-logo silhouette. */
 .actors-logo-center-cover {
 	position: absolute;
 	inset: 12%;
 	border-radius: 30%;
-	background: #2c5a7a;
+}
+
+.actors-logo-outline-path {
+	fill: none;
+}
+
+.product-motif--hero .actors-logo--outline {
+	opacity: 1;
+}
+
+.product-motif--hero .actors-logo-outline-path {
+	stroke: var(--motif-line-strong);
+	stroke-width: 1.25;
 }
 
 @keyframes actors-logo-rise {
@@ -696,17 +837,13 @@
    horizontal execution lanes. Each trace enters a task, the task resolves,
    then the trace continues before the sequence loops while the card is active. */
 .workflow-rail {
-	stroke: rgba(244, 241, 231, 0.18);
+	stroke: var(--motif-line-soft);
 	stroke-width: 1;
-}
-
-.workflow-node-cutout {
-	fill: #6a4c93;
 }
 
 .workflow-node {
 	fill: var(--workflow-node-fill);
-	stroke: rgba(244, 241, 231, 0.22);
+	stroke: var(--motif-node-stroke);
 	stroke-width: 1;
 	transform-box: fill-box;
 	transform-origin: center;
@@ -734,6 +871,29 @@
 .workflow-step-4 {
 	--workflow-node-fill: rgba(255, 255, 255, 0.2);
 	--workflow-node-active-fill: rgba(255, 255, 255, 0.46);
+}
+
+.product-motif--hero .workflow-step {
+	--workflow-node-fill: rgba(27, 25, 22, 0.055);
+	--workflow-node-active-fill: rgba(27, 25, 22, 0.055);
+}
+
+.product-motif--hero .workflow-node {
+	transition: none;
+}
+
+.workflow-step--mobile {
+	display: none;
+}
+
+@media (max-width: 639px) {
+	.product-motif--hero .workflow-step--default {
+		display: none;
+	}
+
+	.product-motif--hero .workflow-step--mobile {
+		display: initial;
+	}
 }
 
 .workflow-trace {
@@ -814,11 +974,11 @@
 }
 
 .dynamic-app-circle--bright {
-	stroke: rgba(244, 241, 231, 0.34);
+	stroke: var(--motif-line-strong);
 }
 
 .dynamic-app-circle--soft {
-	stroke: rgba(244, 241, 231, 0.2);
+	stroke: var(--motif-line-soft);
 }
 
 .dynamic-apps-card:is(:hover, :focus-visible) .dynamic-app-circle--forward {
@@ -899,11 +1059,16 @@
 }
 
 .agentos-ring--bright {
-	stroke: rgba(244, 241, 231, 0.34);
+	stroke: var(--motif-line-strong);
 }
 
 .agentos-ring--soft {
-	stroke: rgba(244, 241, 231, 0.2);
+	stroke: var(--motif-line-soft);
+}
+
+.product-motif--hero .agentos-ring {
+	animation: none;
+	opacity: 1;
 }
 
 .agentos-card:is(:hover, :focus-visible) .agentos-ring {
