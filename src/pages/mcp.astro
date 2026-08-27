@@ -92,8 +92,8 @@ const limits = [
 		body: 'Requests only leave through Rivet, which checks them against what you approved and attaches your credentials for you.',
 	},
 	{
-		title: 'Read-only until you say otherwise',
-		body: 'A hosted connection starts read-only and its access expires in 15 minutes. Deleting things and touching credentials is never on the table.',
+		title: 'Only the access you grant',
+		body: 'A hosted connection carries what you gave it and nothing more, and it expires after 15 minutes. Your credentials stay on Rivet and never reach the model.',
 	},
 ];
 
@@ -148,7 +148,7 @@ const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&
 
 <MarketingLayout
 	title="MCP: connect your AI client to Rivet"
-	description="Connect Claude Code, Codex, Cursor, or any MCP client to Rivet. Your agent reads your actors, calls them, and opens the Actor Inspector in the conversation, from a sandbox that starts read-only."
+	description="Connect Claude Code, Codex, Cursor, or any MCP client to Rivet. Your agent reads your actors, calls them, and opens the Actor Inspector in the conversation, from a sandbox scoped to the access you grant it."
 	canonicalUrl="https://rivet.dev/mcp/"
 	keywords={[
 		'MCP server',
@@ -169,7 +169,8 @@ const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&
 					</h1>
 					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="40">
 						Connect Claude Code, Codex, Cursor, or any MCP client. It reads your
-						actors, calls them for you, and stays in a sandbox that starts read-only.
+						actors, calls them for you, and stays in a sandbox scoped to the access
+						you grant it.
 					</p>
 					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="80">
 						<a href="#connect" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Connect a client</a>
