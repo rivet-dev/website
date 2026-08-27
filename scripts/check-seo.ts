@@ -417,10 +417,11 @@ for (const file of htmlFiles) {
     } catch {
       errors.push(`${route}: canonical URL is invalid: ${href}`);
     }
-    if (canonical?.origin !== SITE_ORIGIN) {
+    if (!redirect && canonical?.origin !== SITE_ORIGIN) {
       errors.push(`${route}: canonical must use ${SITE_ORIGIN}`);
     }
     if (
+      !redirect &&
       canonical &&
       ensureDirectorySlash(canonical.pathname) !== canonical.pathname
     ) {

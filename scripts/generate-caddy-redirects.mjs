@@ -10,17 +10,17 @@
 // The output file is gitignored and regenerated during the Docker build.
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { EXTERNAL_REDIRECT_HOST, redirects, wildcardRedirects } from '../redirects.mjs';
+import { EXTERNAL_REDIRECT_HOSTS, redirects, wildcardRedirects } from '../redirects.mjs';
 
 // Conservative charset for paths. Blocks whitespace and any character that
 // could break out of a `redir` argument or inject another Caddy directive.
 const SAFE_PATH = /^\/[A-Za-z0-9\-._~/]*$/;
 
-// Absolute external targets are restricted to the single agentOS host with the
-// same conservative path charset. This keeps the generator from ever emitting a
-// redirect to an arbitrary host while still allowing the agentOS split-out.
-const SAFE_EXTERNAL_TARGET = new RegExp(
-	`^https://${EXTERNAL_REDIRECT_HOST.replace(/\./g, '\\.')}(/[A-Za-z0-9\\-._~/]*)?$`,
+// Absolute external targets are restricted to an explicit host allowlist with
+// the same conservative path charset. This keeps the generator from ever
+// emitting a redirect to an arbitrary host.
+const SAFE_EXTERNAL_TARGETS = EXTERNAL_REDIRECT_HOSTS.map(
+	(host) => new RegExp(`^https://${host.replace(/\./g, '\\.')}(/[A-Za-z0-9\\-._~/]*)?$`),
 );
 
 // Expands to `?query` when a query string is present, or an empty string when
@@ -39,7 +39,7 @@ function assertSafeTarget(to) {
 	if (typeof to !== 'string') {
 		throw new Error(`unsafe target in redirect map: ${JSON.stringify(to)}`);
 	}
-	if (SAFE_PATH.test(to) || SAFE_EXTERNAL_TARGET.test(to)) {
+	if (SAFE_PATH.test(to) || SAFE_EXTERNAL_TARGETS.some((pattern) => pattern.test(to))) {
 		return;
 	}
 	throw new Error(`unsafe target in redirect map: ${JSON.stringify(to)}`);
