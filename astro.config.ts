@@ -27,7 +27,7 @@ export default defineConfig({
 	server: {
 		allowedHosts: [
 			'30025-ikymhvv49x5x9ih5uanjw.e2b.app',
-			't-03gr0pfddy3jk90fkujablnx1-p23943.onamp.dev',
+			'.onamp.dev',
 		],
 	},
 	// SEO Redirects - Astro generates HTML redirect files for static builds and
