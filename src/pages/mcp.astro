@@ -56,7 +56,18 @@ const clients = [
 	},
 ];
 
-const SCOPED_ENDPOINT = `${ENDPOINT}?organization=ORG&project=PROJECT&namespace=NS`;
+const scopes = [
+	{ url: ENDPOINT, label: 'Your agent asks which one, and remembers it' },
+	{ url: `${ENDPOINT}?organization=ORG`, label: 'Held inside one organization' },
+	{
+		url: `${ENDPOINT}?organization=ORG&project=PROJECT`,
+		label: 'Held inside one project',
+	},
+	{
+		url: `${ENDPOINT}?organization=ORG&project=PROJECT&namespace=NS`,
+		label: 'Held inside one namespace',
+	},
+];
 
 const tools = [
 	{
@@ -309,18 +320,29 @@ const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&
 				</div>
 
 				<div class="mt-14 md:mt-20" data-site-reveal>
-					<h3 class={CARD_TITLE_CLASS}>Scope it to one namespace</h3>
+					<h3 class={CARD_TITLE_CLASS}>Scope the connection</h3>
 					<p class={`mt-2 max-w-2xl ${BODY_CLASS}`}>
-						Name a namespace on the endpoint and the whole session stays inside it.
-						The three values are the same slugs as the ones in your dashboard URL,
-						<span class="whitespace-nowrap font-mono text-[13px] text-ink">/orgs/ORG/projects/PROJECT/ns/NS</span>,
-						so you can copy them straight out of
-						<a href="https://dashboard.rivet.dev" class="text-pine caption-underline">the dashboard</a>.
+						Name as much of the target as you want on the endpoint and the session
+						cannot leave it. Leave the rest off and your agent asks you to pick,
+						then stays on that pick for the rest of the session.
 					</p>
 
-					<div class="mt-5 overflow-x-auto rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft">
-						<span class="whitespace-nowrap">{SCOPED_ENDPOINT}</span>
-					</div>
+					<dl class="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+						{scopes.map((scope) => (
+							<div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+								<dt class="overflow-x-auto font-mono text-[13px] text-ink-soft">
+									<span class="whitespace-nowrap">{scope.url}</span>
+								</dt>
+								<dd class="shrink-0 text-sm text-ink">{scope.label}</dd>
+							</div>
+						))}
+					</dl>
+
+					<p class={`mt-5 max-w-2xl ${BODY_CLASS}`}>
+						Fill in your own values. They are the same slugs as the ones in your
+						dashboard URL, <span class="whitespace-nowrap font-mono text-[13px] text-ink">/orgs/ORG/projects/PROJECT/ns/NS</span>, so you can copy them
+						straight out of <a href="https://dashboard.rivet.dev" class="text-pine caption-underline">the dashboard</a>.
+					</p>
 				</div>
 			</div>
 		</section>
