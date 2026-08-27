@@ -1,4 +1,5 @@
 const SITE_ORIGINS = new Set(["https://rivet.dev", "http://rivet.dev"]);
+const EDGE_REDIRECT_PATHS = new Set(["/discord"]);
 
 function splitSuffix(value: string): { pathname: string; suffix: string } {
 	const boundary = value.search(/[?#]/);
@@ -8,6 +9,8 @@ function splitSuffix(value: string): { pathname: string; suffix: string } {
 }
 
 function canonicalizePath(pathname: string): string {
+	const barePath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+	if (EDGE_REDIRECT_PATHS.has(barePath)) return barePath;
 	if (!pathname || pathname === "/" || pathname.endsWith("/")) return pathname || "/";
 	const lastSegment = pathname.slice(pathname.lastIndexOf("/") + 1);
 	return lastSegment.includes(".") ? pathname : `${pathname}/`;
@@ -15,7 +18,8 @@ function canonicalizePath(pathname: string): string {
 
 /**
  * Returns the canonical trailing-slash form for site-owned directory links.
- * Fragments, query strings, files, and external/protocol URLs are preserved.
+ * Edge-managed short links stay slashless; fragments, query strings, files,
+ * and external/protocol URLs are preserved.
  */
 export function canonicalizeInternalHref(href?: string | null): string {
 	if (!href) return href ?? "";

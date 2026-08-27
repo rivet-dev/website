@@ -175,6 +175,8 @@ redir /docs/self-hosting/railway /actors/self-host/control-plane/{http.request.u
 redir /docs/self-hosting/railway/ /actors/self-host/control-plane/{http.request.uri.prefixed_query} 301
 redir /docs/self-hosting/tls /actors/self-host/control-plane/{http.request.uri.prefixed_query} 301
 redir /docs/self-hosting/tls/ /actors/self-host/control-plane/{http.request.uri.prefixed_query} 301
+redir /discord https://discord.gg/rivet-developer-network-822914074136018994{http.request.uri.prefixed_query} 301
+redir /discord/ https://discord.gg/rivet-developer-network-822914074136018994{http.request.uri.prefixed_query} 301
 redir /docs/integrations/vercel-workflow /actors/integrations/workflow-sdk/{http.request.uri.prefixed_query} 301
 redir /docs/integrations/vercel-workflow/ /actors/integrations/workflow-sdk/{http.request.uri.prefixed_query} 301
 redir /integrations/vercel-workflow /actors/integrations/workflow-sdk/{http.request.uri.prefixed_query} 301

@@ -8,17 +8,19 @@
 // targets should end in `/` to match the site's canonical trailing-slash form
 // and avoid a second redirect hop.
 //
-// Absolute targets are supported but restricted to a single allowed host, so a
-// bad entry can never point traffic at an arbitrary domain. See
-// `EXTERNAL_REDIRECT_HOST` below and the matching check in
-// `scripts/generate-caddy-redirects.mjs`. Nothing currently uses it: agentOS
-// briefly had its own site and is now a vertical here.
+// Absolute targets are supported but restricted to explicitly allowed hosts,
+// so a bad entry can never point traffic at an arbitrary domain. See
+// `EXTERNAL_REDIRECT_HOSTS` below and the matching check in
+// `scripts/generate-caddy-redirects.mjs`.
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 
 const explicitRedirects = {
+	// Public community short link. Keep this slashless in authored links, while
+	// Caddy serves both variants so copied URLs cannot fall through to a 404.
+	'/discord': 'https://discord.gg/rivet-developer-network-822914074136018994',
 	// Integrations moved out of the documentation URL hierarchy.
 	'/docs/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
 	'/integrations/vercel-workflow': '/actors/integrations/workflow-sdk/',
@@ -249,10 +251,10 @@ function legacyDocsRedirects() {
 export const redirects = { ...legacyDocsRedirects(), ...explicitRedirects };
 
 
-// External host that wildcard and absolute-URL redirect targets are restricted
+// External hosts that wildcard and absolute-URL redirect targets are restricted
 // to. Used by both the Astro config and the Caddy generator so neither consumer
 // can accidentally emit a redirect to an arbitrary host.
-export const EXTERNAL_REDIRECT_HOST = 'agentos-sdk.dev';
+export const EXTERNAL_REDIRECT_HOSTS = ['agentos-sdk.dev', 'discord.gg'];
 
 // Wildcard (prefix) redirects. Any request under `from` (at any depth) is sent
 // to `to`.
