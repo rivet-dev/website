@@ -352,9 +352,16 @@ export const StackSection = () => (
               </div>
             </div>
 
-            <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-pine">
-              Explore {product.name}
-              <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+            <span className="mt-4 flex items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-pine">
+                Explore {product.name}
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+              </span>
+              {product.badge && (
+                <span className="whitespace-nowrap rounded-sm border border-ink/10 bg-white/55 px-2 py-1 text-xs font-medium leading-none text-ink-soft">
+                  {product.badge}
+                </span>
+              )}
             </span>
           </a>
         ))}

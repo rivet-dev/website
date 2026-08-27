@@ -24,6 +24,12 @@ export default defineConfig({
 		// Allow build-time optimization of artwork hosted on the assets CDN.
 		domains: ['assets.rivet.dev'],
 	},
+	server: {
+		allowedHosts: [
+			'30025-ikymhvv49x5x9ih5uanjw.e2b.app',
+			't-03gr0pfddy3jk90fkujablnx1-p23943.onamp.dev',
+		],
+	},
 	// SEO Redirects - Astro generates HTML redirect files for static builds and
 	// serves them on the dev server. The same map drives real HTTP 301s at the
 	// Caddy layer in production (see scripts/generate-caddy-redirects.mjs), so it

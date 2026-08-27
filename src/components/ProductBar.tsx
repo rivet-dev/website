@@ -107,11 +107,6 @@ function ProductLabel({
 		<span className="flex h-9 items-center gap-2 pr-1 text-sm text-ink">
 			{current && <ProductBadge product={current} className="size-7" />}
 			<span className="font-medium">{current?.name ?? label}</span>
-			{current?.badge && (
-				<span className="px-[6px] py-0 text-[10px] font-medium bg-ink/[0.06] border border-ink/10 text-ink-soft rounded-sm whitespace-nowrap">
-					{current.badge}
-				</span>
-			)}
 		</span>
 	);
 }

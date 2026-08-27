@@ -39,6 +39,11 @@ export function ProductLockup({ product }: { product: Product }) {
 			<span className="text-2xl font-medium tracking-[-0.01em] text-ink md:text-3xl">
 				{product.name}
 			</span>
+			{product.badge && (
+				<span className="whitespace-nowrap rounded-md border border-ink/15 bg-white/55 px-2 py-1 text-xs font-medium leading-none text-ink-soft">
+					{product.badge}
+				</span>
+			)}
 		</span>
 	);
 }

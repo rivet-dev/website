@@ -122,6 +122,7 @@ export const PRODUCTS: ProductMetadata[] = [
 	{
 		id: "dynamic-apps",
 		name: "Dynamic Apps",
+		badge: "Preview",
 		tagline: "Deploy an AI-generated backend for every user",
 		verb: "Deploy",
 		premise: "Deploy the backends your agents build",
