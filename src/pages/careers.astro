@@ -12,39 +12,39 @@ import {
 	SITE_STANDARD_RAIL_CLASS,
 	SITE_UTILITY_HERO_CLASS,
 } from '@/components/marketing/layout';
-import rivetCloudLogoUrl from '@/images/products/rivet-cloud-logo.svg';
+import { Icon, faCloud } from '@rivet-gg/icons';
 import { productLogos } from '@/sitemap/productLogos';
 
 const productTiles = [
 	{
 		name: 'Actors',
 		body: 'Addressable, long-running processes with SQLite-per-actor, WebSockets, and hibernation.',
-		href: '/actors',
+		href: '/actors/',
 		logoSrc: productLogos.actors.src,
 	},
 	{
 		name: 'agentOS',
 		body: 'A virtual operating system for agents with execution, filesystems, and orchestration.',
-		href: '/agentos',
+		href: '/agentos/',
 		logoSrc: productLogos.agentos.src,
 	},
 	{
 		name: 'Workflows',
 		body: 'Durable execution for multi-step operations, queues, and scheduling.',
-		href: '/workflows',
+		href: '/workflows/',
 		logoSrc: productLogos.workflows.src,
 	},
 	{
 		name: 'Dynamic Apps',
 		body: 'AI-generated app hosting built on Rivet Actors.',
-		href: '/dynamic-apps',
+		href: '/dynamic-apps/',
 		logoSrc: productLogos['dynamic-apps'].src,
 	},
 	{
 		name: 'Rivet Cloud',
 		body: 'A managed way to run the Rivet stack with edge routing, autoscaling, and observability.',
 		href: 'https://dashboard.rivet.dev',
-		logoSrc: rivetCloudLogoUrl.src,
+		logoSrc: undefined,
 	},
 ];
 ---
@@ -135,7 +135,13 @@ const productTiles = [
 								data-site-reveal-child
 							>
 								<h3 class="flex items-center gap-3 text-xl font-medium tracking-[-0.01em] text-ink md:text-2xl">
-									<img src={product.logoSrc} alt="" aria-hidden="true" class="h-6 w-6 shrink-0 brightness-0" />
+									{
+										product.logoSrc ? (
+											<img src={product.logoSrc} alt="" aria-hidden="true" class="h-6 w-6 shrink-0 brightness-0" />
+										) : (
+											<Icon icon={faCloud} className="h-6 w-6 shrink-0" aria-hidden="true" />
+										)
+									}
 									{product.name}
 								</h3>
 								<p class="mt-3 max-w-md flex-1 text-sm leading-relaxed text-ink-soft">{product.body}</p>
