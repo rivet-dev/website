@@ -3,6 +3,7 @@ import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { FaqList } from '@/components/faq/FaqSection';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
+import { ProductMotif } from '@/components/marketing/ProductMotif';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
@@ -177,7 +178,8 @@ const compositionLayers = [
 	<main id="main-content" tabindex="-1">
 		<!-- Hero -->
 		<section class={PRODUCT_HERO_SECTION_CLASS}>
-			<div class="mx-auto w-full max-w-7xl">
+			<ProductMotif productId="workflows" surface="hero" />
+			<div class="relative z-10 mx-auto w-full max-w-7xl">
 				<div class={PRODUCT_HERO_INNER_CLASS}>
 					<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
 						<ProductLockup product={workflowsProduct} />

@@ -6,6 +6,33 @@ const REVEAL_SELECTOR = '[data-site-reveal], [data-site-reveal-group], [data-sit
 const VISIBLE_ATTRIBUTE = 'data-site-reveal-visible';
 const OBSERVER_READY_ATTRIBUTE = 'data-site-motion-observer-ready';
 
+const findHydratingIsland = (element: HTMLElement) => {
+	let ancestor = element.parentElement;
+
+	while (ancestor) {
+		if (ancestor.matches('astro-island[ssr]')) {
+			let boundary = element.parentElement;
+			let isSlottedContent = false;
+
+			while (boundary && boundary !== ancestor) {
+				if (boundary.tagName === 'ASTRO-SLOT') {
+					isSlottedContent = true;
+					break;
+				}
+				boundary = boundary.parentElement;
+			}
+
+			// Astro preserves slotted server HTML when the wrapping island hydrates,
+			// so reveal attributes on that content cannot be discarded.
+			if (!isSlottedContent) return ancestor as HTMLElement;
+		}
+
+		ancestor = ancestor.parentElement;
+	}
+
+	return null;
+};
+
 // Astro pages keep their content server-rendered. This observer gives those
 // blocks the same one-time fade-rise used by marketing/motion.tsx without
 // turning every section into a separate hydrated React island.
@@ -38,7 +65,7 @@ export function ScrollObserver() {
 				// An island can replace its server-rendered children while it hydrates.
 				// Wait for that boundary before mutating reveal state so the visible
 				// attribute cannot be discarded by a nested island's hydration pass.
-				const hydratingIsland = element.closest<HTMLElement>('astro-island[ssr]');
+				const hydratingIsland = findHydratingIsland(element);
 				if (hydratingIsland) {
 					if (!pendingHydrationListeners.has(hydratingIsland)) {
 						const handleHydration = () => {

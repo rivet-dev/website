@@ -45,6 +45,7 @@ import {
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
 import { CopyInstallCommand } from '@/components/marketing/CopyInstallCommand';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { ProductMotif } from '@/components/marketing/ProductMotif';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	CARD_TITLE_CLASS,
@@ -617,7 +618,7 @@ const Hero = () => {
 		name: string;
 	} | null>(null);
 	const reduceMotion = useReducedMotion() ?? false;
-	const introMotion = (step: number, y = 20) =>
+	const introMotion = (step: number) =>
 		reduceMotion
 			? {
 					initial: false as const,
@@ -625,7 +626,9 @@ const Hero = () => {
 					transition: { duration: 0 },
 				}
 			: {
-					initial: { opacity: 0, y },
+					// Keep the server-rendered hero visible while this large island
+					// hydrates. Other product heroes use the layout-level reveal fallback.
+					initial: false as const,
 					animate: { opacity: 1, y: 0 },
 					transition: { duration: 0.5, delay: HERO_INTRO_STAGGER * step },
 				};
@@ -697,7 +700,8 @@ const Hero = () => {
 		// Keep the hero height tied to the viewport, as on the main landing page,
 		// while preserving enough room below the foundation tiles.
 		<section className={`${PRODUCT_HERO_SECTION_CLASS} min-h-[92svh]`}>
-			<div className={PRODUCT_HERO_INNER_CLASS}>
+			<ProductMotif productId='agentos' surface='hero' />
+			<div className={`${PRODUCT_HERO_INNER_CLASS} relative z-10`}>
 				{/* Centered single-column hero */}
 				<div className='flex w-full flex-col items-center text-center'>
 					{/* Title */}
@@ -724,7 +728,7 @@ const Hero = () => {
 					</motion.p>
 
 					{/* Benchmark highlights — proof for "faster, lighter, cheaper", linked to the benchmarks below */}
-					<motion.div {...introMotion(4, 10)} className='mb-8 flex flex-wrap items-start justify-center gap-x-8 gap-y-3'>
+					<motion.div {...introMotion(4)} className='mb-8 flex flex-wrap items-start justify-center gap-x-8 gap-y-3'>
 						{heroStats.map((stat) => (
 							<a key={stat.label} href={canonicalizeInternalHref(stat.href)} aria-label={`${stat.value} ${stat.label} (${stat.sub}) — jump to the benchmark`} className='group inline-flex flex-col items-center gap-0.5'>
 								<span className='inline-flex items-baseline gap-1.5'>
@@ -742,7 +746,7 @@ const Hero = () => {
 					</motion.div>
 				</div>
 			</div>
-			<div className='mx-auto mt-12 w-full max-w-7xl md:mt-16'>
+			<div className='relative z-10 mx-auto mt-12 w-full max-w-7xl md:mt-16'>
 				<FloatingFoundation />
 			</div>
 		</section>
