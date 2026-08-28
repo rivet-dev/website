@@ -202,6 +202,11 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 				(() => {
 					const revealSelector = '[data-site-reveal], [data-site-reveal-group], [data-site-hero-reveal]';
 					const visibleAttribute = 'data-site-reveal-visible';
+					const pendingAttribute = 'data-site-reveal-pending';
+					const reveal = (element) => {
+						element.removeAttribute(pendingAttribute);
+						element.setAttribute(visibleAttribute, '');
+					};
 
 					const isInsideDirectHydratingIsland = (element) => {
 						let ancestor = element.parentElement;
@@ -236,7 +241,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 							const isInViewport = bounds.bottom >= 0 && bounds.top <= window.innerHeight;
 
 							if (!viewportOnly || isInViewport) {
-								element.setAttribute(visibleAttribute, '');
+								reveal(element);
 							}
 						});
 					};
@@ -259,7 +264,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 
 									const timer = window.setTimeout(() => {
 										if (entry.target.isConnected && !entry.target.hasAttribute(visibleAttribute)) {
-											entry.target.setAttribute(visibleAttribute, '');
+											reveal(entry.target);
 										}
 										observer.unobserve(entry.target);
 										timers.delete(entry.target);
