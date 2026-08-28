@@ -321,18 +321,25 @@
 		}
 	}
 
-	/* Site-only content entrances. These mirror marketing/motion.tsx: a calm
-	   14px fade-rise, 550ms duration, the same easing curve, and 70ms grouped
-	   stagger. The pre-paint class is only installed by the site layout, so
-	   docs and no-JavaScript rendering remain untouched and fully visible. */
+	/* Site-only scroll entrances. Content in the landing viewport stays settled;
+	   the observer marks only off-screen blocks as pending so they can use the
+	   14px fade-rise when scrolled into view. The class remains site-only, so
+	   docs and no-JavaScript rendering stay untouched and fully visible. */
 	.site-motion-ready [data-site-reveal],
 	.site-motion-ready [data-site-reveal-child] {
-		opacity: 0;
-		transform: translate3d(0, 14px, 0);
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
 		transition:
 			opacity 550ms cubic-bezier(0.22, 1, 0.36, 1),
 			transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
 		transition-delay: var(--site-reveal-delay, 0ms);
+		will-change: auto;
+	}
+
+	.site-motion-ready [data-site-reveal][data-site-reveal-pending],
+	.site-motion-ready [data-site-reveal-group][data-site-reveal-pending] > [data-site-reveal-child] {
+		opacity: 0;
+		transform: translate3d(0, 14px, 0);
 		will-change: opacity, transform;
 	}
 
@@ -343,16 +350,21 @@
 		will-change: auto;
 	}
 
-	/* Product heroes use the agentOS load sequence: a slightly longer rise,
-	   500ms duration, and 40ms steps. CSS owns the initial state so the
-	   server-rendered hero stays visible when JavaScript is unavailable. */
+	/* Hero reveal markers share the product timing when used below the fold,
+	   but are settled immediately when they are already in the landing viewport. */
 	.site-motion-ready [data-site-hero-reveal] {
-		opacity: 0;
-		transform: translate3d(0, 20px, 0);
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
 		transition:
 			opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
 			transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
 		transition-delay: var(--site-reveal-delay, 0ms);
+		will-change: auto;
+	}
+
+	.site-motion-ready [data-site-hero-reveal][data-site-reveal-pending] {
+		opacity: 0;
+		transform: translate3d(0, 20px, 0);
 		will-change: opacity, transform;
 	}
 

@@ -1,0 +1,259 @@
+---
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { jsonLdString } from '@/lib/jsonLd';
+import {
+	HERO_H1_CLASS,
+	SECTION_H2_CLASS,
+	SECTION_LEDE_CLASS,
+	EYEBROW_CLASS,
+	CAPTION_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+} from '@/components/marketing/typography';
+import {
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+	SITE_CARD_CLASS,
+} from '@/components/marketing/layout';
+import { LogoGallery, ProductMarkGallery, ColorPalette } from '@/components/marketing/BrandKit';
+import { Icon, faDownload } from '@rivet-gg/icons';
+
+// Built from the same source SVGs the asset cards below serve, so the bundle
+// always matches what the page shows. Regenerate if those logos change.
+const BRAND_KIT_URL = '/rivet-brand-kit.zip';
+
+const facts = [
+	{ label: 'Category', value: 'Open-source infrastructure for AI agents' },
+	{ label: 'Company', value: 'Rivet Gaming, Inc.' },
+	{ label: 'Headquarters', value: 'San Francisco, California' },
+	{ label: 'Team', value: 'Distributed worldwide' },
+];
+
+const links = [
+	{ label: 'Website', href: '/', external: false },
+	{ label: 'Documentation', href: '/docs/', external: false },
+	{ label: 'Blog', href: '/blog/', external: false },
+	{ label: 'GitHub', href: 'https://github.com/rivet-dev', external: true },
+	{ label: 'Discord', href: 'https://discord.gg/aXYfyNxYVn', external: true },
+	{ label: 'X', href: 'https://x.com/rivet_dev', external: true },
+];
+
+const specimenWeights = [
+	{ label: 'Regular · 400', className: 'font-normal' },
+	{ label: 'Medium · 500', className: 'font-medium' },
+	{ label: 'SemiBold · 600', className: 'font-semibold' },
+	{ label: 'Bold · 700', className: 'font-bold' },
+];
+
+// Situates /brand/ under the home node for search engines. Mirrors the
+// BreadcrumbList shape used on /careers/ and /enterprise/.
+const brandBreadcrumb = {
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: [
+		{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://rivet.dev/' },
+		{ '@type': 'ListItem', position: 2, name: 'Brand', item: 'https://rivet.dev/brand/' },
+	],
+};
+
+// Inline prose link, matching the pine underline treatment used elsewhere on
+// the site (e.g. the careers "github.com/rivet-dev" link).
+const inlineLink =
+	'rounded-sm font-medium text-pine underline decoration-pine/30 underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper';
+---
+
+<MarketingLayout
+	title="Brand kit: logos, colors, and press assets"
+	description="Logos, product marks, colors, and typography for the Rivet brand. Download the full press kit or copy any asset for docs, decks, and articles."
+	canonicalUrl="https://rivet.dev/brand/"
+>
+	<script type="application/ld+json" set:html={jsonLdString(brandBreadcrumb)} />
+	<main id="main-content" tabindex="-1">
+		<section class={`${SITE_UTILITY_HERO_CLASS} flex min-h-[60svh] flex-col justify-center`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-3xl">
+					<h1 class={HERO_H1_CLASS} data-site-hero-reveal data-site-reveal-delay="0">
+						Brand kit
+					</h1>
+					<p class={SECTION_LEDE_CLASS} data-site-hero-reveal data-site-reveal-delay="80">
+						Guidelines and assets for presenting the Rivet brand.
+					</p>
+					<div class="mt-8" data-site-hero-reveal data-site-reveal-delay="120">
+						<a href={BRAND_KIT_URL} download class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+							<Icon icon={faDownload} className="h-4 w-4" />
+							Download all assets
+						</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-2xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Logo</h2>
+				</div>
+				<div class="mt-12" data-site-reveal>
+					<LogoGallery client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-2xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Product marks</h2>
+				</div>
+				<div class="mt-12" data-site-reveal>
+					<ProductMarkGallery client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-2xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Color</h2>
+				</div>
+				<div class="mt-12" data-site-reveal>
+					<ColorPalette client:visible />
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="max-w-2xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Typography</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Manrope sets everything on the marketing site and docs. JetBrains Mono is reserved for
+						code, terminal, keyboard keys, and tabular numbers.
+					</p>
+				</div>
+				<div class="mt-12 grid gap-6 lg:grid-cols-2" data-site-reveal>
+					<div class={SITE_CARD_CLASS}>
+						<div class="flex items-baseline justify-between">
+							<p class="text-sm font-medium text-ink">Manrope</p>
+							<p class={CAPTION_CLASS}>Variable · 200–800</p>
+						</div>
+						<p class="mt-6 font-sans text-6xl font-medium leading-none tracking-[-0.015em] text-ink">
+							Ag
+						</p>
+						<p class="mt-6 text-xl font-medium tracking-[-0.015em] text-ink">
+							Infrastructure for the agentic era.
+						</p>
+						<dl class="mt-6 space-y-2 border-t border-ink/10 pt-6">
+							{
+								specimenWeights.map((weight) => (
+									<div class="flex items-baseline justify-between gap-4">
+										<dt class={CAPTION_CLASS}>{weight.label}</dt>
+										<dd class:list={['text-lg text-ink', weight.className]}>Aa Bb Cc 0123</dd>
+									</div>
+								))
+							}
+						</dl>
+						<p class={`${CAPTION_CLASS} mt-6`}>Headings, body, and labels.</p>
+					</div>
+					<div class={SITE_CARD_CLASS}>
+						<div class="flex items-baseline justify-between">
+							<p class="text-sm font-medium text-ink">JetBrains Mono</p>
+							<p class={CAPTION_CLASS}>Variable · 100–800</p>
+						</div>
+						<p class="mt-6 font-mono text-6xl leading-none text-ink">Ag</p>
+						<p class="mt-6 font-mono text-sm text-ink-soft">$ npx rivet deploy --prod</p>
+						<dl class="mt-6 space-y-2 border-t border-ink/10 pt-6">
+							<div class="flex items-baseline justify-between gap-4">
+								<dt class={CAPTION_CLASS}>Regular · 400</dt>
+								<dd class="font-mono text-lg text-ink">Aa Bb Cc 0123</dd>
+							</div>
+							<div class="flex items-baseline justify-between gap-4">
+								<dt class={CAPTION_CLASS}>Medium · 500</dt>
+								<dd class="font-mono text-lg font-medium text-ink">Aa Bb Cc 0123</dd>
+							</div>
+						</dl>
+						<p class={`${CAPTION_CLASS} mt-6`}>Code, terminal, keys, and tabular numbers only.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="grid gap-12 lg:grid-cols-[0.42fr_0.58fr] lg:gap-20">
+					<div data-site-reveal>
+						<h2 class={SECTION_H2_CLASS}>About Rivet</h2>
+						<div class="mt-6 space-y-5 text-base leading-relaxed text-ink-soft">
+							<p>
+								Rivet is composable, open-source infrastructure for the agentic era. At its core is
+								<a href="/actors/" class={inlineLink}>Actors</a> — a primitive for stateful workloads that gives every agent a durable,
+								addressable process to live in, with SQLite-per-actor, WebSockets, and hibernation.
+							</p>
+							<p>
+								That foundation carries <a href="/agentos/" class={inlineLink}>agentOS</a>,
+								<a href="/workflows/" class={inlineLink}>Workflows</a>, and
+								<a href="/dynamic-apps/" class={inlineLink}>Dynamic Apps</a>, and
+								<a href="/cloud/" class={inlineLink}>Rivet Cloud</a> runs the whole stack for you. Most of
+								Rivet is Apache 2.0, self-hostable, and can be fully air-gapped in your VPC.
+							</p>
+							<p class="text-ink">
+								Orchestrate agents. Operate their environment. Automate their work. Deploy what they
+								build.
+							</p>
+						</div>
+					</div>
+					<div class="space-y-10" data-site-reveal>
+						<div>
+							<p class={`${EYEBROW_CLASS} mb-3`}>Facts</p>
+							<dl class="divide-y divide-ink/10">
+								{
+									facts.map((fact) => (
+										<div class="flex justify-between gap-6 py-3">
+											<dt class="text-sm text-ink-faint">{fact.label}</dt>
+											<dd class="text-right text-sm text-ink">{fact.value}</dd>
+										</div>
+									))
+								}
+							</dl>
+						</div>
+						<div>
+							<p class={`${EYEBROW_CLASS} mb-3`}>Links</p>
+							<ul class="grid grid-cols-2 gap-3">
+								{
+									links.map((link) => (
+										<li>
+											<a
+												href={link.href}
+												target={link.external ? '_blank' : undefined}
+												rel={link.external ? 'noreferrer' : undefined}
+												class="group flex items-center justify-between gap-2 rounded-lg border border-ink/10 bg-white/55 px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+											>
+												{link.label}
+												<span
+													aria-hidden="true"
+													class="text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-pine"
+												>
+													↗
+												</span>
+											</a>
+										</li>
+									))
+								}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</MarketingLayout>

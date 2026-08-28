@@ -31,7 +31,7 @@ export function LogoContextMenu({ children }: LogoContextMenuProps) {
 	};
 
 	const downloadBrandAssets = () => {
-		window.open("https://releases.rivet.dev/press-kit.zip", "_blank");
+		window.open("/rivet-brand-kit.zip", "_blank");
 	};
 
 	return (

@@ -1,6 +1,8 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { SectionRule } from '@/components/marketing/SectionRule';
+import CareerHeroGallery from '@/components/marketing/CareerHeroGallery.astro';
+import { jsonLdString } from '@/lib/jsonLd';
 import {
 	HERO_H1_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
@@ -14,6 +16,174 @@ import {
 } from '@/components/marketing/layout';
 import { Icon, faCloud } from '@rivet-gg/icons';
 import { productLogos } from '@/sitemap/productLogos';
+import { wordmarkMaskStyle } from '@/lib/product-accent';
+import { CareerMap } from '@/components/marketing/CareerMap';
+import { careerLocations } from '@/data/career-locations';
+import { fetchJobs, toJobPosting } from '@/lib/careers';
+
+const careersTitle = 'Careers: build open-source AI infrastructure';
+const careersDescription =
+	'Join Rivet and help build open-source infrastructure for AI agents. Explore current roles, our globally distributed team, and how we work.';
+const careersUrl = 'https://rivet.dev/careers/';
+const careersAssetBase = 'https://assets.rivet.dev/website/images/careers';
+const careersOgImage = `${careersAssetBase}/careers-og-1200x630.4989293b8c.webp`;
+const careerImageSizes =
+	'(min-width: 1536px) 512px, (min-width: 1280px) 480px, (min-width: 1024px) 400px, (min-width: 640px) 512px, calc(100vw - 48px)';
+
+const careerHeroImages = [
+	{
+		src: `${careersAssetBase}/the-fighting-temeraire-1024.928a565e81.webp`,
+		srcSet: `${careersAssetBase}/the-fighting-temeraire-640.8f53c52996.webp 640w, ${careersAssetBase}/the-fighting-temeraire-1024.928a565e81.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 761,
+		title: 'The Fighting Temeraire',
+		artist: 'J. M. W. Turner',
+		date: '1839',
+		alt: 'J. M. W. Turner’s The Fighting Temeraire, showing a steam tug towing a sailing ship at sunset',
+	},
+	{
+		src: `${careersAssetBase}/old-timer-structural-worker-lewis-hine-1024.5757466abc.webp`,
+		srcSet: `${careersAssetBase}/old-timer-structural-worker-lewis-hine-640.53de184ee2.webp 640w, ${careersAssetBase}/old-timer-structural-worker-lewis-hine-1024.5757466abc.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 819,
+		title: 'Old-Timer Structural Worker',
+		artist: 'Lewis Hine',
+		date: '1930',
+		alt: 'Lewis Hine photograph of an older structural worker on the framework of the Empire State Building',
+	},
+	{
+		src: `${careersAssetBase}/river-rouge-plant-charles-sheeler-1024.d813127ce5.webp`,
+		srcSet: `${careersAssetBase}/river-rouge-plant-charles-sheeler-640.a93d117e92.webp 640w, ${careersAssetBase}/river-rouge-plant-charles-sheeler-1024.d813127ce5.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 847,
+		title: 'River Rouge Plant',
+		artist: 'Charles Sheeler',
+		date: '1932',
+		alt: 'Charles Sheeler’s painting of geometric industrial buildings reflected in the River Rouge plant’s boat slip',
+	},
+	{
+		src: `${careersAssetBase}/the-metropolis-of-tomorrow-hugh-ferriss-1024.1f258d2453.webp`,
+		srcSet: `${careersAssetBase}/the-metropolis-of-tomorrow-hugh-ferriss-640.dfea961a21.webp 640w, ${careersAssetBase}/the-metropolis-of-tomorrow-hugh-ferriss-1024.1f258d2453.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 682,
+		title: 'The Metropolis of Tomorrow',
+		artist: 'Hugh Ferriss',
+		date: '1929',
+		alt: 'Monochrome architectural drawing of a dense geometric city',
+	},
+	{
+		src: `${careersAssetBase}/gare-saint-lazare-claude-monet-1024.e7a3159c7b.webp`,
+		srcSet: `${careersAssetBase}/gare-saint-lazare-claude-monet-640.f916ec0c54.webp 640w, ${careersAssetBase}/gare-saint-lazare-claude-monet-1024.e7a3159c7b.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 828,
+		title: 'The Gare Saint-Lazare, Arrival of a Train',
+		artist: 'Claude Monet',
+		date: '1877',
+		alt: 'Claude Monet’s painting of steam-filled train platforms inside the Gare Saint-Lazare',
+	},
+	{
+		src: `${careersAssetBase}/arcadian-pastoral-state-thomas-cole-1024.651d40370a.webp`,
+		srcSet: `${careersAssetBase}/arcadian-pastoral-state-thomas-cole-640.3af1060a22.webp 640w, ${careersAssetBase}/arcadian-pastoral-state-thomas-cole-1024.651d40370a.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 638,
+		title: 'The Course of Empire: The Arcadian or Pastoral State',
+		artist: 'Thomas Cole',
+		date: '1836',
+		alt: 'Thomas Cole’s pastoral landscape of a green valley, classical temple, and distant mountain',
+	},
+	{
+		src: `${careersAssetBase}/future-paris-albert-robida-1024.1ad217a4af.webp`,
+		srcSet: `${careersAssetBase}/future-paris-albert-robida-640.8d6f0e9864.webp 640w, ${careersAssetBase}/future-paris-albert-robida-1024.1ad217a4af.webp 1024w`,
+		sizes: careerImageSizes,
+		width: 1024,
+		height: 576,
+		title: 'A future Paris',
+		artist: 'Albert Robida',
+		alt: 'Albert Robida illustration of people traveling through a future Paris in flying vehicles',
+	},
+	{
+		src: `${careersAssetBase}/thinker-in-studio-auguste-rodin-554.e5dcd9987d.webp`,
+		width: 554,
+		height: 554,
+		title: 'The Thinker in the studio',
+		artist: 'Auguste Rodin',
+		alt: 'The Thinker sculpture surrounded by works in a sculptor’s studio',
+	},
+];
+
+const careersImageSchemas = careerHeroImages.map((image, index) => ({
+	'@type': 'ImageObject',
+	'@id': `${careersUrl}#artwork-${index + 1}`,
+	contentUrl: image.src,
+	encodingFormat: 'image/webp',
+	width: image.width,
+	height: image.height,
+	name: image.title,
+	caption: [image.title, image.artist, image.date].filter(Boolean).join(' — '),
+	creator: image.artist ? { '@type': 'Person', name: image.artist } : undefined,
+	dateCreated: image.date,
+}));
+
+// Fetch open roles at build time (fetchJobs retries and is timeout-bounded, so
+// a slow feed can't stall the build and a transient blip won't silently drop
+// every posting; [] on total failure). Each valid role becomes a JobPosting
+// node in the page @graph, so the roles are crawlable even though the visible
+// board is a client-only third-party embed. This is a per-deploy snapshot —
+// postings refresh on the next build, so keep deploys reasonably frequent.
+const jobPostingSchemas = (await fetchJobs())
+	.map(toJobPosting)
+	.filter((node): node is Record<string, unknown> => node !== null);
+
+const careersSchema = {
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'CollectionPage',
+			'@id': `${careersUrl}#webpage`,
+			url: careersUrl,
+			name: careersTitle,
+			description: careersDescription,
+			isPartOf: { '@id': 'https://rivet.dev/#website' },
+			about: { '@id': 'https://rivet.dev/#organization' },
+			breadcrumb: { '@id': `${careersUrl}#breadcrumb` },
+			primaryImageOfPage: {
+				'@type': 'ImageObject',
+				'@id': `${careersUrl}#primaryimage`,
+				contentUrl: careersOgImage,
+				width: 1200,
+				height: 630,
+				caption: 'The Fighting Temeraire by J. M. W. Turner, featured in the Rivet careers gallery',
+			},
+			hasPart: careersImageSchemas.map((image) => ({ '@id': image['@id'] })),
+		},
+		{
+			'@type': 'BreadcrumbList',
+			'@id': `${careersUrl}#breadcrumb`,
+			itemListElement: [
+				{
+					'@type': 'ListItem',
+					position: 1,
+					name: 'Home',
+					item: 'https://rivet.dev/',
+				},
+				{
+					'@type': 'ListItem',
+					position: 2,
+					name: 'Careers',
+					item: careersUrl,
+				},
+			],
+		},
+		...careersImageSchemas,
+		...jobPostingSchemas,
+	],
+};
 
 const productTiles = [
 	{
@@ -50,20 +220,33 @@ const productTiles = [
 ---
 
 <MarketingLayout
-	title="Careers at Rivet"
-	description="Join Rivet and help build open-source infrastructure for AI agents. Explore current roles and learn how we work."
-	canonicalUrl="https://rivet.dev/careers/"
+	title={careersTitle}
+	description={careersDescription}
+	canonicalUrl={careersUrl}
+	ogImage={careersOgImage}
+	ogImageAlt="The Fighting Temeraire by J. M. W. Turner, featured in the Rivet careers gallery"
+	ogImageWidth={1200}
+	ogImageHeight={630}
+	preconnectAssets
 >
+	<script type="application/ld+json" set:html={jsonLdString(careersSchema)} />
 	<main id="main-content" tabindex="-1">
-		<section class={SITE_UTILITY_HERO_CLASS}>
-			<div class="career-grid absolute inset-0 opacity-60" aria-hidden="true"></div>
+		<section class={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}>
 			<div class={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
-				<div class="flex items-center justify-center text-center">
-					<div class="mx-auto max-w-5xl" data-site-reveal-group data-site-reveal-stagger="40">
-						<h1 class:list={[HERO_H1_CLASS, 'careers-title']} data-site-reveal-child>
+				<div class="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-20 xl:gap-28">
+					<div class="max-w-2xl">
+						<h1
+							class:list={[HERO_H1_CLASS, 'careers-title']}
+							data-site-hero-reveal
+							data-site-reveal-delay="0"
+						>
 							Build the next generation of open-source AI infrastructure with us.
 						</h1>
-						<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row" data-site-reveal-child>
+						<div
+							class="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
+							data-site-hero-reveal
+							data-site-reveal-delay="40"
+						>
 							<a href="#open-positions" class={PRIMARY_INK_BUTTON_CLASS}>See open positions</a>
 							<a
 								href="https://github.com/rivet-dev"
@@ -72,9 +255,17 @@ const productTiles = [
 								class="group inline-flex items-center gap-2 rounded-sm text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 							>
 								See what we’re building
-								<span aria-hidden="true" class="transition-transform motion-reduce:transition-none group-hover:translate-x-0.5">↗</span>
+								<span aria-hidden="true" class="transition-transform motion-reduce:transition-none group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
 							</a>
 						</div>
+					</div>
+
+					<div
+						class="m-0 w-full max-w-[32rem] self-center lg:w-[25rem] lg:flex-shrink-0 xl:w-[30rem] 2xl:w-[32rem]"
+						data-site-hero-reveal
+						data-site-reveal-delay="80"
+					>
+						<CareerHeroGallery images={careerHeroImages} />
 					</div>
 				</div>
 			</div>
@@ -121,7 +312,7 @@ const productTiles = [
 					</div>
 				</div>
 
-				<div class="mt-12 grid gap-px overflow-hidden border border-ink/15 bg-ink/10 sm:grid-cols-2 xl:grid-cols-5" data-site-reveal-group data-site-reveal-stagger="60">
+				<div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/15 bg-ink/10 sm:grid-cols-2 xl:grid-cols-5" data-site-reveal-group data-site-reveal-stagger="60">
 					{
 						productTiles.map((product, productIndex) => (
 							<a
@@ -129,20 +320,32 @@ const productTiles = [
 								target={product.name === 'Rivet Cloud' ? '_blank' : undefined}
 								rel={product.name === 'Rivet Cloud' ? 'noreferrer' : undefined}
 								class:list={[
-									'group flex min-h-60 flex-col bg-paper p-7 transition-colors duration-200 motion-reduce:transition-none hover:bg-white/70 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine xl:min-h-72',
+									'group flex min-h-60 flex-col bg-paper p-7 transition-colors duration-200 motion-reduce:transition-none hover:bg-white/70 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine xl:min-h-72 xl:p-6',
 									productIndex === productTiles.length - 1 ? 'sm:col-span-2 xl:col-span-1' : '',
 								]}
 								data-site-reveal-child
 							>
-								<h3 class="flex items-center gap-3 text-xl font-medium tracking-[-0.01em] text-ink md:text-2xl">
-									{
-										product.logoSrc ? (
-											<img src={product.logoSrc} alt="" aria-hidden="true" class="h-6 w-6 shrink-0 brightness-0" />
-										) : (
-											<Icon icon={faCloud} className="h-6 w-6 shrink-0" aria-hidden="true" />
-										)
-									}
-									{product.name}
+								<h3 class="flex items-center gap-3 text-xl font-medium tracking-[-0.01em] text-ink md:text-2xl xl:text-xl">
+									{/* Same badge treatment as the product-page hero lockups: an ink
+									    squircle with the mark masked in white. Rivet Cloud has no
+									    wordmark, so it takes the bare glyph in ink — the same treatment
+									    as its own hero — sized down to sit level with the tiles. */}
+									<span
+										aria-hidden="true"
+										class:list={[
+											'flex size-8 shrink-0 items-center justify-center rounded-[34.375%] md:size-9 xl:size-8',
+											product.logoSrc ? 'bg-ink' : '',
+										]}
+									>
+										{
+											product.logoSrc ? (
+												<span style={wordmarkMaskStyle(product.logoSrc)} class="block h-full w-full bg-white" />
+											) : (
+												<Icon icon={faCloud} className="h-5 w-5 text-ink md:h-[1.375rem] md:w-[1.375rem] xl:h-5 xl:w-5" />
+											)
+										}
+									</span>
+									<span class="whitespace-nowrap">{product.name}</span>
 								</h3>
 								<p class="mt-3 max-w-md flex-1 text-sm leading-relaxed text-ink-soft">{product.body}</p>
 								<span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-pine">
@@ -152,6 +355,57 @@ const productTiles = [
 							</a>
 						))
 					}
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section aria-labelledby="global-hiring-heading" class={`bg-paper ${SITE_SECTION_CLASS}`}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<div class="grid gap-12 lg:grid-cols-[0.38fr_0.62fr] lg:items-center lg:gap-20">
+					<div data-site-reveal>
+						<h2 id="global-hiring-heading" class={SECTION_H2_CLASS}>Global hiring</h2>
+						<p class={SECTION_LEDE_CLASS}>
+							We look for exceptional people wherever they live. Depending on the location, we hire directly or
+							through a trusted employer-of-record partner.
+						</p>
+					</div>
+					<div class="flex items-center justify-center lg:pt-2" data-site-reveal>
+						<CareerMap client:visible locations={careerLocations} />
+					</div>
+				</div>
+
+				<div class="mt-10 grid gap-8 border-t border-ink/10 pt-8 md:mt-12 md:grid-cols-2 md:gap-12 md:pt-10">
+					<div data-site-reveal>
+						<h3 class="text-base font-medium text-ink">Where we can hire</h3>
+						<div class="mt-3 space-y-4 text-base leading-relaxed text-ink-soft">
+							<p>
+								Where we can hire depends on local employment and tax rules, partner coverage, and U.S. trade and
+								economic sanctions. As a U.S. company, we can’t employ or contract with someone when doing so
+								would violate those requirements.
+							</p>
+							<p>
+								Today, we can’t support employment or contracting in Cuba, Iran, North Korea, the Crimea region of
+								Ukraine, or other regions of Ukraine covered by U.S. sanctions. Separately, operational and
+								compliance constraints currently prevent us from hiring in mainland China.
+							</p>
+						</div>
+					</div>
+					<div data-site-reveal>
+						<h3 class="text-base font-medium text-ink">How eligibility works</h3>
+						<div class="mt-3 space-y-4 text-base leading-relaxed text-ink-soft">
+							<p>
+								Sanctions can apply to particular locations or to specific people and organizations anywhere in
+								the world, so we review eligibility case by case. These programs can address human rights abuses,
+								terrorism, international narcotics trafficking, genocide, and other sanctioned activity.
+							</p>
+							<p>
+								Our coverage can change as laws and our hiring infrastructure evolve. We’ll confirm location
+								eligibility during the hiring process.
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -170,7 +424,7 @@ const productTiles = [
 				<div class="mt-12 min-w-0" data-site-reveal>
 					<waas-job-board
 						company="rivet"
-						action-color="#AB451F"
+						action-color="#D63E00"
 						aria-labelledby="open-positions-heading"
 					></waas-job-board>
 				</div>
@@ -204,14 +458,6 @@ const productTiles = [
 </MarketingLayout>
 
 <style>
-	.career-grid {
-		background-image:
-			linear-gradient(rgb(27 25 22 / 0.045) 1px, transparent 1px),
-			linear-gradient(90deg, rgb(27 25 22 / 0.045) 1px, transparent 1px);
-		background-size: 44px 44px;
-		mask-image: linear-gradient(to bottom, black, transparent 92%);
-	}
-
 	@media (min-width: 768px) {
 		.careers-title {
 			font-size: 2.75rem;
@@ -233,7 +479,7 @@ const productTiles = [
 		overflow-x: auto;
 		overflow-wrap: anywhere;
 		--waas-font: 'Manrope', sans-serif;
-		--waas-primary: #AB451F;
+		--waas-primary: #D63E00;
 		--waas-bg: #efefef;
 		--waas-bg-subtle: rgb(27 25 22 / 4%);
 		--waas-text: #1b1916;
@@ -241,7 +487,7 @@ const productTiles = [
 		--waas-text-secondary: #56524a;
 		--waas-text-tertiary: #8a8478;
 		--waas-border: rgb(27 25 22 / 15%);
-		--waas-border-focus: #AB451F;
-		--waas-radius: 1rem;
+		--waas-border-focus: #2E4034;
+		--waas-radius: 0;
 	}
 </style>

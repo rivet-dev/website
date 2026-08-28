@@ -1,0 +1,247 @@
+---
+export interface CareerHeroImage {
+	src: string;
+	srcSet?: string;
+	sizes?: string;
+	width: number;
+	height: number;
+	title: string;
+	artist?: string;
+	date?: string;
+	alt: string;
+	objectPosition?: string;
+}
+
+interface Props {
+	images: CareerHeroImage[];
+}
+
+const { images } = Astro.props;
+const initialImage = images[0];
+const initialAttribution = [initialImage?.artist, initialImage?.date].filter(Boolean).join(' · ');
+const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+---
+
+{
+	initialImage && (
+		<career-hero-gallery class="block">
+			<button
+				type="button"
+				aria-label={`Show the next artwork. Current artwork: ${initialImage.title}`}
+				class="career-hero-gallery relative block aspect-[4/3] w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-4 focus-visible:ring-offset-paper"
+				data-gallery-button
+			>
+				{images.map((image, index) => (
+					<div
+						class="career-hero-gallery__card"
+						data-gallery-card
+						data-stack-position={index < 3 ? index : undefined}
+						data-title={image.title}
+						data-artist={image.artist}
+						data-date={image.date}
+						data-alt={image.alt}
+						aria-hidden={index === 0 ? 'false' : 'true'}
+					>
+						<img
+							src={index === 0 ? image.src : transparentPixel}
+							srcset={index === 0 ? image.srcSet : undefined}
+							sizes={image.sizes}
+							data-src={index === 0 ? undefined : image.src}
+							data-srcset={index === 0 ? undefined : image.srcSet}
+							alt={index === 0 ? image.alt : ''}
+							width={image.width}
+							height={image.height}
+							loading={index === 0 ? 'eager' : 'lazy'}
+							fetchpriority={index === 0 ? 'high' : 'low'}
+							decoding="async"
+							class="pointer-events-none h-full w-full select-none object-cover"
+							style={image.objectPosition ? `object-position: ${image.objectPosition}` : undefined}
+						/>
+					</div>
+				))}
+
+				<div class="career-hero-gallery__caption" aria-live="polite">
+					<p class="text-sm font-medium leading-tight text-ink" data-gallery-title>{initialImage.title}</p>
+					<p
+						class:list={[
+							'mt-1 text-xs leading-tight text-ink-faint',
+							!initialAttribution && 'hidden',
+						]}
+						data-gallery-attribution
+					>
+						{initialAttribution}
+					</p>
+				</div>
+			</button>
+		</career-hero-gallery>
+	)
+}
+
+<script>
+	class CareerHeroGalleryElement extends HTMLElement {
+		connectedCallback() {
+			if (this.dataset.galleryReady !== undefined) return;
+			this.dataset.galleryReady = '';
+
+			const button = this.querySelector<HTMLButtonElement>('[data-gallery-button]');
+			const cards = Array.from(this.querySelectorAll<HTMLElement>('[data-gallery-card]'));
+			const title = this.querySelector<HTMLElement>('[data-gallery-title]');
+			const attribution = this.querySelector<HTMLElement>('[data-gallery-attribution]');
+
+			if (!button || !title || !attribution || cards.length === 0) return;
+
+			let currentIndex = 0;
+
+			const loadCardImage = (card: HTMLElement) => {
+				const image = card.querySelector<HTMLImageElement>('img');
+				if (!image?.dataset.src) return;
+
+				if (image.dataset.srcset) image.srcset = image.dataset.srcset;
+				image.src = image.dataset.src;
+				delete image.dataset.src;
+				delete image.dataset.srcset;
+			};
+
+			const preloadUpcomingImages = () => {
+				const preloadAhead = Math.min(2, cards.length - 1);
+
+				for (let offset = 1; offset <= preloadAhead; offset++) {
+					const card = cards[(currentIndex + offset) % cards.length];
+					loadCardImage(card);
+				}
+			};
+
+			const render = () => {
+				cards.forEach((card, index) => {
+					const stackPosition = (index - currentIndex + cards.length) % cards.length;
+					const isCurrent = stackPosition === 0;
+					const image = card.querySelector<HTMLImageElement>('img');
+
+					if (stackPosition < 3) card.dataset.stackPosition = String(stackPosition);
+					else delete card.dataset.stackPosition;
+
+					card.setAttribute('aria-hidden', String(!isCurrent));
+					if (image) image.alt = isCurrent ? (card.dataset.alt ?? '') : '';
+				});
+
+				const currentCard = cards[currentIndex];
+				const currentTitle = currentCard.dataset.title ?? '';
+				const currentAttribution = [currentCard.dataset.artist, currentCard.dataset.date].filter(Boolean).join(' · ');
+
+				button.setAttribute('aria-label', `Show the next artwork. Current artwork: ${currentTitle}`);
+				title.textContent = currentTitle;
+				attribution.textContent = currentAttribution;
+				attribution.classList.toggle('hidden', !currentAttribution);
+				preloadUpcomingImages();
+			};
+
+			button.addEventListener('click', () => {
+				const currentCard = cards[currentIndex];
+				const leavingCard = currentCard.cloneNode(true) as HTMLElement;
+				const leavingImage = leavingCard.querySelector<HTMLImageElement>('img');
+				const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+				leavingCard.removeAttribute('data-gallery-card');
+				leavingCard.removeAttribute('data-stack-position');
+				leavingCard.setAttribute('aria-hidden', 'true');
+				leavingCard.classList.add('career-hero-gallery__card--leaving');
+				leavingCard.style.transform = getComputedStyle(currentCard).transform;
+				if (leavingImage) leavingImage.alt = '';
+				button.append(leavingCard);
+
+				currentIndex = (currentIndex + 1) % cards.length;
+				render();
+
+				requestAnimationFrame(() => leavingCard.classList.add('is-leaving'));
+				window.setTimeout(() => leavingCard.remove(), reducedMotion ? 0 : 320);
+			});
+
+			render();
+		}
+	}
+
+	if (!customElements.get('career-hero-gallery')) {
+		customElements.define('career-hero-gallery', CareerHeroGalleryElement);
+	}
+</script>
+
+<style>
+	.career-hero-gallery__card {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		border: 1px solid rgb(27 25 22 / 10%);
+		background: #efefef;
+		opacity: 0;
+		pointer-events: none;
+		transform: translate3d(0, 0, 0) rotate(0) scale(1);
+		transition:
+			opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+			transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.career-hero-gallery__card[data-stack-position='0'] {
+		z-index: 20;
+		opacity: 1;
+	}
+
+	.career-hero-gallery__card[data-stack-position='1'] {
+		z-index: 19;
+	}
+
+	.career-hero-gallery__card[data-stack-position='2'] {
+		z-index: 18;
+	}
+
+	.career-hero-gallery:is(:hover, :focus-visible) .career-hero-gallery__card[data-stack-position='0'] {
+		transform: translate3d(-8px, 0, 0) rotate(-1deg) scale(1);
+	}
+
+	.career-hero-gallery:is(:hover, :focus-visible) .career-hero-gallery__card[data-stack-position='1'] {
+		opacity: 1;
+		transform: translate3d(12px, -5px, 0) rotate(1.5deg) scale(0.985);
+	}
+
+	.career-hero-gallery:is(:hover, :focus-visible) .career-hero-gallery__card[data-stack-position='2'] {
+		opacity: 1;
+		transform: translate3d(22px, -10px, 0) rotate(3deg) scale(0.97);
+	}
+
+	.career-hero-gallery__card--leaving {
+		z-index: 30;
+		opacity: 1;
+	}
+
+	.career-hero-gallery__card--leaving.is-leaving {
+		opacity: 0 !important;
+		transform: translate3d(-44px, -4px, 0) rotate(-7deg) scale(0.98) !important;
+	}
+
+	.career-hero-gallery__caption {
+		position: absolute;
+		z-index: 40;
+		top: 100%;
+		left: 0;
+		right: 0;
+		margin-top: 1.25rem;
+		text-align: center;
+		opacity: 0;
+		pointer-events: none;
+		transform: translateY(-0.25rem);
+		transition:
+			opacity 200ms ease,
+			transform 200ms ease;
+	}
+
+	.career-hero-gallery:is(:hover, :focus-visible) .career-hero-gallery__caption {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.career-hero-gallery__card,
+		.career-hero-gallery__caption {
+			transition: none;
+		}
+	}
+</style>

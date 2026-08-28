@@ -46,13 +46,15 @@ function HeroTitle({
 	if (logo === "actors") {
 		return (
 			<div className="mb-4 flex items-center justify-center gap-3">
-				{/* The mark is a solid-white SVG, so it is masked and refilled with
-				    ink to read on the porcelain field. */}
 				<span
 					aria-hidden="true"
-					style={wordmarkMaskStyle(actorsLogo.src)}
-					className="inline-block h-8 w-8 bg-ink md:h-9 md:w-9"
-				/>
+					className="flex size-9 shrink-0 items-center justify-center rounded-[34.375%] bg-ink md:size-10"
+				>
+					<span
+						style={wordmarkMaskStyle(actorsLogo.src)}
+						className="block h-full w-full bg-white"
+					/>
+				</span>
 				<h1 className="text-4xl font-medium tracking-[-0.015em] text-ink">
 					{title}
 				</h1>
@@ -88,14 +90,14 @@ function LandingCard({ item }: { item: DocsLandingItem }) {
 				<div className="absolute inset-0" style={gridStyle} />
 				{item.logoSrc ? (
 					// The same badge treatment as the product pages' lockups: an ink
-					// squircle tile with the white-on-transparent mark masked in cream.
+					// squircle tile with the mark masked in white.
 					<span
 						aria-hidden="true"
 						className="relative flex size-14 items-center justify-center rounded-[34.375%] bg-ink transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none"
 					>
 						<span
 							style={wordmarkMaskStyle(item.logoSrc)}
-							className="block h-full w-full bg-cream"
+							className="block h-full w-full bg-white"
 						/>
 					</span>
 				) : (

@@ -129,7 +129,7 @@ export const DeploymentBoundaryDiagram = ({
                 className={`flex size-5 shrink-0 items-center justify-center rounded-[34.375%] ${productAccent(product.id)?.fill ?? "bg-ink"}`}
               >
                 <span
-                  className="block size-full bg-cream"
+                  className="block size-full bg-white"
                   style={wordmarkMaskStyle(product.logo.src)}
                 />
               </span>
@@ -151,7 +151,7 @@ export const DeploymentBoundaryDiagram = ({
             className="flex size-5 shrink-0 items-center justify-center rounded-[34.375%] bg-pine"
           >
             <span
-              className="block size-[75%] bg-cream"
+              className="block size-[75%] bg-white"
               style={wordmarkMaskStyle(rivetLogo.src)}
             />
           </span>

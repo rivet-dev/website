@@ -78,7 +78,7 @@ function ProductIconCluster() {
 						style={reduceMotion ? { rotate: tilt, y: offset } : undefined}
 						className={`group absolute ${position} flex items-center justify-center rounded-[34.375%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
 					>
-						{/* The product color is the tile, the mark rides in cream — the
+						{/* The product color is the tile, the mark rides in white — the
 						    same lockup geometry as the header dropdown. */}
 						<ProductBadge product={product} className="size-20" />
 

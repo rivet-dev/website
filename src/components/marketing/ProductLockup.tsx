@@ -18,7 +18,7 @@ export function ProductLockup({ product }: { product: Product }) {
 	return (
 		<span className="flex items-center gap-3">
 			{logo ? (
-				// The asset is white-on-transparent; masking a cream fill over an
+				// The asset is white-on-transparent; masking a white fill over an
 				// ink tile reproduces the Rivet badge treatment at hero scale.
 				<span
 					aria-hidden="true"
@@ -26,7 +26,7 @@ export function ProductLockup({ product }: { product: Product }) {
 				>
 					<span
 						style={wordmarkMaskStyle(logo.src)}
-						className="block h-full w-full bg-cream"
+						className="block h-full w-full bg-white"
 					/>
 				</span>
 			) : product.icon ? (

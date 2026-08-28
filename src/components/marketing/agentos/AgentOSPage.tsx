@@ -1039,11 +1039,11 @@ const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
 	);
 };
 
-// Miniature of the product-hero lockup tile: cream-masked wordmark on an ink
+// Miniature of the product-hero lockup tile: white-masked wordmark on an ink
 // chip, for inline product mentions.
 const ProductMiniMark = ({ logoSrc, className = 'size-4' }: { logoSrc: string; className?: string }) => (
 	<span aria-hidden='true' className={`inline-flex shrink-0 items-center justify-center rounded-[34.375%] bg-ink ${className}`}>
-		<span style={wordmarkMaskStyle(logoSrc)} className='block h-full w-full bg-cream' />
+		<span style={wordmarkMaskStyle(logoSrc)} className='block h-full w-full bg-white' />
 	</span>
 );
 

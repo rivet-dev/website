@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 const REVEAL_SELECTOR = '[data-site-reveal], [data-site-reveal-group], [data-site-hero-reveal]';
 const VISIBLE_ATTRIBUTE = 'data-site-reveal-visible';
+const PENDING_ATTRIBUTE = 'data-site-reveal-pending';
 const OBSERVER_READY_ATTRIBUTE = 'data-site-motion-observer-ready';
 
 const findHydratingIsland = (element: HTMLElement) => {
@@ -40,6 +41,10 @@ export function ScrollObserver() {
 	useEffect(() => {
 		let observer: IntersectionObserver | undefined;
 		const pendingHydrationListeners = new Map<HTMLElement, EventListener>();
+		const reveal = (element: HTMLElement) => {
+			element.removeAttribute(PENDING_ATTRIBUTE);
+			element.setAttribute(VISIBLE_ATTRIBUTE, '');
+		};
 
 		const clearPendingHydrationListeners = () => {
 			pendingHydrationListeners.forEach((listener, island) => {
@@ -49,9 +54,7 @@ export function ScrollObserver() {
 		};
 
 		const revealAll = (elements: HTMLElement[]) => {
-			elements.forEach((element) => {
-				element.setAttribute(VISIBLE_ATTRIBUTE, '');
-			});
+			elements.forEach(reveal);
 		};
 
 		const observe = () => {
@@ -93,6 +96,21 @@ export function ScrollObserver() {
 				});
 			});
 
+			// Content that is already on screen should be settled on first paint.
+			// Only off-screen blocks enter the pending state that CSS animates out
+			// when the observer reveals them later.
+			observableElements.forEach((element) => {
+				if (element.hasAttribute(VISIBLE_ATTRIBUTE)) {
+					element.removeAttribute(PENDING_ATTRIBUTE);
+					return;
+				}
+
+				const bounds = element.getBoundingClientRect();
+				const isInViewport = bounds.bottom >= 0 && bounds.top <= window.innerHeight;
+				if (isInViewport) reveal(element);
+				else element.setAttribute(PENDING_ATTRIBUTE, '');
+			});
+
 			if (!('IntersectionObserver' in window)) {
 				revealAll(observableElements);
 				return;
@@ -102,7 +120,7 @@ export function ScrollObserver() {
 				(entries) => {
 					entries.forEach((entry) => {
 						if (!entry.isIntersecting) return;
-						entry.target.setAttribute(VISIBLE_ATTRIBUTE, '');
+						reveal(entry.target as HTMLElement);
 						observer?.unobserve(entry.target);
 					});
 				},

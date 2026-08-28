@@ -9,9 +9,13 @@ interface Props {
 	description?: string;
 	canonicalUrl?: string;
 	ogImage?: string;
+	ogImageAlt?: string;
+	ogImageWidth?: number;
+	ogImageHeight?: number;
 	keywords?: string[];
 	active?: ComponentProps<typeof Header>['active'];
 	robots?: string;
+	preconnectAssets?: boolean;
 	/**
 	 * Set on a product's Overview page. Switches from the floating pill header to
 	 * the same two-row header the docs use, so the secondary nav is identical
@@ -22,11 +26,37 @@ interface Props {
 	tabId?: string;
 }
 
-const { title, description, canonicalUrl, ogImage, keywords, active, robots, productId, tabId = 'overview' } = Astro.props;
+const {
+	title,
+	description,
+	canonicalUrl,
+	ogImage,
+	ogImageAlt,
+	ogImageWidth,
+	ogImageHeight,
+	keywords,
+	active,
+	robots,
+	preconnectAssets,
+	productId,
+	tabId = 'overview',
+} = Astro.props;
 const pathname = Astro.url.pathname;
 ---
 
-<BaseLayout title={title} description={description} canonicalUrl={canonicalUrl} ogImage={ogImage} keywords={keywords} robots={robots} pageFamily="site">
+<BaseLayout
+	title={title}
+	description={description}
+	canonicalUrl={canonicalUrl}
+	ogImage={ogImage}
+	ogImageAlt={ogImageAlt}
+	ogImageWidth={ogImageWidth}
+	ogImageHeight={ogImageHeight}
+	keywords={keywords}
+	robots={robots}
+	preconnectAssets={preconnectAssets}
+	pageFamily="site"
+>
 	{productId ? (
 		<Header
 			variant="full-width"
