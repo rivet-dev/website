@@ -15,6 +15,11 @@ Split by runtime mode, because the two halves barely overlap. A reader on a serv
 - **Ensure log level is not set to debug.** Leave `RIVET_LOG_LEVEL` at its default or explicitly set it to `warn` to avoid excessive logging.
 - **Do not set `RIVET_EXPOSE_ERRORS=1` in production.** This exposes internal error details to clients. It is automatically enabled when `NODE_ENV=development`.
 
+## Monitoring
+
+- **Configure health probes.** Mount `registry.routes.health()` and verify your liveness and readiness probes receive `200`. See <SelfHostLink to="workers/health-checks">Health Checks</SelfHostLink>.
+- **Scrape Prometheus metrics.** This is recommended for monitoring worker performance and failures. See <SelfHostLink to="workers/prometheus-metrics">Prometheus Metrics</SelfHostLink>.
+
 ## Runtime Mode
 
 - **Configure a runner version.** Required for graceful upgrades and draining of old actors. Applies to both serverless and runner modes.

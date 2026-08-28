@@ -1,0 +1,10 @@
+---
+title: "Metadata"
+description: "Expose RivetKit runtime metadata from a worker."
+---
+
+Exposing worker metadata is optional, but useful for verifying the RivetKit version and actor types running on a worker.
+
+Mount `registry.routes.metadata()` in your HTTP router. For example, with Hono: `app.get("/metadata", () => registry.routes.metadata())`.
+
+The endpoint returns the worker's runtime version, registered actor names, and connection metadata as JSON.
