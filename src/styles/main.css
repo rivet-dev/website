@@ -510,10 +510,10 @@
 	min-width: 0;
 	flex: 1 1 auto;
 }
-.mdx-callout__body > :first-child {
+.mdx-callout .mdx-callout__body > :first-child {
 	margin-top: 0;
 }
-.mdx-callout__body > :last-child {
+.mdx-callout .mdx-callout__body > :last-child {
 	margin-bottom: 0;
 }
 

@@ -101,7 +101,7 @@ export function CodeGroup({ children, className, stacked }: CodeGroupProps) {
 
 	return (
 		<div
-			className={cn("code-group group my-4 overflow-hidden rounded-xl border border-ink/10", className)}
+			className={cn("code-group group my-4 overflow-hidden rounded-xl", className)}
 			data-code-group-container
 			data-code-group-workspace
 		>
@@ -234,7 +234,7 @@ export const pre = ({
 		<div
 			className={cn(
 				"not-prose group/code relative group-[.code-group]:my-0 group-[[data-code-group-workspace]]:border-none group-[[data-code-group-workspace]]:overflow-visible",
-				flush ? "" : "my-4 overflow-hidden rounded-xl border border-ink/10"
+				flush ? "" : "my-4 overflow-hidden rounded-xl"
 			)}
 			data-code-block
 			data-code-title={displayName}
@@ -261,10 +261,10 @@ export const pre = ({
 			</div>
 
 			<div className="bg-white text-sm overflow-x-auto">
-				<div className="p-4 w-fit min-w-full">
+				<div className="p-4 w-fit min-w-full [&_pre]:!m-0 [&_pre]:!rounded-none [&_pre]:!border-0 [&_pre]:!bg-transparent [&_pre]:!p-0">
 					{highlightedCode ? (
 						<span
-							className="not-prose code [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0"
+							className="not-prose code"
 							// biome-ignore lint/security/noDangerouslySetInnerHtml: it's generated from shiki
 							dangerouslySetInnerHTML={{ __html: highlightedCode }}
 						/>
