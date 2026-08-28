@@ -1,0 +1,10 @@
+---
+title: "Health Checks"
+description: "Expose a health endpoint for worker liveness and readiness probes."
+---
+
+Health checks verify that a worker is healthy, including its connection to the Rivet control plane.
+
+Mount `registry.routes.health()` in your HTTP router. For example, with Hono: `app.get("/health", () => registry.routes.health())`.
+
+A healthy worker returns `200` with its status, runtime, and version. If its connection to the control plane is unhealthy, it returns `503`. Point your liveness and readiness probes at the mounted path.

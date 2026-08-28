@@ -1,0 +1,12 @@
+---
+title: "Prometheus Metrics"
+description: "Expose and scrape process-wide RivetKit metrics from a worker."
+---
+
+RivetKit exposes Prometheus metrics that help diagnose actor activity, networking, SQLite behavior, and more.
+
+Mount `registry.routes.prometheusMetrics()` in your HTTP router. For example, with Hono: `app.get("/metrics", (c) => registry.routes.prometheusMetrics(c.req.raw))`.
+
+Configure Prometheus to scrape the mounted path on every worker instance.
+
+By default, this endpoint is exposed without authentication. If your metrics may contain private information, protect it with a token or expose it only on a private router or network.

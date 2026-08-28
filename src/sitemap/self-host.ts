@@ -23,8 +23,8 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 /**
- * The Self-Host tab's sidebar, derived entirely from `deployMatrix`. All four
- * products get the same shape; only the platform lists differ.
+ * The Self-Host tab's sidebar. All four products get the same shape; only the
+ * platform lists derived from `deployMatrix` differ.
  */
 export function deploySidebar(productId: string): SidebarItem[] {
 	const base = `/${productId}/self-host`;
@@ -97,6 +97,30 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					icon: faServer,
 					collapsible: true,
 					pages: platformPage("worker"),
+				},
+			],
+		},
+		{
+			title: "Reference",
+			pages: [
+				{
+					title: "Workers",
+					icon: faSliders,
+					collapsible: true,
+					pages: [
+						{
+							title: "Health Checks",
+							href: `${base}/workers/health-checks/`,
+						},
+						{
+							title: "Metadata",
+							href: `${base}/workers/metadata/`,
+						},
+						{
+							title: "Prometheus Metrics",
+							href: `${base}/workers/prometheus-metrics/`,
+						},
+					],
 				},
 			],
 		},

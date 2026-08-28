@@ -63,7 +63,13 @@ export function platformsFor(
  * Non-platform pages in each section. Platform guides are appended after these
  * by the sidebar builder and the route.
  */
-export const WORKER_PAGES = ["index", "production-checklist"] as const;
+export const WORKER_PAGES = [
+	"index",
+	"production-checklist",
+	"health-checks",
+	"metadata",
+	"prometheus-metrics",
+] as const;
 
 export const CONTROL_PLANE_PAGES = [
 	"index",
