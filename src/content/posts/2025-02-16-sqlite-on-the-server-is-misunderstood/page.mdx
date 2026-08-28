@@ -5,7 +5,7 @@ published: "2025-02-16"
 category: technical
 keywords: ['sqlite', 'durable-object', 'turso']
 title: "SQLite-on-the-Server Is Misunderstood: Better At Hyper-Scale Than Micro-Scale"
-description: "We're Rivet, a new open-source, self-hostable serverless platform. We've been in the weeds with SQLite-on-the-server recently and – boy – do we have a lot of thoughts to share. Give us a star on GitHub, we'll be sharing a lot more about SQLite soon!"
+description: "SQLite is a powerful foundation for distributed databases, not just single-node local deployments."
 seoTitle: "Why SQLite Works Better at Hyper-Scale"
 seoDescription: "Learn why SQLite-on-the-server fits hyper-scale systems when each tenant gets an isolated database with local reads, durable storage, and simple operations."
 ---
@@ -14,9 +14,9 @@ export const SqliteMicroscale = { src: "https://assets.rivet.dev/website/blog/20
 export const Cassandra = { src: "https://assets.rivet.dev/website/blog/2025-02-16-sqlite-on-the-server-is-misunderstood/cassandra.png", width: 1934, height: 2178, format: "png" };
 export const SqliteHyperscale = { src: "https://assets.rivet.dev/website/blog/2025-02-16-sqlite-on-the-server-is-misunderstood/sqlite-hyperscale.png", width: 1674, height: 2172, format: "png" };
 
-<Lead>
-  We're Rivet, a new open-source, self-hostable serverless platform. We've been in the weeds with SQLite-on-the-server recently and – boy – do we have a lot of thoughts to share. [Give us a star on GitHub](https://github.com/rivet-dev/engine), we'll be sharing a lot more about SQLite soon!
-</Lead>
+<Tip>
+  **Update (August 2026):** Rivet launched [SQLite for Rivet Actors](/docs/actors/sqlite) at the beginning of 2026. It's open-source, self-hostable infrastructure for server-side SQLite at scale, including support for S3 tiered storage.
+</Tip>
 
 There's been [a lot of discussion](https://lobste.rs/s/t1enph/siren_call_sqlite_on_server) recently about the pros and cons of SQLite on the server. After reading many of these conversations, I realized that my perspective on the power of SQLite-on-the-server is lopsided from popular opinion: SQLite's strengths really shine at scale, instead of with small hobbyist deployments that it's frequently referenced in.
 
@@ -41,7 +41,7 @@ These characteristics make SQLite an attractive option for personal projects, li
 
 Tools like [LiteFS](https://github.com/superfly/litefs), [Litestream](https://litestream.io/), [rqlite](https://github.com/rqlite/rqlite), [Dqlite](https://dqlite.io/), and [Bedrock](https://bedrockdb.com/) enhance SQLite with replication and high availability for micro-scale deployments.
 
-However, this post focuses on [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/get-started/tutorial-with-sql-api/) and [Turso](https://turso.tech/) to highlight the often-overlooked advantages of SQLite at scale.
+However, this post focuses on [Rivet Actors](/docs/actors/sqlite), [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/get-started/tutorial-with-sql-api/), and [Turso](https://turso.tech/) to highlight the often-overlooked advantages of SQLite at scale.
 
 ## Databases at Hyper-Scale Today: Sharded Databases & Partitioning Keys
 
@@ -81,9 +81,7 @@ Sharded databases power almost every large tech company because they provide:
 - Horizontal scalability by partitioning data across nodes.
 - Optimized writes for high-ingestion workloads
 
-<Tip>
-  Apple runs the world's largest known number of Cassandra/ScyllaDB instances [with roughly 300,000 nodes as of 2022](https://x.com/erickramirezau/status/1578063811495477248). Almost all large companies have shared that they also run massive clusters of partitioned databases in the thousands of nodes.
-</Tip>
+Apple runs the world's largest known number of Cassandra/ScyllaDB instances [with roughly 300,000 nodes as of 2022](https://x.com/erickramirezau/status/1578063811495477248).
 
 ### Challenges with Current Partitioning Solutions
 
@@ -94,9 +92,11 @@ While partitioning strategies improve scalability, they introduce significant ch
 - **Complex cross-partition operations**: Enforcing ACID properties across partitions is difficult. Companies often resort to complicated [two-phase commits](https://en.wikipedia.org/wiki/Two-phase_commit_protocol) or design with an acceptable level of data inconsistency.
 - **Data inconsistency**: Without strong constraints between tables & partitions, data frequently becomes "dirty" because of interrupted transactions or failure to propagate changes.
 
-## Enter SQLite at Scale: Cloudflare Durable Objects & Turso
+<span id="enter-sq-lite-at-scale-cloudflare-durable-objects-and-turso"></span>
 
- [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/get-started/tutorial-with-sql-api/) and [Turso](https://turso.tech/) demonstrate how SQLite will change how hyper-scale applications may be architected in the future.
+## Enter SQLite at Scale: Rivet Actors, Cloudflare Durable Objects & Turso
+
+[Rivet Actors](/docs/actors/sqlite), [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/get-started/tutorial-with-sql-api/), and [Turso](https://turso.tech/) demonstrate how SQLite will change how hyper-scale applications may be architected in the future.
 
 These databases provide:
 
@@ -105,11 +105,11 @@ These databases provide:
 - **Global distribution**: Databases are placed closer to users, improving query performance.
 - **Built-in replication and durability**: Unlike traditional SQLite, these services replicate data across multiple regions for high availability.
 
-### A Better Hyper-Scale Database: SQLite Database Per Partition
+### A Better Hyper-Scale Database: SQLite Databases Per Entity
 
 <img src={SqliteHyperscale.src} alt="A cluster of independent SQLite databases serves queries through an HTTP server" />
 
-Using SQLite with Cloudflare Durable Objects & Turso allows defining databases per entity, effectively replacing partitioning keys.
+Using SQLite with Rivet Actors, Cloudflare Durable Objects, or Turso allows defining databases per entity, effectively replacing partitioning keys.
 
 Instead of storing chat logs in a single partition, each chat channel can have its own SQLite database that also includes more tables, like participants and reactions. A sample schema could look like this:
 
@@ -117,8 +117,7 @@ Instead of storing chat logs in a single partition, each chat channel can have i
 -- Notice there is no channel_id in this table, since all of this data is local
 -- to a single SQLite database per channel.
 --
--- The channel ID will be specified when defining which Durable Object to
--- connect to below (see )`CHAT_DO.idFromName(channelId)` below.
+-- The channel ID identifies which per-channel database to connect to below.
 CREATE TABLE messages (
   id INTEGER PRIMARY KEY,
   sent_at TIMESTAMP,
@@ -134,13 +133,35 @@ CREATE TABLE participants (
 );
 ```
 
-From Cloudflare Durable Objects or Turso, this SQLite partition database could be queried like this:
+The example above can be implemented with Rivet Actors, Cloudflare Durable Objects, and Turso:
 
 <CodeGroup>
-```javascript {{ "title": "cloudflare_worker.js" }}
-// This Durable Object represents one partition
-//
-// It contains a completely isolated SQLite database
+```typescript {{ "title": "Rivet Actors" }}
+// === server.ts ===
+
+import { actor } from "rivetkit";
+import { db } from "rivetkit/db";
+
+// Each channel has its own actor.
+export const chatChannel = actor({
+  db: db(),
+  actions: {
+    getMessages: (c) =>
+      c.db.execute("SELECT * FROM messages ORDER BY sent_at ASC"),
+  },
+});
+
+// === client.ts ===
+
+function getMessages(channelId: string) {
+  return client.chatChannel.getOrCreate([channelId]).getMessages();
+}
+```
+
+```typescript {{ "title": "Cloudflare Durable Objects" }}
+// === server.ts ===
+
+// Each channel has its own Durable Object.
 export class ChatChannel extends DurableObject {
   async getMessages() {
     // Execute query
@@ -149,8 +170,10 @@ export class ChatChannel extends DurableObject {
   }
 }
 
+// === client.ts ===
+
 function getMessages(channelId: string) {
-  // Here, the channel ID corresponds to the database partition
+  // The channel ID corresponds to the database shard.
   const id = env.CHAT_CHANNEL_DURABLE_OBJECT.idFromName(channelId);
   const channelDurableObject = c.env.CHAT_CHANNEL_DURABLE_OBJECT.get(id);
 
@@ -159,14 +182,16 @@ function getMessages(channelId: string) {
 }
 ```
 
-```javascript {{ "title": "turso.js" }}
+```typescript {{ "title": "Turso" }}
+// === client.ts ===
+
 import { createLibsqlClient } from "@libsql/client";
 import { createApiClient } from "@tursodatabase/api";
 
 const api = createApiClient(/* ... */);
 
 function getMessages(channelId: string) {
-  // Each database represents one partition
+  // Each channel has its own database.
   //
   // This gets an existing channel and connects to it
   const { hostname } = await api.databases.retrieve(`channel-${channelId}`);
@@ -191,24 +216,15 @@ function getMessages(channelId: string) {
 - **Full Power of SQL migrations**: SQLite provides the full power of SQL migrations & leveraging existing migrations tools such as Drizzle & Prisma.
 - **Lazy schema migrations**: Changing schema is tricky at scale. Assuming your migrations are lightweight, they can be executed on demand after the SQLite database is opened at the cost of a slightly higher p99 after deploys.
 
-<Tip>
-**Who are the Turso founders?** It's no coincidence that the founders of Turso used to work at ScyllaDB, where they saw firsthand the complexities of large-scale partitioned databases on a daily basis.
-</Tip>
-
 ## Where SQLite Still Falls Short
 
 Despite its benefits, SQLite at scale presents a few challenges:
 
-- Lack of an open-source, self-hosted solution.
-- No built-in cross-database querying, making complex analytics difficult without a dedicated data lake.
-- Limited database tooling, such as SQL browsers, ETL pipelines, monitoring, and backups. [StarbaseDB](https://starbasedb.com/) is addressing this for Cloudflare Durable Objects with SQLite.
+- ~~Lack of an open-source, self-hosted solution for SQLite-per-entity (Litestream only provides a single database, while Turso Cloud's multi-database orchestration is closed source).~~ (Update: Rivet now provides an open-source, self-hostable solution with [SQLite for Rivet Actors](/docs/actors/sqlite).)
+- No built-in cross-database querying, making complex analytics difficult without a dedicated data lake. (Update: There are experiments using DuckDB for cross-SQLite queries, but they are not production-ready yet.)
+- ~~Limited database tooling, such as SQL browsers, ETL pipelines, monitoring, and backups. [StarbaseDB](https://starbasedb.com/) is addressing this for Cloudflare Durable Objects with SQLite.~~ (Update: Rivet and Cloudflare now both provide visual SQLite editors.)
 - Non-standard protocols for communicating with SQLite-on-the-server. In contrast, PostgreSQL, MySQL, and Cassandra all have a well standardized wire protocols across all cloud providers that has led to a rich community of tools.
-- There are no case studies like Cassandra & DynamoDB have of using SQLite with this architecture at hyper-scale. This will change with time.
-
-<Tip>
-  We're shipping an open-source & self-hostable alternative to Cloudflare Durable Objects with SQLite in the near future. Follow us on [X](https://x.com/rivet_dev), [Bluesky](https://bsky.app/profile/rivet.dev), or [Discord](https://rivet.dev/discord) to get notified on updates.
-</Tip>
 
 ## Conclusion
 
-SQLite on the server is more than a lightweight solution for small deployments – it's an increasingly viable alternative to traditional partitioned databases. By leveraging SQLite-per-partition solutions like Turso and Durable Objects, developers gain rich SQL capabilities, ACID compliance, and significant operational advantages.
+SQLite on the server is useful for more than small-scale deployments. It's a compelling option for sharded deployments at scale. SQLite-per-partition solutions like Rivet Actors, Turso, and Durable Objects give developers rich SQL capabilities, ACID compliance, and significant operational advantages.
