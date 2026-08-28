@@ -212,9 +212,12 @@ export const products: Product[] = PRODUCTS.map((meta) => ({
 /** The pillars, in display order. Everything user-facing lists these. */
 export const visibleProducts = products.filter((product) => !product.hidden);
 
-/** Tabs to render in the nav for a product: everything except hidden ones. */
+/**
+ * Tabs to render beside the product overview link. The product label itself
+ * owns the overview destination, so it is not repeated in the tab list.
+ */
 export function visibleTabs(product: Product): ProductTab[] {
-	return product.tabs.filter((tab) => !tab.hidden);
+	return product.tabs.filter((tab) => !tab.hidden && tab.id !== "overview");
 }
 
 export const productIds = products.map((product) => product.id);

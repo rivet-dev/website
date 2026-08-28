@@ -136,6 +136,9 @@ const explicitRedirects = {
 	// Astro's static redirect, which serves HTTP 200 with a meta refresh.
 	'/pricing': '/cloud/',
 	'/meme/wired-in': '/',
+	// The Open-Source Friends page was retired. It had no equivalent and was
+	// part of a reciprocal-linking network, so preserve inbound links to home.
+	'/oss-friends': '/',
 	// Deployment folded into the shared Self-Host section.
 	'/agentos/docs/deployment': '/agentos/self-host/',
 	// Air-gapped deployment is a self-hosting topic, not an actors cookbook.

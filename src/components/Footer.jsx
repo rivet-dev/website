@@ -38,8 +38,7 @@ const footer = {
 	],
 	resources: [
 		{ name: "Blog", href: "/blog" },
-		{ name: "Open-Source Friends", href: "/oss-friends" },
-		{ name: "Press Kit", href: "https://releases.rivet.dev/press-kit.zip" },
+		{ name: "Brand", href: "/brand" },
 	],
 	compare: [
 		{

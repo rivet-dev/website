@@ -24,7 +24,7 @@ const hasProductMotif = (productId: string): productId is ProductMotifId =>
   productId === "workflows" ||
   productId === "dynamic-apps";
 
-// The mark at plate scale, rendered cream directly on the accent field.
+// The mark at plate scale, rendered white directly on the accent field.
 const StackProductMark = ({ product }: { product: Product }) => {
   const logo = productLogos[product.id];
 
@@ -33,7 +33,7 @@ const StackProductMark = ({ product }: { product: Product }) => {
       <span
         aria-hidden="true"
         style={wordmarkMaskStyle(logo.src)}
-        className="inline-block h-6 w-6 shrink-0 bg-cream"
+        className="inline-block h-6 w-6 shrink-0 bg-white"
       />
     );
   }
@@ -42,7 +42,7 @@ const StackProductMark = ({ product }: { product: Product }) => {
     <Icon
       icon={product.icon}
       aria-hidden="true"
-      className="h-6 w-6 shrink-0 text-cream"
+      className="h-6 w-6 shrink-0 text-white"
     />
   ) : null;
 };

@@ -35,6 +35,17 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 
 To add or update icons, see `frontend/packages/icons/CLAUDE.md`.
 
+## Product Marks
+
+The product wordmarks in `src/images/products/*-logo.svg` are white-on-transparent: the alpha channel is the mark, so the file carries no color of its own. They are always painted as a masked element via `wordmarkMaskStyle` (`src/lib/product-accent.ts`), never as an `<img>`.
+
+- **Never render a naked mark.** A wordmark always rides inside its tile: `rounded-[34.375%]` at the SVG's inset-ring geometry, filled ink or the product accent. A bare mark dropped on a light surface — an `<img>` with `brightness-0`, an invert filter, or a raw mask on `paper` — is the failure mode this rule exists to prevent. It reads as a black outline box and matches nothing else on the site.
+- **The mark inside the tile is white**, never cream. Cream is for text and fills inside ink panels; on a mark it reads as a dirty off-white against the pure-white Rivet badge in the header.
+- **Ink tile** (`bg-ink`) is the default: product-page hero lockups (`ProductLockup`), `/docs` cards (`DocsLanding`), inline product mentions, and any product list on a light surface.
+- **Accent tile** (`ProductBadge` in `src/components/ProductBar.tsx`) is the colored variant: header dropdowns, mobile sheet, product bar label, talk-to-an-engineer. Every place that lists products renders `ProductBadge` rather than hand-rolling the geometry, so the lockup cannot drift.
+- **One sanctioned tile-less case:** on the homepage stack plates (`StackSection`) the mark is painted white directly on the product-accent field. The plate *is* the background — it is not a naked mark.
+- **Rivet Cloud has no wordmark.** It takes the `faCloud` glyph — white inside an accent tile where `ProductBadge` supplies one, otherwise bare in ink, sized down so it sits level with the neighboring tiles rather than outweighing them (its own hero, and the careers grid). Do not invent a wordmark for it.
+
 ## Registry Integration Icons
 
 Integration entries in `website/src/data/registry.ts` display icons on the registry page and detail pages. Each entry uses either an `image` (SVG file path) or an `icon` (Font Awesome icon).
@@ -103,7 +114,7 @@ Import from `@rivet-gg/icons`. The full Font Awesome Pro library is available. C
 
 ## Theme
 
-- Marketing pages and docs are light: cool porcelain (`paper`, `#EFEFEF`) with a `paper-deep` radial pooling bottom-left (`.depth-wash`) and a fine grain (`.paper-grain`). Warmth comes from warm-black `ink` text, classical imagery, and oil-paint textures, never from synthetic color gradients. Do not use the cream `mat` token as a surface/background design element on light surfaces (panels, dropdowns, badges, plate frames); use `paper`/`paper-mid`/`white` or `ink`-tint neutrals instead. `cream` stays valid only as the off-white text/fill inside dark `ink` panels. Docs paint the same porcelain field, render prose via `Prose surface="paper"`, and use `pine` for the active sidebar/TOC selected state; only the Learn section keeps a dark shell, and no other page may introduce a dark base.
+- Marketing pages and docs are light: cool porcelain (`paper`, `#EFEFEF`) with a `paper-deep` radial pooling bottom-left (`.depth-wash`) and a fine grain (`.paper-grain`). Warmth comes from warm-black `ink` text, classical imagery, and oil-paint textures, never from synthetic color gradients. Do not use the cream `mat` token as a surface/background design element on light surfaces (panels, dropdowns, badges, plate frames); use `paper`/`paper-mid`/`white` or `ink`-tint neutrals instead. `cream` stays valid only as the off-white text/fill inside dark `ink` panels, and never on a product mark — those are white (see Product Marks). Docs paint the same porcelain field, render prose via `Prose surface="paper"`, and use `pine` for the active sidebar/TOC selected state; only the Learn section keeps a dark shell, and no other page may introduce a dark base.
 - Dark `ink` panels (`editorial/InkPanel`) are reserved for code, terminal, screenshot, and data moments. Code and data plates stay flat ink; the oil-texture backdrop (`textureSrc`) is for editorial moments only (CTA colophon, 404).
 - Orange is the spark: at most one `accent`/ember CTA per page. White text sits only on `accent-deep` (`#D63E00`) or `ink` fills, never on `accent`. Pine (`#2E4034`) is the structural color for links, eyebrows, diagrams, and selected states; sage (`#93A286`) replaces it inside ink panels.
 - No drop shadows on marketing cards or imagery; depth comes from `border-ink/10..25` hairlines, `bg-white/55` card fills, and `paper-mid`/`paper-deep` layering (inside ink panels: `border-cream/10..15`). Shadows stay acceptable on functional overlays (dropdowns, tooltips, modals) and the header's glass inset highlight.

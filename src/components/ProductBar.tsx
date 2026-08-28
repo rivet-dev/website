@@ -19,14 +19,14 @@ import { canonicalizeInternalHref } from "@/lib/internalHref";
  * The wordmarks are white-on-transparent SVGs, so they are painted as a masked
  * element rather than an `<img>`: the SVG supplies the silhouette and a
  * Tailwind background class supplies the hue. Glyph fallbacks take the same
- * accent as a text color. `tone="cream"` is for dark grounds: the accent tile
+ * accent as a text color. `tone="white"` is for dark grounds: the accent tile
  * inside `ProductBadge` and the dark Learn shell.
  */
 export function ProductMark({
 	product,
 	className,
 	tone = "accent",
-}: { product: Product; className?: string; tone?: "accent" | "cream" }) {
+}: { product: Product; className?: string; tone?: "accent" | "white" }) {
 	const accent = productAccent(product.id);
 	const logo = productLogos[product.id];
 	if (logo) {
@@ -36,7 +36,7 @@ export function ProductMark({
 				style={wordmarkMaskStyle(logo.src)}
 				className={cn(
 					"inline-block shrink-0",
-					tone === "cream" ? "bg-cream" : (accent?.fill ?? "bg-ink"),
+					tone === "white" ? "bg-white" : (accent?.fill ?? "bg-ink"),
 					className,
 				)}
 			/>
@@ -49,7 +49,7 @@ export function ProductMark({
 				aria-hidden="true"
 				className={cn(
 					"shrink-0",
-					tone === "cream" ? "text-cream" : (accent?.text ?? "text-ink-soft"),
+					tone === "white" ? "text-white" : (accent?.text ?? "text-ink-soft"),
 					className,
 				)}
 			/>
@@ -60,7 +60,7 @@ export function ProductMark({
 
 /**
  * The colored product lockup: a solid tile in the product accent with the
- * cream mark spanning it. The tile radius (34.375%) and the SVG's inset ring
+ * white mark spanning it. The tile radius (34.375%) and the SVG's inset ring
  * reproduce the Rivet badge geometry, so this is the same treatment as the
  * product bar on each product page. Size comes from the caller (`size-N`).
  *
@@ -82,39 +82,54 @@ export function ProductBadge({
 				className,
 			)}
 		>
-			<ProductMark product={product} tone="cream" className="h-full w-full" />
+			<ProductMark product={product} tone="white" className="h-full w-full" />
 		</span>
 	);
 }
 
-/**
- * Which product the subnav belongs to.
- *
- * Not a switcher: `Products` in the top row is the one place products are
- * chosen, so a second control here was the same menu twice, one line apart.
- */
+/** Which product the subnav belongs to, linking back to its overview. */
 function ProductLabel({
 	current,
 	label,
+	active = false,
 }: {
 	current?: Product;
 	/** Used by docs sections that are not a product vertical (integrations). */
 	label?: string;
+	active?: boolean;
 }) {
 	// Same treatment as the Products dropdown: the color is the tile behind the
 	// mark, and the mark and name are left uncolored.
-	return (
-		<span className="flex h-9 items-center gap-2 pr-1 text-sm text-ink">
+	const content = (
+		<>
 			{current && <ProductBadge product={current} className="size-7" />}
 			<span className="font-medium">{current?.name ?? label}</span>
-		</span>
+		</>
+	);
+
+	if (!current) {
+		return <span className="flex h-9 items-center gap-2 pr-1 text-sm text-ink">{content}</span>;
+	}
+
+	const accent = productAccent(current.id);
+	return (
+		<a
+			href={canonicalizeInternalHref(current.href)}
+			aria-current={active ? "page" : undefined}
+			className={cn(
+				"flex h-9 items-center gap-2 rounded-sm pr-1 text-sm text-ink transition-colors hover:text-pine",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+				accent?.focusRing ?? "focus-visible:ring-pine",
+			)}
+		>
+			{content}
+		</a>
 	);
 }
 
 /**
- * Second header row inside a product vertical: which product you are in, a
- * switcher to jump to the same tab of another product, and that product's three
- * docs tabs.
+ * Second header row inside a product vertical: the product overview link and
+ * that product's remaining tabs.
  */
 export function ProductBar({
 	initialPathname = "",
@@ -144,7 +159,7 @@ export function ProductBar({
 		// band fill, no underline — the active tab is ink, the rest ink-faint,
 		// and the product accent lives only in the label tile.
 		<div className="hidden h-12 items-center gap-6 md:flex">
-			<ProductLabel current={product} label={sectionLabel} />
+			<ProductLabel current={product} label={sectionLabel} active={activeTabId === "overview"} />
 			<div className="flex h-full items-center gap-6">
 				{product && visibleTabs(product).map((tab) => {
 					const accent = productAccent(product.id);

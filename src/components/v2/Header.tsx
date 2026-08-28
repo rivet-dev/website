@@ -217,8 +217,9 @@ function ProductsDropdown({
 							active && "!text-ink",
 							// Invisible hover bridge spanning the visual gap down to the
 							// dropdown panel so moving the mouse from the trigger to the
-							// panel does not cross a dead zone and close the menu.
-							"after:absolute after:left-0 after:right-0 after:top-full after:h-7 after:content-['']",
+							// panel does not cross a dead zone and close the menu. Keep
+							// this height >= the panel's gap below (top-[71px] / lg:mt-5).
+							"after:absolute after:left-0 after:right-0 after:top-full after:h-10 after:content-['']",
 						)}
 						onMouseEnter={handleMouseEnter}
 						onClick={() => {
@@ -243,12 +244,14 @@ function ProductsDropdown({
 					inert={!isOpen}
 					aria-hidden={!isOpen}
 					className={cn(
-						// bg-paper/95: at /80 the product bar's 2px accent tab underline
-						// ghosted through the frosted panel as a colored smudge.
-						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-paper/95 p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.35] transition-all duration-150 pointer-events-none",
+						// Solid white so page content never shows through the panel,
+						// while keeping the header pill's white tint (not the cooler
+						// `paper`). Opaque overrides the frosted look on purpose: the
+						// dropdown overlays body copy, unlike the pill at the top edge.
+						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-white p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.4] transition-all duration-150 pointer-events-none",
 						align === "start"
-							? "fixed left-1/2 top-[63px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-3 lg:translate-x-0"
-							: "fixed left-1/2 top-[63px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
+							? "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-5 lg:translate-x-0"
+							: "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
 						isOpen
 							? "pointer-events-auto translate-y-0 opacity-100"
 							: "pointer-events-none -translate-y-1 opacity-0",
@@ -696,9 +699,8 @@ function DocsMobileNavigation({
 	const current = findProductForPath(pathname.replace(/\/$/, ""));
 	const isDocsPage = Boolean(current) || pathname.startsWith("/integrations");
 
-	// On mobile the product bar collapses into this sheet: the tab dropdown
-	// lists the current product's three tabs, and the Products list switches
-	// verticals.
+	// On mobile the product bar collapses into this sheet. Product entries link
+	// to their overviews; the section dropdown lists the remaining tabs.
 	const sections = current
 		? visibleTabs(current.product).map((tab) => ({
 				id: tab.id,
