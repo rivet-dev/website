@@ -98,13 +98,8 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					collapsible: true,
 					pages: platformPage("worker"),
 				},
-			],
-		},
-		{
-			title: "Reference",
-			pages: [
 				{
-					title: "Workers",
+					title: "Reference",
 					icon: faSliders,
 					collapsible: true,
 					pages: [
