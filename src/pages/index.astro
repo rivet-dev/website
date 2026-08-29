@@ -4,12 +4,14 @@ import { getImage } from 'astro:assets';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { RedesignedHero } from '@/components/marketing/sections/RedesignedHero';
 import { StackSection } from '@/components/marketing/sections/StackSection';
+import { AgentStackSection } from '@/components/marketing/sections/AgentStackSection';
 import { ObservabilitySection } from '@/components/marketing/sections/ObservabilitySection';
 import { IntegrationsSection } from '@/components/marketing/sections/IntegrationsSection';
 import { HostingSection } from '@/components/marketing/sections/HostingSection';
 import { OnPremSection } from '@/components/marketing/sections/OnPremSection';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
+import { getPostImage } from '@/lib/postImage';
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
@@ -75,17 +77,28 @@ const thinkingImages = optimizedThinkingImages.map((img, index) => ({
 	date: thinkingImageSources[index].date,
 }));
 
-// Get latest changelog title
 const posts = await getCollection('posts');
-const changelogEntries = posts.filter((p) => p.data.category === 'changelog' && !p.data.unpublished);
-const latest = changelogEntries.sort(
-	(a, b) => b.data.published.getTime() - a.data.published.getTime()
-)[0];
+const latestEntry = posts
+	.filter((post) => post.data.category === 'changelog' && !post.data.unpublished)
+	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())[0];
+const latestImage = latestEntry ? getPostImage(latestEntry) : null;
+const optimizedLatestImage = latestImage
+	? await getImage({
+			src: latestImage.src,
+			width: 320,
+			height: 160,
+			format: 'webp',
+			quality: 80,
+		})
+	: null;
+const latestPost = latestEntry
+	? {
+			title: latestEntry.data.title,
+			href: `/changelog/${latestEntry.id.replace(/\/page$/, '')}/`,
+			imageSrc: optimizedLatestImage?.src ?? null,
+		}
+	: null;
 
-const latestChangelogTitle = latest?.data.title ?? '';
-const latestChangelogHref = latest
-	? `/changelog/${latest.id.replace(/\/page$/, '')}/`
-	: '/blog/';
 ---
 
 <MarketingLayout
@@ -94,17 +107,19 @@ const latestChangelogHref = latest
 	canonicalUrl="https://rivet.dev/"
 >
 	<main id="main-content" tabindex="-1">
-		<RedesignedHero latestChangelogTitle={latestChangelogTitle} latestChangelogHref={latestChangelogHref} thinkingImages={thinkingImages} client:load />
+		<RedesignedHero latestPost={latestPost} thinkingImages={thinkingImages} client:load />
 		<SectionRule />
 		<StackSection />
 		<SectionRule />
-		<ObservabilitySection />
+		<AgentStackSection />
 		<SectionRule />
 		<IntegrationsSection />
 		<SectionRule />
-		<HostingSection />
-		<SectionRule />
 		<OnPremSection />
+		<SectionRule />
+		<ObservabilitySection />
+		<SectionRule />
+		<HostingSection />
 		<SectionRule />
 		<ClosingCtaPanel
 			title="Infrastructure for the agentic era."
@@ -115,3 +130,99 @@ const latestChangelogHref = latest
 		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>
+
+<script>
+	type AgentStackStoryController = {
+		destroy: () => void;
+	};
+
+	const agentStackWindow = window as typeof window & {
+		__rivetAgentStackStoryController?: AgentStackStoryController;
+	};
+
+	agentStackWindow.__rivetAgentStackStoryController?.destroy();
+
+	// Match Tailwind's rem-based `lg` breakpoint without leaving a fractional gap.
+	const mobileViewport = window.matchMedia('(max-width: 63.999rem)');
+	const phoneViewport = window.matchMedia('(max-width: 47.999rem)');
+	let observers: IntersectionObserver[] = [];
+	let resizeFrame = 0;
+
+	const disconnectObservers = () => {
+		for (const observer of observers) observer.disconnect();
+		observers = [];
+	};
+
+	const bindAgentStackStory = () => {
+		disconnectObservers();
+		if (!mobileViewport.matches || !('IntersectionObserver' in window)) return;
+
+		for (const story of document.querySelectorAll<HTMLElement>('[data-agent-stack-story]')) {
+			const steps = Array.from(
+				story.querySelectorAll<HTMLElement>('[data-agent-stack-step]'),
+			);
+			if (steps.length === 0) continue;
+
+			const stepsAboveReadingLine = new Set<HTMLElement>();
+			const setActiveStep = () => {
+				let activeStep = steps[0];
+				for (const step of steps) {
+					if (stepsAboveReadingLine.has(step)) activeStep = step;
+				}
+
+				const activeLayer = activeStep.dataset.agentStackStep;
+				if (!activeLayer) return;
+
+				story.dataset.activeLayer = activeLayer;
+				for (const step of steps) {
+					if (step === activeStep) step.setAttribute('aria-current', 'step');
+					else step.removeAttribute('aria-current');
+				}
+			};
+
+			const readingLine = phoneViewport.matches ? 0.7 : 0.58;
+			const observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (!(entry.target instanceof HTMLElement)) continue;
+						const step = entry.target.closest<HTMLElement>('[data-agent-stack-step]');
+						if (!step) continue;
+						if (entry.isIntersecting) stepsAboveReadingLine.add(step);
+						else stepsAboveReadingLine.delete(step);
+					}
+					setActiveStep();
+				},
+				// On phones the card clears the sticky diagram before activation.
+				// In the tablet two-column layout, keep the reading line near center.
+				{ rootMargin: `100000px 0px -${window.innerHeight * (1 - readingLine)}px 0px` },
+			);
+
+			for (const step of steps) {
+				observer.observe(step.querySelector<HTMLElement>('[data-agent-stack-card]') ?? step);
+			}
+			observers.push(observer);
+		}
+	};
+
+	const handleViewportChange = () => bindAgentStackStory();
+	const handleViewportResize = () => {
+		window.cancelAnimationFrame(resizeFrame);
+		resizeFrame = window.requestAnimationFrame(bindAgentStackStory);
+	};
+	const destroy = () => {
+		disconnectObservers();
+		window.cancelAnimationFrame(resizeFrame);
+		document.removeEventListener('astro:page-load', bindAgentStackStory);
+		mobileViewport.removeEventListener('change', handleViewportChange);
+		window.removeEventListener('resize', handleViewportResize);
+		if (agentStackWindow.__rivetAgentStackStoryController?.destroy === destroy) {
+			delete agentStackWindow.__rivetAgentStackStoryController;
+		}
+	};
+
+	agentStackWindow.__rivetAgentStackStoryController = { destroy };
+	document.addEventListener('astro:page-load', bindAgentStackStory);
+	mobileViewport.addEventListener('change', handleViewportChange);
+	window.addEventListener('resize', handleViewportResize);
+	bindAgentStackStory();
+</script>

@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { jsonLdString } from '@/lib/jsonLd';
-import { DeploymentBoundaryDiagram } from '@/components/marketing/diagrams/ConsolidatedStackDiagram';
+import { DeploymentBoundaryDiagram } from '@/components/marketing/diagrams/DeploymentBoundaryDiagram';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
 import { EnterpriseObservabilitySection } from '@/components/marketing/enterprise/EnterpriseObservabilitySection';
 import {
@@ -59,8 +59,8 @@ const footprints = [
 		body: 'Deploy with the Enterprise Helm chart or a systemd unit.',
 	},
 	{
-		title: 'Mainstream databases',
-		body: 'Runs on Postgres and SQLite. Backups and S3 storage are managed for you.',
+		title: 'Storage you control',
+		body: 'Use Postgres or FoundationDB for persistence and tiered storage to S3.',
 	},
 	{
 		title: 'Local dev identical to production',

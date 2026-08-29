@@ -37,7 +37,7 @@ export const ActorsObservabilitySection = () => (
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
         <div>
-          <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Observe the whole stack.</h2>
+          <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Complete observability.</h2>
           <p className={SECTION_LEDE_CLASS}>
             Inspect Actor state, SQLite data, workflow progress, events, and
             callable actions from the Rivet dashboard.
@@ -61,14 +61,14 @@ export const ActorsObservabilitySection = () => (
         </div>
       </div>
 
-      <figure className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3" data-site-reveal>
+      <figure className="mt-12 overflow-hidden rounded-xl" data-site-reveal>
         <img
           src={INSPECTOR_SRC}
           alt="Rivet Actor Inspector showing state, events, and callable actions for a running Actor"
           width="2688"
           height="2018"
           loading="lazy"
-          className="block h-auto w-full rounded-md border border-ink/10"
+          className="block h-auto w-full"
         />
       </figure>
     </div>

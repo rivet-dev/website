@@ -345,8 +345,8 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 				<slot />
 			</Providers>
 		</TooltipProvider>
-		<EmbedDetector client:load />
-		{pageFamily === 'site' && <ScrollObserver client:load />}
+		<EmbedDetector client:only="react" />
+		{pageFamily === 'site' && <ScrollObserver client:only="react" />}
 		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} pageFamily={pageFamily} />
 		<CopyCodeScript />
 		<TabsScript />

@@ -9,16 +9,38 @@ export interface ProductMotifProps {
   surface: "card" | "hero";
 }
 
-const workflowSteps = [
-  { x: 164, y: 84, width: 108, height: 16 },
-  { x: 44, y: 132, width: 132, height: 16 },
-  { x: 144, y: 180, width: 128, height: 16 },
-  { x: 60, y: 228, width: 132, height: 16 },
+// Workflows draws the execution route as a bundle of three nested serpentine
+// lanes — no task boxes, just the path. Each lane is the same meander offset
+// by ±10: straight runs shift vertically and turn radii grow or shrink so the
+// bundle stays parallel through every U-turn, flipping sides like nested
+// hairpins.
+// `lane` selects the per-lane pulse keyframes in main.css, whose stops are
+// derived from this exact geometry (each lane's arc radii differ, so its
+// corner positions land at different path fractions).
+const workflowLanes = [
+  { lane: 1, offset: -14, tone: "soft", delay: 0 },
+  { lane: 2, offset: 0, tone: "bright", delay: 140 },
+  { lane: 3, offset: 14, tone: "soft", delay: 280 },
 ] as const;
 
-const heroWorkflowStepY = [20, 110, 250, 340] as const;
+// Both ends run 180 units off-canvas so the pulse dash (0.1 of the path,
+// ~161-169 units) sits fully off-screen at the loop's extremes.
+const workflowLanePath = (offset: number) => {
+  const rightRadius = 38 - offset;
+  const leftRadius = 38 + offset;
+  return [
+    `M -180 ${48 + offset}`,
+    "H 262",
+    `a ${rightRadius} ${rightRadius} 0 0 1 0 ${rightRadius * 2}`,
+    "H 58",
+    `a ${leftRadius} ${leftRadius} 0 0 0 0 ${leftRadius * 2}`,
+    "H 262",
+    `a ${rightRadius} ${rightRadius} 0 0 1 0 ${rightRadius * 2}`,
+    "H -180",
+  ].join(" ");
+};
 
-const dynamicAppCircles = [
+const agentOSCircles = [
   { cx: 16, cy: 36, direction: "forward", tone: "bright", delay: 0 },
   { cx: 96, cy: 108, direction: "backward", tone: "soft", delay: 0 },
   { cx: 176, cy: 36, direction: "forward", tone: "soft", delay: 120 },
@@ -29,14 +51,70 @@ const dynamicAppCircles = [
   { cx: 256, cy: 252, direction: "backward", tone: "soft", delay: 300 },
 ] as const;
 
-const easeInOutSine = (progress: number) =>
-  (1 - Math.cos(Math.PI * progress)) / 2;
+// Dynamic Apps runs a verified Conway's Game of Life board on a 10-column
+// grid (pitch 32 across the shared 320×400 viewBox — chips sized to match
+// the weight of the neighboring card motifs). `life` encodes each cell's
+// alive-timeline: "on" = alive every generation; "a"/"b" = the two phases of
+// a period-2 oscillator; "q1"-"q3" = alive for a 1-3 generation window
+// starting at `phase` of the glider's 4-generation cycle. Every coordinate is
+// a genuine B3/S23 evolution and the composed board never self-interacts —
+// re-verify with a Life simulation before moving any cell.
+const LIFE_PITCH = 32;
+const LIFE_CELL = 24;
+const LIFE_INSET = 4;
 
-const agentOSRings = Array.from({ length: 9 }, (_, index) => ({
-  scale: 0.06 + easeInOutSine(index / 9) * 1.1,
-  delay: index * -800,
-  tone: index % 3 === 0 ? "bright" : "soft",
-}));
+interface LifeCell {
+  col: number;
+  row: number;
+  life: "on" | "a" | "b" | "q1" | "q2" | "q3";
+  tone: "bright" | "soft" | "still";
+  phase?: number;
+}
+
+const lifeBoardCells: readonly LifeCell[] = [
+  // Toad (period 2), partly behind the glass verb badge
+  { col: 3, row: 2, life: "on", tone: "soft" },
+  { col: 0, row: 3, life: "on", tone: "soft" },
+  { col: 1, row: 2, life: "a", tone: "soft" },
+  { col: 2, row: 2, life: "a", tone: "soft" },
+  { col: 1, row: 3, life: "a", tone: "soft" },
+  { col: 2, row: 3, life: "a", tone: "soft" },
+  { col: 2, row: 1, life: "b", tone: "soft" },
+  { col: 0, row: 2, life: "b", tone: "soft" },
+  { col: 3, row: 3, life: "b", tone: "soft" },
+  { col: 1, row: 4, life: "b", tone: "soft" },
+  // Beacon (period 2), bright cells at the collapsing hinge
+  { col: 6, row: 0, life: "on", tone: "soft" },
+  { col: 7, row: 0, life: "on", tone: "soft" },
+  { col: 6, row: 1, life: "on", tone: "soft" },
+  { col: 9, row: 2, life: "on", tone: "soft" },
+  { col: 8, row: 3, life: "on", tone: "soft" },
+  { col: 9, row: 3, life: "on", tone: "soft" },
+  { col: 7, row: 1, life: "a", tone: "bright" },
+  { col: 8, row: 2, life: "a", tone: "bright" },
+  // Still life: a block anchoring the left flank
+  { col: 0, row: 7, life: "on", tone: "still" },
+  { col: 1, row: 7, life: "on", tone: "still" },
+  { col: 0, row: 8, life: "on", tone: "still" },
+  { col: 1, row: 8, life: "on", tone: "still" },
+];
+
+// The glider's 10-cell union in its local frame. The group walks one diagonal
+// cell per 4-generation cycle from the board origin toward the fade mask.
+const gliderCells: readonly LifeCell[] = [
+  { col: 1, row: 0, life: "q1", tone: "bright", phase: 0 },
+  { col: 0, row: 1, life: "q1", tone: "bright", phase: 1 },
+  { col: 1, row: 1, life: "q1", tone: "bright", phase: 3 },
+  { col: 2, row: 1, life: "q3", tone: "bright", phase: 0 },
+  { col: 0, row: 2, life: "a", tone: "bright" },
+  { col: 1, row: 2, life: "q2", tone: "bright", phase: 0 },
+  { col: 2, row: 2, life: "on", tone: "bright" },
+  { col: 3, row: 2, life: "q1", tone: "bright", phase: 3 },
+  { col: 1, row: 3, life: "q3", tone: "bright", phase: 1 },
+  { col: 2, row: 3, life: "q2", tone: "bright", phase: 2 },
+];
+
+const GLIDER_ORIGIN = { col: 5, row: 7 } as const;
 
 const actorLogoMarks = [
   {
@@ -172,90 +250,77 @@ const containerClassName = (
     .filter(Boolean)
     .join(" ");
 
-// Rails stop at each node instead of relying on a product-colored cutout. This
-// keeps the card unchanged while allowing the same geometry to sit over the
-// hero's depth wash without painting flat rectangles into the paper field.
-const WorkflowMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => {
-  const renderedSteps = [
-    ...workflowSteps.map((step) => ({ ...step, variant: "default" as const })),
-    ...(surface === "hero"
-      ? workflowSteps.map((step, index) => ({
-          ...step,
-          y: heroWorkflowStepY[index],
-          variant: "mobile" as const,
-        }))
-      : []),
-  ];
+const WorkflowMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
+  <svg
+    className="h-full w-full"
+    viewBox="0 0 320 400"
+    preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
+  >
+    {workflowLanes.map((lane) => (
+      <g
+        key={lane.offset}
+        className="workflow-lane"
+        style={
+          {
+            "--workflow-lane-delay": `${lane.delay}ms`,
+          } as CSSProperties
+        }
+      >
+        <path
+          className={`workflow-rail workflow-rail--${lane.tone}`}
+          d={workflowLanePath(lane.offset)}
+          pathLength="1"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          className={`workflow-pulse workflow-pulse--${lane.lane}`}
+          d={workflowLanePath(lane.offset)}
+          pathLength="1"
+          vectorEffect="non-scaling-stroke"
+        />
+      </g>
+    ))}
+  </svg>
+);
 
-  return (
-    <svg
-      className="h-full w-full"
-      viewBox="0 0 320 400"
-      preserveAspectRatio="none"
-    >
-      {renderedSteps.map((positionedStep, index) => {
-        const sequenceIndex = index % workflowSteps.length;
-        const centerY = positionedStep.y + positionedStep.height / 2;
+// "rest-off" marks cells dead at generation 0 so the static surfaces (hero,
+// reduced motion) render the same curated frame the paused timelines resolve.
+// phase !== 0 is only a valid proxy for that while no q-window wraps past the
+// end of the glider cycle; keep alive-windows contiguous from their phase.
+const lifeCellClassName = (cell: LifeCell) =>
+  [
+    "dynamic-app-cell",
+    `dynamic-app-cell--${cell.life}`,
+    cell.tone === "bright" ? "" : `dynamic-app-cell--${cell.tone}`,
+    cell.life.startsWith("q") && cell.phase !== 0
+      ? "dynamic-app-cell--rest-off"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-        return (
-          <g
-            key={`${positionedStep.variant}-${positionedStep.x}-${positionedStep.y}`}
-            className={`workflow-step workflow-step-${sequenceIndex + 1} workflow-step--${positionedStep.variant}`}
-            style={
-              {
-                "--workflow-step-delay": `${sequenceIndex * 130}ms`,
-              } as CSSProperties
-            }
-          >
-            <line
-              className="workflow-rail"
-              x1="-12"
-              x2={positionedStep.x}
-              y1={centerY}
-              y2={centerY}
-              vectorEffect="non-scaling-stroke"
-            />
-            <line
-              className="workflow-rail"
-              x1={positionedStep.x + positionedStep.width}
-              x2="332"
-              y1={centerY}
-              y2={centerY}
-              vectorEffect="non-scaling-stroke"
-            />
-            <line
-              className="workflow-trace workflow-trace-in"
-              x1="-12"
-              x2={positionedStep.x}
-              y1={centerY}
-              y2={centerY}
-              pathLength="1"
-              vectorEffect="non-scaling-stroke"
-            />
-            <rect
-              className="workflow-node"
-              x={positionedStep.x}
-              y={positionedStep.y}
-              width={positionedStep.width}
-              height={positionedStep.height}
-              rx="5"
-              vectorEffect="non-scaling-stroke"
-            />
-            <line
-              className="workflow-trace workflow-trace-out"
-              x1={positionedStep.x + positionedStep.width}
-              x2="332"
-              y1={centerY}
-              y2={centerY}
-              pathLength="1"
-              vectorEffect="non-scaling-stroke"
-            />
-          </g>
-        );
-      })}
-    </svg>
-  );
-};
+const LifeRect = ({
+  cell,
+  colOffset = 0,
+  rowOffset = 0,
+}: {
+  cell: LifeCell;
+  colOffset?: number;
+  rowOffset?: number;
+}) => (
+  <rect
+    className={lifeCellClassName(cell)}
+    style={
+      cell.phase ? ({ "--life-phase": cell.phase } as CSSProperties) : undefined
+    }
+    x={(cell.col + colOffset) * LIFE_PITCH + LIFE_INSET}
+    y={(cell.row + rowOffset) * LIFE_PITCH + LIFE_INSET}
+    width={LIFE_CELL}
+    height={LIFE_CELL}
+    rx="4"
+    vectorEffect="non-scaling-stroke"
+  />
+);
 
 const DynamicAppsMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   <svg
@@ -263,21 +328,19 @@ const DynamicAppsMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
     viewBox="0 0 320 400"
     preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
   >
-    {dynamicAppCircles.map((circle) => (
-      <circle
-        key={`${circle.cx}-${circle.cy}`}
-        className={`dynamic-app-circle dynamic-app-circle--${circle.direction} dynamic-app-circle--${circle.tone}`}
-        style={
-          {
-            "--dynamic-circle-delay": `${circle.delay}ms`,
-          } as CSSProperties
-        }
-        cx={circle.cx}
-        cy={circle.cy}
-        r="62"
-        vectorEffect="non-scaling-stroke"
-      />
+    {lifeBoardCells.map((cell) => (
+      <LifeRect key={`${cell.col}-${cell.row}`} cell={cell} />
     ))}
+    <g className="dynamic-app-glider">
+      {gliderCells.map((cell) => (
+        <LifeRect
+          key={`glider-${cell.col}-${cell.row}`}
+          cell={cell}
+          colOffset={GLIDER_ORIGIN.col}
+          rowOffset={GLIDER_ORIGIN.row}
+        />
+      ))}
+    </g>
   </svg>
 );
 
@@ -287,19 +350,18 @@ const AgentOSMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
     viewBox="0 0 320 400"
     preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
   >
-    {agentOSRings.map((ring, index) => (
+    {agentOSCircles.map((circle) => (
       <circle
-        key={index}
-        className={`agentos-ring agentos-ring--${ring.tone}`}
+        key={`${circle.cx}-${circle.cy}`}
+        className={`agentos-circle agentos-circle--${circle.direction} agentos-circle--${circle.tone}`}
         style={
           {
-            "--agentos-ring-scale": ring.scale,
-            "--agentos-ring-delay": `${ring.delay}ms`,
+            "--agentos-circle-delay": `${circle.delay}ms`,
           } as CSSProperties
         }
-        cx="168"
-        cy="144"
-        r="229.1"
+        cx={circle.cx}
+        cy={circle.cy}
+        r="62"
         vectorEffect="non-scaling-stroke"
       />
     ))}

@@ -3,17 +3,13 @@
 import { productAccent } from "@/lib/product-accent";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import { useEffect, useState } from "react";
-import { Terminal, ArrowRight, Check } from "lucide-react";
+import { Terminal, Check, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   HERO_H1_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 } from "../typography";
-import { GLOW_PILL_SURFACE_CLASS, handleGlowPillMouseMove } from "../glowPill";
-import {
-  SITE_STANDARD_RAIL_CLASS,
-  SITE_UTILITY_HERO_CLASS,
-} from "../layout";
+import { SITE_STANDARD_RAIL_CLASS, SITE_UTILITY_HERO_CLASS } from "../layout";
 
 interface ThinkingImage {
   src: string;
@@ -21,6 +17,14 @@ interface ThinkingImage {
   artist: string;
   date: string;
 }
+
+interface LatestPost {
+  title: string;
+  href: string;
+  imageSrc: string | null;
+}
+
+const LATEST_POST_DISMISSED_KEY = "rivet-latest-post-dismissed";
 
 const ThinkingImageCycler = ({ images }: { images: ThinkingImage[] }) => {
   const reducedMotion = useReducedMotion();
@@ -255,15 +259,24 @@ const CopyInstallButton = () => {
 };
 
 interface RedesignedHeroProps {
-  latestChangelogTitle: string;
-  latestChangelogHref: string;
+  latestPost: LatestPost | null;
   thinkingImages: ThinkingImage[];
 }
 
+const settledHeroReveal = (delay: number) => ({
+  "data-site-hero-reveal": true,
+  "data-site-reveal-delay": String(delay),
+  "data-site-reveal-visible": "",
+  style:
+    delay > 0
+      ? ({ "--site-reveal-delay": `${delay}ms` } as React.CSSProperties)
+      : undefined,
+});
+
 /**
- * A verb in the tagline that links to the product it names. The product accent
- * shows as an underline rather than colored text: four colored words in one
- * line reads as decoration, an underline reads as a link.
+ * A verb in the tagline that links to the product it names. Rendered as plain
+ * emphasized text at rest — no underline — so the four verbs read as copy
+ * rather than decoration; the product accent color appears only on hover.
  */
 function ProductVerb({
   href,
@@ -278,54 +291,100 @@ function ProductVerb({
   return (
     <a
       href={canonicalizeInternalHref(href)}
-      className={`rounded-sm font-medium text-ink underline decoration-2 underline-offset-4 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${a?.underline ?? ""} ${a?.focusRing ?? "focus-visible:ring-pine"}`}
+      className={`rounded-sm font-medium text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${a?.textHover ?? "hover:text-ink"} ${a?.focusRing ?? "focus-visible:ring-pine"}`}
     >
       {children}
     </a>
   );
 }
 
+const LatestPostWindow = ({ post }: { post: LatestPost }) => {
+  const [isVisible, setIsVisible] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let wasDismissed = false;
+
+    try {
+      wasDismissed =
+        window.sessionStorage.getItem(LATEST_POST_DISMISSED_KEY) === "true";
+    } catch {
+      // Storage can be unavailable in restricted browser contexts. The close
+      // control should still work for the current render in that case.
+    }
+
+    setIsVisible(!wasDismissed);
+  }, []);
+
+  const handleDismiss = () => {
+    try {
+      window.sessionStorage.setItem(LATEST_POST_DISMISSED_KEY, "true");
+    } catch {
+      // Keep dismissal functional even when session storage is unavailable.
+    }
+
+    setIsVisible(false);
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <div
+      className="absolute bottom-6 right-4 z-20 hidden w-96 rounded-xl border border-ink/15 bg-white/80 p-2.5 backdrop-blur-md transition-colors hover:border-ink/25 hover:bg-white md:right-12 md:bottom-8 xl:flex min-[1681px]:right-14"
+      {...settledHeroReveal(160)}
+    >
+      <a
+        href={canonicalizeInternalHref(post.href)}
+        className="group flex min-w-0 flex-1 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      >
+        {post.imageSrc ? (
+          <img
+            src={post.imageSrc}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className="h-[4.5rem] w-28 shrink-0 rounded-lg border border-ink/10 object-cover"
+          />
+        ) : null}
+        <span className="min-w-0 py-0.5 pr-8">
+          <span className="block text-xs font-medium text-ink-faint">
+            Latest update
+          </span>
+          <span className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-ink">
+            {post.title}
+          </span>
+        </span>
+      </a>
+      <button
+        type="button"
+        aria-label="Dismiss latest update"
+        onClick={handleDismiss}
+        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      >
+        <X aria-hidden="true" className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+};
+
 export const RedesignedHero = ({
-  latestChangelogTitle,
-  latestChangelogHref,
+  latestPost,
   thinkingImages,
 }: RedesignedHeroProps) => {
   return (
-    <section className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}>
+    <section
+      className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}
+    >
       <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
           <div className="max-w-2xl">
-            <div data-site-hero-reveal data-site-reveal-delay="0" className="mb-7">
-              <a
-                href={canonicalizeInternalHref(latestChangelogHref)}
-                className={`${GLOW_PILL_SURFACE_CLASS} group gap-2`}
-                onMouseMove={handleGlowPillMouseMove}
-              >
-                <span
-                  aria-hidden="true"
-                  className="h-1.5 w-1.5 bg-accent"
-                  style={{
-                    boxShadow:
-                      "0 0 2px rgba(203, 90, 51, 0.9), 0 0 6px rgba(203, 90, 51, 0.5), 0 0 14px rgba(171, 69, 31, 0.35)",
-                  }}
-                />
-                <span>{latestChangelogTitle}</span>
-                <ArrowRight className="h-3 w-3 text-ink-soft transition-transform group-hover:translate-x-0.5" />
-              </a>
-            </div>
-
-            <h1
-              data-site-hero-reveal
-              data-site-reveal-delay="40"
-              className={`mb-5 ${HERO_H1_CLASS}`}
-            >
+            <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
               Infrastructure for the <br />
               agentic era.
             </h1>
 
             <p
-              data-site-hero-reveal
-              data-site-reveal-delay="80"
+              {...settledHeroReveal(40)}
               className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft"
             >
               <ProductVerb href="/actors" accent="actors">
@@ -347,8 +406,7 @@ export const RedesignedHero = ({
             </p>
 
             <div
-              data-site-hero-reveal
-              data-site-reveal-delay="120"
+              {...settledHeroReveal(80)}
               className="flex flex-col gap-3 sm:flex-row"
             >
               <a href="/docs/" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
@@ -359,8 +417,7 @@ export const RedesignedHero = ({
           </div>
 
           <div
-            data-site-hero-reveal
-            data-site-reveal-delay="160"
+            {...settledHeroReveal(120)}
             className="relative hidden flex-shrink-0 lg:block"
           >
             <ThinkingImageCycler images={thinkingImages} />
@@ -368,16 +425,13 @@ export const RedesignedHero = ({
         </div>
 
         {/* Mobile: Image */}
-        <div
-          data-site-hero-reveal
-          data-site-reveal-delay="160"
-          className="mb-10 mt-12 lg:hidden"
-        >
+        <div {...settledHeroReveal(120)} className="mb-10 mt-12 lg:hidden">
           <div className="flex justify-center">
             <ThinkingImageCycler images={thinkingImages} />
           </div>
         </div>
       </div>
+      {latestPost ? <LatestPostWindow post={latestPost} /> : null}
     </section>
   );
 };
