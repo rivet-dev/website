@@ -618,10 +618,6 @@
 	--motif-node-stroke: rgba(244, 241, 231, 0.22);
 }
 
-.product-motif--card.product-motif--workflows {
-	--motif-line-soft: rgba(244, 241, 231, 0.18);
-}
-
 .product-motif--hero {
 	--motif-line-soft: rgba(27, 25, 22, 0.075);
 	--motif-line-strong: rgba(27, 25, 22, 0.115);
@@ -646,7 +642,7 @@
 	);
 }
 
-.product-motif--hero:is(.product-motif--workflows, .product-motif--dynamic-apps) {
+.product-motif--hero:is(.product-motif--workflows, .product-motif--agentos, .product-motif--dynamic-apps) {
 	--motif-line-soft: rgba(27, 25, 22, 0.09);
 	--motif-line-strong: rgba(27, 25, 22, 0.135);
 	--motif-node-stroke: rgba(27, 25, 22, 0.11);
@@ -845,165 +841,349 @@
 	}
 }
 
-/* The Workflows stack card transposes the reference's vertical data field into
-   horizontal execution lanes. Each trace enters a task, the task resolves,
-   then the trace continues before the sequence loops while the card is active. */
+/* Workflows draws the execution route as three nested serpentine lanes. On
+   hover a light pulse travels each lane end to end, staggered across the
+   bundle while the card remains active. */
 .workflow-rail {
+	fill: none;
+	stroke-width: 1;
+}
+
+.workflow-rail--bright {
+	stroke: var(--motif-line-strong);
+}
+
+.workflow-rail--soft {
 	stroke: var(--motif-line-soft);
-	stroke-width: 1;
 }
 
-.workflow-node {
-	fill: var(--workflow-node-fill);
-	stroke: var(--motif-node-stroke);
-	stroke-width: 1;
-	transform-box: fill-box;
-	transform-origin: center;
-	transition:
-		fill 170ms cubic-bezier(0.22, 1, 0.36, 1),
-		stroke 170ms cubic-bezier(0.22, 1, 0.36, 1),
-		transform 170ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.workflow-step-1 {
-	--workflow-node-fill: rgba(244, 241, 231, 0.24);
-	--workflow-node-active-fill: rgba(244, 241, 231, 0.5);
-}
-
-.workflow-step-2 {
-	--workflow-node-fill: rgba(255, 255, 255, 0.16);
-	--workflow-node-active-fill: rgba(255, 255, 255, 0.4);
-}
-
-.workflow-step-3 {
-	--workflow-node-fill: rgba(244, 241, 231, 0.28);
-	--workflow-node-active-fill: rgba(244, 241, 231, 0.54);
-}
-
-.workflow-step-4 {
-	--workflow-node-fill: rgba(255, 255, 255, 0.2);
-	--workflow-node-active-fill: rgba(255, 255, 255, 0.46);
-}
-
-.product-motif--hero .workflow-step {
-	--workflow-node-fill: rgba(27, 25, 22, 0.055);
-	--workflow-node-active-fill: rgba(27, 25, 22, 0.055);
-}
-
-.product-motif--hero .workflow-node {
-	transition: none;
-}
-
-.workflow-step--mobile {
-	display: none;
-}
-
-@media (max-width: 639px) {
-	.product-motif--hero .workflow-step--default {
-		display: none;
-	}
-
-	.product-motif--hero .workflow-step--mobile {
-		display: initial;
-	}
-}
-
-.workflow-trace {
+/* One dash of 0.1 path-lengths repeats at period 1, so exactly one pulse
+   rides each lane. The lane paths run 180 units off-canvas at both ends, so
+   the parked dash (dashoffset 1) and the finished dash (0.1) both sit fully
+   off-screen — the light enters and exits at the card edge with no opacity
+   choreography. */
+.workflow-pulse {
 	fill: none;
 	stroke: rgba(244, 241, 231, 0.88);
-	stroke-width: 1.25;
-	stroke-dasharray: 1;
+	stroke-width: 1.5;
+	stroke-linecap: round;
+	stroke-dasharray: 0.1 0.9;
 	stroke-dashoffset: 1;
-	opacity: 0;
-	transition:
-		stroke-dashoffset 170ms cubic-bezier(0.22, 1, 0.36, 1),
-		opacity 170ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.workflow-card:is(:hover, :focus-visible) .workflow-trace-in {
-	animation: workflow-trace-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-	animation-delay: var(--workflow-step-delay);
+.workflow-card:is(:hover, :focus-visible) .workflow-pulse {
+	animation-duration: 3.6s;
+	animation-iteration-count: infinite;
+	animation-delay: var(--workflow-lane-delay);
 }
 
-.workflow-card:is(:hover, :focus-visible) .workflow-node {
-	animation: workflow-node-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-	animation-delay: calc(var(--workflow-step-delay) + 140ms);
+.workflow-card:is(:hover, :focus-visible) .workflow-pulse--1 {
+	animation-name: workflow-pulse-travel-1;
 }
 
-.workflow-card:is(:hover, :focus-visible) .workflow-trace-out {
-	animation: workflow-trace-loop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-	animation-delay: calc(var(--workflow-step-delay) + 220ms);
+.workflow-card:is(:hover, :focus-visible) .workflow-pulse--2 {
+	animation-name: workflow-pulse-travel-2;
 }
 
-@keyframes workflow-trace-loop {
+.workflow-card:is(:hover, :focus-visible) .workflow-pulse--3 {
+	animation-name: workflow-pulse-travel-3;
+}
+
+/* The pulse reacts to the route: fast in from off-screen, a long brake into
+   the first U-turn, then a steady glide through the whole mid-section — the
+   two short straights cruise (1.25x time weight, near-linear bezier) instead
+   of sprinting, so every curve reads like the first one's calm approach —
+   before accelerating off-screen at the end. Arcs are weighted 3x time per
+   unit length and every straight bezier ends/starts at a slope matching the
+   arcs' constant speed, so there is no lurch at any curve boundary. Stops
+   mark where the dash center crosses each straight/arc boundary of that
+   lane's geometry — derived from workflowLanePath in ProductMotif.tsx (tails
+   180, runs to x=262/58, radii 52/38/24 by lane); recompute if the geometry
+   or the weights change. */
+@keyframes workflow-pulse-travel-1 {
 	0% {
 		stroke-dashoffset: 1;
-		opacity: 0;
+		animation-timing-function: cubic-bezier(0.3, 0.3, 0.7, 0.9);
 	}
-	6% {
+	14.7% {
+		stroke-dashoffset: 0.7891;
+		animation-timing-function: linear;
+	}
+	34.86% {
+		stroke-dashoffset: 0.6927;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	45.35% {
+		stroke-dashoffset: 0.5723;
+		animation-timing-function: linear;
+	}
+	54.65% {
+		stroke-dashoffset: 0.5277;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	65.14% {
+		stroke-dashoffset: 0.4073;
+		animation-timing-function: linear;
+	}
+	85.3% {
+		stroke-dashoffset: 0.3109;
+		animation-timing-function: cubic-bezier(0.3, 0.1, 0.7, 0.7);
+	}
+	100% {
+		stroke-dashoffset: 0.1;
+	}
+}
+
+@keyframes workflow-pulse-travel-2 {
+	0% {
+		stroke-dashoffset: 1;
+		animation-timing-function: cubic-bezier(0.3, 0.3, 0.7, 0.9);
+	}
+	15.61% {
+		stroke-dashoffset: 0.7821;
+		animation-timing-function: linear;
+	}
+	31.16% {
+		stroke-dashoffset: 0.7098;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	42.23% {
+		stroke-dashoffset: 0.5862;
+		animation-timing-function: linear;
+	}
+	57.77% {
+		stroke-dashoffset: 0.5138;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	68.84% {
+		stroke-dashoffset: 0.3902;
+		animation-timing-function: linear;
+	}
+	84.39% {
+		stroke-dashoffset: 0.3179;
+		animation-timing-function: cubic-bezier(0.3, 0.1, 0.7, 0.7);
+	}
+	100% {
+		stroke-dashoffset: 0.1;
+	}
+}
+
+@keyframes workflow-pulse-travel-3 {
+	0% {
+		stroke-dashoffset: 1;
+		animation-timing-function: cubic-bezier(0.3, 0.3, 0.7, 0.9);
+	}
+	16.62% {
+		stroke-dashoffset: 0.7748;
+		animation-timing-function: linear;
+	}
+	27.02% {
+		stroke-dashoffset: 0.7279;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	38.74% {
+		stroke-dashoffset: 0.6009;
+		animation-timing-function: linear;
+	}
+	61.26% {
+		stroke-dashoffset: 0.4991;
+		animation-timing-function: cubic-bezier(0.15, 0.0625, 0.85, 0.9375);
+	}
+	72.98% {
+		stroke-dashoffset: 0.3721;
+		animation-timing-function: linear;
+	}
+	83.38% {
+		stroke-dashoffset: 0.3252;
+		animation-timing-function: cubic-bezier(0.3, 0.1, 0.7, 0.7);
+	}
+	100% {
+		stroke-dashoffset: 0.1;
+	}
+}
+
+/* Dynamic Apps runs a verified Game of Life board: oscillators tick
+   generations on one synchronous clock while a glider walks the diagonal into
+   the fade. Timelines stay paused at rest, preserving the board between
+   hovers, and every visible frame is a genuine B3/S23 generation. */
+.product-motif--dynamic-apps {
+	--life-gen: 1000ms;
+}
+
+.dynamic-app-cell {
+	fill: var(--motif-line-strong);
+}
+
+.dynamic-app-cell--soft {
+	fill: var(--motif-line-soft);
+}
+
+/* Still lifes render as hairline outlines: settled, deployed, quiet. */
+.dynamic-app-cell--still {
+	fill: none;
+	stroke: var(--motif-node-stroke);
+	stroke-width: 1;
+}
+
+/* Cells dead at generation 0 stay dark wherever the timelines never run
+   (hero surface, reduced motion). */
+.dynamic-app-cell--b,
+.dynamic-app-cell--rest-off {
+	opacity: 0;
+}
+
+/* Period-2 oscillator phases: alive one generation, dead the next. */
+.dynamic-app-cell--a,
+.dynamic-app-cell--b {
+	animation: dynamic-app-life-tick calc(var(--life-gen) * 2) steps(1, end) infinite;
+	animation-play-state: paused;
+}
+
+.dynamic-app-cell--b {
+	animation-delay: calc(-1 * var(--life-gen));
+}
+
+/* Glider cells: alive for a 1-3 generation window of the 4-generation cycle,
+   offset by --life-phase. Negative delays resolve the correct generation even
+   while paused at rest. */
+.dynamic-app-cell--q1,
+.dynamic-app-cell--q2,
+.dynamic-app-cell--q3 {
+	animation-duration: calc(var(--life-gen) * 4);
+	animation-timing-function: steps(1, end);
+	animation-iteration-count: infinite;
+	animation-delay: calc((var(--life-phase, 0) - 4) * var(--life-gen));
+	animation-play-state: paused;
+}
+
+.dynamic-app-cell--q1 {
+	animation-name: dynamic-app-life-q1;
+}
+
+.dynamic-app-cell--q2 {
+	animation-name: dynamic-app-life-q2;
+}
+
+.dynamic-app-cell--q3 {
+	animation-name: dynamic-app-life-q3;
+}
+
+/* The glider advances one diagonal cell every four generations (four steps of
+   32 viewBox units each way) and hides for the entire final generation, so
+   the teleport back to the origin happens during the blackout. */
+.dynamic-app-glider {
+	transform-box: view-box;
+	animation:
+		dynamic-app-glider-walk calc(var(--life-gen) * 16) steps(4, end) infinite,
+		dynamic-app-glider-seam calc(var(--life-gen) * 16) linear infinite;
+	animation-play-state: paused;
+}
+
+.dynamic-apps-card:is(:hover, :focus-visible) :is(.dynamic-app-cell, .dynamic-app-glider) {
+	animation-play-state: running;
+}
+
+.product-motif--hero :is(.dynamic-app-cell, .dynamic-app-glider) {
+	animation: none;
+}
+
+@keyframes dynamic-app-life-tick {
+	0% {
 		opacity: 1;
 	}
-	18%,
-	58% {
-		stroke-dashoffset: 0;
+	50% {
+		opacity: 0;
+	}
+	100% {
 		opacity: 1;
 	}
-	74% {
-		stroke-dashoffset: 0;
+}
+
+@keyframes dynamic-app-life-q1 {
+	0% {
+		opacity: 1;
+	}
+	25%,
+	100% {
 		opacity: 0;
+	}
+}
+
+@keyframes dynamic-app-life-q2 {
+	0% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes dynamic-app-life-q3 {
+	0% {
+		opacity: 1;
 	}
 	75%,
 	100% {
-		stroke-dashoffset: 1;
 		opacity: 0;
 	}
 }
 
-@keyframes workflow-node-loop {
-	0%,
-	5%,
-	76%,
-	100% {
-		fill: var(--workflow-node-fill);
-		stroke: rgba(244, 241, 231, 0.22);
-		transform: scale(1);
+@keyframes dynamic-app-glider-walk {
+	from {
+		transform: translate(0, 0);
 	}
-	13%,
-	58% {
-		fill: var(--workflow-node-active-fill);
-		stroke: rgba(255, 255, 255, 0.6);
-		transform: scale(1.01);
+	to {
+		transform: translate(40%, 32%);
 	}
 }
 
-/* Dynamic Apps uses paired circle outlines: each pair trades diagonal
-   positions, pauses, and returns to origin while the card remains active. */
-.dynamic-app-circle {
+@keyframes dynamic-app-glider-seam {
+	0%,
+	93.7% {
+		opacity: 1;
+	}
+	93.75%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dynamic-app-cell,
+	.dynamic-app-glider {
+		animation: none !important;
+	}
+}
+
+/* agentOS uses paired circle outlines: each pair trades diagonal positions,
+   pauses, and returns to origin while the card remains active. */
+.agentos-circle {
 	fill: none;
 	stroke-width: 1;
 	transform-box: view-box;
 	transform-origin: center;
 }
 
-.dynamic-app-circle--bright {
+.agentos-circle--bright {
 	stroke: var(--motif-line-strong);
 }
 
-.dynamic-app-circle--soft {
+.agentos-circle--soft {
 	stroke: var(--motif-line-soft);
 }
 
-.dynamic-apps-card:is(:hover, :focus-visible) .dynamic-app-circle--forward {
-	animation: dynamic-app-circle-forward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-	animation-delay: var(--dynamic-circle-delay);
+.agentos-card:is(:hover, :focus-visible) .agentos-circle--forward {
+	animation: agentos-circle-forward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: var(--agentos-circle-delay);
 }
 
-.dynamic-apps-card:is(:hover, :focus-visible) .dynamic-app-circle--backward {
-	animation: dynamic-app-circle-backward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-	animation-delay: var(--dynamic-circle-delay);
+.agentos-card:is(:hover, :focus-visible) .agentos-circle--backward {
+	animation: agentos-circle-backward 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	animation-delay: var(--agentos-circle-delay);
 }
 
-@keyframes dynamic-app-circle-forward {
+@keyframes agentos-circle-forward {
 	0%,
 	7%,
 	93%,
@@ -1016,7 +1196,7 @@
 	}
 }
 
-@keyframes dynamic-app-circle-backward {
+@keyframes agentos-circle-backward {
 	0%,
 	7%,
 	93%,
@@ -1030,98 +1210,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.dynamic-app-circle {
+	.agentos-circle {
 		animation: none !important;
 		transform: none;
 	}
 }
 
-/* agentOS radiates a sine-eased family of circles from one origin. The
-   timelines remain paused at rest, preserving their phase between hovers. */
-.agentos-ring {
-	fill: none;
-	stroke-width: 1;
-	transform: scale(var(--agentos-ring-scale));
-	transform-box: view-box;
-	transform-origin: 330px 306px;
-	animation: agentos-ring-grow 7.2s infinite;
-	animation-delay: var(--agentos-ring-delay);
-	animation-play-state: paused;
-	animation-timing-function: linear(
-		0,
-		0.0076,
-		0.0302,
-		0.067,
-		0.117,
-		0.1786,
-		0.25,
-		0.329,
-		0.4132,
-		0.5,
-		0.5868,
-		0.671,
-		0.75,
-		0.8214,
-		0.883,
-		0.933,
-		0.9698,
-		0.9924,
-		1
-	);
-}
-
-.agentos-ring--bright {
-	stroke: var(--motif-line-strong);
-}
-
-.agentos-ring--soft {
-	stroke: var(--motif-line-soft);
-}
-
-.product-motif--hero .agentos-ring {
-	animation: none;
-	opacity: 1;
-}
-
-.agentos-card:is(:hover, :focus-visible) .agentos-ring {
-	animation-play-state: running;
-}
-
-@keyframes agentos-ring-grow {
-	0% {
-		opacity: 1;
-		transform: scale(0.06);
-	}
-	90% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-		transform: scale(1.16);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
-	.agentos-ring {
+	.workflow-pulse {
 		animation: none !important;
 	}
-}
 
-@media (prefers-reduced-motion: reduce) {
-	.workflow-node,
-	.workflow-trace {
-		animation: none !important;
-		transition: none;
-	}
-
-	.workflow-card:is(:hover, :focus-visible) .workflow-node {
-		fill: var(--workflow-node-active-fill);
-		stroke: rgba(255, 255, 255, 0.56);
-		transform: none;
-	}
-
-	.workflow-card:is(:hover, :focus-visible) .workflow-trace {
+	.workflow-card:is(:hover, :focus-visible) .workflow-pulse {
+		stroke-dasharray: none;
 		stroke-dashoffset: 0;
-		opacity: 0.72;
+		opacity: 0.55;
 	}
 }

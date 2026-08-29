@@ -1,9 +1,7 @@
-import { Blocks, LayoutGrid, Terminal, Wrench } from "lucide-react";
+import { Blocks, LayoutGrid, Server, Terminal, Wrench } from "lucide-react";
+import { deployOptionsForRole, type DeployOption } from "@rivetkit/shared-data";
 import { integrationsFor } from "@/data/integrations";
-import {
-  EYEBROW_CLASS,
-  SECTION_H2_CLASS,
-} from "../typography";
+import { EYEBROW_CLASS, SECTION_H2_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 
@@ -82,6 +80,32 @@ interface StackGroup {
   items: StackLink[];
 }
 
+const featuredPlatformProviders: DeployOption["name"][] = [
+  "aws-ecs",
+  "kubernetes",
+  "gcp-cloud-run",
+  "vm",
+  "cloudflare-workers",
+  "vercel",
+  "supabase-functions",
+  "railway",
+  "custom",
+];
+
+const workerDeployOptions = deployOptionsForRole("worker");
+const platformLinks: StackLink[] = [
+  ...featuredPlatformProviders
+    .map((provider) =>
+      workerDeployOptions.find((option) => option.name === provider),
+    )
+    .filter((option): option is DeployOption => option !== undefined)
+    .map((option) => ({
+      name: option.shortTitle || option.displayName,
+      href: `/actors/self-host/workers/${option.slug}/`,
+    })),
+  { name: "+ more", href: "/actors/self-host/workers/" },
+];
+
 const groups: StackGroup[] = [
   { label: "Frameworks", icon: LayoutGrid, items: frameworks },
   { label: "Runtimes", icon: Terminal, items: runtimes },
@@ -101,7 +125,7 @@ export const IntegrationsSection = () => (
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div data-site-reveal="" className="max-w-3xl">
         <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
-          Works with your stack.
+          Works with your existing tech.
         </h2>
       </div>
 
@@ -138,6 +162,27 @@ export const IntegrationsSection = () => (
             </div>
           );
         })}
+
+        <div
+          data-site-reveal-child=""
+          className="border-t border-ink/15 pt-5 sm:col-span-2 lg:col-span-4"
+        >
+          <div className="flex items-center gap-2.5">
+            <Server className="h-4 w-4 text-pine" aria-hidden="true" />
+            <h3 className={EYEBROW_CLASS}>Platforms</h3>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {platformLinks.map((item) => (
+              <a
+                key={item.name}
+                href={canonicalizeInternalHref(item.href)}
+                className={STACK_CHIP_CLASS}
+              >
+                {item.name}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </section>

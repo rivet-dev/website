@@ -20,6 +20,7 @@ import {
 	SITE_GUTTER_CLASS,
 	SITE_STANDARD_RAIL_CLASS,
 	SITE_UTILITY_HERO_CLASS,
+	SITE_WIDE_CALLOUT_CLASS,
 } from '@/components/marketing/layout';
 
 const StartupImageCycler = ({ images }: { images: { src: string; alt: string; mobileObjectPosition?: string }[] }) => {
@@ -258,7 +259,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 							</div>
 							{/* Desktop: Overlapping photos */}
 							<div className="hidden lg:block flex-shrink-0 relative w-[500px] h-[400px]" data-site-reveal data-site-reveal-delay="40">
-								<div className="absolute top-0 left-0 w-[320px] h-[240px] overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
+								<div className="absolute top-0 left-0 z-10 w-[320px] h-[240px] overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3">
 									<img
 										src={foundersImage}
 										alt="Rivet founders Nathan Flurry and Nicholas Kissel at Y Combinator W23 Demo Day"
@@ -297,7 +298,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 				{/* Bottom section */}
 				<div className="mt-12">
 					<div className={SITE_STANDARD_RAIL_CLASS}>
-						<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6" data-site-reveal data-site-reveal-delay="80">
+						<div className={`flex flex-col md:flex-row md:items-center md:justify-between gap-6 ${SITE_WIDE_CALLOUT_CLASS}`} data-site-reveal data-site-reveal-delay="80">
 							<div>
 								<h2 className={CARD_TITLE_CLASS}>
 									50% off Rivet Cloud for 12 months

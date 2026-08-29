@@ -38,7 +38,7 @@ export const ObservabilitySection = () => (
       <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
         <div data-site-reveal="">
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
-            Observe the whole stack.
+            Complete observability.
           </h2>
         </div>
 
@@ -70,7 +70,7 @@ export const ObservabilitySection = () => (
 
       <figure
         data-site-reveal=""
-        className="mt-12 overflow-hidden rounded-xl border border-ink/10 bg-white/55 p-2 sm:p-3"
+        className="mt-12 overflow-hidden rounded-xl"
       >
         <img
           src={inspectorSrc}
@@ -79,7 +79,7 @@ export const ObservabilitySection = () => (
           height="2018"
           loading="lazy"
           decoding="async"
-          className="block h-auto w-full rounded-md border border-ink/10"
+          className="block h-auto w-full"
         />
       </figure>
     </div>
