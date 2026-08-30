@@ -82,6 +82,7 @@ export function Header({
 										? "text-zinc-900 border-zinc-200 bg-transparent hover:bg-zinc-100 hover:border-zinc-300 hover:text-zinc-900"
 										: "text-white border-white/10 bg-transparent hover:bg-white/5 hover:border-white/20 hover:text-white"
 								)}
+								data-mobile-menu-trigger=""
 							>
 								<Icon icon={faBars} className="size-5" />
 								<span className="sr-only">
@@ -89,15 +90,16 @@ export function Header({
 								</span>
 							</Button>
 						</SheetTrigger>
-						<SheetContent side="left" className={cn("overflow-auto p-0 [&>button]:fixed [&>button]:left-[calc(100vw-4rem)] [&>button]:top-4 [&>button]:bg-black/80 [&>button]:backdrop-blur [&>button]:border [&>button]:border-white/10 [&>button]:shadow-lg [&>button]:text-white [&>button]:ring-offset-black [&>button]:focus:ring-white/20 [&>button]:hover:bg-white/5 [&>button]:hover:border-white/20", sheetClassName)}>
-							<nav className="min-h-full text-lg font-medium h-full max-w-full">
+						<SheetContent
+							side="left"
+							aria-label="Navigation menu"
+							className={cn(
+								"overflow-visible p-0 [&>button]:right-3 [&>button]:top-3 [&>button]:inline-flex [&>button]:size-10 [&>button]:items-center [&>button]:justify-center [&>button]:border [&>button]:border-white/10 [&>button]:bg-black/80 [&>button]:text-white [&>button]:shadow-lg [&>button]:backdrop-blur [&>button]:ring-offset-black [&>button]:hover:border-white/20 [&>button]:hover:bg-white/5 [&>button]:focus:ring-white/20",
+								sheetClassName,
+							)}
+						>
+							<nav className="h-full max-w-full overflow-y-auto overscroll-contain text-lg font-medium">
 								<div className="flex flex-col min-h-full">
-									<a
-										href="/"
-										className="hidden"
-									>
-										{logo}
-									</a>
 									<div className="flex flex-1 flex-col px-4 py-4 gap-2">
 										{mobileBreadcrumbs}
 									</div>

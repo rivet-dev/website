@@ -145,12 +145,114 @@ const latestPost = latestEntry
 	// Match Tailwind's rem-based `lg` breakpoint without leaving a fractional gap.
 	const mobileViewport = window.matchMedia('(max-width: 63.999rem)');
 	const phoneViewport = window.matchMedia('(max-width: 47.999rem)');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+	// Firefox Release still gates CSS view timelines. Unsupported browsers use
+	// paused Web Animations whose current time is advanced by scroll progress.
+	const supportsAgentStackViewTimeline =
+		CSS.supports('animation-timeline: view()') &&
+		CSS.supports('view-timeline-name: --agent-stack') &&
+		CSS.supports('animation-timeline: --agent-stack');
 	let observers: IntersectionObserver[] = [];
 	let resizeFrame = 0;
+	let scrollFrame = 0;
+	let desktopFallbacks: Array<{ figure: HTMLElement; animations: Animation[] }> = [];
+	const desktopFallbackDuration = 1000;
 
 	const disconnectObservers = () => {
 		for (const observer of observers) observer.disconnect();
 		observers = [];
+	};
+
+	const clearDesktopStackFallback = () => {
+		window.cancelAnimationFrame(scrollFrame);
+		scrollFrame = 0;
+		for (const fallback of desktopFallbacks) {
+			for (const animation of fallback.animations) animation.cancel();
+		}
+		desktopFallbacks = [];
+	};
+
+	const updateDesktopStackFallback = () => {
+		scrollFrame = 0;
+		for (const { figure, animations } of desktopFallbacks) {
+			const bounds = figure.getBoundingClientRect();
+			const progress = Math.min(
+				1,
+				Math.max(0, (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height)),
+			);
+			for (const animation of animations) {
+				animation.currentTime = progress * desktopFallbackDuration;
+			}
+		}
+	};
+
+	const requestDesktopStackFallbackUpdate = () => {
+		if (scrollFrame !== 0 || desktopFallbacks.length === 0) return;
+		scrollFrame = window.requestAnimationFrame(updateDesktopStackFallback);
+	};
+
+	const createDesktopStackFallbackAnimation = (target: Element, keyframes: Keyframe[]) => {
+		const animation = target.animate(keyframes, {
+			duration: desktopFallbackDuration,
+			fill: 'both',
+		});
+		animation.pause();
+		return animation;
+	};
+
+	const bindDesktopStackFallback = () => {
+		clearDesktopStackFallback();
+		if (supportsAgentStackViewTimeline || mobileViewport.matches || reducedMotion.matches) return;
+
+		for (const figure of document.querySelectorAll<HTMLElement>('figure.agent-stack-figure')) {
+			const animations: Animation[] = [];
+			for (const plate of figure.querySelectorAll<SVGGraphicsElement>('[data-plate]')) {
+				const condense = plate.style.getPropertyValue('--agent-stack-condense');
+				const condensedTransform = `translateY(${condense})`;
+				animations.push(
+					createDesktopStackFallbackAnimation(plate, [
+						{ offset: 0, transform: condensedTransform },
+						{ offset: 0.3, transform: condensedTransform },
+						{ offset: 0.44, transform: 'translateY(0)' },
+						{ offset: 0.58, transform: 'translateY(0)' },
+						{ offset: 0.72, transform: condensedTransform },
+						{ offset: 1, transform: condensedTransform },
+					]),
+				);
+
+				const callout = plate.querySelector<SVGGElement>('[data-callout]');
+				if (callout) {
+					animations.push(
+						createDesktopStackFallbackAnimation(callout, [
+							{ offset: 0, opacity: 0, visibility: 'hidden' },
+							{ offset: 0.4, opacity: 0, visibility: 'hidden' },
+							{ offset: 0.47, opacity: 1, visibility: 'visible' },
+							{ offset: 0.56, opacity: 1, visibility: 'visible' },
+							{ offset: 0.63, opacity: 0, visibility: 'hidden' },
+							{ offset: 1, opacity: 0, visibility: 'hidden' },
+						]),
+					);
+				}
+			}
+
+			const grid = figure.querySelector<HTMLElement>('[data-stack-grid]');
+			if (grid) {
+				animations.push(
+					createDesktopStackFallbackAnimation(grid, [
+						{ offset: 0, opacity: 1 },
+						{ offset: 0.3, opacity: 1 },
+						{ offset: 0.44, opacity: 0.72 },
+						{ offset: 0.58, opacity: 0.72 },
+						{ offset: 0.72, opacity: 1 },
+						{ offset: 1, opacity: 1 },
+					]),
+				);
+			}
+
+			desktopFallbacks.push({ figure, animations });
+		}
+
+		updateDesktopStackFallback();
 	};
 
 	const bindAgentStackStory = () => {
@@ -204,25 +306,34 @@ const latestPost = latestEntry
 		}
 	};
 
-	const handleViewportChange = () => bindAgentStackStory();
+	const bindAgentStackAnimations = () => {
+		bindAgentStackStory();
+		bindDesktopStackFallback();
+	};
+	const handleViewportChange = () => bindAgentStackAnimations();
 	const handleViewportResize = () => {
 		window.cancelAnimationFrame(resizeFrame);
-		resizeFrame = window.requestAnimationFrame(bindAgentStackStory);
+		resizeFrame = window.requestAnimationFrame(bindAgentStackAnimations);
 	};
 	const destroy = () => {
 		disconnectObservers();
+		clearDesktopStackFallback();
 		window.cancelAnimationFrame(resizeFrame);
-		document.removeEventListener('astro:page-load', bindAgentStackStory);
+		document.removeEventListener('astro:page-load', bindAgentStackAnimations);
 		mobileViewport.removeEventListener('change', handleViewportChange);
+		reducedMotion.removeEventListener('change', handleViewportChange);
 		window.removeEventListener('resize', handleViewportResize);
+		window.removeEventListener('scroll', requestDesktopStackFallbackUpdate);
 		if (agentStackWindow.__rivetAgentStackStoryController?.destroy === destroy) {
 			delete agentStackWindow.__rivetAgentStackStoryController;
 		}
 	};
 
 	agentStackWindow.__rivetAgentStackStoryController = { destroy };
-	document.addEventListener('astro:page-load', bindAgentStackStory);
+	document.addEventListener('astro:page-load', bindAgentStackAnimations);
 	mobileViewport.addEventListener('change', handleViewportChange);
+	reducedMotion.addEventListener('change', handleViewportChange);
 	window.addEventListener('resize', handleViewportResize);
-	bindAgentStackStory();
+	window.addEventListener('scroll', requestDesktopStackFallbackUpdate, { passive: true });
+	bindAgentStackAnimations();
 </script>

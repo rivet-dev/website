@@ -24,21 +24,32 @@ const workflowLanes = [
 ] as const;
 
 // Both ends run 180 units off-canvas so the pulse dash (0.1 of the path,
-// ~161-169 units) sits fully off-screen at the loop's extremes.
-const workflowLanePath = (offset: number) => {
+// ~161-169 units) sits fully off-screen at the loop's extremes. The card keeps
+// the original turn positions; the hero pushes the turns out to sit inside the
+// wide field's visible center. The pulse dash math in main.css assumes the
+// card geometry, so heroes render rails only (see WorkflowMotif).
+const workflowLanePath = (offset: number, rightX = 262, leftX = 58) => {
   const rightRadius = 38 - offset;
   const leftRadius = 38 + offset;
   return [
     `M -180 ${48 + offset}`,
-    "H 262",
+    `H ${rightX}`,
     `a ${rightRadius} ${rightRadius} 0 0 1 0 ${rightRadius * 2}`,
-    "H 58",
+    `H ${leftX}`,
     `a ${leftRadius} ${leftRadius} 0 0 0 0 ${leftRadius * 2}`,
-    "H 262",
+    `H ${rightX}`,
     `a ${rightRadius} ${rightRadius} 0 0 1 0 ${rightRadius * 2}`,
     "H -180",
   ].join(" ");
 };
+
+// Card motifs draw one 320×400 cluster stretched over the 4/5 plate. Heroes
+// are wide and short, so slicing that same viewBox magnifies the artwork ~4×
+// and the center cut-out mask swallows it — the shapes stop reading as the
+// card imagery. Instead heroes repeat the cluster across a 1600×400 field so
+// the pattern stays at card scale, matching the Actors hero's tiled marks.
+const HERO_FIELD_VIEWBOX = "0 0 1600 400";
+const CARD_VIEWBOX = "0 0 320 400";
 
 const agentOSCircles = [
   { cx: 16, cy: 36, direction: "forward", tone: "bright", delay: 0 },
@@ -253,7 +264,7 @@ const containerClassName = (
 const WorkflowMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   <svg
     className="h-full w-full"
-    viewBox="0 0 320 400"
+    viewBox={surface === "hero" ? HERO_FIELD_VIEWBOX : CARD_VIEWBOX}
     preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
   >
     {workflowLanes.map((lane) => (
@@ -268,16 +279,22 @@ const WorkflowMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
       >
         <path
           className={`workflow-rail workflow-rail--${lane.tone}`}
-          d={workflowLanePath(lane.offset)}
+          d={
+            surface === "hero"
+              ? workflowLanePath(lane.offset, 1150, 450)
+              : workflowLanePath(lane.offset)
+          }
           pathLength="1"
           vectorEffect="non-scaling-stroke"
         />
-        <path
-          className={`workflow-pulse workflow-pulse--${lane.lane}`}
-          d={workflowLanePath(lane.offset)}
-          pathLength="1"
-          vectorEffect="non-scaling-stroke"
-        />
+        {surface === "card" && (
+          <path
+            className={`workflow-pulse workflow-pulse--${lane.lane}`}
+            d={workflowLanePath(lane.offset)}
+            pathLength="1"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </g>
     ))}
   </svg>
@@ -322,48 +339,68 @@ const LifeRect = ({
   />
 );
 
+// Hero copies sit 13 columns apart: a three-column dead gap between 10-column
+// boards, so the frozen generation-0 frames never read as one merged board.
+const DYNAMIC_APPS_HERO_COLUMNS = [0, 13, 26, 39] as const;
+
 const DynamicAppsMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   <svg
     className="h-full w-full"
-    viewBox="0 0 320 400"
+    viewBox={surface === "hero" ? HERO_FIELD_VIEWBOX : CARD_VIEWBOX}
     preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
   >
-    {lifeBoardCells.map((cell) => (
-      <LifeRect key={`${cell.col}-${cell.row}`} cell={cell} />
+    {(surface === "hero" ? DYNAMIC_APPS_HERO_COLUMNS : [0]).map((colShift) => (
+      <g key={colShift}>
+        {lifeBoardCells.map((cell) => (
+          <LifeRect
+            key={`${cell.col}-${cell.row}`}
+            cell={cell}
+            colOffset={colShift}
+          />
+        ))}
+        <g className="dynamic-app-glider">
+          {gliderCells.map((cell) => (
+            <LifeRect
+              key={`glider-${cell.col}-${cell.row}`}
+              cell={cell}
+              colOffset={GLIDER_ORIGIN.col + colShift}
+              rowOffset={GLIDER_ORIGIN.row}
+            />
+          ))}
+        </g>
+      </g>
     ))}
-    <g className="dynamic-app-glider">
-      {gliderCells.map((cell) => (
-        <LifeRect
-          key={`glider-${cell.col}-${cell.row}`}
-          cell={cell}
-          colOffset={GLIDER_ORIGIN.col}
-          rowOffset={GLIDER_ORIGIN.row}
-        />
-      ))}
-    </g>
   </svg>
 );
+
+// The circle lattice is periodic at 320 in x (80/72 staggered grid), so
+// hero copies at 320-unit steps continue the cluster seamlessly.
+const AGENTOS_HERO_COLUMNS = [0, 320, 640, 960, 1280] as const;
 
 const AgentOSMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   <svg
     className="h-full w-full"
-    viewBox="0 0 320 400"
+    viewBox={surface === "hero" ? HERO_FIELD_VIEWBOX : CARD_VIEWBOX}
     preserveAspectRatio={surface === "hero" ? "xMidYMid slice" : "none"}
   >
-    {agentOSCircles.map((circle) => (
-      <circle
-        key={`${circle.cx}-${circle.cy}`}
-        className={`agentos-circle agentos-circle--${circle.direction} agentos-circle--${circle.tone}`}
-        style={
-          {
-            "--agentos-circle-delay": `${circle.delay}ms`,
-          } as CSSProperties
-        }
-        cx={circle.cx}
-        cy={circle.cy}
-        r="62"
-        vectorEffect="non-scaling-stroke"
-      />
+    {(surface === "hero" ? AGENTOS_HERO_COLUMNS : [0]).map((xShift) => (
+      <g key={xShift}>
+        {agentOSCircles.map((circle) => (
+          <circle
+            key={`${circle.cx}-${circle.cy}`}
+            className={`agentos-circle agentos-circle--${circle.direction} agentos-circle--${circle.tone}`}
+            style={
+              {
+                "--agentos-circle-delay": `${circle.delay}ms`,
+              } as CSSProperties
+            }
+            cx={circle.cx + xShift}
+            cy={circle.cy}
+            r="62"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+      </g>
     ))}
   </svg>
 );
