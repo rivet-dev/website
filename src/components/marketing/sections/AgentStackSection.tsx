@@ -6,6 +6,7 @@ import {
   GitBranch,
   Radio,
   Rocket,
+  ScrollText,
   Shield,
   SquareTerminal,
   type LucideIcon,
@@ -31,8 +32,7 @@ type StackLayer = {
   id: StackLayerId;
   name: string;
   cardWidth: number;
-  calloutLines: string[];
-  solution: string;
+  descriptionLines: string[];
   side: "left" | "right";
   hex: string;
 };
@@ -65,13 +65,19 @@ const agentNeeds: AgentNeed[] = [
     href: "/dynamic-apps/docs/deploy",
   },
   {
-    label: "Real-time (streaming responses)",
+    label: "Realtime & streaming",
     icon: Radio,
     layer: "actors",
     href: "/actors/docs/events",
   },
   {
-    label: "State/memory",
+    label: "Session transcripts",
+    icon: ScrollText,
+    layer: "agentos",
+    href: "/agentos/docs/sessions",
+  },
+  {
+    label: "Memory",
     icon: Brain,
     layer: "actors",
     href: "/actors/docs/state",
@@ -83,7 +89,7 @@ const agentNeeds: AgentNeed[] = [
     href: "/agentos/docs/security-model",
   },
   {
-    label: "Agent communication / workflows",
+    label: "Durable workflows",
     icon: GitBranch,
     layer: "workflows",
     href: "/workflows/docs",
@@ -94,9 +100,9 @@ const INK = "#1B1916";
 const INK_SOFT = "#56524A";
 const PINE = "#2E4034";
 
-// Every need in the grid maps to one layer. The compact callout lines remain
-// tuned for the desktop SVG while `solution` supplies the complete mobile
-// explanation without overloading the same field with two meanings.
+// Every need in the grid maps to one layer. Description lines are manually
+// wrapped for the desktop SVG, then joined for the mobile cards so both views
+// always use the same copy.
 // `cardWidth` is the callout card's width: SVG cannot auto-size around the
 // text, so each is sized to its longest line and tuned against a screenshot.
 const stackLayers: StackLayer[] = [
@@ -104,8 +110,7 @@ const stackLayers: StackLayer[] = [
     id: "dynamic-apps",
     name: "Dynamic Apps",
     cardWidth: 180,
-    calloutLines: ["Deployment"],
-    solution: "Deploys the backends your agents build.",
+    descriptionLines: ["Deploy the backends your", "agents build."],
     side: "right",
     hex: productAccent("dynamic-apps")?.hex ?? PINE,
   },
@@ -113,9 +118,7 @@ const stackLayers: StackLayer[] = [
     id: "workflows",
     name: "Workflows",
     cardWidth: 250,
-    calloutLines: ["Agent communication / workflows"],
-    solution:
-      "Coordinates agent communication and runs durable, replayable workflows that survive restarts.",
+    descriptionLines: ["Write multi-step operations", "that survive restarts."],
     side: "left",
     hex: productAccent("workflows")?.hex ?? PINE,
   },
@@ -123,9 +126,7 @@ const stackLayers: StackLayer[] = [
     id: "agentos",
     name: "agentOS",
     cardWidth: 220,
-    calloutLines: ["Secure code execution", "File system", "Isolation"],
-    solution:
-      "Provides every agent with secure code execution, an isolated computer, and a persistent file system.",
+    descriptionLines: ["Hand every agent a computer", "of its own."],
     side: "right",
     hex: productAccent("agentos")?.hex ?? PINE,
   },
@@ -133,20 +134,14 @@ const stackLayers: StackLayer[] = [
     id: "actors",
     name: "Actors",
     cardWidth: 260,
-    calloutLines: [
-      "Durable process",
-      "Real-time (streaming responses)",
-      "State/memory",
-    ],
-    solution:
-      "Provides every agent with a durable process, persistent state and memory, and real-time streaming.",
+    descriptionLines: ["Give every agent a durable", "process to live in."],
     side: "left",
     hex: productAccent("actors")?.hex ?? PINE,
   },
 ];
 
 const STACK_FIGURE_DESCRIPTION =
-  "Agents need durable processes, secure code execution, a file system, deployment, real-time streaming responses, state and memory, isolation, and agent communication and workflows. Each maps to a product layer of the Rivet stack: Dynamic Apps handles deployment; Workflows coordinates agent communication and durable workflows; agentOS provides secure code execution, a file system, and isolation; and Actors provide durable processes, real-time streaming, and state and memory.";
+  "Agents need durable processes, secure code execution, a file system, deployment, realtime and streaming, session transcripts, memory, isolation, and durable workflows. Each maps to a product layer of the Rivet stack: Dynamic Apps handles deployment; Workflows runs durable workflows; agentOS provides secure code execution, a file system, isolation, and session transcripts; and Actors provide durable processes, realtime and streaming, and memory.";
 
 // ---------------------------------------------------------------------------
 // Isometric exploded stack. 2:1 dimetric plates on the porcelain card, one per
@@ -467,7 +462,7 @@ const StackPlate = ({
   /** translateY that folds this plate onto the collapsed deck. */
   condenseDelta: number;
 }) => {
-  const { hex, side, name, calloutLines } = layer;
+  const { hex, side, name, descriptionLines } = layer;
   const dotY = cy + S / 2;
   const isRight = side === "right";
   // Leader dot on the midpoint of the front top edge facing the label.
@@ -476,7 +471,7 @@ const StackPlate = ({
   // centered on the leader line. Left-side cards anchor at the viewBox edge
   // and the leader line reaches out to meet them.
   const cardW = layer.cardWidth;
-  const cardH = 60 + (calloutLines.length - 1) * 17;
+  const cardH = 60 + (descriptionLines.length - 1) * 17;
   const cardX = isRight ? CX + HW + 16 : 20;
   const cardY = dotY - cardH / 2;
   const lineEndX = isRight ? cardX - 8 : cardX + cardW + 8;
@@ -540,7 +535,7 @@ const StackPlate = ({
         >
           {name}
         </text>
-        {calloutLines.map((caption, index) => (
+        {descriptionLines.map((caption, index) => (
           <text
             key={caption}
             x={cardX + CARD_PAD_X}
@@ -635,9 +630,10 @@ ${answeringLayers
   "@media (prefers-reduced-motion: reduce){.agent-stack-figure [data-plate],.agent-stack-figure [data-need]{transition:none;}}",
   // The non-desktop walkthrough keeps the full deck in view. The observer only
   // changes one data attribute; CSS owns the plate lift and active-card tone.
-  // The sticky diagram occupies just under half the mobile viewport. Keep the
-  // cards in normal document flow so every need remains readable below it, including
-  // the taller Actors step, without introducing a nested scroll container.
+  // The sticky diagram occupies just over a third of the mobile viewport. Keep the
+  // cards in normal document flow so every need remains readable below it,
+  // including the taller agentOS step, without introducing a nested scroll
+  // container.
   `[data-agent-stack-story]{
     --agent-stack-sticky-top:calc(var(--header-height,3.5rem) + 2.5rem);
   }
@@ -686,16 +682,18 @@ ${growLoopKeyframes("agent-stack-type-2", 34, 56)}
 @media (prefers-reduced-motion: reduce){.agent-stack-figure :is(.as-chip,.as-flow-1,.as-flow-2,.as-flow-3,.as-type-1,.as-type-2,.as-actor){animation:none;}}`,
   // Scroll-linked explode: the deck sits condensed while the diagram is at the
   // scrollport edges and expands over the middle of its view timeline, so it
-  // reverses as you scroll away in either direction. Guarded by @supports —
-  // without scroll-driven animations the zero-duration animation would settle
-  // on the 100% (condensed) frame, so unsupported browsers get no animation
-  // and keep the expanded layout.
-  `@supports (animation-timeline: view()) {
+  // reverses as you scroll away in either direction. Guarded by @supports so
+  // unsupported browsers do not run this as a time-based animation; the
+  // homepage script mirrors these keyframes with a Web Animations fallback.
+  `@supports (animation-timeline: view()) and (view-timeline-name: --agent-stack) and (animation-timeline: --agent-stack) {
   .agent-stack-figure { view-timeline-name: --agent-stack; }
-  .agent-stack-figure [data-plate] { animation: agent-stack-expand linear both; animation-timeline: --agent-stack; }
-  .agent-stack-figure [data-plate] > [data-callout] { animation: agent-stack-callout linear both; animation-timeline: --agent-stack; }
+  /* Firefox requires a non-zero duration before it applies a scroll-driven
+     animation. The view timeline still owns the progress, so 1ms does not
+     make the animation time-based. */
+  .agent-stack-figure [data-plate] { animation: agent-stack-expand 1ms linear both; animation-timeline: --agent-stack; }
+  .agent-stack-figure [data-plate] > [data-callout] { animation: agent-stack-callout 1ms linear both; animation-timeline: --agent-stack; }
   @media (min-width: 1024px) {
-    .agent-stack-figure [data-stack-grid] { animation: agent-stack-grid-tone linear both; animation-timeline: --agent-stack; }
+    .agent-stack-figure [data-stack-grid] { animation: agent-stack-grid-tone 1ms linear both; animation-timeline: --agent-stack; }
   }
   @keyframes agent-stack-expand {
     0%, 30% { transform: translateY(var(--agent-stack-condense)); }
@@ -813,7 +811,7 @@ const MobileStackStory = () => (
           className="pointer-events-none absolute inset-x-0 bottom-full h-10 bg-paper"
         />
         <div
-          className="h-[46svh] overflow-hidden rounded-xl border border-ink/10 bg-paper px-3 py-2 md:p-5"
+          className="h-[38svh] overflow-hidden rounded-xl border border-ink/10 bg-paper px-3 py-2 md:h-[46svh] md:p-5"
           data-agent-stack-diagram-panel=""
         >
           <CompactStackDiagram />
@@ -886,7 +884,7 @@ const MobileStackStory = () => (
                     How this layer solves it
                   </p>
                   <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                    {layer.solution}
+                    {layer.descriptionLines.join(" ")}
                   </p>
                 </div>
               </article>

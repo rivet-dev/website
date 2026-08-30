@@ -3,7 +3,7 @@
 import { productAccent } from "@/lib/product-accent";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import { useEffect, useState } from "react";
-import { Terminal, Check, X } from "lucide-react";
+import { Terminal, Check, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   HERO_H1_CLASS,
@@ -23,8 +23,6 @@ interface LatestPost {
   href: string;
   imageSrc: string | null;
 }
-
-const LATEST_POST_DISMISSED_KEY = "rivet-latest-post-dismissed";
 
 const ThinkingImageCycler = ({ images }: { images: ThinkingImage[] }) => {
   const reducedMotion = useReducedMotion();
@@ -299,71 +297,37 @@ function ProductVerb({
 }
 
 const LatestPostWindow = ({ post }: { post: LatestPost }) => {
-  const [isVisible, setIsVisible] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let wasDismissed = false;
-
-    try {
-      wasDismissed =
-        window.sessionStorage.getItem(LATEST_POST_DISMISSED_KEY) === "true";
-    } catch {
-      // Storage can be unavailable in restricted browser contexts. The close
-      // control should still work for the current render in that case.
-    }
-
-    setIsVisible(!wasDismissed);
-  }, []);
-
-  const handleDismiss = () => {
-    try {
-      window.sessionStorage.setItem(LATEST_POST_DISMISSED_KEY, "true");
-    } catch {
-      // Keep dismissal functional even when session storage is unavailable.
-    }
-
-    setIsVisible(false);
-  };
-
-  if (!isVisible) return null;
-
   return (
-    <div
-      className="absolute bottom-6 right-4 z-20 hidden w-96 rounded-xl border border-ink/15 bg-white/80 p-2.5 backdrop-blur-md transition-colors hover:border-ink/25 hover:bg-white md:right-12 md:bottom-8 xl:flex min-[1681px]:right-14"
+    <a
+      href={canonicalizeInternalHref(post.href)}
+      className="group pointer-events-auto absolute top-24 right-4 z-20 hidden w-96 items-center gap-3 rounded-xl border border-ink/15 bg-white/80 p-2.5 backdrop-blur-md transition-colors hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper md:right-12 md:top-28 xl:flex min-[1681px]:right-14"
       {...settledHeroReveal(160)}
     >
-      <a
-        href={canonicalizeInternalHref(post.href)}
-        className="group flex min-w-0 flex-1 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-      >
-        {post.imageSrc ? (
-          <img
-            src={post.imageSrc}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-            className="h-[4.5rem] w-28 shrink-0 rounded-lg border border-ink/10 object-cover"
-          />
-        ) : null}
-        <span className="min-w-0 py-0.5 pr-8">
-          <span className="block text-xs font-medium text-ink-faint">
+      {post.imageSrc ? (
+        <img
+          src={post.imageSrc}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="h-[4.5rem] w-28 shrink-0 rounded-lg border border-ink/10 object-cover"
+        />
+      ) : null}
+      <span className="min-w-0 flex-1 py-0.5">
+        <span className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-ink-faint">
             Latest update
           </span>
-          <span className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-ink">
-            {post.title}
-          </span>
+          <ArrowRight
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 text-ink-faint transition-all motion-reduce:transition-none group-hover:translate-x-0.5 group-hover:text-ink"
+          />
         </span>
-      </a>
-      <button
-        type="button"
-        aria-label="Dismiss latest update"
-        onClick={handleDismiss}
-        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-      >
-        <X aria-hidden="true" className="h-3.5 w-3.5" />
-      </button>
-    </div>
+        <span className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-ink">
+          {post.title}
+        </span>
+      </span>
+    </a>
   );
 };
 
@@ -431,7 +395,14 @@ export const RedesignedHero = ({
           </div>
         </div>
       </div>
-      {latestPost ? <LatestPostWindow post={latestPost} /> : null}
+      {/* Ungutted rail matching the floating header's max width, so the card's
+          own gutter offsets (right-4/-12/-14) land on the same right edge as the
+          nav. A padded rail would not inset an absolutely-positioned child. */}
+      {latestPost ? (
+        <div className="pointer-events-none absolute inset-0 mx-auto w-full max-w-[1800px]">
+          <LatestPostWindow post={latestPost} />
+        </div>
+      ) : null}
     </section>
   );
 };
