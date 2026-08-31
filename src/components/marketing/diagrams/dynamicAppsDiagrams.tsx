@@ -86,17 +86,114 @@ const AgentOSLabel = ({ children = 'agentOS' }: { children?: ReactNode }) => (
 	</div>
 );
 
+// A down arrow with a soft gradient window that sweeps down its stroke when
+// `active` becomes true, painting it pine as it passes. The window's rest
+// position is off-path, so the pulse ends (and unmounts) invisibly — no jerk
+// if the stage advances first. `id` namespaces the SVG defs.
+const PulseDownArrow = ({
+	className = '',
+	active = false,
+	duration = 0.21,
+	id,
+}: {
+	className?: string;
+	active?: boolean;
+	duration?: number;
+	id: string;
+}) => (
+	<svg
+		viewBox='0 0 12 28'
+		className={`w-3 shrink-0 ${className}`}
+		fill='none'
+		strokeWidth='1.25'
+		strokeLinecap='round'
+		strokeLinejoin='round'
+		aria-hidden='true'
+	>
+		<defs>
+			<linearGradient id={`${id}-soft`} x1='0' y1='0' x2='0' y2='1'>
+				<stop offset='0' stopColor='#fff' stopOpacity='0' />
+				<stop offset='0.5' stopColor='#fff' stopOpacity='1' />
+				<stop offset='1' stopColor='#fff' stopOpacity='0' />
+			</linearGradient>
+			<mask id={`${id}-win`}>
+				{active && (
+					<motion.rect
+						x='0'
+						width='12'
+						height='24'
+						fill={`url(#${id}-soft)`}
+						initial={{ y: -24 }}
+						animate={{ y: 30 }}
+						transition={{ duration, ease: 'linear' }}
+					/>
+				)}
+			</mask>
+		</defs>
+		<path d='M6 1v24' stroke='currentColor' />
+		<path d='M2 21l4 4 4-4' stroke='currentColor' />
+		<g mask={`url(#${id}-win)`} stroke={PINE} strokeWidth='2.5'>
+			<path d='M6 1v24' />
+			<path d='M2 21l4 4 4-4' />
+		</g>
+	</svg>
+);
+
 // Cross-section of your backend: the request enters your Node.js backend and
 // passes down through your middleware, the apps router, and into the agentOS
-// VM running the app. One column, no side text: the shape carries the point.
+// VM running the app. Once in view, a request pulses through on a loop: a pine
+// pulse sweeps each arrow, lighting the middleware, then the router, then the
+// VM running the target app — cycling through the deployed apps.
+type RoutingStage = 'idle' | 'request' | 'toRouter' | 'toVm' | 'vm';
+
 export const AppsRoutingDiagram = () => {
-	const { ref, show } = useDiagram();
+	const { ref, inView, reduced, show } = useDiagram();
+	const [stage, setStage] = useState<RoutingStage>('idle');
+	const [target, setTarget] = useState(0);
 	const clients = [
 		{ icon: Globe, label: 'Browser' },
 		{ icon: Bot, label: 'Agent' },
 		{ icon: Braces, label: 'API' },
 	];
 	const apps = ['pied-piper', 'hooli', 'aviato', 'initech'];
+
+	useEffect(() => {
+		if (!inView || reduced) return;
+		let alive = true;
+		const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+		(async () => {
+			// Let the staged fade-in settle before the first request.
+			await sleep(1400);
+			let i = 0;
+			const step = async (s: RoutingStage, ms: number) => {
+				if (!alive) return false;
+				setStage(s);
+				await sleep(ms);
+				return alive;
+			};
+			while (alive) {
+				// Sweep durations are proportional to arrow height (36px top,
+				// 16px hops) so the pulse moves at constant speed.
+				if (!(await step('request', 280))) return;
+				if (!(await step('toRouter', 126))) return;
+				if (!(await step('toVm', 126))) return;
+				if (!(await step('vm', 770))) return;
+				// Advance the target while the GET label is hidden, so it
+				// reappears already showing the next app's path.
+				i += 1;
+				setTarget(i % apps.length);
+				if (!(await step('idle', 350))) return;
+			}
+		})();
+		return () => {
+			alive = false;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inView, reduced]);
+
+	const lit = 'transition-all duration-200';
+	const mwLit = stage === 'toRouter' || stage === 'toVm';
+	const routerLit = stage === 'toVm';
 
 	return (
 		<div
@@ -116,36 +213,74 @@ export const AppsRoutingDiagram = () => {
 				</motion.div>
 
 				<motion.div className='relative my-3 flex items-center justify-center' {...show(1)}>
-					<DownArrow className='h-9 text-ink/50' />
-					<span className='absolute left-full top-[45%] ml-3 -translate-y-1/2 whitespace-nowrap font-mono text-xs leading-none text-ink'>GET /apps/pied-piper</span>
+					<PulseDownArrow id='rt0' className='h-9 text-ink/50' active={stage !== 'idle'} duration={0.42} />
+					<span
+						className={`absolute left-full top-[45%] ml-3 -translate-y-1/2 whitespace-nowrap font-mono text-xs leading-none ${lit} ${
+							stage === 'request' ? 'text-pine opacity-100' : stage === 'idle' ? 'text-ink opacity-100' : 'text-ink opacity-0'
+						}`}
+					>
+						GET /apps/{apps[target]}
+					</span>
 				</motion.div>
 
 				<motion.div className='w-full max-w-xs rounded-xl bg-white p-4 ring-1 ring-ink/10' {...show(2)}>
 					<p className='text-sm font-medium text-ink'>Your Node.js backend</p>
 
 					<div className='mt-2.5 flex flex-col items-center gap-0.5'>
-						<motion.div className={`${CHIP_CLASS} flex w-full items-center gap-2 py-2.5 text-[13px]`} {...show(3)}>
-							<Lock className='size-4 shrink-0 text-ink-faint' strokeWidth={1.75} aria-hidden='true' />
+						<motion.div
+							className={`flex w-full items-center gap-2 rounded-md px-2.5 py-2.5 text-[13px] ${lit} ${
+								mwLit ? 'bg-[#E7ECE7] text-ink ring-1 ring-pine/40' : 'bg-paper text-ink-soft ring-1 ring-ink/[0.08]'
+							}`}
+							{...show(3)}
+						>
+							<Lock
+								className={`size-4 shrink-0 ${lit} ${mwLit ? 'text-pine' : 'text-ink-faint'}`}
+								strokeWidth={1.75}
+								aria-hidden='true'
+							/>
 							Your middleware &amp; auth
 						</motion.div>
 
-						<DownArrow className='h-4 text-ink/30' />
+						<PulseDownArrow id='rt1' className='h-4 text-ink/30' active={stage === 'toRouter' || stage === 'toVm' || stage === 'vm'} />
 
-						<motion.div className={`${CHIP_PINE_CLASS} flex w-full items-center gap-2 py-2.5 text-[13px]`} {...show(4)}>
+						<motion.div
+							className={`${CHIP_PINE_CLASS} flex w-full items-center gap-2 py-2.5 text-[13px] ${lit} ${
+								routerLit ? 'ring-4 ring-pine/25' : 'ring-4 ring-transparent'
+							}`}
+							{...show(4)}
+						>
 							<Route className='size-4 shrink-0' strokeWidth={1.75} aria-hidden='true' />
 							Dynamic Apps router
 						</motion.div>
 
-						<DownArrow className='h-4 text-ink/30' />
+						<PulseDownArrow id='rt2' className='h-4 text-ink/30' active={stage === 'toVm' || stage === 'vm'} />
 
 						<motion.div className={`${SANDBOX_CLASS} w-full`} {...show(5)}>
 							<AgentOSLabel>agentOS VMs</AgentOSLabel>
 							<div className='mt-2.5 grid grid-cols-2 gap-1.5'>
-								{apps.map((app) => (
-									<span key={app} className={`${CHIP_CLASS} truncate text-center`}>
-										{app}
-									</span>
-								))}
+								{apps.map((app, i) => {
+									const hit = reduced ? i === 0 : stage === 'vm' && i === target;
+									return (
+										<span
+											key={app}
+											className={`flex items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors duration-200 ${
+												hit ? 'border-pine bg-white text-ink' : 'border-dashed border-ink/15 bg-ink/[0.03] text-transparent'
+											}`}
+										>
+											<span className='truncate'>{app}</span>
+											{hit && (
+												<motion.span
+													className='shrink-0 font-mono text-[10px] font-medium leading-none text-pine'
+													initial={{ opacity: 0 }}
+													animate={{ opacity: 1 }}
+													transition={{ duration: 0.2 }}
+												>
+													200 OK
+												</motion.span>
+											)}
+										</span>
+									);
+								})}
 							</div>
 						</motion.div>
 					</div>
