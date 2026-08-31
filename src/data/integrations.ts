@@ -67,9 +67,9 @@ const AGENTOS: Integration[] = [
 		badge: "Beta",
 	},
 	{
-		title: "Rivet",
+		title: "Rivet Actors",
 		description: "Run agentOS on Rivet Actors for persistence and scheduling.",
-		slug: "rivet",
+		slug: "rivet-actors",
 		category: "Platform",
 		icon: { src: "/images/vendors/rivet.svg" },
 	},
