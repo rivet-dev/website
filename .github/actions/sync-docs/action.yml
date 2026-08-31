@@ -77,6 +77,18 @@ runs:
           cp -a "$extra" "$root/$extra"
         done
 
+        # Repository instructions are not public documentation. Excluding them
+        # also prevents a broken instruction symlink from poisoning this action's
+        # archive and making every product sync fail before the action can run.
+        find "$root" \( -name AGENTS.md -o -name CLAUDE.md \) -delete
+
+        broken_links=$(find "$root" -xtype l -print)
+        if [ -n "$broken_links" ]; then
+          echo "::error::docs bundle contains broken symlinks"
+          echo "$broken_links" | sed 's/^/  /'
+          exit 1
+        fi
+
     - name: Open or update the PR
       shell: bash
       working-directory: .rivet-website
