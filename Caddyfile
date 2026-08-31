@@ -44,11 +44,18 @@
 	}
 	header @static Cache-Control "public, max-age=31536000, immutable"
 
-	# Don't cache HTML files
+	# HTML documents always revalidate. Pages are served at clean URLs (`/`,
+	# `/docs/`), so matching only *.html left them with no Cache-Control at
+	# all and browsers heuristically cached them off Last-Modified. After a
+	# deploy, that stale HTML requests the previous build's hashed chunks,
+	# which 404. no-cache (rather than no-store) keeps revalidation to cheap
+	# 304s and lets Astro's hover-prefetch still use the HTTP cache. The
+	# header directive runs before try_files, so the matcher must cover the
+	# original directory-style paths, not the rewritten {path}/index.html.
 	@html {
-		path *.html
+		path *.html */ /
 	}
-	header @html Cache-Control "no-store, no-cache, must-revalidate"
+	header @html Cache-Control "no-cache"
 
 	# www -> apex. Railway terminates TLS upstream, so always redirect to https.
 	# Only takes effect when www.rivet.dev is attached to the Railway service.
@@ -83,6 +90,13 @@
 
 	# Custom 404 page
 	handle_errors {
+		# The immutable header set for @static paths has already been applied
+		# to the response by the time file_server errors, so without this
+		# override a 404 for a hashed asset is cached for a year by the CDN
+		# and by browsers. Anyone who caught such a 404 during a deploy window
+		# then replays it forever, and island hydration (header, footer) dies
+		# on the failed import. Error responses must never be cached.
+		header Cache-Control "no-store"
 		rewrite * /404.html
 		file_server
 	}

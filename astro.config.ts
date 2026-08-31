@@ -62,6 +62,19 @@ export default defineConfig({
 		}),
 	],
 	vite: {
+		build: {
+			rollupOptions: {
+				output: {
+					// One-time asset-URL rotation (base64 -> hex hashes), 2026-08-31.
+					// A deploy-window 404 for a /_astro/ chunk was cached alongside the
+					// immutable Cache-Control header by browsers, and content-hashed
+					// URLs never change on their own, so those clients replay the 404
+					// forever and the Header/Footer islands die on the failed import.
+					// New URLs sidestep every poisoned cache entry.
+					hashCharacters: 'hex',
+				},
+			},
+		},
 		resolve: {
 			// Product docs are symlinked in from their own repos, so Vite resolves
 			// bare specifiers relative to the *source* repo, which has no copy of
