@@ -47,12 +47,11 @@ function rootFromContentLink(productId: string): string | undefined {
 }
 
 /**
- * Where a product's snippets come from. Usually its own repo, but a product can
- * be split out before its `examples/` tree is; see `snippetFrom`.
+ * Where a product's snippets come from. A product owns both its docs and the
+ * examples those docs embed.
  */
 function snippetRoot(productId: string): string | undefined {
-	const from = DOCS_SOURCES[productId]?.snippetFrom;
-	return docsRoot(from ?? productId);
+	return docsRoot(productId);
 }
 
 /** Absolute path to a product's repo root, or undefined if none resolves. */

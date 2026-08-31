@@ -49,17 +49,14 @@ import {
 	SITE_SECTION_CLASS,
 } from '@/components/marketing/layout';
 
-const APPS_EXAMPLE_ROOT = 'https://github.com/rivet-dev/agentos/blob/main/examples';
+const APPS_EXAMPLE_ROOT = 'https://github.com/rivet-dev/dynamic-apps/blob/main/examples';
 const AI_BUILDER_EXAMPLE_URL =
-	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-ai-builder';
-const STATIC_SITE_EXAMPLE_URL =
-	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-static-website';
+	'https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-ai-builder';
 const INSPECTOR_IMAGE =
 	'https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png';
-const INSTALL_COMMAND = 'npm add @rivet-dev/agentos @rivet-dev/agentos-apps';
+const INSTALL_COMMAND = 'npm add @rivet-dev/dynamic-apps @hono/node-server hono';
 
-// Dynamic Apps snippets live in the agentOS repo (`snippetFrom: "agentos"`).
-const agentosRoot = requireDocsRoot('agentos');
+const dynamicAppsRoot = requireDocsRoot('dynamic-apps');
 const dynamicAppsProduct = getProduct('dynamic-apps');
 
 if (!dynamicAppsProduct) {
@@ -90,7 +87,7 @@ const appsTabs = await Promise.all([
 	sourceTab({
 		key: 'deploy',
 		label: 'deploy.ts',
-		root: agentosRoot,
+		root: dynamicAppsRoot,
 		file: 'examples/apps-hello-world/src/deploy.ts',
 		documentationUrl: '/dynamic-apps/docs/deploy',
 		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/deploy.ts`,
@@ -98,26 +95,10 @@ const appsTabs = await Promise.all([
 	sourceTab({
 		key: 'server',
 		label: 'server.ts',
-		root: agentosRoot,
+		root: dynamicAppsRoot,
 		file: 'examples/apps-hello-world/src/server.ts',
 		documentationUrl: '/dynamic-apps/docs/routing',
 		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/server.ts`,
-	}),
-	sourceTab({
-		key: 'actors',
-		label: 'actors.ts',
-		root: agentosRoot,
-		file: 'examples/apps-hello-world/src/actors.ts',
-		documentationUrl: '/dynamic-apps/docs/quickstart',
-		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/actors.ts`,
-	}),
-	sourceTab({
-		key: 'generated-app',
-		label: 'app/src/index.ts',
-		root: agentosRoot,
-		file: 'examples/apps-sqlite/fixtures/app/src/index.ts',
-		documentationUrl: '/dynamic-apps/docs/state-and-data',
-		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-sqlite/fixtures/app/src/index.ts`,
 	}),
 ]);
 
@@ -155,24 +136,9 @@ const appCapabilities = [
 		href: '/dynamic-apps/docs/state-and-data/',
 	},
 	{
-		title: 'Workflows & queues',
-		body: 'Run durable jobs that sleep, retry, and resume, plus ordered queue processing.',
-		href: '/dynamic-apps/docs/background-work/',
-	},
-	{
-		title: 'Crons & schedules',
-		body: 'Schedule recurring work that runs even while the app is idle.',
-		href: '/dynamic-apps/docs/background-work/',
-	},
-	{
 		title: 'Multiplayer',
 		body: 'Share realtime state between every user connected to an app.',
 		href: '/dynamic-apps/docs/realtime/',
-	},
-	{
-		title: 'Static sites',
-		body: 'Serve a directory with an index.html directly, no server code required.',
-		href: STATIC_SITE_EXAMPLE_URL,
 	},
 ];
 
@@ -504,7 +470,7 @@ const compositionLayers = [
 			const feedback = element.querySelector('[data-dynamic-apps-copy-feedback]');
 			element.addEventListener('click', async () => {
 				try {
-					await navigator.clipboard.writeText('npm add @rivet-dev/agentos @rivet-dev/agentos-apps');
+					await navigator.clipboard.writeText('npm add @rivet-dev/dynamic-apps @hono/node-server hono');
 					element.setAttribute('aria-label', 'Install command copied');
 					if (feedback instanceof HTMLElement) {
 						feedback.textContent = 'Copied';
@@ -512,7 +478,7 @@ const compositionLayers = [
 						feedback.classList.add('opacity-100');
 					}
 					window.setTimeout(() => {
-						element.setAttribute('aria-label', 'Copy npm add @rivet-dev/agentos @rivet-dev/agentos-apps');
+						element.setAttribute('aria-label', 'Copy npm add @rivet-dev/dynamic-apps @hono/node-server hono');
 						if (feedback instanceof HTMLElement) {
 							feedback.textContent = 'Copy';
 							feedback.classList.remove('opacity-100');

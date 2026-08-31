@@ -37,8 +37,9 @@ is the intended shape; `GITHUB_TOKEN` cannot reach another repository.
 ## What it does
 
 1. Validates the bundle — `docs/content/` exists, `docs/sidebar.json` parses,
-   at least one `.mdx`. Fails on the product repo's PR rather than breaking the
-   website build.
+   at least one `.mdx`, and every `<CodeSnippet>` target is shipped by the same
+   product bundle. Fails on the product repo rather than breaking the website
+   build.
 2. Copies `docs/` to `vendor/<product>/docs/` in the website, replacing it so
    deleted pages actually disappear. Repository instruction files are excluded,
    and broken symlinks fail the sync before they can poison the website checkout.
@@ -53,4 +54,5 @@ is the intended shape; `GITHUB_TOKEN` cannot reach another repository.
 | `token` | — | Required. Write access to rivet-website. |
 | `source` | `docs` | Bundle path in this repo. |
 | `website-repo` | `rivet-dev/website` | Override for forks. |
+| `extra-paths` | — | Repo-root-relative paths required by the docs, such as `examples`. |
 | `auto-merge` | `true` | Set `false` to review each sync. |

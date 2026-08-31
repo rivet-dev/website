@@ -89,13 +89,12 @@ export function listDocPages(): DocPage[] {
 
 /** Repo root a product's `examples/...` snippet paths resolve against. */
 export function snippetRootFor(product: string): string | undefined {
-	return docsRoot(DOCS_SOURCES[product]?.snippetFrom ?? product);
+	return docsRoot(product);
 }
 
 /** `github.com/rivet-dev/<repo>` that owns a product's examples. */
 export function examplesRepoFor(product: string): string {
-	const source = DOCS_SOURCES[product];
-	const owner = getProductMetadata(source?.snippetFrom ?? product);
+	const owner = getProductMetadata(product);
 	if (!owner) throw new Error(`Unknown product: ${product}`);
 	return `rivet-dev/${owner.repo}`;
 }
