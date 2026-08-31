@@ -387,7 +387,13 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-const htmlFiles = await fg("**/*.html", { cwd: DIST, absolute: true });
+const htmlFiles = await fg("**/*.html", {
+  cwd: DIST,
+  absolute: true,
+  // Skill example projects are copied verbatim for agents; their HTML files
+  // are source code, not site pages.
+  ignore: ["metadata/skills/**"],
+});
 if (htmlFiles.length === 0) {
   console.error(
     "SEO check failed: dist/ contains no HTML. Run `pnpm build` first.",

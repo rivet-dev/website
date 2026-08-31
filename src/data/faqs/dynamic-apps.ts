@@ -12,7 +12,7 @@ export const dynamicAppsFaqs: FaqItem[] = [
   {
     question: "What can a generated app contain?",
     answerHtml:
-      'Full HTTP backends and frontends, durable SQLite data, workflows, multiplayer and realtime state, queues, and cron jobs. A directory with an index.html is served as a static site. See <a href="https://rivet.dev/dynamic-apps/docs/state-and-data/">State and data</a>.',
+      'Full HTTP backends and frontends, durable SQLite data, workflows, multiplayer and realtime state, queues, and cron jobs. A directory with an index.html is served as a static site. See <a href="/dynamic-apps/docs/sqlite/">SQLite</a>.',
   },
   {
     question: "What happens when a generated build fails?",

@@ -145,25 +145,25 @@ const appCapabilities = [
 		title: 'SQLite',
 		icon: Database,
 		body: 'Store durable relational data in an actor-owned SQLite database.',
-		href: '/dynamic-apps/docs/state-and-data/',
+		href: '/dynamic-apps/docs/sqlite/',
 	},
 	{
 		title: 'Workflows & queues',
 		icon: Workflow,
 		body: 'Run durable jobs that sleep, retry, and resume, plus ordered queue processing.',
-		href: '/dynamic-apps/docs/background-work/',
+		href: '/dynamic-apps/docs/workflows/',
 	},
 	{
 		title: 'Crons & schedules',
 		icon: CalendarClock,
 		body: 'Schedule recurring work that runs even while the app is idle.',
-		href: '/dynamic-apps/docs/background-work/',
+		href: '/dynamic-apps/docs/workflows/',
 	},
 	{
 		title: 'Multiplayer',
 		icon: Users,
 		body: 'Share realtime state between every user connected to an app.',
-		href: '/dynamic-apps/docs/realtime/',
+		href: '/dynamic-apps/docs/multiplayer/',
 	},
 	{
 		title: 'Static sites',
@@ -297,7 +297,7 @@ const compositionLayers = [
 					</div>
 				</div>
 				<div class="mt-12 min-w-0 md:mt-16" data-site-reveal>
-					<AppsAnnotatedCode fileName={APPS_SERVER_FILE} regions={appsRegions} documentationUrl="/dynamic-apps/docs/deploy" sourceUrl={APPS_SERVER_SOURCE_URL} />
+					<AppsAnnotatedCode fileName={APPS_SERVER_FILE} regions={appsRegions} documentationUrl="/dynamic-apps/docs/deploy/" sourceUrl={APPS_SERVER_SOURCE_URL} />
 				</div>
 			</div>
 		</section>
