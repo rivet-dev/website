@@ -82,6 +82,36 @@ runs:
         # archive and making every product sync fail before the action can run.
         find "$root" \( -name AGENTS.md -o -name CLAUDE.md \) -delete
 
+        python3 - "$root" <<'PY'
+        import pathlib
+        import re
+        import sys
+
+        root = pathlib.Path(sys.argv[1]).resolve()
+        pattern = re.compile(r'<CodeSnippet\b[^>]*\bfile=(["\'])(.*?)\1', re.DOTALL)
+        missing = []
+        count = 0
+        for page in sorted((root / "docs" / "content").rglob("*.mdx")):
+            body = page.read_text()
+            for match in pattern.finditer(body):
+                count += 1
+                reference = match.group(2)
+                target = (root / reference).resolve()
+                try:
+                    target.relative_to(root)
+                except ValueError:
+                    missing.append(f"{page.relative_to(root)}: path escapes bundle: {reference}")
+                    continue
+                if not target.is_file():
+                    missing.append(f"{page.relative_to(root)}: missing {reference}")
+
+        if missing:
+            print("::error::docs bundle contains unresolved CodeSnippet files")
+            print("\n".join(f"  {entry}" for entry in missing))
+            raise SystemExit(1)
+        print(f"snippet bundle ok: {count} references")
+        PY
+
         broken_links=$(find "$root" -xtype l -print)
         if [ -n "$broken_links" ]; then
           echo "::error::docs bundle contains broken symlinks"

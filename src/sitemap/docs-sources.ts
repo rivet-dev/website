@@ -28,8 +28,6 @@ export interface DocsSource {
 	 * Takes precedence over `repo`.
 	 */
 	localBundle?: string;
-	/** Product whose repo owns this one's snippets, if not its own. */
-	snippetFrom?: string;
 }
 
 export const DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
@@ -38,7 +36,6 @@ export const DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 		{
 			repo: product.repo,
 			localBundle: product.localBundle,
-			snippetFrom: product.snippetFrom,
 		},
 	]),
 );

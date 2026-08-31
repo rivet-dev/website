@@ -68,16 +68,6 @@ export interface ProductMetadata {
 	 * these docs out later is a delete plus a checkout.
 	 */
 	localBundle?: string;
-	/**
-	 * Product whose repo owns this one's code snippets.
-	 *
-	 * Snippets resolve from the repo that owns the docs, but a product can be
-	 * split out before its `examples/` tree is. Workflows docs still reference
-	 * `examples/docs/actors-workflows/**` in the Rivet repo, and Dynamic Apps
-	 * references `examples/apps-*` in the agentOS repo. Drop this once the
-	 * examples move with the docs.
-	 */
-	snippetFrom?: string;
 }
 
 /** Display order across the whole site. */
@@ -115,7 +105,6 @@ export const PRODUCTS: ProductMetadata[] = [
 		repo: "workflows",
 		color: "#6A4C93",
 		contrast: 5.95,
-		snippetFrom: "actors",
 		optionalTabs: [],
 		hiddenTabs: ["use-cases"],
 	},
@@ -129,7 +118,6 @@ export const PRODUCTS: ProductMetadata[] = [
 		repo: "dynamic-apps",
 		color: "#2F6B4B",
 		contrast: 5.49,
-		snippetFrom: "agentos",
 		optionalTabs: [],
 		hiddenTabs: ["use-cases"],
 	},
