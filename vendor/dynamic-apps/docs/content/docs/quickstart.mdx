@@ -33,7 +33,8 @@ npm pkg set type=module
 
 Mount the private Rivet callback separately from application traffic. The
 callback lets Rivet reach your server to manage deployments. Ordinary app
-requests are served by `appsRouter` through a cached agentOS VM.
+requests are served by `appsRouter` through agentOS. Generated app code only
+exports a Fetch handler; it does not create its own listener.
 
 <CodeSnippet file="examples/apps-hello-world/src/server.ts" title="src/server.ts" />
 

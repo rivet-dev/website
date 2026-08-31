@@ -23,7 +23,8 @@ The request lifecycle looks like:
 
 Requests reach your routing server, where `appsRouter` executes them in a
 cached agentOS VM embedded in the same process. There is no network hop to
-another service, and warm requests never touch storage.
+another service, and warm requests never touch storage. Apps export fetch
+handlers; Dynamic Apps owns any listener inside the VM.
 
 ## Deployment is separate from serving
 
@@ -35,11 +36,11 @@ supply another store.
 ## App-defined actors
 
 An app may also export a RivetKit registry. Those app-defined actors use normal
-Rivet routing for durable state, actions, events, and connections, while the
-same app's ordinary HTTP handler still runs through the agentOS VM.
+Rivet routing for durable state, actions, events, and connections. Dynamic Apps
+imports the app once into a cached server process, then sends both ordinary HTTP
+and Rivet callbacks through that process.
 
 <Note>
 agentOS provides the filesystem, process, environment, and network permission
-boundary for direct requests. App-defined actor workers share the host process,
-so run one trust domain per container for mutually untrusted tenants.
+boundary for direct requests and app-defined actor workers.
 </Note>

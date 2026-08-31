@@ -45,7 +45,7 @@ generated code compiles and serves on the first try more often.
 
 | Skill | What the model learns |
 | --- | --- |
-| `webServerSkill` | The supported TypeScript HTTP server layout: `package.json`, `tsconfig.json`, and a Hono entrypoint. |
+| `webServerSkill` | The supported TypeScript Fetch-handler layout: `package.json`, `tsconfig.json`, and a Hono entrypoint with no application-owned listener. |
 | `rivetActorsSkill` | The same layout plus Rivet Actors: durable state, actions, and HTTP routes backed by actors. |
 
 More skills will be added over time.

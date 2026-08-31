@@ -8,8 +8,8 @@ import {
 	webServerSkill,
 } from "@rivet-dev/dynamic-apps";
 import { generateObject } from "ai";
-import { z } from "zod";
 import { Hono } from "hono";
+import { z } from "zod";
 
 const editablePaths = [
 	"package.json",
