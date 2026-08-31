@@ -40,7 +40,8 @@ is the intended shape; `GITHUB_TOKEN` cannot reach another repository.
    at least one `.mdx`. Fails on the product repo's PR rather than breaking the
    website build.
 2. Copies `docs/` to `vendor/<product>/docs/` in the website, replacing it so
-   deleted pages actually disappear.
+   deleted pages actually disappear. Repository instruction files are excluded,
+   and broken symlinks fail the sync before they can poison the website checkout.
 3. Opens or force-updates `docs-sync/<product>`, and auto-merges when checks
    pass.
 
