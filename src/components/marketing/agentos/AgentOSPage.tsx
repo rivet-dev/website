@@ -11,7 +11,6 @@ import {
 	Workflow,
 	ChevronLeft,
 	ChevronRight,
-	Copy,
 	Check,
 	ShieldCheck,
 	Package,
@@ -33,7 +32,8 @@ import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { canonicalizeInternalHref } from '@/lib/internalHref';
 import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
-import { AGENT_PROMPT } from '@/data/agentPrompt';
+import { AGENT_SETUP_PROMPTS } from '@/data/agentSetupPrompt';
+import { SetupWithAgentButton } from '@/components/marketing/SetupWithAgentButton';
 import {
 	benchColdStart,
 	benchWorkloads,
@@ -55,7 +55,6 @@ import {
 	PRIMARY_INK_BUTTON_CLASS,
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
-	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
@@ -293,33 +292,10 @@ export const AnimatedAgentOSLogo = ({ className, displayedAgent, drawDurationSec
 	);
 };
 
-// --- Set up with your agent (copies the agent prompt) ---
-const SetupWithAgent = ({ variant = 'accent' }: { variant?: 'accent' | 'light' }) => {
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(AGENT_PROMPT);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
-
-	return (
-		<button
-			onClick={handleCopy}
-			aria-label={copied ? 'Agent setup prompt copied' : 'Set up with your agent'}
-			className={variant === 'light' ? INK_PANEL_LIGHT_BUTTON_CLASS : PRODUCT_HERO_PRIMARY_BUTTON_CLASS}
-		>
-			{copied ? <Check className='h-4 w-4' /> : <Copy className='h-4 w-4' />}
-			{/* Reserve the width of the longest label so the button doesn't shrink on copy */}
-			<span className='grid place-items-center'>
-				<span className='invisible col-start-1 row-start-1' aria-hidden='true'>
-					Set up with your agent
-				</span>
-				<span className='col-start-1 row-start-1'>{copied ? 'Copied' : 'Set up with your agent'}</span>
-			</span>
-		</button>
-	);
-};
+// --- Set up with your agent: shared button + shared prompt (src/data/agentSetupPrompt.ts) ---
+const SetupWithAgent = ({ variant = 'accent' }: { variant?: 'accent' | 'light' }) => (
+	<SetupWithAgentButton prompt={AGENT_SETUP_PROMPTS.agentos} variant={variant} />
+);
 
 // --- Hero Tabs (scrollable with fade + arrows) ---
 interface HeroTabEntry {

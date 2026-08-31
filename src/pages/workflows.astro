@@ -1,5 +1,7 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { SetupWithAgentButton } from '@/components/marketing/SetupWithAgentButton';
+import { AGENT_SETUP_PROMPTS } from '@/data/agentSetupPrompt';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { FaqList } from '@/components/faq/FaqSection';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
@@ -26,6 +28,7 @@ import {
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
@@ -192,17 +195,18 @@ const compositionLayers = [
 						<button
 							type="button"
 							data-workflows-install-copy
-							aria-label="Copy npm install rivetkit"
+							aria-label="Copy npm install @rivet-dev/workflows"
 							class="group relative flex w-full items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft transition-colors motion-reduce:transition-none hover:border-ink/30 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper sm:w-auto"
 						>
 							<span aria-hidden="true" class="select-none text-pine">$</span>
-							<span class="whitespace-nowrap">npm install rivetkit</span>
+							<span class="whitespace-nowrap">npm install @rivet-dev/workflows</span>
 							<span data-workflows-copy-feedback aria-live="polite" class="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-ink px-2 py-1 font-sans text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">Copy</span>
 						</button>
 						<noscript>
-							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install rivetkit</code>
+							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install @rivet-dev/workflows</code>
 						</noscript>
-						<a href="/workflows/docs/quickstart/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+						<SetupWithAgentButton prompt={AGENT_SETUP_PROMPTS.workflows} client:load />
+						<a href="/workflows/docs/quickstart/" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>Start the quickstart</a>
 					</div>
 				</div>
 
@@ -394,7 +398,7 @@ const compositionLayers = [
 						productName="Workflows"
 						quickstartHref="/workflows/docs/quickstart"
 						selfHostHref="/workflows/self-host/control-plane"
-						installCommand="npm install rivetkit"
+						installCommand="npm install @rivet-dev/workflows"
 					/>
 				</div>
 			</div>
@@ -432,7 +436,7 @@ const compositionLayers = [
 			const feedback = element.querySelector('[data-workflows-copy-feedback]');
 			element.addEventListener('click', async () => {
 				try {
-					await navigator.clipboard.writeText('npm install rivetkit');
+					await navigator.clipboard.writeText('npm install @rivet-dev/workflows');
 					element.setAttribute('aria-label', 'Install command copied');
 					if (feedback instanceof HTMLElement) {
 						feedback.textContent = 'Copied';
@@ -440,7 +444,7 @@ const compositionLayers = [
 						feedback.classList.add('opacity-100');
 					}
 					window.setTimeout(() => {
-						element.setAttribute('aria-label', 'Copy npm install rivetkit');
+						element.setAttribute('aria-label', 'Copy npm install @rivet-dev/workflows');
 						if (feedback instanceof HTMLElement) {
 							feedback.textContent = 'Copy';
 							feedback.classList.remove('opacity-100');

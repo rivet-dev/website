@@ -3,6 +3,8 @@
 // /workflows. Composability, observability, and develop-locally each get a
 // named chapter.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { SetupWithAgentButton } from '@/components/marketing/SetupWithAgentButton';
+import { AGENT_SETUP_PROMPTS } from '@/data/agentSetupPrompt';
 import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
 import { FaqList } from '@/components/faq/FaqSection';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
@@ -10,15 +12,14 @@ import { ProductMotif } from '@/components/marketing/ProductMotif';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
+import { AppsVisualization, DEPLOY_CODE } from '@/components/marketing/dynamic-apps/AppsVisualization';
+import { ArrowRight, CalendarClock, Database, FileCode2, Globe, Users, Workflow } from 'lucide-react';
 import {
-	AppsVisualization,
-	APPS_CODE,
-} from '@/components/marketing/dynamic-apps/AppsVisualization';
+	AppsAnnotatedCode,
+	type AnnotatedCodeRegion,
+} from '@/components/marketing/dynamic-apps/AppsAnnotatedCode';
 import {
-	WorkflowCodeTabs,
-	type WorkflowCodeTab,
-} from '@/components/marketing/workflows/WorkflowCodeTabs';
-import {
+	AppsIsolationDiagram,
 	AppsRepairDiagram,
 	AppsRoutingDiagram,
 } from '@/components/marketing/diagrams/dynamicAppsDiagrams';
@@ -31,6 +32,7 @@ import {
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
@@ -40,69 +42,78 @@ import { productLogos } from '@/sitemap/productLogos';
 import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { dynamicAppsFaqs } from '@/data/faqs/dynamic-apps';
 import { highlightCodeHtml } from '@/lib/highlight-code';
-import { loadSnippet } from '@/mdx/remark-code-snippet';
-import { requireDocsRoot } from '@/sitemap/docs-sources.node';
 import { getProduct } from '@/sitemap/products';
-import {
-	SITE_COMPACT_SECTION_CLASS,
-	SITE_NARROW_RAIL_CLASS,
-	SITE_SECTION_CLASS,
-} from '@/components/marketing/layout';
+import { SITE_CARD_CLASS, SITE_COMPACT_SECTION_CLASS, SITE_NARROW_RAIL_CLASS, SITE_SECTION_CLASS } from '@/components/marketing/layout';
 
 const APPS_EXAMPLE_ROOT = 'https://github.com/rivet-dev/dynamic-apps/blob/main/examples';
 const AI_BUILDER_EXAMPLE_URL =
 	'https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-ai-builder';
+const STATIC_SITE_EXAMPLE_URL =
+	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-static-website';
 const INSPECTOR_IMAGE =
 	'https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png';
 const INSTALL_COMMAND = 'npm add @rivet-dev/dynamic-apps @hono/node-server hono';
 
-const dynamicAppsRoot = requireDocsRoot('dynamic-apps');
+// Dynamic Apps snippets live in the agentOS repo (`snippetFrom: "agentos"`).
 const dynamicAppsProduct = getProduct('dynamic-apps');
 
 if (!dynamicAppsProduct) {
 	throw new Error('Missing Dynamic Apps product metadata');
 }
 
-async function sourceTab(input: {
-	key: string;
-	label: string;
-	root: string;
-	file: string;
-	region?: string;
-	documentationUrl: string;
-	sourceUrl: string;
-}): Promise<WorkflowCodeTab> {
-	const snippet = loadSnippet(input.root, input.file, input.region);
+const deployCodeHtml = await highlightCodeHtml(DEPLOY_CODE, 'typescript');
+
+// Chapter 01: the whole loop as one file, split into labeled regions.
+const APPS_SERVER_FILE = 'server.ts';
+const APPS_SERVER_SOURCE_URL = `${APPS_EXAMPLE_ROOT}/apps-ai-builder/src/server.ts`;
+
+async function codeRegion(input: { label?: string; note?: string; code: string }): Promise<AnnotatedCodeRegion> {
 	return {
-		key: input.key,
 		label: input.label,
-		raw: snippet.value,
-		highlighted: await highlightCodeHtml(snippet.value, snippet.lang),
-		documentationUrl: input.documentationUrl,
-		sourceUrl: input.sourceUrl,
+		note: input.note,
+		html: await highlightCodeHtml(input.code, 'typescript'),
 	};
 }
 
-const appsTabs = await Promise.all([
-	sourceTab({
-		key: 'deploy',
-		label: 'deploy.ts',
-		root: dynamicAppsRoot,
-		file: 'examples/apps-hello-world/src/deploy.ts',
-		documentationUrl: '/dynamic-apps/docs/deploy',
-		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/deploy.ts`,
+const appsRegions = await Promise.all([
+	codeRegion({
+		label: 'Generate',
+		note: 'An LLM writes the app as a set of files. Any model, any framework.',
+		code: `import { anthropic } from "@ai-sdk/anthropic";
+import { generateText, Output } from "ai";
+import { z } from "zod";
+
+const { output } = await generateText({
+  model: anthropic("claude-sonnet-4-5"),
+  output: Output.object({
+    schema: z.object({ files: z.record(z.string(), z.string()) }),
+  }),
+  prompt: "Build a team board as a complete web app.",
+});`,
 	}),
-	sourceTab({
-		key: 'server',
-		label: 'server.ts',
-		root: dynamicAppsRoot,
-		file: 'examples/apps-hello-world/src/server.ts',
-		documentationUrl: '/dynamic-apps/docs/routing',
-		sourceUrl: `${APPS_EXAMPLE_ROOT}/apps-hello-world/src/server.ts`,
+	codeRegion({
+		label: 'Deploy',
+		note: 'One call builds the files and releases them as an isolated instance.',
+		code: `import { deployApp } from "@rivet-dev/dynamic-apps";
+
+await deployApp({
+  appId: "pied-piper",
+  files: output.files,
+});`,
+	}),
+	codeRegion({
+		label: 'Route',
+		note: 'Your Hono server serves every deployed app at /apps/:appId.',
+		code: `import { serve } from "@hono/node-server";
+import { appsRouter } from "@rivet-dev/dynamic-apps";
+import { Hono } from "hono";
+
+const server = new Hono();
+server.route("/apps", appsRouter);
+
+serve({ fetch: server.fetch, port: 3000 });`,
 	}),
 ]);
-
-const appsHighlightedCode = await highlightCodeHtml(APPS_CODE, 'typescript');
 
 // What every deployed app gets from running as its own isolated instance.
 const appIsolation = [
@@ -112,33 +123,54 @@ const appIsolation = [
 	},
 	{
 		title: 'Isolated by default',
-		body: 'Each app runs in its own agentOS VM with its own state and SQLite data. Tenants share no filesystem, memory, or crash fate.',
+		body: 'Each app runs in its own agentOS VM. Tenants share no filesystem, memory, or crashes.',
 	},
 	{
 		title: 'Scales to zero',
 		body: 'A running app takes 22 MB of memory. An idle one takes none.',
 	},
 	{
-		title: 'Wakes on demand',
-		body: 'The control plane routes the next request to a prewarmed agentOS VM, state intact.',
+		title: 'Full Node.js or Python',
+		body: 'Powered by agentOS with secure Node.js and Python runtimes, so generated apps can use any npm or PyPI package.',
 	},
 ];
 
 const appCapabilities = [
 	{
 		title: 'REST APIs & frontends',
+		icon: Globe,
 		body: 'Serve HTTP APIs and generated interfaces from the same app.',
 		href: '/dynamic-apps/docs/quickstart/',
 	},
 	{
 		title: 'SQLite',
+		icon: Database,
 		body: 'Store durable relational data in an actor-owned SQLite database.',
 		href: '/dynamic-apps/docs/state-and-data/',
 	},
 	{
+		title: 'Workflows & queues',
+		icon: Workflow,
+		body: 'Run durable jobs that sleep, retry, and resume, plus ordered queue processing.',
+		href: '/dynamic-apps/docs/background-work/',
+	},
+	{
+		title: 'Crons & schedules',
+		icon: CalendarClock,
+		body: 'Schedule recurring work that runs even while the app is idle.',
+		href: '/dynamic-apps/docs/background-work/',
+	},
+	{
 		title: 'Multiplayer',
+		icon: Users,
 		body: 'Share realtime state between every user connected to an app.',
 		href: '/dynamic-apps/docs/realtime/',
+	},
+	{
+		title: 'Static sites',
+		icon: FileCode2,
+		body: 'Serve a directory with an index.html directly, no server code required.',
+		href: STATIC_SITE_EXAMPLE_URL,
 	},
 ];
 
@@ -171,7 +203,7 @@ const compositionLayers = [
 	{
 		name: 'agentOS',
 		logo: productLogos.agentos.src,
-		body: 'Builds and serves each app in a prewarmed VM with files, processes, and networking.',
+		body: 'Builds and serves each app in an agentOS VM with files, processes, and networking.',
 		href: '/agentos/',
 	},
 	{
@@ -187,7 +219,7 @@ const compositionLayers = [
 	productId="dynamic-apps"
 	tabId="overview"
 	active="product"
-	title="Dynamic Apps: deploy the apps your agents build"
+	title="Dynamic Apps: deploy AI-generated apps for your users"
 	description="Deploy AI-generated apps as isolated, durable instances. Each app scales to zero at 22 MB, wakes on demand, and runs on your infrastructure or Rivet Cloud."
 	canonicalUrl="https://rivet.dev/dynamic-apps/"
 	ogImage="https://assets.rivet.dev/website/public/promo/og/dynamic-apps.png"
@@ -213,9 +245,9 @@ const compositionLayers = [
 					<div class="mb-7 flex" data-site-reveal data-site-reveal-delay="40">
 						<ProductLockup product={dynamicAppsProduct} />
 					</div>
-					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Deploy the apps your agents build.</h1>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Deploy AI-generated apps for your users.</h1>
 					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
-						Every app runs as an isolated, durable instance. 22 MB of memory while serving, zero while idle. Deploy on any cloud.
+						Every app runs as an isolated, durable instance. 22 MB of memory while serving, zero while idle. Deploy on any cloud. Supports frontends, REST APIs, multiplayer, SQLite, workflows, and more.
 					</p>
 					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
 						<button
@@ -230,19 +262,17 @@ const compositionLayers = [
 						</button>
 						<noscript>
 							<style is:inline>
-								[data-dynamic-apps-install-copy], .apps-visual-controls { display: none !important; }
+								[data-dynamic-apps-install-copy] { display: none !important; }
 							</style>
 							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[11px] text-ink-soft sm:w-auto sm:text-[13px]"><span aria-hidden="true" class="text-pine">$</span> {INSTALL_COMMAND}</code>
 						</noscript>
-						<a href="/dynamic-apps/docs/quickstart/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Start the quickstart</a>
+						<SetupWithAgentButton prompt={AGENT_SETUP_PROMPTS['dynamic-apps']} client:load />
+						<a href="/dynamic-apps/docs/quickstart/" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>Start the quickstart</a>
 					</div>
 				</div>
 
 				<div class="mx-auto mt-14 max-w-5xl md:mt-20">
-					<AppsVisualization highlightedCode={appsHighlightedCode} client:load />
-					<noscript>
-						<p class={`mt-4 text-center ${CAPTION_CLASS}`}>The diagram remains readable without JavaScript: generated files pass through deployApp() and come out as a running app. The code behind it is in the chapters below.</p>
-					</noscript>
+					<AppsVisualization deployCodeHtml={deployCodeHtml} />
 				</div>
 			</div>
 		</section>
@@ -252,28 +282,24 @@ const compositionLayers = [
 		<!-- Chapter 01: the whole loop in code -->
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
-				<div class="max-w-3xl" data-site-reveal>
-					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Generate, deploy, route.</h2>
-					<p class={SECTION_LEDE_CLASS}>
-						An agent generates the files. One call builds and releases them. Your Hono server routes every request to the app.
-					</p>
+				<div class="grid gap-10 lg:grid-cols-[5fr_7fr] lg:items-start lg:gap-16">
+					<div data-site-reveal>
+						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Runs in your backend, not another SaaS.</h2>
+						<p class={SECTION_LEDE_CLASS}>
+							A library, not a platform. It serves the apps your users generate alongside the rest of your API, so you keep full control over routing, auth, and data.
+						</p>
+					</div>
+					<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2" data-site-reveal-group>
+						{appIsolation.map((item) => (
+							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+								<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
+							</div>
+						))}
+					</div>
 				</div>
-				<div class="mt-12 min-w-0" data-site-reveal>
-					<WorkflowCodeTabs tabs={appsTabs} client:visible />
-					<noscript>
-						<p class={`mt-4 ${CAPTION_CLASS}`}>JavaScript is optional for reading this page. View the <a class="text-pine caption-underline" href={appsTabs[0].sourceUrl}>hello-world example source on GitHub</a>.</p>
-					</noscript>
-				</div>
-			</div>
-
-			<div class="mx-auto mt-14 max-w-7xl md:mt-20">
-				<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
-					{appIsolation.map((item) => (
-						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
-							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
-							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
-						</div>
-					))}
+				<div class="mt-12 min-w-0 md:mt-16" data-site-reveal>
+					<AppsAnnotatedCode fileName={APPS_SERVER_FILE} regions={appsRegions} documentationUrl="/dynamic-apps/docs/deploy" sourceUrl={APPS_SERVER_SOURCE_URL} />
 				</div>
 			</div>
 		</section>
@@ -284,19 +310,29 @@ const compositionLayers = [
 		<section class={`${SITE_SECTION_CLASS}`}>
 			<div class="mx-auto max-w-7xl">
 				<div class="max-w-3xl" data-site-reveal>
-					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>More than pages and APIs.</h2>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Comes with the infrastructure real apps need.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						Generated apps get the same capabilities as any Rivet Actor: durable SQLite, workflows, realtime, queues, and cron jobs.
+						Every generated app gets durable SQLite, background jobs, cron, and realtime out of the box. Nothing extra for you to provision.
 					</p>
 				</div>
-				<div class="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group>
-					{appCapabilities.map((item) => (
-						<a href={item.href} class="group block border-t border-ink/15 pt-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine" data-site-reveal-child>
-							<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
-							<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
-							<span class="mt-3 inline-block text-sm font-medium text-pine transition-colors motion-reduce:transition-none group-hover:text-ink">Read the docs <span aria-hidden="true">→</span></span>
-						</a>
-					))}
+				<div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group>
+					{appCapabilities.map((item) => {
+						const Icon = item.icon;
+						return (
+							<a
+								href={item.href}
+								class={`group block cursor-pointer transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/50 motion-reduce:transition-none ${SITE_CARD_CLASS}`}
+								data-site-reveal-child
+							>
+								<span class="flex items-center gap-3">
+									<Icon className="h-5 w-5 text-ink-soft transition-colors group-hover:text-ink" />
+									<span class={CARD_TITLE_CLASS}>{item.title}</span>
+									<ArrowRight className="ml-auto h-4 w-4 -translate-x-1 text-ink-faint opacity-0 transition-[opacity,transform,color] duration-200 group-hover:translate-x-0 group-hover:text-ink-soft group-hover:opacity-100 motion-reduce:transition-none" />
+								</span>
+								<span class="mt-4 block text-[15px] leading-relaxed text-ink-soft transition-colors group-hover:text-ink">{item.body}</span>
+							</a>
+						);
+					})}
 				</div>
 			</div>
 		</section>
@@ -305,23 +341,23 @@ const compositionLayers = [
 
 		<!-- Chapter 03: routing through your server -->
 		<section class={`${SITE_SECTION_CLASS}`}>
-			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[5fr_7fr] lg:gap-16">
 				<div data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Your server, your rules.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						Requests reach your Hono server first, so your routing, middleware, and auth apply. The control plane routes each request to a prewarmed agentOS VM serving the app.
+						Requests reach your Node.js backend first, so your routing, middleware, and auth apply. The apps router then hands each request to the agentOS VM running that app, in the same process. No extra hop.
 					</p>
-				</div>
-				<div class="min-w-0">
-					<AppsRoutingDiagram client:visible />
-					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+					<p class={SECTION_LEDE_CLASS}>
 						Read about
 						<a class="text-pine caption-underline" href="/dynamic-apps/docs/routing/">routing</a>,
 						<a class="text-pine caption-underline" href="/dynamic-apps/docs/authentication/">authentication</a>, and
 						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy/">deploying apps</a>.
 					</p>
+				</div>
+				<div class="min-w-0">
+					<AppsRoutingDiagram client:visible />
 					<noscript>
-						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a request passing through your Hono server and its middleware, then the control plane routing it to a prewarmed agentOS VM that serves the generated app.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a request entering your Node.js backend, passing your middleware and auth, then the apps router handing it to the agentOS VM running that app.</p>
 					</noscript>
 				</div>
 			</div>
@@ -331,22 +367,47 @@ const compositionLayers = [
 
 		<!-- Chapter 04: the repair loop -->
 		<section class={`${SITE_SECTION_CLASS}`}>
-			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[5fr_7fr] lg:gap-16">
 				<div data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Broken builds never ship.</h2>
 					<p class={SECTION_LEDE_CLASS}>
 						A failed build returns TypeScript diagnostics the agent uses to repair the files and deploy again. The active release keeps serving the whole time.
 					</p>
-				</div>
-				<div class="min-w-0">
-					<AppsRepairDiagram client:visible />
-					<p class={`mt-4 leading-relaxed ${CAPTION_CLASS}`} data-site-reveal data-site-reveal-delay="100">
+					<p class={SECTION_LEDE_CLASS}>
 						Read about
 						<a class="text-pine caption-underline" href="/dynamic-apps/docs/deploy/">deploying apps</a> or view the
 						<a class="text-pine caption-underline" href={AI_BUILDER_EXAMPLE_URL}>AI App Builder example</a>.
 					</p>
+				</div>
+				<div class="min-w-0">
+					<AppsRepairDiagram client:visible />
 					<noscript>
-						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows a failed build returning diagnostics, a repaired build succeeding, and the previous release serving until the successful build replaces it.</p>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows generate, build, and release, with failed builds feeding their type errors back into generate. The previous release keeps serving until a build succeeds.</p>
+					</noscript>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<!-- Chapter 05: isolation for building and serving -->
+		<section class={`${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-[5fr_7fr] lg:gap-16">
+				<div data-site-reveal>
+					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Full isolation, powered by V8 and WebAssembly.</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Every app builds and serves inside its own <a class="text-pine caption-underline" href="/agentos/">agentOS</a> sandbox: a V8 isolate for the JavaScript, WebAssembly for the Linux-like environment around it. The same boundary applies while a build runs and while requests are served.
+					</p>
+					<p class={SECTION_LEDE_CLASS}>
+						Read about the
+						<a class="text-pine caption-underline" href="/agentos/docs/security-model/">agentOS security model</a> and
+						<a class="text-pine caption-underline" href="/agentos/docs/resource-limits/">resource limits</a>.
+					</p>
+				</div>
+				<div class="min-w-0">
+					<AppsIsolationDiagram client:visible />
+					<noscript>
+						<p class={`mt-4 ${CAPTION_CLASS}`}>The diagram shows two agentOS sandboxes, one building the generated files and one serving requests, each a V8 isolate with WebAssembly, resource limits, and no host access.</p>
 					</noscript>
 				</div>
 			</div>

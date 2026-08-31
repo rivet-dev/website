@@ -1,0 +1,215 @@
+---
+author: nathan-flurry
+published: "2026-08-31"
+category: changelog
+image: { file: "image.png" }
+keywords: ["dynamic apps", "agentos", "ai-generated apps", "v8 isolates", "sqlite", "workflows", "multi-tenant", "workers for platforms"]
+title: "Introducing Dynamic Apps: Deploy AI-Generated Apps for Your Users"
+seoTitle: "Dynamic Apps: Deploy AI-Generated Apps for Your Users"
+description: "Dynamic Apps is the library for deploying the apps your users generate. Powered by V8 isolates, it scales to zero, runs in your backend, and ships with batteries-included serverless infrastructure."
+---
+
+Today we're launching [Dynamic Apps](/dynamic-apps), a library for deploying AI-generated apps for every one of your users. It **runs as a library inside your backend** and is an open-source alternative to Cloudflare Workers for Platforms, Cloudflare Dynamic Workers, and Cloudflare Durable Object Facets.
+
+By leveraging lightweight V8 isolates, we're able to give each user their own app for incredibly cheap. An app takes 32 MB of memory while serving and scales to zero when idle, with no cold starts. This lets you **scale to millions of deployments affordably**.
+
+It runs as a library in your backend, so you can deploy to **any cloud, in your VPC, on-prem, or locally on your laptop**.
+
+```bash
+npm add @rivet-dev/dynamic-apps
+```
+
+## Generate, deploy, route
+
+We've made it incredibly simple to generate code with AI and deploy it for your users.
+
+**1. Generate.** An LLM writes the app as a set of files. Any model, any framework.
+
+```ts @nocheck
+import { anthropic } from "@ai-sdk/anthropic";
+import { generateText, Output } from "ai";
+import { z } from "zod";
+
+const { output } = await generateText({
+  model: anthropic("claude-sonnet-4-5"),
+  output: Output.object({
+    schema: z.object({ files: z.record(z.string(), z.string()) }),
+  }),
+  prompt: "Build a team board as a complete web app.",
+});
+```
+
+**2. Deploy.** One call builds the files and publishes a release to the user's app `pied-piper`.
+
+```ts @nocheck
+import { deployApp } from "@rivet-dev/dynamic-apps";
+
+await deployApp({
+  appId: "pied-piper",
+  files: output.files,
+});
+```
+
+**3. Route.** Your Hono server serves every deployed app at `/apps/:appId`.
+
+```ts @nocheck
+import { serve } from "@hono/node-server";
+import { appsRouter } from "@rivet-dev/dynamic-apps";
+import { Hono } from "hono";
+
+const server = new Hono();
+server.route("/apps", appsRouter);
+
+serve({ fetch: server.fetch, port: 3000 });
+```
+
+## Built as a library, not a SaaS
+
+Requests reach your router first, so **your routing, middleware, and auth apply before the app ever sees them**.
+
+<svg viewBox="0 0 620 270" role="img" aria-label="Traditional SaaS: a request enters your Node.js process, passes through your code, then leaves for an external API on their infrastructure. Dynamic Apps: a request enters your Node.js process, passes through your code, and is served by the Dynamic Apps library inside the same process." style="width:100%;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="dynamic-apps-vs-saas-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+
+  <text x="20" y="18" font-size="13" font-weight="600" fill="#1b1916">Traditional SaaS</text>
+  <rect x="130" y="30" width="200" height="90" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="146" y="50" font-size="11" font-family="ui-monospace,monospace" letter-spacing="0.14em" fill="#2E4034">YOUR NODE.JS PROCESS</text>
+  <g stroke="#1b1916" stroke-width="1.4">
+    <rect x="20" y="62" width="80" height="44" rx="7" fill="#ffffff"/>
+    <rect x="165" y="62" width="130" height="44" rx="7" fill="#ffffff"/>
+    <rect x="430" y="62" width="170" height="44" rx="7" fill="#ffffff"/>
+  </g>
+  <g text-anchor="middle" fill="#1b1916">
+    <text x="60" y="88" font-size="13" font-weight="600">Request</text>
+    <text x="230" y="88" font-size="13" font-weight="600">Your code</text>
+    <text x="515" y="82" font-size="13" font-weight="600">External API</text>
+    <text x="515" y="97" font-size="11" fill="#56524a">their infrastructure</text>
+  </g>
+  <g stroke="#2E4034" stroke-width="1.4">
+    <line x1="101" y1="84" x2="164" y2="84" marker-end="url(#dynamic-apps-vs-saas-arrow)"/>
+    <line x1="296" y1="84" x2="429" y2="84" marker-end="url(#dynamic-apps-vs-saas-arrow)"/>
+  </g>
+
+  <text x="20" y="158" font-size="13" font-weight="600" fill="#1b1916">Dynamic Apps</text>
+  <rect x="130" y="170" width="420" height="90" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="146" y="190" font-size="11" font-family="ui-monospace,monospace" letter-spacing="0.14em" fill="#2E4034">YOUR NODE.JS PROCESS</text>
+  <g stroke="#1b1916" stroke-width="1.4">
+    <rect x="20" y="202" width="80" height="44" rx="7" fill="#ffffff"/>
+    <rect x="150" y="202" width="130" height="44" rx="7" fill="#ffffff"/>
+    <rect x="330" y="202" width="200" height="44" rx="7" fill="#e7ece7"/>
+  </g>
+  <g text-anchor="middle" fill="#1b1916">
+    <text x="60" y="228" font-size="13" font-weight="600">Request</text>
+    <text x="215" y="228" font-size="13" font-weight="600">Your code</text>
+    <text x="430" y="222" font-size="13" font-weight="600">Dynamic Apps</text>
+    <text x="430" y="237" font-size="11" fill="#56524a">a library, user apps run here</text>
+  </g>
+  <g stroke="#2E4034" stroke-width="1.4">
+    <line x1="101" y1="224" x2="149" y2="224" marker-end="url(#dynamic-apps-vs-saas-arrow)"/>
+    <line x1="281" y1="224" x2="329" y2="224" marker-end="url(#dynamic-apps-vs-saas-arrow)"/>
+  </g>
+</svg>
+
+Each user's app runs in its own V8 isolate and scales to zero when idle. All of this runs inside your own backend with a tiny memory footprint, so your deployment model stays simple, **you keep full control** over how requests reach each user's app, and there's no per-app or per-request bill from a third party: you pay only for the compute you already run.
+
+## Comes with the infrastructure real apps need
+
+Serving frontends and REST APIs alone isn't very useful without persistence or infrastructure behind them. One of the challenges of AI-generated applications is finding **infrastructure that stays affordable across millions of instances**, one for every generated app, and can scale instantly when a user's app gets load.
+
+Dynamic Apps integrates with [Rivet Actors](/actors) and [Rivet Workflows](/workflows).
+
+Every app gets, out of the box:
+
+- REST APIs & frontends
+- SQLite
+- Workflows & queues
+- Crons & schedules
+- Realtime multiplayer
+- Static sites
+
+Agents also get the [Rivet cookbooks](/cookbook/) as skills, so they have architecture recommendations for production-ready applications while they generate.
+
+For example, here's a generated app that processes an order as a durable workflow:
+
+```ts @nocheck
+// Example workflow generated by an LLM
+import { actor, setup } from "rivetkit";
+import { workflow } from "@rivet-dev/workflows";
+
+const order = actor({
+  state: { status: "placed" as "placed" | "paid" | "shipped" | "delivered" },
+  actions: {
+    status: (c) => c.state.status,
+  },
+  run: workflow(async (wf) => {
+    await wf.step("charge", async (c) => {
+      await chargeCard(c.key[0]);
+      c.state.status = "paid";
+    });
+    await wf.step("ship", async (c) => {
+      await createShipment(c.key[0]);
+      c.state.status = "shipped";
+    });
+    // Survives restarts; the app scales to zero while it sleeps
+    await wf.sleep("in transit", 3 * 24 * 60 * 60 * 1000);
+    await wf.step("deliver", async (c) => {
+      c.state.status = "delivered";
+    });
+  }),
+});
+
+export const registry = setup({ use: { order } });
+registry.start();
+```
+
+Deploy it like any other app, then talk to the workflow from your backend with the RivetKit client.
+
+```ts @nocheck
+import { deployApp } from "@rivet-dev/dynamic-apps";
+import { createClient } from "rivetkit/client";
+import type { registry } from "./app";
+
+// Build and release the generated files as an isolated app
+const deployment = await deployApp({ appId: "pied-piper", files });
+
+// Connect to the actors inside that app's own Rivet namespace
+const client = createClient<typeof registry>({
+  namespace: deployment.namespace,
+  poolName: deployment.pool,
+});
+
+// Start (or look up) the order workflow and read its status
+const order = client.order.getOrCreate(["order-1042"]);
+console.log(await order.status()); // "paid"
+```
+
+Each app runs in its own isolated Rivet namespace: it **costs nothing when idle, scales to millions instantly**, gives you complete per-tenant isolation, and makes per-customer billing trivial.
+
+## Security
+
+Dynamic Apps is built on [agentOS](/agentos), which uses V8 isolates and WebAssembly to provide a secure Linux-like environment for executing code. It's what makes it possible to **run Node.js securely at native V8 speeds**.
+
+This security model **mirrors the one you'll find inside Chromium and Cloudflare Workers**. We've documented it in the [agentOS security model](/agentos/docs/security-model/).
+
+agentOS also provides granular limits on what user-deployed applications can do, including network, resources, and more. See the [resource limits docs](/agentos/docs/resource-limits/) for details.
+
+## Everything you expect, out of the box
+
+Everything you need to build user-generated applications comes included:
+
+- Automatic type checking of AI-generated code for repair loops
+- Automatic log collection
+- Resource limits
+- Install any npm package
+- Node.js and Python support
+- Network restrictions per app
+- Global edge network
+- Scale to zero
+
+## More Links
+
+- [Docs](/dynamic-apps/docs/)
+- [Quickstart](/dynamic-apps/docs/quickstart/)
+- [Full example: generate, deploy, route](https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-ai-builder)
+- [Hello world example](https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-hello-world)
+- [GitHub](https://github.com/rivet-dev/dynamic-apps)
+- [Discord](/discord)

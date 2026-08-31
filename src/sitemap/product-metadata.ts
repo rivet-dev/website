@@ -114,7 +114,7 @@ export const PRODUCTS: ProductMetadata[] = [
 		badge: "Preview",
 		tagline: "Deploy an AI-generated backend for every user",
 		verb: "Deploy",
-		premise: "Deploy the backends your agents build",
+		premise: "Deploy AI-generated apps for your users",
 		repo: "dynamic-apps",
 		color: "#2F6B4B",
 		contrast: 5.49,
