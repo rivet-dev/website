@@ -27,14 +27,12 @@ We've made it incredibly simple to generate code with AI and deploy it for your 
 
 ```ts @nocheck
 import { anthropic } from "@ai-sdk/anthropic";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 
-const { output } = await generateText({
-  model: anthropic("claude-sonnet-4-5"),
-  output: Output.object({
-    schema: z.object({ files: z.record(z.string(), z.string()) }),
-  }),
+const { object } = await generateObject({
+  model: anthropic("claude-sonnet-5"),
+  schema: z.object({ files: z.record(z.string(), z.string()) }),
   prompt: "Build a team board as a complete web app.",
 });
 ```
@@ -46,7 +44,7 @@ import { deployApp } from "@rivet-dev/dynamic-apps";
 
 await deployApp({
   appId: "pied-piper",
-  files: output.files,
+  files: object.files,
 });
 ```
 

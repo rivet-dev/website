@@ -7,9 +7,11 @@ import rehypeMermaid from "rehype-mermaid";
 import * as shiki from "shiki";
 import { visit } from "unist-util-visit";
 import theme from "../lib/textmate-code-theme";
+import { repoForContentPath } from "../sitemap/docs-sources.node";
 
 function rehypeParseCodeBlocks() {
-	return (tree) => {
+	return (tree, vfile) => {
+		const contentPath = vfile?.path ?? vfile?.history?.[0];
 		visit(tree, "element", (node, _nodeIndex, parentNode) => {
 			if (node.tagName === "code") {
 				// Parse language from className
@@ -118,6 +120,10 @@ function rehypeParseCodeBlocks() {
 					}
 					if (sourceFile) {
 						parentNode.properties.sourceFile = sourceFile;
+						const repo = repoForContentPath(contentPath);
+						if (repo) {
+							parentNode.properties.sourceUrl = `https://github.com/rivet-dev/${repo}/blob/main/${sourceFile}`;
+						}
 					}
 				}
 			}

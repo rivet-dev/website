@@ -11,6 +11,7 @@ Split by runtime mode, because the two halves barely overlap. A reader on a serv
 
 ## Environment
 
+- **Run the latest Node.js LTS.** Workers should run on the current LTS release; older majors miss performance and security fixes and are not tested against.
 - **Set `NODE_ENV=production`.** Ensures optimized performance and disables development-only behavior.
 - **Ensure log level is not set to debug.** Leave `RIVET_LOG_LEVEL` at its default or explicitly set it to `warn` to avoid excessive logging.
 - **Do not set `RIVET_EXPOSE_ERRORS=1` in production.** This exposes internal error details to clients. It is automatically enabled when `NODE_ENV=development`.

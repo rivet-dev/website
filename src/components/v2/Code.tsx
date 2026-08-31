@@ -21,6 +21,7 @@ import {
 	faTerminal,
 	faTypescript,
 	Icon,
+	faGithub,
 } from "@rivet-gg/icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import escapeHTML from "escape-html";
@@ -187,6 +188,7 @@ export const pre = ({
 	file,
 	language,
 	title,
+	sourceUrl,
 	isInGroup,
 	code,
 	highlightedCode,
@@ -245,8 +247,20 @@ export const pre = ({
 			<span data-code-icon className="hidden">
 				<Icon icon={langIcon} className="size-3" />
 			</span>
-			<div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover/code:opacity-100">
+			<div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover/code:opacity-100">
 				<TooltipProvider>
+					{sourceUrl ? (
+						<WithTooltip
+							trigger={
+								<Button asChild size="icon-sm" variant="ghost" className="text-ink-soft hover:bg-ink/10 hover:text-ink">
+									<a href={sourceUrl} target="_blank" rel="noreferrer">
+										<Icon icon={faGithub} />
+									</a>
+								</Button>
+							}
+							content="View source on GitHub"
+						/>
+					) : null}
 					<WithTooltip
 						trigger={
 							<CopyCodeTrigger>

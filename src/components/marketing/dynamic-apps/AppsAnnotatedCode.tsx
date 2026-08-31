@@ -14,7 +14,6 @@ export interface AnnotatedCodeRegion {
 }
 
 export interface AppsAnnotatedCodeProps {
-	fileName: string;
 	regions: AnnotatedCodeRegion[];
 	documentationUrl: string;
 	sourceUrl: string;
@@ -31,12 +30,8 @@ const FooterArrow = () => (
 	</svg>
 );
 
-export const AppsAnnotatedCode = ({ fileName, regions, documentationUrl, sourceUrl }: AppsAnnotatedCodeProps) => (
+export const AppsAnnotatedCode = ({ regions, documentationUrl, sourceUrl }: AppsAnnotatedCodeProps) => (
 	<figure className='overflow-hidden rounded-xl border border-ink/10 bg-white'>
-		<div className='flex items-center border-b border-ink/10 px-5 py-3 sm:px-6'>
-			<span className='font-mono text-xs text-ink'>{fileName}</span>
-		</div>
-
 		<div className='divide-y divide-ink/10'>
 			{regions.map((region, index) => (
 				<div key={region.label ?? index} className='grid gap-3 px-5 py-5 sm:px-6 md:grid-cols-[minmax(10rem,1fr)_minmax(0,2fr)] md:gap-10 lg:gap-14'>

@@ -99,6 +99,30 @@ export function requireDocsRoot(productId: string): string {
  * shared self-host guides, cookbook, learn, blog posts — embeds Rivet's
  * examples, so it falls back to the Rivet repo.
  */
+/**
+ * The GitHub repo (under rivet-dev) that owns a content file's snippets, for
+ * building "view source" links. Undefined for in-repo bundles.
+ */
+export function repoForContentPath(
+	contentPath: string | undefined,
+): string | undefined {
+	if (!contentPath) return undefined;
+	const normalized = path.resolve(contentPath);
+	for (const productId of Object.keys(DOCS_SOURCES)) {
+		const source = DOCS_SOURCES[productId];
+		if (source.localBundle) continue;
+		const root = docsRoot(productId);
+		if (root && normalized.startsWith(`${path.resolve(root)}${path.sep}`)) {
+			return source.repo;
+		}
+	}
+	const product = productFromPath(contentPath);
+	if (product && !DOCS_SOURCES[product]?.localBundle) {
+		return DOCS_SOURCES[product]?.repo;
+	}
+	return undefined;
+}
+
 export function snippetRootForContentPath(
 	contentPath: string | undefined,
 ): string | undefined {

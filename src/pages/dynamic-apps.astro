@@ -47,11 +47,9 @@ import { SITE_CARD_CLASS, SITE_COMPACT_SECTION_CLASS, SITE_NARROW_RAIL_CLASS, SI
 const APPS_EXAMPLE_ROOT = 'https://github.com/rivet-dev/dynamic-apps/blob/main/examples';
 const AI_BUILDER_EXAMPLE_URL =
 	'https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-ai-builder';
-const STATIC_SITE_EXAMPLE_URL =
-	'https://github.com/rivet-dev/agentos/tree/main/examples/apps-static-website';
 const INSPECTOR_IMAGE =
 	'https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png';
-const INSTALL_COMMAND = 'npm add @rivet-dev/dynamic-apps @hono/node-server hono';
+const INSTALL_COMMAND = 'npm add @rivet-dev/dynamic-apps';
 
 // Dynamic Apps snippets live in the agentOS repo (`snippetFrom: "agentos"`).
 const dynamicAppsProduct = getProduct('dynamic-apps');
@@ -63,8 +61,7 @@ if (!dynamicAppsProduct) {
 const deployCodeHtml = await highlightCodeHtml(DEPLOY_CODE, 'typescript');
 
 // Chapter 01: the whole loop as one file, split into labeled regions.
-const APPS_SERVER_FILE = 'server.ts';
-const APPS_SERVER_SOURCE_URL = `${APPS_EXAMPLE_ROOT}/apps-ai-builder/src/server.ts`;
+const APPS_SERVER_SOURCE_URL = 'https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-hello-world';
 
 async function codeRegion(input: { label?: string; note?: string; code: string }): Promise<AnnotatedCodeRegion> {
 	return {
@@ -79,14 +76,12 @@ const appsRegions = await Promise.all([
 		label: 'Generate',
 		note: 'An LLM writes the app as a set of files. Any model, any framework.',
 		code: `import { anthropic } from "@ai-sdk/anthropic";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 
-const { output } = await generateText({
-  model: anthropic("claude-sonnet-4-5"),
-  output: Output.object({
-    schema: z.object({ files: z.record(z.string(), z.string()) }),
-  }),
+const { object } = await generateObject({
+  model: anthropic("claude-sonnet-5"),
+  schema: z.object({ files: z.record(z.string(), z.string()) }),
   prompt: "Build a team board as a complete web app.",
 });`,
 	}),
@@ -97,7 +92,7 @@ const { output } = await generateText({
 
 await deployApp({
   appId: "pied-piper",
-  files: output.files,
+  files: object.files,
 });`,
 	}),
 	codeRegion({
@@ -129,17 +124,23 @@ const appIsolation = [
 		body: 'A running app takes 22 MB of memory. An idle one takes none.',
 	},
 	{
-		title: 'Full Node.js or Python',
-		body: 'Powered by agentOS with secure Node.js and Python runtimes, so generated apps can use any npm or PyPI package.',
+		title: 'Full Node.js',
+		body: 'Powered by agentOS with a secure Node.js runtime, so generated apps can use any npm package.',
 	},
 ];
 
 const appCapabilities = [
 	{
-		title: 'REST APIs & frontends',
+		title: 'Backends & REST APIs',
 		icon: Globe,
-		body: 'Serve HTTP APIs and generated interfaces from the same app.',
-		href: '/dynamic-apps/docs/quickstart/',
+		body: 'Serve HTTP APIs from a generated app with any Node.js framework.',
+		href: '/dynamic-apps/docs/backends/',
+	},
+	{
+		title: 'Frontends & Static Sites',
+		icon: FileCode2,
+		body: 'Serve generated interfaces and directories with an index.html directly.',
+		href: '/dynamic-apps/docs/static-websites/',
 	},
 	{
 		title: 'SQLite',
@@ -164,12 +165,6 @@ const appCapabilities = [
 		icon: Users,
 		body: 'Share realtime state between every user connected to an app.',
 		href: '/dynamic-apps/docs/multiplayer/',
-	},
-	{
-		title: 'Static sites',
-		icon: FileCode2,
-		body: 'Serve a directory with an index.html directly, no server code required.',
-		href: STATIC_SITE_EXAMPLE_URL,
 	},
 ];
 
@@ -246,7 +241,7 @@ const compositionLayers = [
 					</div>
 					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal data-site-reveal-delay="80">Deploy AI-generated apps for your users.</h1>
 					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="120">
-						Every app runs as an isolated, durable instance. 22 MB of memory while serving, zero while idle. Deploy on any cloud. Supports frontends, REST APIs, multiplayer, SQLite, workflows, and more.
+						22 MB of memory while serving, zero while idle. Deploy on any cloud. Supports frontends, REST APIs, multiplayer, SQLite, workflows, and more.
 					</p>
 					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="160">
 						<button
@@ -287,17 +282,17 @@ const compositionLayers = [
 							A library, not a platform. It serves the apps your users generate alongside the rest of your API, so you keep full control over routing, auth, and data.
 						</p>
 					</div>
-					<div class="grid gap-x-8 gap-y-6 sm:grid-cols-2" data-site-reveal-group>
+					<div class="grid gap-4 sm:grid-cols-2" data-site-reveal-group>
 						{appIsolation.map((item) => (
-							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<div class={SITE_CARD_CLASS} data-site-reveal-child>
 								<h3 class={CARD_TITLE_CLASS}>{item.title}</h3>
-								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{item.body}</p>
+								<p class="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p>
 							</div>
 						))}
 					</div>
 				</div>
 				<div class="mt-12 min-w-0 md:mt-16" data-site-reveal>
-					<AppsAnnotatedCode fileName={APPS_SERVER_FILE} regions={appsRegions} documentationUrl="/dynamic-apps/docs/deploy/" sourceUrl={APPS_SERVER_SOURCE_URL} />
+					<AppsAnnotatedCode regions={appsRegions} documentationUrl="/dynamic-apps/docs/deploy/" sourceUrl={APPS_SERVER_SOURCE_URL} />
 				</div>
 			</div>
 		</section>
@@ -343,7 +338,7 @@ const compositionLayers = [
 				<div data-site-reveal>
 					<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Your server, your rules.</h2>
 					<p class={SECTION_LEDE_CLASS}>
-						Requests reach your Node.js backend first, so your routing, middleware, and auth apply. The apps router then hands each request to the agentOS VM running that app, in the same process. No extra hop.
+						Requests reach your Node.js backend first, so your routing, middleware, and auth apply. The apps router then hands each request to the <a class="text-pine caption-underline" href="/agentos/">agentOS</a> VM running that app, in the same process. No extra hop.
 					</p>
 					<p class={SECTION_LEDE_CLASS}>
 						Read about
@@ -423,11 +418,11 @@ const compositionLayers = [
 							Deployed apps run as Rivet Actors, so the dashboard shows their data, jobs, events, and actions live.
 						</p>
 					</div>
-					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
+					<div class="grid gap-4 sm:grid-cols-2" data-site-reveal-group>
 						{observabilityCapabilities.map((capability) => (
-							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<div class={SITE_CARD_CLASS} data-site-reveal-child>
 								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
-								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
+								<p class="mt-2 text-sm leading-relaxed text-ink-soft">{capability.body}</p>
 							</div>
 						))}
 					</div>
@@ -529,7 +524,7 @@ const compositionLayers = [
 			const feedback = element.querySelector('[data-dynamic-apps-copy-feedback]');
 			element.addEventListener('click', async () => {
 				try {
-					await navigator.clipboard.writeText('npm add @rivet-dev/dynamic-apps @hono/node-server hono');
+					await navigator.clipboard.writeText('npm add @rivet-dev/dynamic-apps');
 					element.setAttribute('aria-label', 'Install command copied');
 					if (feedback instanceof HTMLElement) {
 						feedback.textContent = 'Copied';
@@ -537,7 +532,7 @@ const compositionLayers = [
 						feedback.classList.add('opacity-100');
 					}
 					window.setTimeout(() => {
-						element.setAttribute('aria-label', 'Copy npm add @rivet-dev/dynamic-apps @hono/node-server hono');
+						element.setAttribute('aria-label', 'Copy npm add @rivet-dev/dynamic-apps');
 						if (feedback instanceof HTMLElement) {
 							feedback.textContent = 'Copy';
 							feedback.classList.remove('opacity-100');

@@ -1,0 +1,25 @@
+---
+title: "Backends & REST APIs"
+description: "Serve HTTP APIs and frontends from a generated app with any framework that speaks fetch."
+---
+
+import ExampleLinkBar from "@/components/docs/ExampleLinkBar.astro";
+
+<ExampleLinkBar href="https://github.com/rivet-dev/dynamic-apps/tree/main/examples/apps-hello-world" />
+
+## Example generated code
+
+<CodeGroup>
+<CodeSnippet file="examples/apps-hello-world/fixtures/app/src/index.ts" title="src/index.ts" />
+<CodeSnippet file="examples/apps-hello-world/fixtures/app/package.json" title="package.json" />
+</CodeGroup>
+
+## Deploy and route
+
+Deploy the directory and every route the app defines is served under
+`/apps/:appId` on your routing server:
+
+<CodeSnippet file="examples/apps-hello-world/src/server.ts" title="src/server.ts" />
+
+See [Route](/dynamic-apps/docs/routing) for how requests reach the app and
+[Deploy](/dynamic-apps/docs/deploy) for builds and releases.

@@ -42,7 +42,7 @@ const useDiagram = () => {
 			: {
 					initial: { opacity: 0 },
 					animate: inView ? { opacity: 1 } : { opacity: 0 },
-					transition: { duration: 0.3, delay: 0.1 + order * 0.16, ease: 'easeOut' as const },
+					transition: { duration: 0.45, delay: 0.1 + order * 0.08, ease: 'easeOut' as const },
 				};
 	return { ref, inView, reduced, show };
 };
@@ -163,7 +163,7 @@ export const AppsRoutingDiagram = () => {
 		const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 		(async () => {
 			// Let the staged fade-in settle before the first request.
-			await sleep(1400);
+			await sleep(1900);
 			let i = 0;
 			const step = async (s: RoutingStage, ms: number) => {
 				if (!alive) return false;
@@ -544,37 +544,47 @@ export const AppsIsolationDiagram = () => {
 		const publish = () => setSlots([...running]);
 		let requests = 0;
 
+		// Each isolate runs its own lifecycle so several can serve concurrently.
+		const run = async (isolate: Isolate, slot: number) => {
+			setLog((lines) => [isolate, ...lines].slice(0, LOG_LINES));
+			running[slot] = isolate;
+			publish();
+			await wait(250);
+			if (cancelled) return;
+			// Isolate answers: the log line completes.
+			const done = { ...isolate, done: true };
+			setLog((lines) => lines.map((line) => (line.id === isolate.id ? done : line)));
+			running[slot] = done;
+			publish();
+			// The isolate lingers briefly, then the slot empties.
+			await wait(430);
+			if (cancelled) return;
+			if (running[slot]?.id === isolate.id) running[slot] = null;
+			publish();
+		};
+
+		// Apps still visible in the log or a slot are excluded, so the same app
+		// never shows up twice at once.
+		const recentLog: string[] = [];
 		(async () => {
 			await wait(500);
 			while (!cancelled) {
 				const free = running.map((r, index) => (r ? -1 : index)).filter((index) => index >= 0);
-				const app = ISOLATION_APPS[Math.floor(rand() * ISOLATION_APPS.length)];
-				if (free.length === 0 || running.some((r) => r?.app === app)) {
-					await wait(200);
+				const candidates = ISOLATION_APPS.filter(
+					(name) => !running.some((r) => r?.app === name) && !recentLog.includes(name),
+				);
+				if (free.length === 0 || candidates.length === 0) {
+					await wait(70);
 					continue;
 				}
+				const app = candidates[Math.floor(rand() * candidates.length)];
 				requests += 1;
 				const isolate: Isolate = { id: requests, app, ok: requests % FAIL_EVERY !== 0, ms: 6 + Math.floor(rand() * 28), done: false };
 				const slot = free[Math.floor(rand() * free.length)];
-
-				// Request lands: log line appears, isolate appears.
-				setLog((lines) => [isolate, ...lines].slice(0, LOG_LINES));
-				running[slot] = isolate;
-				publish();
-				await wait(750);
-				if (cancelled) break;
-				// Isolate answers: the log line completes.
-				const done = { ...isolate, done: true };
-				setLog((lines) => lines.map((line) => (line.id === isolate.id ? done : line)));
-				running[slot] = done;
-				publish();
-				// The isolate lingers briefly, then the slot empties.
-				setTimeout(() => {
-					if (cancelled) return;
-					if (running[slot]?.id === isolate.id) running[slot] = null;
-					publish();
-				}, 1300);
-				await wait(700);
+				recentLog.unshift(app);
+				recentLog.length = Math.min(recentLog.length, LOG_LINES);
+				void run(isolate, slot);
+				await wait(160 + Math.floor(rand() * 240));
 			}
 		})();
 

@@ -1,0 +1,45 @@
+---
+title: "Architecture"
+description: "How Dynamic Apps serves, builds, and stores user-generated applications."
+---
+
+import ArchitectureDiagram from "./_architecture-diagram.astro";
+
+
+**Dynamic Apps is a library, not a hosted app deployment platform.** You own
+the routing server, its authentication, and the URL on which applications are
+mounted.
+
+<ArchitectureDiagram />
+
+The request lifecycle looks like:
+
+1. Your routing server receives a request.
+2. Your middleware handles it: authentication, rate limits, whatever else you run.
+3. The request is passed to `appsRouter`.
+4. `appsRouter` executes it in the agentOS VM for that app, starting the VM if it isn't already running.
+
+<CodeSnippet file="examples/apps-hello-world/src/server.ts" title="src/server.ts" />
+
+Requests reach your routing server, where `appsRouter` executes them in a
+cached agentOS VM embedded in the same process. There is no network hop to
+another service, and warm requests never touch storage.
+
+## Deployment is separate from serving
+
+`deployApp()` builds the files in a sandboxed agentOS build VM and publishes an
+immutable release. The default `@rivet-dev/dynamic-apps` package stores
+releases in Rivet. `@rivet-dev/dynamic-apps-core` lets you
+supply another store.
+
+## App-defined actors
+
+An app may also export a RivetKit registry. Those app-defined actors use normal
+Rivet routing for durable state, actions, events, and connections, while the
+same app's ordinary HTTP handler still runs through the agentOS VM.
+
+<Note>
+agentOS provides the filesystem, process, environment, and network permission
+boundary for direct requests. App-defined actor workers share the host process,
+so run one trust domain per container for mutually untrusted tenants.
+</Note>
