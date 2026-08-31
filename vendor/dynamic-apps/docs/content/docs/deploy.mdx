@@ -44,29 +44,20 @@ await deployApp({
 An app needs two things:
 
 - A `package.json`.
-- An entrypoint that either listens on the `PORT` environment variable or
-  default-exports a `fetch` handler.
+- An entrypoint that default-exports a `fetch` handler.
 
-**Listen on `PORT`:**
+Dynamic Apps owns the HTTP listener. Application code must not call `serve()`,
+`listen()`, or `registry.start()`.
+
+With Hono, export the app directly:
 
 ```ts
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 
 const app = new Hono();
 app.get("/", (c) => c.json({ ok: true }));
 
-serve({ fetch: app.fetch, port: Number(process.env.PORT ?? 3000) });
-```
-
-**Or export a `fetch` handler:**
-
-```ts
-export default {
-  fetch() {
-    return new Response("hello");
-  },
-};
+export default app;
 ```
 
 ## Build and repair loop

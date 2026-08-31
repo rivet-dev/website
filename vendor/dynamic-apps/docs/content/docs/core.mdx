@@ -45,4 +45,9 @@ change for the entire lifetime of every serving process.
 Call `await dynamicApps.dispose()` during shutdown to release subscriptions,
 build resources, cached runtimes, and agentOS contexts.
 
+Deployed app entrypoints only export a Fetch handler; they never bind a port.
+If Core loads an actor-enabled release, provide its `server.environment` and a
+shared `serverRuntime`. The standard `@rivet-dev/dynamic-apps` package supplies
+that actor runtime automatically.
+
 Get started with the [Quickstart (Core)](/dynamic-apps/docs/quickstart-core).
