@@ -1,0 +1,17 @@
+[
+	{
+		"title": "1. Generate",
+		"language": "ts",
+		"code": "import { anthropic } from \"@ai-sdk/anthropic\";\nimport { generateText, Output } from \"ai\";\nimport { z } from \"zod\";\n\nconst { output } = await generateText({\n  model: anthropic(\"claude-sonnet-4-5\"),\n  output: Output.object({\n    schema: z.object({ files: z.record(z.string(), z.string()) }),\n  }),\n  prompt: \"Build a team board as a complete web app.\",\n});"
+	},
+	{
+		"title": "2. Deploy",
+		"language": "ts",
+		"code": "import { deployApp } from \"@rivet-dev/dynamic-apps\";\n\nawait deployApp({\n  appId: \"pied-piper\",\n  files: output.files,\n});"
+	},
+	{
+		"title": "3. Route",
+		"language": "ts",
+		"code": "import { serve } from \"@hono/node-server\";\nimport { appsRouter } from \"@rivet-dev/dynamic-apps\";\nimport { Hono } from \"hono\";\n\nconst server = new Hono();\nserver.route(\"/apps\", appsRouter);\n\nserve({ fetch: server.fetch, port: 3000 });"
+	}
+]

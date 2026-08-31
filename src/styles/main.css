@@ -670,6 +670,48 @@
 	);
 }
 
+/* Dynamic Apps hero: a second cut-out under the message field so the
+   generate → deploy → route explainer sits on the same uninterrupted paper as
+   the headline. Composited with the message ellipse above (intersect), so the
+   top of the motif is unchanged. */
+.product-motif--hero.product-motif--dynamic-apps > * {
+	-webkit-mask-image:
+		radial-gradient(
+			ellipse 72% 52% at 50% 50%,
+			transparent 0%,
+			transparent 46%,
+			rgba(0, 0, 0, 0.08) 50%,
+			rgba(0, 0, 0, 0.55) 58%,
+			black 68%
+		),
+		radial-gradient(
+			ellipse 64% 44% at 50% 100%,
+			transparent 0%,
+			transparent 62%,
+			rgba(0, 0, 0, 0.08) 70%,
+			rgba(0, 0, 0, 0.55) 80%,
+			black 92%
+		);
+	-webkit-mask-composite: source-in;
+	mask-image:
+		radial-gradient(
+			ellipse 72% 52% at 50% 50%,
+			transparent 0%,
+			transparent 46%,
+			rgba(0, 0, 0, 0.08) 50%,
+			rgba(0, 0, 0, 0.55) 58%,
+			black 68%
+		),
+		radial-gradient(
+			ellipse 64% 44% at 50% 100%,
+			transparent 0%,
+			transparent 62%,
+			rgba(0, 0, 0, 0.08) 70%,
+			rgba(0, 0, 0, 0.55) 80%,
+			black 92%
+		);
+	mask-composite: intersect;
+}
 .product-motif--hero svg {
 	display: block;
 	height: 100%;

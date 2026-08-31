@@ -3,6 +3,8 @@
 // use case built on it: agent orchestration, real-time and multiplayer, and
 // per-tenant databases. There is no separate agent solution page.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { SetupWithAgentButton } from '@/components/marketing/SetupWithAgentButton';
+import { AGENT_SETUP_PROMPTS } from '@/data/agentSetupPrompt';
 import { ProductLockup } from '@/components/marketing/ProductLockup';
 import { ProductMotif } from '@/components/marketing/ProductMotif';
 import { BuiltInFeatures } from '@/components/marketing/sections/BuiltInFeatures';
@@ -25,6 +27,7 @@ import {
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
 	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
 	PRODUCT_HERO_SECTION_CLASS,
 	PRODUCT_HERO_SUBTITLE_CLASS,
 	SECTION_H2_CLASS,
@@ -124,7 +127,8 @@ const compositionLayers = [
 							</style>
 							<code class="flex w-full select-all items-center justify-center gap-2.5 rounded-md border border-ink/15 bg-white/55 px-3.5 py-2.5 font-mono text-[13px] text-ink-soft sm:w-auto"><span aria-hidden="true" class="text-pine">$</span> npm install rivetkit</code>
 						</noscript>
-					<a href="/actors/docs/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Documentation</a>
+					<SetupWithAgentButton prompt={AGENT_SETUP_PROMPTS.actors} client:load />
+					<a href="/actors/docs/" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>Documentation</a>
 				</div>
 			</div>
 		</section>
