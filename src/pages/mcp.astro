@@ -1,0 +1,431 @@
+---
+// MCP landing page. Served on its own host (mcp.rivet.dev) via a redirect, so
+// it carries no product bar.
+import * as shiki from 'shiki';
+import codeTheme from '@/lib/textmate-code-theme';
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { InkPanel, InkChip } from '@/components/marketing/editorial/InkPanel';
+import { Icon, faClaude, faOpenai, faCursor, faGemini, faLaptopCode, faVscode } from '@rivet-gg/icons';
+import {
+	BODY_CLASS,
+	CARD_TITLE_CLASS,
+	INK_PANEL_GHOST_BUTTON_CLASS,
+	INK_PANEL_LIGHT_BUTTON_CLASS,
+	PRODUCT_HERO_CTA_ROW_CLASS,
+	PRODUCT_HERO_H1_CLASS,
+	PRODUCT_HERO_INNER_CLASS,
+	PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+	PRODUCT_HERO_SECTION_CLASS,
+	PRODUCT_HERO_SUBTITLE_CLASS,
+	SECTION_H2_CLASS,
+	SECTION_LEDE_CLASS,
+} from '@/components/marketing/typography';
+import {
+	SITE_CARD_CLASS,
+	SITE_SECTION_CLASS,
+} from '@/components/marketing/layout';
+
+const ENDPOINT = 'https://mcp.rivet.dev/mcp';
+
+const clients = [
+	{
+		name: 'Claude Code',
+		icon: faClaude,
+		command: `claude mcp add --transport http rivet ${ENDPOINT}`,
+	},
+	{ name: 'Codex', icon: faOpenai, command: `codex mcp add rivet --url ${ENDPOINT}` },
+	{ name: 'Cursor', icon: faCursor, config: 'remote' },
+	{
+		name: 'Gemini CLI',
+		icon: faGemini,
+		command: `gemini mcp add --transport http rivet ${ENDPOINT}`,
+	},
+	{
+		name: 'VS Code',
+		icon: faVscode,
+		command: `code --add-mcp '{"name":"rivet","type":"http","url":"${ENDPOINT}"}'`,
+	},
+	{
+		name: 'Local',
+		icon: faLaptopCode,
+		config: 'local',
+		note: 'Talk to the Rivet already running on your machine. No URL and no sign-in.',
+	},
+];
+
+const scopes = [
+	{ url: ENDPOINT, label: 'Your agent asks which one, and remembers it' },
+	{ url: `${ENDPOINT}?organization=ORG`, label: 'Held inside one organization' },
+	{
+		url: `${ENDPOINT}?organization=ORG&project=PROJECT`,
+		label: 'Held inside one project',
+	},
+	{
+		url: `${ENDPOINT}?organization=ORG&project=PROJECT&namespace=NS`,
+		label: 'Held inside one namespace',
+	},
+];
+
+const tools = [
+	{
+		name: 'search',
+		title: 'It looks up what it can do',
+		body: 'Your agent asks what is available in the namespace it is connected to, and gets back the handful of operations that actually apply.',
+	},
+	{
+		name: 'execute',
+		title: 'Then it writes the code',
+		body: 'Ordinary JavaScript, so listing your actors, picking the right one, and calling it happen in a single step instead of six round trips.',
+	},
+];
+
+const limits = [
+	{
+		title: 'It cannot reach anything else',
+		body: 'Code runs with no network, no environment variables, no files, and no way to start a process.',
+	},
+	{
+		title: 'Every call goes through Rivet',
+		body: 'Requests only leave through Rivet, which checks them against what you approved and attaches your credentials for you.',
+	},
+	{
+		title: 'Only the access you grant',
+		body: 'A hosted connection carries what you gave it and nothing more, and it expires after 15 minutes. Your credentials stay on Rivet and never reach the model.',
+	},
+];
+
+const CODE_MODE_EXAMPLE = `// "Which chat rooms are still awake, and what has Acme been saying?"
+const { actors } = await rivet.actors.list({ name: "chat-room" });
+const awake = actors.filter((room) => room.status === "running");
+
+const history = await rivet.actor.action({
+  actor: { name: "chat-room", key: ["acme"] },
+  name: "getHistory",
+});
+
+return { awake: awake.length, history };`;
+
+const REMOTE_CONFIG = `{
+  "mcpServers": {
+    "rivet": {
+      "url": "${ENDPOINT}"
+    }
+  }
+}`;
+
+const LOCAL_CONFIG = `{
+  "mcpServers": {
+    "rivet": {
+      "command": "npx",
+      "args": ["-y", "@rivet-dev/mcp", "--target", "local"]
+    }
+  }
+}`;
+
+// Highlighted at build time with the same theme the documentation uses, so
+// code reads identically on both surfaces.
+const highlighter = await shiki.getSingletonHighlighter({
+	langs: ['typescript', 'json'],
+	themes: [codeTheme],
+});
+const highlight = (code: string, lang: string) =>
+	highlighter.codeToHtml(code, { lang, theme: codeTheme.name });
+
+const codeModeHtml = highlight(CODE_MODE_EXAMPLE, 'typescript');
+const remoteConfigHtml = highlight(REMOTE_CONFIG, 'json');
+const localConfigHtml = highlight(LOCAL_CONFIG, 'json');
+
+// The documentation code plate, minus its filename bar and copy button.
+const CODE_CARD_CLASS =
+	'not-prose relative overflow-hidden rounded-xl border border-ink/10';
+const CODE_SCROLL_CLASS = 'overflow-x-auto bg-white text-sm';
+const CODE_INNER_CLASS = 'w-fit min-w-full p-4';
+const CODE_SHIKI_CLASS = 'not-prose code [&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:!p-0';
+---
+
+<MarketingLayout
+	title="MCP: connect your AI client to Rivet"
+	description="Connect Claude Code, Codex, Cursor, or any MCP client to Rivet. Your agent reads your actors, calls them, and opens the Actor Inspector in the conversation, from a sandbox scoped to the access you grant it."
+	canonicalUrl="https://rivet.dev/mcp/"
+	keywords={[
+		'MCP server',
+		'Model Context Protocol',
+		'Claude Code MCP',
+		'Codex MCP',
+		'Cursor MCP',
+		'AI agent tooling',
+		'Rivet Actors',
+	]}
+>
+	<main id="main-content" tabindex="-1">
+		<section class={PRODUCT_HERO_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class={PRODUCT_HERO_INNER_CLASS}>
+					<h1 class={PRODUCT_HERO_H1_CLASS} data-site-reveal>
+						Ask your agent what your backend is doing
+					</h1>
+					<p class={PRODUCT_HERO_SUBTITLE_CLASS} data-site-reveal data-site-reveal-delay="40">
+						Connect Claude Code, Codex, Cursor, or any MCP client. It reads your
+						actors, calls them for you, and stays in a sandbox scoped to the access
+						you grant it.
+					</p>
+					<div class={PRODUCT_HERO_CTA_ROW_CLASS} data-site-reveal data-site-reveal-delay="80">
+						<a href="#connect" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>Connect a client</a>
+						<a href="/talk-to-an-engineer" class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS}>
+							Talk to an engineer
+						</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Two tools instead of forty</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Most MCP servers hand your agent a wall of tools and hope it picks the right
+						one. Rivet gives it two: one to find out what is there, one to go do it.
+					</p>
+				</div>
+
+				<dl class="mt-12 grid gap-x-8 gap-y-6 md:grid-cols-2" data-site-reveal-group>
+					{tools.map((tool) => (
+						<div class={SITE_CARD_CLASS} data-site-reveal-child>
+							<dt class={CARD_TITLE_CLASS}>
+								{tool.title}
+								<span class="ml-2 font-mono text-[13px] font-normal text-pine">{tool.name}</span>
+							</dt>
+							<dd class={`mt-2 ${BODY_CLASS}`}>{tool.body}</dd>
+						</div>
+					))}
+				</dl>
+
+				<!-- One turn end to end, so the code reads as the agent's work rather
+				     than something the reader has to write. -->
+				<ol class="mt-12" data-site-reveal>
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">You ask</p>
+						<p class={`mt-1 ${BODY_CLASS}`}>
+							&ldquo;Which chat rooms are still awake, and what has Acme been saying?&rdquo;
+						</p>
+					</li>
+
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">
+							Your agent looks up what it can do
+							<span class="ml-2 font-mono text-[13px] font-normal text-pine">search</span>
+						</p>
+						<div class="mt-2 flex flex-wrap gap-2">
+							{['rivet.actors.list', 'rivet.actor.action'].map((op) => (
+								<span class="rounded-md border border-ink/15 bg-white/55 px-2.5 py-1 font-mono text-[12px] text-ink-soft">
+									{op}
+								</span>
+							))}
+						</div>
+					</li>
+
+					<li class="relative border-l border-ink/15 pb-8 pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-pine"></span>
+						<p class="text-sm font-medium text-ink">
+							It writes one script and runs it
+							<span class="ml-2 font-mono text-[13px] font-normal text-pine">execute</span>
+						</p>
+						<p class={`mt-1 ${BODY_CLASS}`}>You never write this, and never see it unless you ask.</p>
+						<div class={`mt-3 ${CODE_CARD_CLASS}`}>
+							<div class={CODE_SCROLL_CLASS}>
+								<div class={CODE_INNER_CLASS}>
+									<span class={CODE_SHIKI_CLASS} set:html={codeModeHtml} />
+								</div>
+							</div>
+						</div>
+					</li>
+
+					<li class="relative pl-7">
+						<span aria-hidden="true" class="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent-deep"></span>
+						<p class="text-sm font-medium text-ink">One answer comes back</p>
+						<p class="mt-2 font-mono text-[13px] text-ink-soft">
+							3 rooms awake, 128 messages from Acme
+						</p>
+					</li>
+				</ol>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section id="connect" class={`scroll-mt-24 ${SITE_SECTION_CLASS}`}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Add it to your client</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Run one command, then approve the Rivet sign-in your client opens. Anything
+						else that speaks MCP can point at the endpoint directly.
+					</p>
+				</div>
+
+				<div class="mt-12" data-tabs data-site-reveal>
+					<div class="flex flex-wrap gap-x-6 border-b border-ink/10" role="tablist">
+						{clients.map((client, index) => (
+							<button
+								type="button"
+								role="tab"
+								data-tab={index}
+								aria-selected={index === 0}
+								class="-mb-px flex items-center gap-2 border-b-2 border-transparent pb-3 text-sm text-ink-faint transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
+							>
+								<Icon icon={client.icon} className="h-3.5 w-3.5" />
+								{client.name}
+							</button>
+						))}
+					</div>
+
+					{clients.map((client, index) => (
+						<div data-panel={index} class={index === 0 ? 'pt-6' : 'hidden pt-6'}>
+							<p class="mb-2 hidden text-sm font-medium text-ink" data-panel-name>{client.name}</p>
+							{client.note ? (
+								<p class={`mb-4 max-w-2xl ${BODY_CLASS}`}>{client.note}</p>
+							) : null}
+							{client.command ? (
+								<InkChip command={client.command} variant="paper" />
+							) : (
+								<div class={CODE_CARD_CLASS}>
+									<div class={CODE_SCROLL_CLASS}>
+										<div class={CODE_INNER_CLASS}>
+											<span
+												class={CODE_SHIKI_CLASS}
+												set:html={client.config === 'local' ? localConfigHtml : remoteConfigHtml}
+											/>
+										</div>
+									</div>
+								</div>
+							)}
+						</div>
+					))}
+
+					<noscript>
+						<!-- Without JS every client stays on the page, each under its own name. -->
+						<style is:inline>
+							[data-tabs] [role='tablist'] { display: none; }
+							[data-tabs] [data-panel] { display: block !important; }
+							[data-tabs] [data-panel-name] { display: block; }
+						</style>
+					</noscript>
+				</div>
+
+				<div class="mt-14 md:mt-20" data-site-reveal>
+					<h3 class={CARD_TITLE_CLASS}>Scope the connection</h3>
+					<p class={`mt-2 max-w-2xl ${BODY_CLASS}`}>
+						Name as much of the target as you want on the endpoint and the session
+						cannot leave it. Leave the rest off and your agent asks you to pick,
+						then stays on that pick for the rest of the session.
+					</p>
+
+					<dl class="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+						{scopes.map((scope) => (
+							<div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+								<dt class="overflow-x-auto font-mono text-[13px] text-ink-soft">
+									<span class="whitespace-nowrap">{scope.url}</span>
+								</dt>
+								<dd class="shrink-0 text-sm text-ink">{scope.label}</dd>
+							</div>
+						))}
+					</dl>
+
+					<p class={`mt-5 max-w-2xl ${BODY_CLASS}`}>
+						Fill in your own values. They are the same slugs as the ones in your
+						dashboard URL, <span class="whitespace-nowrap font-mono text-[13px] text-ink">/orgs/ORG/projects/PROJECT/ns/NS</span>, so you can copy them
+						straight out of <a href="https://dashboard.rivet.dev" class="text-pine caption-underline">the dashboard</a>.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto w-full max-w-7xl">
+				<div class="max-w-3xl" data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>Model-written code, held at arm's length</h2>
+				</div>
+
+				<dl class="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3" data-site-reveal-group>
+					{limits.map((limit) => (
+						<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
+							<dt class={CARD_TITLE_CLASS}>{limit.title}</dt>
+							<dd class={`mt-2 ${BODY_CLASS}`}>{limit.body}</dd>
+						</div>
+					))}
+				</dl>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-2 md:items-center">
+				<div data-site-reveal>
+					<h2 class={SECTION_H2_CLASS}>The Inspector, inline</h2>
+					<p class={SECTION_LEDE_CLASS}>
+						Ask your agent about an actor and the Rivet Inspector opens inside the
+						conversation. Its state, who is connected, what is queued: the same view
+						you would open in the dashboard, without leaving the chat.
+					</p>
+					<p class={`mt-4 max-w-xl ${BODY_CLASS}`}>
+						You see the one actor you asked about and nothing else, and it goes away
+						when the conversation does. Clients that cannot draw it get the same
+						details written out.
+					</p>
+				</div>
+
+				<div data-site-reveal data-site-reveal-delay="40">
+					<InkPanel>
+						<div class="space-y-3 px-5 py-6 font-mono text-[13px] text-cream/85">
+							<p class="text-sage">chat-room · acme</p>
+							<div class="space-y-2">
+								{['State', 'Connections', 'Queue', 'Workflow', 'Database'].map((tab) => (
+									<div class="flex items-center justify-between border-b border-cream/10 pb-2">
+										<span>{tab}</span>
+										<span class="text-cream/40">available</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</InkPanel>
+				</div>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<ClosingCtaPanel
+			title="Point your agent at your own backend."
+			description="Add the endpoint to your client, or talk to us about running it on your infrastructure."
+		>
+			<a href="#connect" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Add it to your client</a>
+			<a href="/talk-to-an-engineer" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an engineer</a>
+		</ClosingCtaPanel>
+	</main>
+</MarketingLayout>
+
+<script>
+	for (const root of document.querySelectorAll('[data-tabs]')) {
+		const tabs = root.querySelectorAll('[data-tab]');
+		const panels = root.querySelectorAll('[data-panel]');
+		for (const tab of tabs) {
+			tab.addEventListener('click', () => {
+				for (const other of tabs)
+					other.setAttribute('aria-selected', String(other === tab));
+				for (const panel of panels)
+					panel.classList.toggle('hidden', panel.dataset.panel !== tab.dataset.tab);
+			});
+		}
+	}
+</script>

@@ -10,6 +10,7 @@ import { FontAwesomeIcon, FontAwesomeIconProps } from "@fortawesome/react-fontaw
 import { ComponentProps, createElement } from "react";
 export function Icon(props: Omit<ComponentProps<typeof FontAwesomeIcon>, 'icon'> & {icon: IconProp}) { return createElement(FontAwesomeIcon, props as FontAwesomeIconProps)}
 export type IconProp = string | { prefix: string; iconName: string } | [string, string];
+export const faHono = {"prefix":"fakd","iconName":"hono","icon":[512,512,[],"e012",["M62.5 299.3c-2.4 24.7-.1 48.8 7 72.5 27.4 72.7 79.3 116.8 155.5 132.4 63.8 9.1 120.2-7 169.1-48.3 55.9-54.1 70.2-117.7 42.8-190.8-17.2-41-38-80-62.4-116.8-33-48.9-68.3-96.2-105.7-141.9-1-.8-2.2-1.2-3.5-1-42.5 52.7-79.1 109.4-109.7 170.1-4-3.5-7.9-7.2-11.6-11.1-8-11-16.4-21.8-25.2-32.2-10.8 13.4-19.5 28.2-26.2 44.3-16.1 39.4-26.1 80.4-30.2 122.8zm65.4 22.1c-1.9-16.2-.2-32 5-47.3 7.5-19 16.5-37.1 27.2-54.4 10.1-14.8 20.1-29.5 30.2-44.3 22.9-29.4 45.5-58.9 68-88.6 36.9 42.8 70.3 88.5 100.2 136.9 9.4 16 17.1 32.8 23.2 50.3 12.7 49.8-.9 90.9-40.8 123.3-38.5 27.1-80.8 35.2-126.8 24.2-49.6-15.4-78.3-48.8-86.1-100.2z","M258.3 86.9c36.9 42.8 70.3 88.5 100.2 136.9 9.4 16 17.1 32.8 23.2 50.3 12.7 49.8-.9 90.9-40.8 123.3-38.5 27.1-80.8 35.2-126.8 24.2-49.6-15.4-78.3-48.8-86.1-100.2-1.9-16.2-.2-32 5-47.3 7.5-19 16.5-37.1 27.2-54.4 10.1-14.8 20.1-29.5 30.2-44.3 22.9-29.4 45.5-58.9 68-88.6z"]]};
 export { definition as fa0 } from "@fortawesome/free-solid-svg-icons/fa0";
 export { definition as fa1 } from "@fortawesome/free-solid-svg-icons/fa1";
 export { definition as fa2 } from "@fortawesome/free-solid-svg-icons/fa2";
@@ -980,7 +981,6 @@ export { definition as faSterlingSign } from "@fortawesome/free-solid-svg-icons/
 export { definition as faGbp } from "@fortawesome/free-solid-svg-icons/faSterlingSign";
 export { definition as faPoundSign } from "@fortawesome/free-solid-svg-icons/faSterlingSign";
 export { definition as faGem } from "@fortawesome/free-solid-svg-icons/faGem";
-export { definition as faGemini } from "@fortawesome/free-solid-svg-icons/faGemini";
 export { definition as faGenderless } from "@fortawesome/free-solid-svg-icons/faGenderless";
 export { definition as faGhost } from "@fortawesome/free-solid-svg-icons/faGhost";
 export { definition as faGift } from "@fortawesome/free-solid-svg-icons/faGift";
@@ -2089,7 +2089,6 @@ export { definition as faCentos } from "@fortawesome/free-brands-svg-icons/faCen
 export { definition as faChrome } from "@fortawesome/free-brands-svg-icons/faChrome";
 export { definition as faChromecast } from "@fortawesome/free-brands-svg-icons/faChromecast";
 export { definition as faCircleZulip } from "@fortawesome/free-brands-svg-icons/faCircleZulip";
-export { definition as faClaude } from "@fortawesome/free-brands-svg-icons/faClaude";
 export { definition as faCloudflare } from "@fortawesome/free-brands-svg-icons/faCloudflare";
 export { definition as faCloudscale } from "@fortawesome/free-brands-svg-icons/faCloudscale";
 export { definition as faCloudsmith } from "@fortawesome/free-brands-svg-icons/faCloudsmith";
@@ -2287,7 +2286,6 @@ export { definition as faSquareKickstarter } from "@fortawesome/free-brands-svg-
 export { definition as faKickstarterK } from "@fortawesome/free-brands-svg-icons/faKickstarterK";
 export { definition as faKoFi } from "@fortawesome/free-brands-svg-icons/faKoFi";
 export { definition as faKorvue } from "@fortawesome/free-brands-svg-icons/faKorvue";
-export { definition as faKubernetes } from "@fortawesome/free-brands-svg-icons/faKubernetes";
 export { definition as faLaravel } from "@fortawesome/free-brands-svg-icons/faLaravel";
 export { definition as faLastfm } from "@fortawesome/free-brands-svg-icons/faLastfm";
 export { definition as faSquareLastfm } from "@fortawesome/free-brands-svg-icons/faSquareLastfm";
@@ -4921,5 +4919,4 @@ export { definition as faWreath } from "@fortawesome/pro-solid-svg-icons/faWreat
 export { definition as faWreathLaurel } from "@fortawesome/pro-solid-svg-icons/faWreathLaurel";
 export { definition as faWrenchSimple } from "@fortawesome/pro-solid-svg-icons/faWrenchSimple";
 export { definition as faXmarkLarge } from "@fortawesome/pro-solid-svg-icons/faXmarkLarge";
-export const faHono = {"prefix":"fakd","iconName":"hono","icon":[512,512,[],"e012",["M62.5 299.3c-2.4 24.7-.1 48.8 7 72.5 27.4 72.7 79.3 116.8 155.5 132.4 63.8 9.1 120.2-7 169.1-48.3 55.9-54.1 70.2-117.7 42.8-190.8-17.2-41-38-80-62.4-116.8-33-48.9-68.3-96.2-105.7-141.9-1-.8-2.2-1.2-3.5-1-42.5 52.7-79.1 109.4-109.7 170.1-4-3.5-7.9-7.2-11.6-11.1-8-11-16.4-21.8-25.2-32.2-10.8 13.4-19.5 28.2-26.2 44.3-16.1 39.4-26.1 80.4-30.2 122.8zm65.4 22.1c-1.9-16.2-.2-32 5-47.3 7.5-19 16.5-37.1 27.2-54.4 10.1-14.8 20.1-29.5 30.2-44.3 22.9-29.4 45.5-58.9 68-88.6 36.9 42.8 70.3 88.5 100.2 136.9 9.4 16 17.1 32.8 23.2 50.3 12.7 49.8-.9 90.9-40.8 123.3-38.5 27.1-80.8 35.2-126.8 24.2-49.6-15.4-78.3-48.8-86.1-100.2z","M258.3 86.9c36.9 42.8 70.3 88.5 100.2 136.9 9.4 16 17.1 32.8 23.2 50.3 12.7 49.8-.9 90.9-40.8 123.3-38.5 27.1-80.8 35.2-126.8 24.2-49.6-15.4-78.3-48.8-86.1-100.2-1.9-16.2-.2-32 5-47.3 7.5-19 16.5-37.1 27.2-54.4 10.1-14.8 20.1-29.5 30.2-44.3 22.9-29.4 45.5-58.9 68-88.6z"]]};
-export { faActors, faActorsBorderless, faCursor, faFreestyle, faGb, faGoogleCloud, faHetzner, faHetznerH, faLinear, faLogs, faNetlify, faNextjs, faProject, faRailway, faRegex, faRender, faRivet, faSelect, faSqlite, faSupabase, faTs, faVercel, faVscode, faWord, faWorkflow, faWorkflowBorderless } from "@awesome.me/kit-63db24046b/icons/kit/custom";
+export { faActors, faActorsBorderless, faAiSdk, faBetterAuth, faClaude, faCursor, faDrizzle, faDuckdb, faDurableStreams, faEve, faFlue, faFreestyle, faGb, faGemini, faGoogleCloud, faHetzner, faHetznerH, faKubernetes, faLinear, faLivestore, faLogs, faNetlify, faNextjs, faOpentelemetry, faPglite, faProject, faPrometheus, faRailway, faRegex, faRender, faRivet, faSelect, faSentry, faSqlite, faSupabase, faTanstack, faTinybase, faTldraw, faTs, faVercel, faVscode, faWord, faWorkflow, faWorkflowBorderless, faXstate, faYjs } from "@awesome.me/kit-63db24046b/icons/kit/custom";

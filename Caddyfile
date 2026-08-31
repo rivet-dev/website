@@ -62,6 +62,30 @@
 	@www host www.rivet.dev
 	redir @www https://rivet.dev{uri} 301
 
+	# mcp.rivet.dev serves the MCP landing page at its root while the MCP server
+	# keeps every route it owns, which are proxied to MCP_UPSTREAM. A blanket
+	# host redirect is not possible: https://mcp.rivet.dev/mcp is the endpoint
+	# the landing page tells people to connect to. Only takes effect when
+	# mcp.rivet.dev is attached to the Railway service and MCP_UPSTREAM is set.
+	@mcpHost host mcp.rivet.dev
+	handle @mcpHost {
+		@mcpService path /mcp /mcp/* /.well-known/oauth-protected-resource /health /ready
+		handle @mcpService {
+			reverse_proxy {$MCP_UPSTREAM}
+		}
+
+		handle / {
+			rewrite * /mcp/index.html
+			file_server
+		}
+
+		# The landing page is the only page this host serves; the rest of the
+		# site keeps one canonical home.
+		handle {
+			redir https://rivet.dev{uri} 301
+		}
+	}
+
 	# Real HTTP 301s for legacy/moved URLs. Generated from redirects.mjs by
 	# scripts/generate-caddy-redirects.mjs. The import path resolves relative to
 	# this Caddyfile, so it works both locally and in-container.
@@ -73,6 +97,9 @@
 	@needsSlash {
 		not path */
 		not path /health
+		# mcp.rivet.dev/mcp is an API endpoint, not a page: a trailing-slash
+		# redirect here would break every client the landing page configures.
+		not host mcp.rivet.dev
 		file {path}/index.html
 	}
 	redir @needsSlash {path}/{http.request.uri.prefixed_query} 301

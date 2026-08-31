@@ -303,22 +303,6 @@ async function main() {
 		const manifest = {};
 		let totalIcons = 0;
 
-		// Register Font Awesome packages
-		log("📚", "Registering Font Awesome packages...");
-		for (const packageName of FA_PACKAGES) {
-			try {
-				const packageManifest = await registerFontAwesomePackage(packageName);
-				Object.assign(manifest, packageManifest);
-				totalIcons += packageManifest[packageName].icons.length;
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
-				error(`Failed to register ${packageName}: ${message}`);
-				throw err;
-			}
-		}
-
-		console.log();
-
 		// Register custom kits
 		log("🎨", "Registering custom kits...");
 		for (const kitPath of CUSTOM_KITS) {
@@ -347,6 +331,23 @@ async function main() {
 		}
 
 		console.log();
+
+		// Register Font Awesome packages
+		log("📚", "Registering Font Awesome packages...");
+		for (const packageName of FA_PACKAGES) {
+			try {
+				const packageManifest = await registerFontAwesomePackage(packageName);
+				Object.assign(manifest, packageManifest);
+				totalIcons += packageManifest[packageName].icons.length;
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err);
+				error(`Failed to register ${packageName}: ${message}`);
+				throw err;
+			}
+		}
+
+		console.log();
+
 
 		// Write manifest to file
 		log("💾", "Writing manifest.json...");
