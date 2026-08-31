@@ -12,6 +12,11 @@
 					"title": "Quickstart",
 					"href": "/dynamic-apps/docs/quickstart",
 					"icon": "faForwardFast"
+				},
+				{
+					"title": "Core Quickstart",
+					"href": "/dynamic-apps/docs/quickstart-core",
+					"icon": "faForwardFast"
 				}
 			]
 		},
@@ -25,6 +30,10 @@
 				{
 					"title": "Routing",
 					"href": "/dynamic-apps/docs/routing"
+				},
+				{
+					"title": "Custom Storage",
+					"href": "/dynamic-apps/docs/custom-storage"
 				}
 			]
 		},
@@ -32,12 +41,20 @@
 			"title": "Capabilities",
 			"pages": [
 				{
-					"title": "State & Actors",
-					"href": "/dynamic-apps/docs/state-and-data"
+					"title": "Static Websites",
+					"href": "/dynamic-apps/docs/static-websites"
 				},
 				{
-					"title": "Realtime Events",
-					"href": "/dynamic-apps/docs/realtime"
+					"title": "SQLite",
+					"href": "/dynamic-apps/docs/sqlite"
+				},
+				{
+					"title": "Multiplayer",
+					"href": "/dynamic-apps/docs/multiplayer"
+				},
+				{
+					"title": "Workflows",
+					"href": "/dynamic-apps/docs/workflows"
 				}
 			]
 		},
@@ -49,8 +66,8 @@
 					"href": "/dynamic-apps/docs/authentication"
 				},
 				{
-					"title": "Reference",
-					"href": "/dynamic-apps/docs/reference"
+					"title": "Collecting logs",
+					"href": "/dynamic-apps/docs/logging"
 				}
 			]
 		}
