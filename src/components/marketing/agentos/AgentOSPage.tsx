@@ -538,8 +538,8 @@ const frameworks: SupportedAgent[] = [
 	},
 	{
 		src: '/images/frameworks/rivet.svg',
-		name: 'Rivet',
-		href: '/agentos/integrations/rivet',
+		name: 'Rivet Actors',
+		href: '/agentos/integrations/rivet-actors',
 	},
 ];
 
