@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import {
 	DOCS_SOURCES,
 	SHARED_CONTENT_PRODUCT,
+	SITE_DOCS_NAMESPACE,
 	productFromPath,
 } from "./docs-sources";
 
@@ -104,20 +105,29 @@ export function snippetRootForContentPath(
 	contentPath: string | undefined,
 ): string | undefined {
 	if (contentPath) {
+		// Website-owned global docs use the website repo as their snippet root.
+		// Resolve their explicit collection namespace before matching real repo
+		// roots: the website root contains unrelated content that must keep falling
+		// back to the Actors examples.
+		const namespacedSource = productFromPath(contentPath);
+		if (namespacedSource === SITE_DOCS_NAMESPACE) {
+			return snippetRoot(SITE_DOCS_NAMESPACE);
+		}
+
 		// Product docs are symlinked in, and Vite reports the resolved realpath
 		// (`/home/me/agentos/docs/content/...`), so the `src/content/docs/<product>`
 		// shape is usually gone by the time we see it. Match on the repo root
 		// first and fall back to the path shape.
 		const normalized = path.resolve(contentPath);
 		for (const productId of Object.keys(DOCS_SOURCES)) {
+			if (productId === SITE_DOCS_NAMESPACE) continue;
 			const root = docsRoot(productId);
 			if (root && normalized.startsWith(`${path.resolve(root)}${path.sep}`)) {
 				return snippetRoot(productId) ?? root;
 			}
 		}
 
-		const product = productFromPath(contentPath);
-		if (product) return snippetRoot(product);
+		if (namespacedSource) return snippetRoot(namespacedSource);
 	}
 
 	return docsRoot(SHARED_CONTENT_PRODUCT);

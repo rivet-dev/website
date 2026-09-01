@@ -12,7 +12,8 @@ import { DocsLanding } from '@/components/docs/DocsLanding';
 import { docsLandings } from '@/components/docs/docsLandings';
 import { Icon, faPencil } from '@rivet-gg/icons';
 import { sitemap } from '@/sitemap/mod';
-import { findActiveTab } from '@/lib/sitemap';
+import { withAiSidebarSection } from '@/sitemap/ai';
+import { findActiveTab, findPageForHref } from '@/lib/sitemap';
 import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
@@ -38,6 +39,10 @@ const {
 	// copy points search engines at one winner instead of letting Google pick.
 	canonicalUrl: canonicalUrlOverride,
 	robots,
+	exactTitle = false,
+	routeSlugOverride,
+	markdownPathOverride,
+	editUrlOverride,
 	// Extra MDX components for this page, e.g. the bound product slot renderer.
 	extraComponents = {},
 } = Astro.props;
@@ -85,22 +90,39 @@ const routeEntryId = entryIdPrefix && entry.id.startsWith(entryIdPrefix)
 	: entryIdPrefix && `${entry.id}/` === entryIdPrefix
 		? ''
 		: entry.id;
-const slugPath = getContentSlugPath(routeEntryId);
+const slugPath = routeSlugOverride ?? getContentSlugPath(routeEntryId);
 // Section overviews render as a custom icon-grid landing instead of the
 // standard prose article. The markdown chrome (edit button, breadcrumb, TOC,
 // page dropdown) is suppressed for these.
 const landing = docsLandings[entrySlugPath ?? ''];
 const isLanding = Boolean(landing);
 const fullPath = slugPath ? `${routePrefix}/${slugPath}/` : `${routePrefix}/`;
-const foundTab = findActiveTab(fullPath, sitemap);
-const rawParentPage = foundTab?.page?.parent;
+const discovered = findActiveTab(fullPath, sitemap);
+const routeOwnedTab = productId && tabId
+	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
+	: undefined;
+const activeTab = routeOwnedTab ?? discovered?.tab;
+const sourceSidebar = activeTab?.sidebar ?? [];
+const sidebar = tabId === 'docs' || fullPath.startsWith('/docs/')
+	? withAiSidebarSection(sourceSidebar, productId)
+	: sourceSidebar;
+const activePage = activeTab
+	? findPageForHref(fullPath, { ...activeTab, sidebar })
+	: discovered?.page;
+const discoveredParentPage = activePage?.parent;
+const rawParentPage =
+	discoveredParentPage &&
+	'title' in discoveredParentPage &&
+	discoveredParentPage.title === 'AI Integration'
+		? { ...discoveredParentPage, title: 'AI Tools' }
+		: discoveredParentPage;
 // A section's overview page sits inside a sidebar section of the same name, so
 // the eyebrow would just repeat the h1 ("Control Plane" over "Control Plane").
 const parentPage =
 	rawParentPage && 'title' in rawParentPage && rawParentPage.title === title
 		? undefined
 		: rawParentPage;
-const hasSidebar = (foundTab?.tab?.sidebar?.length ?? 0) > 0;
+const hasSidebar = sidebar.length > 0;
 const canonicalUrl = canonicalUrlOverride ?? `https://rivet.dev${fullPath}`;
 
 // Inside a product vertical, prose links carry that product's accent instead of
@@ -111,7 +133,7 @@ const proseStyle = accent ? { '--tw-prose-links': accent.hex } : undefined;
 
 // The Markdown mirror written by `pnpm gen:markdown` sits at the page's own
 // site path plus `.md`, so the dropdown's link is just this route unslashed.
-const markdownPath = fullPath.replace(/^\/|\/$/g, '');
+const markdownPath = markdownPathOverride ?? fullPath.replace(/^\/|\/$/g, '');
 const componentSourcePath = entry.filePath
 	? entry.filePath.replace(/^.*?src\/content\//, '')
 	: `docs/${entry.id}.mdx`;
@@ -128,11 +150,11 @@ const productContentPath = normalizedFilePath?.includes('/docs/content/')
 	: productContentMarker && normalizedFilePath?.includes(productContentMarker)
 		? normalizedFilePath.slice(normalizedFilePath.indexOf(productContentMarker) + productContentMarker.length)
 		: `${tabId}/${routeEntryId ? `${routeEntryId}.mdx` : 'index.mdx'}`;
-const editUrl = product && tabId !== 'self-host'
+const editUrl = editUrlOverride ?? (product && tabId !== 'self-host'
 	? product.localBundle
 		? `https://github.com/rivet-dev/website/edit/main/${product.localBundle}/docs/content/${productContentPath}`
 		: `https://github.com/rivet-dev/${product.repo}/edit/main/docs/content/${productContentPath}`
-	: `https://github.com/rivet-dev/website/edit/main/src/content/${componentSourcePath}`;
+	: `https://github.com/rivet-dev/website/edit/main/src/content/${componentSourcePath}`);
 
 // Build BreadcrumbList schema
 const breadcrumbItems = [
@@ -163,15 +185,16 @@ const breadcrumbSchema = {
 	description={seo.description}
 	canonicalUrl={canonicalUrl}
 	robots={robots}
-	sidebar={foundTab?.tab?.sidebar}
+	sidebar={sidebar}
 	productId={productId}
 	tabId={tabId}
 	sectionLabel={sectionLabel}
+	exactTitle={exactTitle}
 >
 	<script type="application/ld+json" set:html={jsonLdString(breadcrumbSchema)} />
 	{hasSidebar && (
 		<aside class="hidden md:block border-r border-ink/10">
-			<DocsNavigation sidebar={foundTab.tab.sidebar} tabKey={foundTab.tab.title} currentPath={fullPath} productId={productId} client:load transition:persist="docs-sidebar" />
+			<DocsNavigation sidebar={sidebar} tabKey={activeTab?.title ?? 'Documentation'} currentPath={fullPath} productId={productId} client:load transition:persist="docs-sidebar" />
 		</aside>
 	)}
 	<div class="flex justify-center w-full min-w-0">

@@ -6,6 +6,7 @@ import {
 	WithTooltip,
 } from "@rivet-gg/components";
 import {
+	faCheck,
 	faCode,
 	faCopy,
 	faDatabase,
@@ -245,13 +246,24 @@ export const pre = ({
 			<span data-code-icon className="hidden">
 				<Icon icon={langIcon} className="size-3" />
 			</span>
-			<div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover/code:opacity-100">
+			<div className="absolute right-2 top-2 z-10 flex items-center gap-1">
 				<TooltipProvider>
 					<WithTooltip
 						trigger={
 							<CopyCodeTrigger>
-								<Button size="icon-sm" variant="ghost" data-copy-code className="text-ink-soft hover:bg-ink/10 hover:text-ink">
-									<Icon icon={faCopy} />
+								<Button
+									size="icon-sm"
+									variant="ghost"
+									data-copy-code
+									aria-label="Copy code"
+									className="text-ink-soft hover:bg-ink/10 hover:text-ink"
+								>
+									<span data-copy-icon="copy" className="inline-flex">
+										<Icon icon={faCopy} aria-hidden="true" />
+									</span>
+									<span data-copy-icon="check" className="hidden text-pine">
+										<Icon icon={faCheck} aria-hidden="true" />
+									</span>
 								</Button>
 							</CopyCodeTrigger>
 						}

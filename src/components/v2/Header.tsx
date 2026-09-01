@@ -557,6 +557,8 @@ export function Header({
 								tree={mobileSidebar}
 								sidebarData={sidebarData}
 								isLightTheme={isLightTheme}
+								productId={productId}
+								tabId={tabId}
 							/>
 						}
 						sheetClassName="!bg-paper [&>button]:!bg-paper [&>button]:!text-ink [&>button]:!border-ink/15"
@@ -653,7 +655,7 @@ export function Header({
 			}
 			lightTheme={isLightTheme}
 			sheetClassName={isLightTheme ? "!bg-paper [&>button]:!bg-paper [&>button]:!text-ink [&>button]:!border-ink/15" : undefined}
-			mobileBreadcrumbs={<DocsMobileNavigation tree={mobileSidebar} sidebarData={sidebarData} isLightTheme={isLightTheme} />}
+			mobileBreadcrumbs={<DocsMobileNavigation tree={mobileSidebar} sidebarData={sidebarData} isLightTheme={isLightTheme} productId={productId} tabId={tabId} />}
 			breadcrumbs={
 				<div className={cn(
 					"flex items-center font-v2 subpixel-antialiased",
@@ -690,14 +692,32 @@ function DocsMobileNavigation({
 	tree,
 	sidebarData,
 	isLightTheme = false,
+	productId,
+	tabId,
 }: {
 	tree?: ReactNode;
 	sidebarData?: SidebarItem[];
 	isLightTheme?: boolean;
+	productId?: string;
+	tabId?: string;
 }) {
 	const pathname = usePathname() || "";
-	const current = findProductForPath(pathname.replace(/\/$/, ""));
-	const isDocsPage = Boolean(current) || pathname.startsWith("/integrations");
+	const pathCurrent = findProductForPath(pathname.replace(/\/$/, ""));
+	const explicitProduct = productId
+		? productVerticals.find((product) => product.id === productId)
+		: undefined;
+	const explicitTab = explicitProduct && tabId
+		? explicitProduct.tabs.find((tab) => tab.id === tabId)
+		: undefined;
+	const current = explicitProduct && explicitTab
+		? { product: explicitProduct, tab: explicitTab }
+		: pathCurrent;
+	const isGlobalDocsPage =
+		pathname.startsWith("/docs/") && Boolean(sidebarData?.length);
+	const isDocsPage =
+		Boolean(current) ||
+		pathname.startsWith("/integrations") ||
+		isGlobalDocsPage;
 
 	// On mobile the product bar collapses into this sheet: the tab dropdown
 	// lists the current product's three tabs, and the Products list switches
@@ -708,7 +728,9 @@ function DocsMobileNavigation({
 				label: tab.title,
 				href: tab.href,
 			}))
-		: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
+		: isGlobalDocsPage
+			? [{ id: "docs", label: "Documentation", href: "/docs/" }]
+			: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
 
 	const mainLinks = [
 		{ href: "/docs", label: "Documentation" },

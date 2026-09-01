@@ -33,6 +33,7 @@ const footer = {
 	],
 	devs: [
 		{ name: "Documentation", href: "/docs" },
+		{ name: "MCP", href: "https://rivet.dev/docs/mcp/" },
 		{ name: "Changelog", href: "/blog/" },
 		{ name: "Status Page", href: "https://rivet.betteruptime.com/" },
 	],

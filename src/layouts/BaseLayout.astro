@@ -29,6 +29,7 @@ interface Props {
 	robots?: string;
 	themeColor?: string;
 	pageFamily?: 'default' | 'site';
+	exactTitle?: boolean;
 }
 
 const {
@@ -46,6 +47,7 @@ const {
 	robots,
 	themeColor = "#EFEFEF",
 	pageFamily = 'default',
+	exactTitle = false,
 } = Astro.props;
 
 const seoTitle = stripSeoMarkup(title);
@@ -56,7 +58,7 @@ const seoDescription = stripSeoMarkup(description);
 // with a "Rivet … - " brand prefix (homepage, product pages).
 const formattedTitle = !seoTitle
 	? 'Rivet'
-	: /^Rivet( [A-Za-z]+)? - | - Rivet( Actors| Templates)?$/.test(seoTitle)
+	: exactTitle || /^Rivet( [A-Za-z]+)? - | - Rivet( Actors| Templates)?$/.test(seoTitle)
 		? seoTitle
 		: `${seoTitle} - Rivet`;
 

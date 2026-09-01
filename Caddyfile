@@ -52,14 +52,26 @@
 
 	# www -> apex. Railway terminates TLS upstream, so always redirect to https.
 	# Only takes effect when www.rivet.dev is attached to the Railway service.
-	@www host www.rivet.dev
+	@www {
+		host www.rivet.dev
+		not path /mcp /mcp/
+	}
 	redir @www https://rivet.dev{uri} 301
 
-	# mcp.rivet.dev serves the MCP landing page at its root while the MCP server
-	# keeps every route it owns, which are proxied to MCP_UPSTREAM. A blanket
-	# host redirect is not possible: https://mcp.rivet.dev/mcp is the endpoint
-	# the landing page tells people to connect to. Only takes effect when
-	# mcp.rivet.dev is attached to the Railway service and MCP_UPSTREAM is set.
+	# The former apex landing route now lives in the docs. Keep this redirect
+	# host-aware: an unconditional /mcp redirect would intercept the MCP service
+	# endpoint on mcp.rivet.dev before its reverse-proxy handler runs.
+	@mcpDocsPage {
+		not host mcp.rivet.dev
+		path /mcp /mcp/
+	}
+	redir @mcpDocsPage https://rivet.dev/docs/mcp/{http.request.uri.prefixed_query} 301
+
+	# mcp.rivet.dev redirects its root to the canonical docs page while the MCP
+	# server keeps every route it owns, which are proxied to MCP_UPSTREAM. A
+	# blanket host redirect is not possible: https://mcp.rivet.dev/mcp is the
+	# endpoint clients connect to. Only takes effect when mcp.rivet.dev is
+	# attached to the Railway service and MCP_UPSTREAM is set.
 	@mcpHost host mcp.rivet.dev
 	handle @mcpHost {
 		@mcpService path /mcp /mcp/* /.well-known/oauth-protected-resource /health /ready
@@ -68,12 +80,11 @@
 		}
 
 		handle / {
-			rewrite * /mcp/index.html
-			file_server
+			redir https://rivet.dev/docs/mcp/{http.request.uri.prefixed_query} 301
 		}
 
-		# The landing page is the only page this host serves; the rest of the
-		# site keeps one canonical home.
+		# The service routes above are the only content this host serves; the rest
+		# of the site keeps one canonical home.
 		handle {
 			redir https://rivet.dev{uri} 301
 		}
