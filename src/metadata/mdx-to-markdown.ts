@@ -74,7 +74,7 @@ export function listSnippetFiles(body: string): string[] {
 
 const CODE_SNIPPET = /<CodeSnippet\s([^>]*?)\/>/g;
 
-function inlineCodeSnippets(body: string, options: ConvertOptions) {
+export function inlineCodeSnippets(body: string, options: ConvertOptions) {
 	return body.replace(CODE_SNIPPET, (_match, rawAttrs: string) => {
 		const file = attributeValue(rawAttrs, "file");
 		if (!file) return "";

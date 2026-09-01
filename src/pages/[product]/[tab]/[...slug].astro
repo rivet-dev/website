@@ -4,10 +4,12 @@ import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { getContentParamSlug } from '@/lib/content-path';
 import { products } from '@/sitemap/products';
+import { AI_DOCS_ITEMS } from '@/sitemap/ai';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('docs');
+	const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
 	const paths = [];
 
 	for (const product of products) {
@@ -39,13 +41,56 @@ export async function getStaticPaths() {
 					},
 				});
 			}
+
+			// Shared AI documentation stays inside the active product's full docs
+			// shell. Actors already owns the two canonical routes, so only the other
+			// products need contextual aliases.
+			if (tab.id === 'docs' && product.id !== 'actors') {
+				for (const item of AI_DOCS_ITEMS) {
+					const entry = entriesById.get(item.contentId);
+					if (!entry) {
+						throw new Error(`Missing AI documentation entry: ${item.contentId}`);
+					}
+					const routeSlugOverride = `ai/${item.id}`;
+					paths.push({
+						params: {
+							product: product.id,
+							tab: tab.id,
+							slug: routeSlugOverride,
+						},
+						props: {
+							entry,
+							productId: product.id,
+							tabId: tab.id,
+							productName: product.name,
+							tabTitle: tab.title,
+							routeSlugOverride,
+							canonicalUrl: `https://rivet.dev${item.href}`,
+							markdownPathOverride: item.markdownPath,
+							editUrlOverride: item.editUrl,
+							exactTitle: item.id === 'mcp',
+						},
+					});
+				}
+			}
 		}
 	}
 
 	return paths;
 }
 
-const { entry, productId, tabId, productName, tabTitle } = Astro.props;
+const {
+	entry,
+	productId,
+	tabId,
+	productName,
+	tabTitle,
+	routeSlugOverride,
+	canonicalUrl,
+	markdownPathOverride,
+	editUrlOverride,
+	exactTitle,
+} = Astro.props;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 ---
 
@@ -57,5 +102,10 @@ const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 	productId={productId}
 	tabId={tabId}
 	seoContextLabel={`${productName} ${tabTitle}`}
+	routeSlugOverride={routeSlugOverride}
+	canonicalUrl={canonicalUrl}
+	markdownPathOverride={markdownPathOverride}
+	editUrlOverride={editUrlOverride}
+	exactTitle={exactTitle}
 	robots={robots}
 />
