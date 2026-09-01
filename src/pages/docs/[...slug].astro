@@ -1,0 +1,43 @@
+---
+// Website-owned documentation: /docs/{...slug}. Product documentation keeps
+// its own /{product}/{tab}/{...slug} route.
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { getContentParamSlug } from '@/lib/content-path';
+import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
+import { SITE_DOCS_NAMESPACE } from '@/sitemap/docs-sources';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('docs');
+	const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
+
+	return entries
+		.filter((entry) => entry.id.startsWith(entryPrefix))
+		.map((entry) => ({
+			params: {
+				slug: getContentParamSlug(entry.id.slice(entryPrefix.length)),
+			},
+			props: { entry },
+		}));
+}
+
+const { entry } = Astro.props;
+const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
+const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
+const isMcp = entry.id === 'docs/mcp';
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix="/docs"
+	entryIdPrefix={entryPrefix}
+	breadcrumbName="Documentation"
+	productId={isMcp ? 'actors' : undefined}
+	tabId={isMcp ? 'docs' : undefined}
+	sectionLabel={isMcp ? undefined : 'Documentation'}
+	seoContextLabel="Rivet documentation"
+	canonicalUrl={isMcp ? 'https://rivet.dev/docs/mcp/' : undefined}
+	editUrlOverride={isMcp ? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx' : undefined}
+	exactTitle={isMcp}
+	robots={robots}
+/>

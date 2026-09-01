@@ -35,6 +35,8 @@ export function getRouteSeoPolicy(value: string | URL): RouteSeoPolicy {
 	const isNoncanonicalSelfHost =
 		/^\/[^/]+\/self-host\//.test(pathname) &&
 		!pathname.startsWith("/actors/self-host/");
+	const isContextualAiDocs =
+		/^\/[^/]+\/docs\/ai\/(?:mcp|skills)\/$/.test(pathname);
 
 	if (isHiddenTab || isComparison || isPrivateUtility) {
 		return { index: false, follow: true, sitemap: false };
@@ -43,7 +45,7 @@ export function getRouteSeoPolicy(value: string | URL): RouteSeoPolicy {
 	return {
 		index: true,
 		follow: true,
-		sitemap: !isNoncanonicalSelfHost,
+		sitemap: !isNoncanonicalSelfHost && !isContextualAiDocs,
 	};
 }
 
