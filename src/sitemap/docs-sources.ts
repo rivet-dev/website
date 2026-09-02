@@ -1,5 +1,5 @@
 /**
- * Which repository owns each product's docs.
+ * Which repository owns each docs namespace.
  *
  * Product docs are not authored in this repo. Each product repo ships a bundle:
  *
@@ -30,7 +30,7 @@ export interface DocsSource {
 	localBundle?: string;
 }
 
-export const DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
+const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 	PRODUCTS.map((product) => [
 		product.id,
 		{
@@ -40,14 +40,25 @@ export const DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 	]),
 );
 
+/** Website-owned documentation that sits beside, rather than inside, a product vertical. */
+export const SITE_DOCS_NAMESPACE = "docs";
+
+export const DOCS_SOURCES: Record<string, DocsSource> = {
+	...PRODUCT_DOCS_SOURCES,
+	[SITE_DOCS_NAMESPACE]: {
+		repo: "rivet-website",
+		localBundle: ".",
+	},
+};
+
 export const DOCS_PRODUCT_IDS = Object.keys(DOCS_SOURCES);
 
 /**
- * The product that owns a path, derived from where its content sits.
+ * The docs namespace that owns a path, derived from where its content sits.
  *
  * Accepts either a site path (`/agentos/docs/fs`) or a content-file path
  * (`.../src/content/docs/agentos/fs.mdx`). Returns undefined for anything
- * outside the product verticals, such as the shared self-host guides.
+ * outside the docs collection, such as the shared self-host guides.
  */
 export function productFromPath(pathname: string): string | undefined {
 	const normalized = pathname.replace(/\\/g, "/");

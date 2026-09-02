@@ -8,14 +8,15 @@ import { DocsLanding } from '@/components/docs/DocsLanding';
 import { visibleProducts as products } from '@/sitemap/products';
 import { productLogos } from '@/sitemap/productLogos';
 import { productAccent } from '@/lib/product-accent';
-import { faSquareInfo } from '@rivet-gg/icons';
+import { AI_DOCS_ITEMS } from '@/sitemap/ai';
+import { faPlug, faSparkles, faSquareInfo } from '@rivet-gg/icons';
 
 const pathname = Astro.url.pathname;
 
 const landing = {
 	title: 'Documentation',
 	subtitle:
-		'Four products on one runtime. Pick the one you are building with.',
+		'Choose a product, or connect your AI client to Rivet.',
 	// Two columns: four products in a three-up grid leaves a ragged 3 + 1.
 	columns: 2 as const,
 	sections: [
@@ -33,6 +34,13 @@ const landing = {
 					description: product.description,
 				};
 			}),
+		},
+		{
+			title: 'AI Tools',
+			items: AI_DOCS_ITEMS.map((item) => ({
+				...item,
+				icon: item.id === 'mcp' ? faPlug : faSparkles,
+			})),
 		},
 	],
 };

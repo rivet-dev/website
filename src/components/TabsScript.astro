@@ -4,45 +4,129 @@
 ---
 
 <script>
+	function directChild(parent: Element, selector: string): Element | null {
+		return Array.from(parent.children).find((child) => child.matches(selector)) ?? null;
+	}
+
+	function directChildren(parent: Element, selector: string): Element[] {
+		return Array.from(parent.children).filter((child) => child.matches(selector));
+	}
+
+	function nextTabsId(): string {
+		const tabsWindow = window as typeof window & { __nextDocsTabsId?: number };
+		tabsWindow.__nextDocsTabsId = (tabsWindow.__nextDocsTabsId ?? 0) + 1;
+		return `docs-tabs-${tabsWindow.__nextDocsTabsId}`;
+	}
+
+	function activateTab(
+		container: Element,
+		activeTrigger: Element,
+		moveFocus = false,
+	) {
+		const activeIndex = activeTrigger.getAttribute('data-tab-index');
+		if (activeIndex === null) return;
+		const tabsList = activeTrigger.parentElement;
+		const contentContainer = directChild(
+			container,
+			'[data-tabs-content-container]',
+		);
+		if (!tabsList?.matches('[data-tabs-list]') || !contentContainer) return;
+
+		directChildren(tabsList, '[data-tab-trigger]').forEach((trigger) => {
+			const isActive = trigger === activeTrigger;
+			trigger.setAttribute('aria-selected', String(isActive));
+			trigger.setAttribute('tabindex', isActive ? '0' : '-1');
+			trigger.classList.toggle('is-tab-active', isActive);
+			trigger.classList.toggle('border-b-transparent', !isActive);
+			trigger.classList.toggle('text-muted-foreground', !isActive);
+		});
+
+		directChildren(contentContainer, '[data-tab-content]').forEach((content) => {
+			(content as HTMLElement).hidden =
+				content.getAttribute('data-tab-index') !== activeIndex;
+		});
+
+		if (moveFocus) {
+			(activeTrigger as HTMLElement).focus();
+			activeTrigger.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+		}
+	}
+
 	// Initialize tabs by moving buttons and content into place
 	function initializeTabs() {
 		const tabContainers = document.querySelectorAll('[data-tabs-container]');
 		tabContainers.forEach((container) => {
-			const tabsList = container.querySelector('[data-tabs-list]');
-			const contentContainer = container.querySelector('[data-tabs-content-container]');
-			const source = container.querySelector('[data-tabs-source]');
+			const tabsControls = directChild(container, '[data-tabs-controls]');
+			const tabsList = tabsControls
+				? directChild(tabsControls, '[data-tabs-list]')
+				: null;
+			const contentContainer = directChild(
+				container,
+				'[data-tabs-content-container]',
+			);
+			const source = directChild(container, '[data-tabs-source]');
 
-			if (!tabsList || !contentContainer || !source) return;
+			if (!tabsList || !tabsControls || !contentContainer || !source) return;
 
 			// Already initialized
-			if (tabsList.children.length > 0) return;
+			if (container.hasAttribute('data-tabs-initialized')) {
+				(tabsControls as HTMLElement).hidden = false;
+				(contentContainer as HTMLElement).hidden = false;
+				(source as HTMLElement).hidden = true;
+				return;
+			}
 
-			const tabItems = source.querySelectorAll('[data-tab-item]');
-			tabItems.forEach((item, index) => {
-				const button = item.querySelector('[data-tab-trigger]');
-				const content = item.querySelector('[data-tab-content]');
+			const tabItems = directChildren(source, '[data-tab-item]');
+			const entries = tabItems.map((item) => ({
+				item,
+				button: directChild(item, '[data-tab-trigger]'),
+				content: directChild(item, '[data-tab-content]'),
+			}));
+			if (
+				entries.length === 0 ||
+				entries.some(({ button, content }) => !button || !content)
+			) {
+				return;
+			}
 
-				if (button && content) {
-					// Move button to tabs list
-					tabsList.appendChild(button.cloneNode(true));
+			const tabsId = nextTabsId();
+			entries.forEach(({ item, button, content }, index) => {
+				if (!button || !content) return;
+				const tabId = `${tabsId}-tab-${index}`;
+				const panelId = `${tabsId}-panel-${index}`;
 
-					// Move content to content container
-					const contentClone = content.cloneNode(true) as HTMLElement;
-					contentClone.setAttribute('data-tab-title', item.getAttribute('data-tab-title') || '');
-					contentContainer.appendChild(contentClone);
-				}
+				button.classList.remove('hidden');
+				button.setAttribute('id', tabId);
+				button.setAttribute('role', 'tab');
+				button.setAttribute('aria-controls', panelId);
+				button.setAttribute('aria-selected', 'false');
+				button.setAttribute('tabindex', '-1');
+				button.setAttribute('data-tab-index', String(index));
+				tabsList.appendChild(button);
+
+				content.classList.remove('hidden');
+				content.setAttribute('id', panelId);
+				content.setAttribute('role', 'tabpanel');
+				content.setAttribute('aria-labelledby', tabId);
+				content.setAttribute('tabindex', '0');
+				content.setAttribute('data-tab-index', String(index));
+				content.setAttribute(
+					'data-tab-title',
+					item.getAttribute('data-tab-title') || '',
+				);
+				(content as HTMLElement).hidden = true;
+				contentContainer.appendChild(content);
 			});
 
-			// Set first tab as active
-			const firstButton = tabsList.querySelector('[data-tab-trigger]');
-			const firstContent = contentContainer.querySelector('[data-tab-content]');
-			if (firstButton) {
-				firstButton.classList.add('is-tab-active');
-				firstButton.classList.remove('border-b-transparent', 'text-muted-foreground');
-			}
-			if (firstContent) {
-				firstContent.classList.remove('hidden');
-			}
+			const firstButton = directChild(tabsList, '[data-tab-trigger]');
+			if (!firstButton) return;
+
+			tabsList.setAttribute('aria-orientation', 'horizontal');
+			activateTab(container, firstButton);
+			container.setAttribute('data-tabs-initialized', 'true');
+			(tabsControls as HTMLElement).hidden = false;
+			(contentContainer as HTMLElement).hidden = false;
+			(source as HTMLElement).hidden = true;
 		});
 	}
 
@@ -273,38 +357,9 @@
 			// Handle Tabs component
 			const tabTrigger = target.closest('[data-tab-trigger]');
 			if (tabTrigger) {
-				const tabTitle = tabTrigger.getAttribute('data-tab-trigger');
-				if (!tabTitle) return;
-
 				const tabsContainer = tabTrigger.closest('[data-tabs-container]');
 				if (!tabsContainer) return;
-
-				// Update trigger styles (underline style)
-				const triggers = tabsContainer.querySelectorAll('[data-tab-trigger]');
-				triggers.forEach((trigger) => {
-					const isActive = trigger.getAttribute('data-tab-trigger') === tabTitle;
-					if (isActive) {
-						trigger.classList.add('is-tab-active');
-						trigger.classList.remove('border-b-transparent', 'text-muted-foreground');
-					} else {
-						trigger.classList.remove('is-tab-active');
-						trigger.classList.add('border-b-transparent', 'text-muted-foreground');
-					}
-				});
-
-				// Show/hide tab content
-				const contentContainer = tabsContainer.querySelector('[data-tabs-content-container]');
-				if (!contentContainer) return;
-
-				const contents = contentContainer.querySelectorAll('[data-tab-content]');
-				contents.forEach((content) => {
-					const contentTitle = content.getAttribute('data-tab-title');
-					if (contentTitle === tabTitle) {
-						content.classList.remove('hidden');
-					} else {
-						content.classList.add('hidden');
-					}
-				});
+				activateTab(tabsContainer, tabTrigger);
 				return;
 			}
 
@@ -391,6 +446,45 @@
 					icon?.classList.add('rotate-90');
 				}
 			}
+		});
+
+		document.addEventListener('keydown', (event) => {
+			const target = event.target as HTMLElement;
+			const tabTrigger = target.closest('[data-tabs-list] [data-tab-trigger]');
+			if (!tabTrigger) return;
+
+			const tabsContainer = tabTrigger.closest('[data-tabs-container]');
+			const tabsList = tabTrigger.parentElement;
+			if (!tabsContainer || !tabsList?.matches('[data-tabs-list]')) return;
+
+			const triggers = directChildren(
+				tabsList,
+				'[data-tab-trigger]',
+			) as HTMLElement[];
+			const currentIndex = triggers.indexOf(tabTrigger as HTMLElement);
+			if (currentIndex === -1) return;
+
+			let nextIndex: number | undefined;
+			switch (event.key) {
+				case 'ArrowRight':
+					nextIndex = (currentIndex + 1) % triggers.length;
+					break;
+				case 'ArrowLeft':
+					nextIndex = (currentIndex - 1 + triggers.length) % triggers.length;
+					break;
+				case 'Home':
+					nextIndex = 0;
+					break;
+				case 'End':
+					nextIndex = triggers.length - 1;
+					break;
+				default:
+					return;
+			}
+
+			event.preventDefault();
+			const nextTrigger = triggers[nextIndex];
+			if (nextTrigger) activateTab(tabsContainer, nextTrigger, true);
 		});
 	}
 </script>

@@ -10,6 +10,8 @@ import {
 	PROJECT_ROOT,
 	SITE_BASE_URL,
 } from "../../metadata/shared";
+import { inlineCodeSnippets } from "../../metadata/mdx-to-markdown";
+import { snippetRootForContentPath } from "../../sitemap/docs-sources.node";
 
 const CURATED_LIMIT = 50;
 
@@ -46,10 +48,24 @@ async function buildMetadata(): Promise<MetadataPayload> {
 		const canonicalUrl = `${SITE_BASE_URL}${canonicalPath}`;
 		const tags = slug.split("/").filter(Boolean);
 		const productArea = tags[0] ?? null;
-		const body = entry.body ?? "";
-		const headings = ensureHeadings(extractHeadings(body), entry.data.title);
+		const sourceBody = entry.body ?? "";
+		const expandSnippets = (content: string) =>
+			inlineCodeSnippets(content, {
+				snippetRoot: snippetRootForContentPath(entry.filePath),
+				sourceLabel: slug,
+			});
+		const body = expandSnippets(sourceBody);
+		const headings = ensureHeadings(extractHeadings(sourceBody), entry.data.title);
 		const updatedAt = await getUpdatedAt(entry.filePath);
-		const sectionRecords = splitSections(body, headings, resourceUri, canonicalUrl, updatedAt, canonicalPath);
+		const sectionRecords = splitSections(
+			sourceBody,
+			headings,
+			resourceUri,
+			canonicalUrl,
+			updatedAt,
+			canonicalPath,
+			expandSnippets,
+		);
 		const plaintext = toPlainText(body);
 
 		pages.push({
@@ -162,6 +178,7 @@ function splitSections(
 	canonicalUrl: string,
 	updatedAt: string,
 	canonicalPath: string,
+	expandSnippets: (content: string) => string,
 ) {
 	const lines = body.split(/\r?\n/);
 	const records: SectionRecord[] = [];
@@ -169,7 +186,7 @@ function splitSections(
 	for (const heading of headings) {
 		const start = Math.max(heading.startLine - 1, 0);
 		const end = typeof heading.endLine === "number" ? heading.endLine : lines.length;
-		const content = lines.slice(start, end).join("\n").trim();
+		const content = expandSnippets(lines.slice(start, end).join("\n")).trim();
 		const snippet = toSnippet(content);
 		const uri = `${resourceUri}#section=${heading.anchor}`;
 
