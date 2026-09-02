@@ -19,10 +19,10 @@ export const careerLocations: readonly CareerLocation[] = [
     y: 29,
   },
   {
-    city: "Szczecin",
+    city: "Warsaw",
     countryCode: "PL",
-    x: 98,
-    y: 19,
+    x: 102,
+    y: 20,
   },
 ];
 
