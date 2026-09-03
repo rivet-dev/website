@@ -28,6 +28,7 @@ const REPOS = [
 	"rivet-dev/secure-exec",
 	"rivet-dev/sandbox-agent",
 	"rivet-dev/antiox",
+	"rivet-dev/rivet-durable-streams",
 ];
 
 export function GitHubDropdown({ className, ...props }: GitHubDropdownProps) {

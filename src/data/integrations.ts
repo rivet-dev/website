@@ -47,6 +47,13 @@ const ACTORS: Integration[] = [
 		icon: { src: "/images/vendors/workflow.svg" },
 		badge: "Beta",
 	},
+	{
+		title: "Durable Streams",
+		description: "Real-time streams with durable, replayable history, backed by Rivet Actors.",
+		slug: "durable-streams",
+		category: "Streams",
+		icon: { src: "/images/vendors/durable-streams.svg" },
+	},
 ];
 
 const AGENTOS: Integration[] = [

@@ -160,8 +160,8 @@
     content: counter(step);
   }
 
-  /* Porcelain step marker for the light docs shell. */
-  .docs-article .step:before {
+  /* Porcelain step marker for the light docs and blog shells. */
+  :is(.blog-article, .docs-article) .step:before {
     @apply border-ink/15 bg-white text-ink;
   }
 
