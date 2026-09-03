@@ -20,6 +20,8 @@ export interface Integration extends SeoOverrides {
 	category: string;
 	icon: { src: string };
 	badge?: string;
+	exampleUrl?: string;
+	sourceUrl: string;
 }
 
 const ACTORS: Integration[] = [
@@ -30,6 +32,8 @@ const ACTORS: Integration[] = [
 		category: "Agents",
 		icon: { src: "/images/vendors/flue.svg" },
 		badge: "Beta",
+		exampleUrl: "https://github.com/rivet-dev/agentos/tree/main/examples/flue",
+		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/flue",
 	},
 	{
 		title: "Vercel Eve",
@@ -38,6 +42,9 @@ const ACTORS: Integration[] = [
 		category: "Agents",
 		icon: { src: "/images/vendors/eve.svg" },
 		badge: "Beta",
+		exampleUrl:
+			"https://github.com/rivet-dev/agentos/tree/main/examples/vercel-eve",
+		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/eve",
 	},
 	{
 		title: "Workflow SDK",
@@ -46,13 +53,19 @@ const ACTORS: Integration[] = [
 		category: "Workflows",
 		icon: { src: "/images/vendors/workflow.svg" },
 		badge: "Beta",
+		exampleUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/examples/workflow-sdk",
+		sourceUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
 	},
 	{
 		title: "Durable Streams",
-		description: "Real-time streams with durable, replayable history, backed by Rivet Actors.",
+		description:
+			"Real-time streams with durable, replayable history, backed by Rivet Actors.",
 		slug: "durable-streams",
 		category: "Streams",
 		icon: { src: "/images/vendors/durable-streams.svg" },
+		sourceUrl: "https://github.com/rivet-dev/rivet-durable-streams",
 	},
 ];
 
@@ -64,6 +77,8 @@ const AGENTOS: Integration[] = [
 		category: "Frameworks",
 		icon: { src: "/images/vendors/flue.svg" },
 		badge: "Beta",
+		exampleUrl: "https://github.com/rivet-dev/agentos/tree/main/examples/flue",
+		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/flue",
 	},
 	{
 		title: "Vercel Eve",
@@ -72,6 +87,9 @@ const AGENTOS: Integration[] = [
 		category: "Frameworks",
 		icon: { src: "/images/vendors/eve.svg" },
 		badge: "Beta",
+		exampleUrl:
+			"https://github.com/rivet-dev/agentos/tree/main/examples/vercel-eve",
+		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/eve",
 	},
 	{
 		title: "Rivet Actors",
@@ -79,6 +97,10 @@ const AGENTOS: Integration[] = [
 		slug: "rivet-actors",
 		category: "Platform",
 		icon: { src: "/images/vendors/rivet.svg" },
+		exampleUrl:
+			"https://github.com/rivet-dev/agentos/tree/main/examples/quickstart-app",
+		sourceUrl:
+			"https://github.com/rivet-dev/agentos/tree/main/packages/agentos",
 	},
 ];
 
@@ -90,6 +112,15 @@ export const INTEGRATIONS: Record<string, Integration[]> = {
 /** Cards on a product's Integrations overview page. */
 export function integrationsFor(productId: string): Integration[] {
 	return INTEGRATIONS[productId] ?? [];
+}
+
+export function integrationFor(
+	productId: string,
+	slug: string,
+): Integration | undefined {
+	return integrationsFor(productId).find(
+		(integration) => integration.slug === slug,
+	);
 }
 
 /**

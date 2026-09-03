@@ -9,6 +9,7 @@ import { DocsTableOfContents } from '@/components/DocsTableOfContents';
 import { DocsPageDropdown } from '@/components/DocsPageDropdown';
 import { Prose } from '@/components/Prose';
 import { DocsLanding } from '@/components/docs/DocsLanding';
+import IntegrationResourceBar from '@/components/docs/IntegrationResourceBar.astro';
 import { docsLandings } from '@/components/docs/docsLandings';
 import { Icon, faPencil } from '@rivet-gg/icons';
 import { sitemap } from '@/sitemap/mod';
@@ -17,6 +18,7 @@ import { findActiveTab, findPageForHref } from '@/lib/sitemap';
 import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
+import { integrationFor } from '@/data/integrations';
 import * as mdxComponents from '@/components/mdx';
 import { jsonLdString } from '@/lib/jsonLd';
 import {
@@ -97,6 +99,9 @@ const slugPath = routeSlugOverride ?? getContentSlugPath(routeEntryId);
 const landing = docsLandings[entrySlugPath ?? ''];
 const isLanding = Boolean(landing);
 const fullPath = slugPath ? `${routePrefix}/${slugPath}/` : `${routePrefix}/`;
+const integration = productId && tabId === 'integrations' && slugPath
+	? integrationFor(productId, slugPath)
+	: undefined;
 const discovered = findActiveTab(fullPath, sitemap);
 const routeOwnedTab = productId && tabId
 	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
@@ -222,6 +227,7 @@ const breadcrumbSchema = {
 							)}
 							<h1>{title}</h1>
 							{description && <p>{description}</p>}
+							{integration && <IntegrationResourceBar integration={integration} />}
 							<Content components={{ ...mdxComponents, ...extraComponents }} />
 						</Prose>
 						<div class="border-t border-ink/10 mt-12 pt-6 flex flex-wrap items-center justify-between gap-4">
