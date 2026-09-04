@@ -170,20 +170,12 @@ const appCapabilities = [
 
 const observabilityCapabilities = [
 	{
-		title: 'SQLite viewer',
-		body: "Browse and query each app's SQLite data in realtime, across every deployment.",
+		title: 'App Inspector',
+		body: "See an app's active release, publish history, runtime state, SQLite data, background jobs, and events in one place.",
 	},
 	{
-		title: 'Workflow state',
-		body: 'Inspect the progress, steps, and retries of jobs running inside an app.',
-	},
-	{
-		title: 'Event monitoring',
-		body: 'Follow actions, connection events, and application logs while an app serves traffic.',
-	},
-	{
-		title: 'REPL',
-		body: 'Debug a live app by calling its actions and subscribing to its events from the dashboard.',
+		title: 'Rivet MCP',
+		body: "Let your AI client inspect the app's Actor and call actions while it diagnoses runtime issues.",
 	},
 ];
 
@@ -415,14 +407,14 @@ const compositionLayers = [
 					<div data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See inside every app.</h2>
 						<p class={SECTION_LEDE_CLASS}>
-							Deployed apps run as Rivet Actors, so the dashboard shows their data, jobs, events, and actions live.
+							Open an app in the Rivet dashboard, or inspect the Actor behind it from your AI client with Rivet MCP.
 						</p>
 					</div>
-					<div class="grid gap-4 sm:grid-cols-2" data-site-reveal-group>
+					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
 						{observabilityCapabilities.map((capability) => (
-							<div class={SITE_CARD_CLASS} data-site-reveal-child>
+							<div class="border-t border-ink/15 pt-5" data-site-reveal-child>
 								<h3 class={CARD_TITLE_CLASS}>{capability.title}</h3>
-								<p class="mt-2 text-sm leading-relaxed text-ink-soft">{capability.body}</p>
+								<p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{capability.body}</p>
 							</div>
 						))}
 					</div>

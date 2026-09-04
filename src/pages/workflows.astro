@@ -116,20 +116,12 @@ const actorInheritance = [
 
 const capabilities = [
 	{
-		title: 'Step history',
-		body: "Every step's status, from pending through complete or failed.",
+		title: 'Run Inspector',
+		body: "Trace every step's status, timing, attempts, inputs, outputs, and errors; replay eligible steps after a fix.",
 	},
 	{
-		title: 'Timing and retries',
-		body: 'Durations, attempt counts, backoff delays, and terminal errors.',
-	},
-	{
-		title: 'Inputs and outputs',
-		body: 'The recorded values each step received and returned.',
-	},
-	{
-		title: 'Replay',
-		body: 'Re-run eligible steps after the underlying problem is fixed.',
+		title: 'Rivet MCP',
+		body: 'Ask your AI client to inspect the Actor behind a run and diagnose failures from its workflow history.',
 	},
 ];
 
@@ -329,6 +321,9 @@ const compositionLayers = [
 				<div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
 					<div data-site-reveal>
 						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>See the history behind every run.</h2>
+						<p class={SECTION_LEDE_CLASS}>
+							Open a run in the Rivet dashboard, or inspect it from your AI client with Rivet MCP.
+						</p>
 					</div>
 					<div class="grid gap-6 sm:grid-cols-2" data-site-reveal-group>
 						{capabilities.map((capability) => (

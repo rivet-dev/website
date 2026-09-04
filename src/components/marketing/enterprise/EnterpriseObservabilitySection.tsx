@@ -1,4 +1,4 @@
-import { Activity, Laptop, Layers } from "lucide-react";
+import { Bot, LayoutDashboard } from "lucide-react";
 import { CARD_TITLE_CLASS, SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
@@ -7,22 +7,16 @@ const INSPECTOR_SRC =
 
 const features = [
   {
-    title: "Local to production",
+    title: "Rivet dashboard",
     description:
-      "The same dashboard runs against local dev, your VPC, and air-gapped deployments.",
-    icon: Laptop,
+      "Inspect Actors, agentOS sessions, workflow runs, app releases, SQLite data, events, and logs in one place.",
+    icon: LayoutDashboard,
   },
   {
-    title: "Observe your stack",
+    title: "Rivet MCP",
     description:
-      "Inspect actor state, SQLite data, workflow progress, events, and logs in one place.",
-    icon: Activity,
-  },
-  {
-    title: "Composable by design",
-    description:
-      "Actors, agentOS, Workflows, and Dynamic Apps build on one primitive, so one dashboard covers them all.",
-    icon: Layers,
+      "Give approved AI clients scoped access to find Actors, call actions, and open the same Inspector inline.",
+    icon: Bot,
   },
 ];
 
@@ -33,7 +27,8 @@ export const EnterpriseObservabilitySection = () => (
         <div>
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Complete observability.</h2>
           <p className={SECTION_LEDE_CLASS}>
-            Every deployment includes the Rivet dashboard.
+            Use one dashboard from local development to production, whether
+            Rivet runs in your VPC, on-premises, or air-gapped.
           </p>
         </div>
         <div>

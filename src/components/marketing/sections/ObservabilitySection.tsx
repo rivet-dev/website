@@ -1,5 +1,10 @@
-import { Activity, Database, GitBranch, Terminal } from "lucide-react";
-import { BODY_CLASS, CARD_TITLE_CLASS, SECTION_H2_CLASS } from "../typography";
+import { Bot, LayoutDashboard } from "lucide-react";
+import {
+  BODY_CLASS,
+  CARD_TITLE_CLASS,
+  SECTION_H2_CLASS,
+  SECTION_LEDE_CLASS,
+} from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const inspectorSrc =
@@ -7,28 +12,16 @@ const inspectorSrc =
 
 const features = [
   {
-    title: "SQLite Viewer",
+    title: "Rivet dashboard",
     description:
-      "Browse and query SQLite databases in real-time across actors and agent sessions",
-    icon: Database,
+      "Inspect Actor state and SQLite data, agentOS sessions, workflow runs, and Dynamic App releases in one place.",
+    icon: LayoutDashboard,
   },
   {
-    title: "Workflow State",
+    title: "Rivet MCP",
     description:
-      "Inspect workflow progress, steps, and retries as they execute",
-    icon: GitBranch,
-  },
-  {
-    title: "Event Monitoring",
-    description:
-      "Follow Actor actions, connection events, and application logs while debugging a run",
-    icon: Activity,
-  },
-  {
-    title: "REPL",
-    description:
-      "Debug actors and agent sessions by calling actions, subscribing to events, and interacting directly with your code",
-    icon: Terminal,
+      "Let Claude Code, Codex, Cursor, and other AI clients find Actors, call actions, and open the Inspector inline.",
+    icon: Bot,
   },
 ];
 
@@ -40,6 +33,10 @@ export const ObservabilitySection = () => (
           <h2 className={`text-balance ${SECTION_H2_CLASS}`}>
             Complete observability.
           </h2>
+          <p className={SECTION_LEDE_CLASS}>
+            Inspect every part of Rivet in the dashboard, or bring the same live
+            context into your AI client with Rivet MCP.
+          </p>
         </div>
 
         <div
