@@ -117,6 +117,17 @@
         }
       ]
     },
+    "outbound": {
+      "default": null,
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Outbound"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "pegboard": {
       "default": null,
       "anyOf": [
@@ -143,12 +154,17 @@
       "default": {
         "allow_version_rollback": null,
         "force_shutdown_duration": null,
+        "gasoline_loop_history_iteration_retention_count": null,
         "gasoline_prune_eligibility_duration": null,
         "gasoline_prune_interval_duration": null,
         "guard_shutdown_duration": null,
+        "udb_throttle_bytes_per_second": null,
         "worker_cpu_max": null,
         "worker_load_shedding_beta": null,
         "worker_load_shedding_curve": null,
+        "worker_max_concurrent_workflows": null,
+        "worker_max_wake_condition_clears_per_pull": null,
+        "worker_max_workflows_per_pull": null,
         "worker_shutdown_duration": null
       },
       "allOf": [
@@ -861,6 +877,73 @@
       },
       "additionalProperties": false
     },
+    "Outbound": {
+      "description": "Policy for outbound HTTP requests to user-configured destinations, such as serverless runner URLs.\n\nThese requests originate from inside the trusted engine network, so without restrictions a caller who can configure a runner can reach internal-only services. The defaults deny every non-globally-routable destination except loopback.",
+      "type": "object",
+      "properties": {
+        "allow_cidrs": {
+          "description": "Additional CIDRs that are always permitted, evaluated after `deny_cidrs`.\n\nUse this to reach a specific internal service without opening up the whole private range.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "allow_hosts": {
+          "description": "Hostnames that are always permitted, whatever they resolve to.\n\nMatched exactly and case-insensitively, with no wildcards. Use this for a first-party service whose address is not known ahead of time, such as a Kubernetes service name. Anything served at a listed host becomes reachable by every runner config, so list individual hosts rather than a shared entry point.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "allow_insecure_scheme": {
+          "description": "Allow plaintext `http://` destinations. When disabled only `https://` is permitted.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allow_loopback": {
+          "description": "Allow destinations that resolve to loopback addresses (127.0.0.0/8, ::1).\n\nEnabled by default so local development against `http://localhost:...` works without configuration.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allow_private_networks": {
+          "description": "Allow destinations that resolve to private, link-local, shared (CGNAT), or otherwise non-globally-routable addresses.\n\nSelf-hosted deployments that point runners at addresses on their own network, such as a Docker Compose service name, need this enabled.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "deny_cidrs": {
+          "description": "Additional CIDRs that are always denied. Takes precedence over every allow rule.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_redirects": {
+          "description": "Maximum number of redirects to follow. Every hop is re-checked against this policy.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
     "Pegboard": {
       "type": "object",
       "properties": {
@@ -1445,6 +1528,18 @@
           "format": "uint32",
           "minimum": 0.0
         },
+        "gasoline_loop_history_iteration_retention_count": {
+          "description": "How many forgotten loop iterations to retain (per workflow name) in storage for debugging purposes. Defaults to 100. Set \"default\" key to apply to all workflows.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0.0
+          }
+        },
         "gasoline_prune_eligibility_duration": {
           "description": "Time (in seconds) after completion before considering a workflow eligible for pruning. Defaults to 7 days. Set to 0 to never prune workflow data.",
           "type": [
@@ -1471,6 +1566,16 @@
           ],
           "format": "uint32",
           "minimum": 0.0
+        },
+        "udb_throttle_bytes_per_second": {
+          "description": "Cluster-wide budget, in bytes per second, per named UniversalDB throttle. Each entry sets the read and write axes independently, for example `udb_throttle_bytes_per_second.depot_compaction.read`. An axis with no entry is unthrottled.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "$ref": "#/definitions/UdbThrottle"
+          }
         },
         "worker_cpu_max": {
           "description": "Adjusts worker curve around this value (in millecores, i.e. 1000 = 1 core). Is not a hard limit. When unset, uses /sys/fs/cgroup/cpu.max, and if that is unset uses total host cpu.",
@@ -1515,6 +1620,36 @@
           "maxItems": 2,
           "minItems": 2
         },
+        "worker_max_concurrent_workflows": {
+          "description": "Maximum concurrently running workflows of a given workflow name for the **entire cluster**.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0.0
+          }
+        },
+        "worker_max_wake_condition_clears_per_pull": {
+          "description": "Maximum wake condition keys a worker clears when leasing workflows in a single pull. Defaults to 10000.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
+        "worker_max_workflows_per_pull": {
+          "description": "Maximum workflows a worker attempts to lease in a single pull. Defaults to 1000.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0.0
+        },
         "worker_shutdown_duration": {
           "description": "Time (in seconds) to allow for the gasoline worker engine to stop gracefully after receiving SIGTERM. Defaults to 30 seconds.",
           "type": [
@@ -1533,8 +1668,167 @@
     "Sqlite": {
       "type": "object",
       "properties": {
+        "actor_read_bytes_per_second": {
+          "description": "Cluster-wide budget, in bytes per second, for FoundationDB reads issued by actor `get_pages`.\n\nUnset means unthrottled. Reads matter here because a large staged commit makes the pages it staged take the slow read path (their PIDX owner sits above head, so a reader walks history for them), which means read volume spikes exactly when write volume peaks.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "actor_write_bytes_per_second": {
+          "description": "Cluster-wide budget, in bytes per second, for FoundationDB writes issued by actor commits, including each segment of a staged commit.\n\nUnset means unthrottled, which is the behaviour before this existed. A staged commit lets one actor push an unbounded byte volume through `commit`, so this is the bound for that; it is opt-in because a byte-rate cap on the actor write path stalls user-visible commits, and that is not a default worth taking until an operator asks for it.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "compaction_admission_percent": {
+          "description": "Percentage (0-100) of database branches admitted to run compaction, keyed by a stable hash of the branch id. A branch whose hash falls outside the admitted fraction skips starting any compaction job (hot, cold, reclaim) while still tracking its backlog. This is a gradual rollout / load-shedding knob: it bounds how many databases compact at once so enabling compaction over a large uncompacted herd cannot saturate FDB all at once. Re-evaluated on every manager refresh, so raising it lets a previously skipped branch compact on its next check without restarting anything. Defaults to 100 (every branch admitted).",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_hot_fold_direct_to_shard": {
+          "description": "Whether hot compaction folds shard images straight into the live `SHARD` tier instead of staging them and having the install copy them across byte for byte. Halves hot compaction's FDB write volume, because the image stops being written twice.\n\nRead per slice, so flipping it takes effect on the next slice without restarting anything. Nothing about the mode is persisted: the install discovers where an image landed by looking for it, so a drain that spans a flip installs correctly either way and a mixed job needs no special handling.\n\nNo persisted format changes, so there is no version floor to clear before turning this on and nothing on disk to downgrade after turning it off. Rolling back is flipping it off; new slices stage again from that point.\n\nA compaction job abandoned mid-drain leaves shard images behind. Normally its successor reproduces the same boundaries and overwrites them, so they do not accumulate. A forced drain takes the live head by design, so an abandoned forced drain can strand images that no later drain revisits; those are inert for reads but nothing reclaims them. Defaults to off.",
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "compaction_install_throttle_admit_soft_util": {
+          "description": "Utilization of the advancing lanes' budget below which every such charge is admitted. Defaults to 0.5.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_install_throttle_budget_multiplier": {
+          "description": "Multiplier the lanes that advance the pipeline without duplicating apply to the compaction byte budget before the throttle's admission ramp is evaluated: hot install, cold publish, cold staging, and hot folds that write straight to the shard tier. Install folds staged shards into the manifest and releases the staging area, and cold publish is what lets the cold watermark advance so reclaim may delete. Defaults to 1.0, so the configured byte rate stays an honest cap on everything except reclaim.\n\nCold staging measures against this rather than the staging budget because its heavy output is object-storage bytes, so it leaves no FoundationDB duplicate to bound.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_max_hot_drain_span_txids": {
+          "description": "The largest span of txids one hot compaction drain folds before its install advances `hot_watermark_txid`.\n\nThe watermark is what makes a delta reclaimable, and a drain advances it exactly once, at the end. So this is also the granularity of reclaim eligibility: a branch whose whole history fits in one span holds every delta resident until the entire fold lands, which sets the peak footprint at live shards plus the full delta history. Lowering it folds in smaller chunks so reclaim interleaves and the peak comes down, at the cost of re-folding a page once per chunk that touches it and of running proportionally more jobs. Each drain rounds its own span down to a multiple of the drain head grain; this cap is not itself rounded.\n\nDefaults to 512, which keeps a typical branch draining over several jobs rather than one, so reclaim gets more than a single eligibility window per branch.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "compaction_read_bytes_per_second": {
+          "description": "Cluster-wide budget, in bytes per second, for FoundationDB reads issued by the heavy depot compaction read transactions (hot stage and hot install). Bounds how fast compaction reads a backlog's DELTA history so a deep, overwrite-heavy chain cannot pin a handful of storage processes on reads. Defaults to 64 MiB/s: reads carry no FDB replication amplification so this can sit above the write budget, but the read-amplification pathology (a throttled stage re-reading the same slice) makes an explicit cap worthwhile. Shares the same conflict-free windowed-counter design as the write throttle.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "compaction_reclaim_throttle_admit_soft_util": {
+          "description": "Utilization of the reclaim lane's budget below which every reclaim charge is admitted. Higher than the other lanes so reclaim stays fully admitted across the whole band where they ramp down, instead of merely ramping down more slowly. Defaults to 0.9.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_reclaim_throttle_budget_multiplier": {
+          "description": "Multiplier the reclaim lane applies to the compaction byte budget before the throttle's admission ramp is evaluated. Above 1.0 on purpose: reclaim deletes rather than produces, so it must keep admitting through the region where every other lane has already backed off, and its own charges land on the same counter so the arrangement stays self-regulating. This is also the bound on how far peak compaction pressure can exceed the configured byte rate. Defaults to 1.5.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_stage_throttle_admit_soft_util": {
+          "description": "Utilization of the staging lane's budget below which every staging charge is admitted. Between this mark and that budget the admit probability ramps linearly to zero. Defaults to 0.5. Applies on the same terms as `compaction_stage_throttle_budget_multiplier`.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_stage_throttle_backoff_ms": {
+          "description": "How long, in milliseconds, a throttled staging slice backs off before its drain retries.\n\nDeliberately far longer than the other lanes. Admission is probabilistic, so a denied slice that retries within the same window keeps rolling dice against the estimate install and reclaim are trying to work under. Backing staging off across several windows removes that retry pressure rather than merely losing each roll. Defaults to 30 seconds.\n\nApplies only while `compaction_hot_fold_direct_to_shard` is off, for the same reason the staging multiplier does: a direct fold is not competing with install over a duplicate it created, so parking it that long would only stall the fold.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "compaction_stage_throttle_budget_multiplier": {
+          "description": "Multiplier hot staging applies to the compaction byte budget before the throttle's admission ramp is evaluated. Every compaction lane charges one shared counter, so a multiplier below 1 is how much of the total compaction byte rate staging is allowed to occupy before it stops admitting. The lanes that advance the pipeline (install, cold publish, cold staging) and the lane that deletes (reclaim) measure the same counter against larger budgets, so they keep admitting through the region where staging is already denied.\n\nThis bounds a duplicate. Staging writes a second copy of every page it folds and cannot release either copy until install consumes it, so a cluster where staging wins the shared budget grows its FoundationDB footprint without bound while install and reclaim starve. Defaults to 0.3. Lower it to drain a backlog harder, raise it toward 1.0 to let staging and install compete as peers.\n\nApplies only while `compaction_hot_fold_direct_to_shard` is off. A direct fold writes the authoritative image once, so there is no duplicate to bound and the slice measures against `compaction_install_throttle_budget_multiplier` instead.",
+          "default": null,
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "compaction_write_bytes_per_second": {
+          "description": "Cluster-wide budget, in bytes per second, for FoundationDB writes issued by depot compaction (hot compaction and reclaim). Bounds how fast compaction drains a backlog so it cannot saturate FDB's write queue. Defaults to 16 MiB/s, a conservative fraction of the 500 MiB/s sustained disk throughput recommended for FDB in the self-hosting docs, leaving headroom for live traffic and FDB write amplification.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "manager_idle_poll_interval_ms": {
+          "description": "How long, in milliseconds, a depot database branch manager that received no work waits before checking again.\n\nReads never signal the manager, so without a poll a branch that stops being written parks on a deadline-less listen and never reclaims again: its cold-backed hot rows stay resident in FoundationDB forever, and the one-shot stale-PIDX repair never gets dispatched. One reclaim job drains a branch's whole backlog, so this only bounds how long a newly idle branch keeps duplicate hot copies. Defaults to 12 hours. Each wake is a bounded-budget FoundationDB snapshot, so lower it if reclaim latency on idle branches matters more than the cluster-wide refresh cost (at 1M branches, 12 hours is ~23 refreshes/sec).",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "manager_reclaim_interval_ms": {
+          "description": "How long, in milliseconds, a depot database branch manager waits before its next reclaim/GC check after arming one.\n\nThis is the latency floor on freeing hot rows that compaction has already superseded: the footprint a branch carries stays at its peak for up to this long after the work that made it reclaimable finished. Every wake costs a bounded-budget FoundationDB snapshot per branch, so lower it only where reclaim latency matters more than that per-branch refresh cost. Defaults to 10 minutes.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "pitr": {
+          "description": "Point-in-time recovery. Absent disables PITR entirely: hot compaction selects no interval coverage txids, writes no `PITR_INTERVAL` rows, and ignores any stored bucket or database policy override. Present enables it cluster-wide with the settings below.\n\nPITR is off by default because each retained coverage position pins a complete shard image per touched shard, so the retained shard versions scale with `retention_ms / interval_ms`. Turning it on is a deliberate trade of FoundationDB footprint for restorable positions.",
+          "default": null,
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SqlitePitr"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "unstable_disable_commit_size_cap": {
-          "description": "UNSTABLE: disables the SQLite v2 commit dirty-page size cap.",
           "default": null,
           "type": [
             "boolean",
@@ -1548,6 +1842,30 @@
             "boolean",
             "null"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SqlitePitr": {
+      "type": "object",
+      "properties": {
+        "interval_ms": {
+          "description": "Spacing, in milliseconds, between the PITR coverage positions hot compaction retains for a database that has no bucket or database policy override. Each position holds a complete image of every shard it covers until it expires, so halving this roughly doubles the retained shard versions. Defaults to 5 minutes.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "retention_ms": {
+          "description": "How long, in milliseconds, PITR coverage is retained for a database that has no bucket or database policy override. History older than this window is reclaimable. Defaults to 7 days.",
+          "default": null,
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
         }
       },
       "additionalProperties": false
@@ -1608,6 +1926,29 @@
               "$ref": "#/definitions/DatacentersRepr"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "UdbThrottle": {
+      "description": "Byte-rate budgets for one UniversalDB throttle. An axis left unset is unthrottled.",
+      "type": "object",
+      "properties": {
+        "read": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "write": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0.0
         }
       },
       "additionalProperties": false
