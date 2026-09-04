@@ -3,7 +3,7 @@ import { BODY_CLASS, CARD_TITLE_CLASS, SECTION_H2_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const inspectorSrc =
-  "https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png";
+  "https://assets.rivet.dev/website/marketing/screenshots/rivet-actors-inspector-state.png";
 
 const features = [
   {
@@ -74,9 +74,9 @@ export const ObservabilitySection = () => (
       >
         <img
           src={inspectorSrc}
-          alt="Rivet Actor Inspector"
-          width="2688"
-          height="2018"
+          alt="Rivet dashboard inspecting a project Actor built by an agent: live state with the build summary and each pipeline step's status, attempts, and timing"
+          width="2944"
+          height="2202"
           loading="lazy"
           decoding="async"
           className="block h-auto w-full"
