@@ -1,4 +1,4 @@
-import { Activity, Database, GitBranch, Terminal } from "lucide-react";
+import { Bot, LayoutDashboard } from "lucide-react";
 import { CARD_TITLE_CLASS, SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typography";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
@@ -7,28 +7,16 @@ const INSPECTOR_SRC =
 
 const features = [
   {
-    title: "SQLite Viewer",
+    title: "Actor Inspector",
     description:
-      "Browse and query SQLite databases in real-time across actors and agent sessions",
-    icon: Database,
+      "Inspect live state, connections, queues, workflow history, and SQLite data without building admin tooling.",
+    icon: LayoutDashboard,
   },
   {
-    title: "Workflow State",
+    title: "Rivet MCP",
     description:
-      "Inspect workflow progress, steps, and retries as they execute",
-    icon: GitBranch,
-  },
-  {
-    title: "Event Monitoring",
-    description:
-      "Follow Actor actions, connection events, and application logs while debugging a run",
-    icon: Activity,
-  },
-  {
-    title: "REPL",
-    description:
-      "Debug actors and agent sessions by calling actions, subscribing to events, and interacting directly with your code",
-    icon: Terminal,
+      "Ask your AI client to find Actors, call actions, and open the same Inspector inline as it debugs your application.",
+    icon: Bot,
   },
 ];
 
@@ -37,10 +25,10 @@ export const ActorsObservabilitySection = () => (
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16" data-site-reveal>
         <div>
-          <h2 className={`text-balance ${SECTION_H2_CLASS}`}>Complete observability.</h2>
+          <h2 className={`text-balance ${SECTION_H2_CLASS}`}>See inside every Actor.</h2>
           <p className={SECTION_LEDE_CLASS}>
-            Inspect Actor state, SQLite data, workflow progress, events, and
-            callable actions from the Rivet dashboard.
+            Open the Actor Inspector in the dashboard, or inside your AI client
+            through Rivet MCP.
           </p>
         </div>
         <div className="grid gap-x-8 sm:grid-cols-2">
