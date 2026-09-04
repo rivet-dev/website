@@ -3,7 +3,7 @@ import { CARD_TITLE_CLASS, SECTION_H2_CLASS, SECTION_LEDE_CLASS } from "../typog
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 
 const INSPECTOR_SRC =
-  "https://assets.rivet.dev/repo/website/src/components/marketing/images/screenshots/rivet-actor-inspector.png";
+  "https://assets.rivet.dev/website/marketing/screenshots/rivet-actors-inspector-state.png";
 
 const features = [
   {
@@ -64,9 +64,9 @@ export const ActorsObservabilitySection = () => (
       <figure className="mt-12 overflow-hidden rounded-xl" data-site-reveal>
         <img
           src={INSPECTOR_SRC}
-          alt="Rivet Actor Inspector showing state, events, and callable actions for a running Actor"
-          width="2688"
-          height="2018"
+          alt="Rivet Actor Inspector showing the live state of a project Actor: build summary plus each pipeline step's status, attempts, and timing"
+          width="2944"
+          height="2202"
           loading="lazy"
           className="block h-auto w-full"
         />
