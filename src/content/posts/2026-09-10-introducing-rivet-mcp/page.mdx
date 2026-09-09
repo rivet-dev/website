@@ -1,0 +1,102 @@
+---
+author: nathan-flurry
+published: "2026-09-10"
+category: changelog
+keywords: ["mcp", "model context protocol", "ai clients", "claude code", "codex", "cursor", "gemini cli", "vs code", "actor inspector", "rivet actors"]
+title: "Introducing Rivet MCP: Connect Your AI Client to Rivet Actors"
+seoTitle: "Rivet MCP: Connect Your AI Client to Rivet Actors"
+description: "Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code to Rivet to list actors, call actions, and open the Actor Inspector inline from one hosted MCP endpoint."
+---
+
+Rivet MCP is now available at `https://mcp.rivet.dev/mcp`. Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code and ask about your actors in plain language: which ones are awake, what an action returns, or open the Actor Inspector inside the conversation.
+
+## Connect Your Client
+
+Add the endpoint, then approve the Rivet sign-in when it opens.
+
+<CodeGroup>
+
+```sh Claude Code
+claude mcp add --transport http rivet https://mcp.rivet.dev/mcp
+```
+
+```sh Codex
+codex mcp add rivet --url https://mcp.rivet.dev/mcp
+```
+
+```json Cursor
+{
+  "mcpServers": {
+    "rivet": {
+      "url": "https://mcp.rivet.dev/mcp"
+    }
+  }
+}
+```
+
+```sh Gemini CLI
+gemini mcp add --transport http rivet https://mcp.rivet.dev/mcp
+```
+
+```sh VS Code
+code --add-mcp '{"name":"rivet","type":"http","url":"https://mcp.rivet.dev/mcp"}'
+```
+
+</CodeGroup>
+
+## Find Running Actors
+
+```text Prompt
+Which chat rooms are still awake?
+```
+
+Rivet MCP finds `rivet.actors.list`, lists the `chat-room` actors, and answers: **3 rooms awake**.
+
+## Call an Actor Action
+
+```text Prompt
+What has Acme been saying?
+```
+
+Rivet MCP calls the `getHistory` action on `chat-room · acme` and answers: **128 messages from Acme**.
+
+## Open the Actor Inspector Inline
+
+```text Prompt
+Open the Actor Inspector for chat-room · acme.
+```
+
+The same actor view from the dashboard opens inside the conversation, with **State**, **Connections**, **Queue**, **Workflow**, and **Database** tabs. Clients that cannot render it receive the same details as text.
+
+## One Request, Two Tools
+
+Rivet MCP is built around two tools instead of a long list of narrow ones. `search` returns the operations that apply to your namespace. `execute` runs one composed JavaScript request and returns one answer.
+
+```js
+// "Which chat rooms are still awake, and what has Acme been saying?"
+const { actors } = await rivet.actors.list({ filters: { name: "chat-room" } });
+const awake = actors.filter((room) => room.status === "running");
+
+const history = await rivet.actor.action({
+  actor: { name: "chat-room", key: ["acme"], method: "get" },
+  name: "getHistory",
+});
+
+return { awake: awake.length, history: history.body.output };
+```
+
+## Scope Access
+
+Pin a connection to one organization, project, or namespace with the slugs from your [dashboard](https://dashboard.rivet.dev) URL.
+
+```text
+https://mcp.rivet.dev/mcp?organization=ORG&project=PROJECT&namespace=NS
+```
+
+Generated code has no network, filesystem, or environment access. Every call goes through Rivet, which checks it against the access you granted and attaches your credentials, so they never reach the model.
+
+## More Links
+
+- [Rivet MCP documentation](/docs/mcp/)
+- [GitHub](https://github.com/rivet-dev/rivet)
+- [Discord](https://rivet.dev/discord)
