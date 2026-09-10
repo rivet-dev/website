@@ -9,37 +9,15 @@ description: "Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code to Rive
 
 Rivet MCP lets your AI client work with your Rivet Actors. Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code to `https://mcp.rivet.dev/mcp`, approve the Rivet sign-in, and ask about your actors in plain language.
 
-## Connect Your Client
+## Supported Clients
 
-<CodeGroup>
+- Claude Code
+- Codex
+- Cursor
+- Gemini CLI
+- VS Code
 
-```sh Claude Code
-claude mcp add --transport http rivet https://mcp.rivet.dev/mcp
-```
-
-```sh Codex
-codex mcp add rivet --url https://mcp.rivet.dev/mcp
-```
-
-```json Cursor
-{
-  "mcpServers": {
-    "rivet": {
-      "url": "https://mcp.rivet.dev/mcp"
-    }
-  }
-}
-```
-
-```sh Gemini CLI
-gemini mcp add --transport http rivet https://mcp.rivet.dev/mcp
-```
-
-```sh VS Code
-code --add-mcp '{"name":"rivet","type":"http","url":"https://mcp.rivet.dev/mcp"}'
-```
-
-</CodeGroup>
+Setup steps for each client are in the [Rivet MCP documentation](/docs/mcp/).
 
 ## What You Can Ask
 
