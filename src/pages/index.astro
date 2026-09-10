@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
+import { getPostImage } from '@/lib/postImage';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { RedesignedHero } from '@/components/marketing/sections/RedesignedHero';
 import { StackSection } from '@/components/marketing/sections/StackSection';
@@ -11,7 +12,6 @@ import { HostingSection } from '@/components/marketing/sections/HostingSection';
 import { OnPremSection } from '@/components/marketing/sections/OnPremSection';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
-import { getPostImage } from '@/lib/postImage';
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
 	INK_PANEL_LIGHT_BUTTON_CLASS,
@@ -82,20 +82,32 @@ const latestEntry = posts
 	.filter((post) => post.data.category === 'changelog' && !post.data.unpublished)
 	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())[0];
 const latestImage = latestEntry ? getPostImage(latestEntry) : null;
+const latestImageWidth = latestImage ? Math.min(1000, latestImage.width) : 0;
+const latestImageHeight = latestImage
+	? Math.round((latestImage.height / latestImage.width) * latestImageWidth)
+	: 0;
 const optimizedLatestImage = latestImage
 	? await getImage({
 			src: latestImage.src,
-			width: 320,
-			height: 160,
+			width: latestImageWidth,
+			height: latestImageHeight,
 			format: 'webp',
-			quality: 80,
+			quality: 85,
 		})
 	: null;
 const latestPost = latestEntry
 	? {
 			title: latestEntry.data.title,
+			description: latestEntry.data.description,
 			href: `/changelog/${latestEntry.id.replace(/\/page$/, '')}/`,
-			imageSrc: optimizedLatestImage?.src ?? null,
+			image: optimizedLatestImage
+				? {
+						src: optimizedLatestImage.src,
+						width: latestImageWidth,
+						height: latestImageHeight,
+						alt: latestEntry.data.title,
+					}
+				: null,
 		}
 	: null;
 

@@ -43,7 +43,8 @@ const workflowLanePath = (offset: number, rightX = 262, leftX = 58) => {
   ].join(" ");
 };
 
-// Card motifs draw one 320×400 cluster stretched over the 4/5 plate. Heroes
+// Card motifs draw one 320×400 cluster on a fixed 4/5 canvas. Compact cards
+// crop that canvas instead of squeezing its shapes and animation paths. Heroes
 // are wide and short, so slicing that same viewBox magnifies the artwork ~4×
 // and the center cut-out mask swallows it — the shapes stop reading as the
 // card imagery. Instead heroes repeat the cluster across a 1600×400 field so
@@ -485,7 +486,13 @@ export const ProductMotif = ({ productId, surface }: ProductMotifProps) => {
 
   return (
     <div aria-hidden="true" className={containerClassName(productId, surface)}>
-      {motif}
+      {surface === "card" ? (
+        <div className="absolute left-0 top-1/2 aspect-[4/5] w-full -translate-y-1/2">
+          {motif}
+        </div>
+      ) : (
+        motif
+      )}
     </div>
   );
 };
