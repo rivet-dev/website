@@ -2,7 +2,11 @@ import { Icon } from "@rivet-gg/icons";
 import { visibleProducts, type Product } from "@/sitemap/products";
 import { productLogos } from "@/sitemap/productLogos";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
-import { BODY_CLASS, CARD_TITLE_BASE_CLASS, SectionHeading } from "../typography";
+import {
+  BODY_CLASS,
+  CARD_TITLE_BASE_CLASS,
+  SectionHeading,
+} from "../typography";
 import { ProductMotif, type ProductMotifId } from "../ProductMotif";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
@@ -58,7 +62,7 @@ export const StackSection = () => (
       </div>
       <div
         data-site-reveal-group=""
-        className="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4"
+        className="mt-8 grid gap-x-6 gap-y-6 sm:mt-12 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-4"
       >
         {stack.map(({ product, accent }) => (
           <a
@@ -71,7 +75,7 @@ export const StackSection = () => (
                 product color. Each product uses its own quiet background
                 field without competing with the foreground content. */}
             <div
-              className={`relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-xl p-6 ${accent?.fill ?? "bg-ink"} ${product.id === "workflows" || product.id === "dynamic-apps" || product.id === "agentos" ? "transition-shadow duration-200 group-focus-visible:ring-2 group-focus-visible:ring-cream/80 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-paper motion-reduce:transition-none" : ""}`}
+              className={`relative flex min-h-[220px] flex-col justify-between gap-8 overflow-hidden rounded-xl p-5 sm:aspect-[4/5] sm:min-h-0 sm:gap-0 sm:p-6 ${accent?.fill ?? "bg-ink"} ${product.id === "workflows" || product.id === "dynamic-apps" || product.id === "agentos" ? "transition-shadow duration-200 group-focus-visible:ring-2 group-focus-visible:ring-cream/80 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-paper motion-reduce:transition-none" : ""}`}
             >
               {hasProductMotif(product.id) ? (
                 <ProductMotif productId={product.id} surface="card" />
@@ -82,20 +86,29 @@ export const StackSection = () => (
               <div className="relative">
                 <div className="flex items-center gap-3">
                   <StackProductMark product={product} />
-                  <div className={`${CARD_TITLE_BASE_CLASS} text-cream`}>{product.name}</div>
+                  <div className={`${CARD_TITLE_BASE_CLASS} text-cream`}>
+                    {product.name}
+                  </div>
                 </div>
                 {product.premise && (
-                  <p className={`mt-3 text-balance font-medium !text-cream/90 ${BODY_CLASS}`}>
+                  <p
+                    className={`mt-3 text-balance font-medium !text-cream/90 ${BODY_CLASS}`}
+                  >
                     {product.premise}
                   </p>
                 )}
               </div>
             </div>
 
-            <span className="mt-4 flex items-center justify-between gap-3">
+            <span className="mt-3 flex items-center justify-between gap-3 sm:mt-4">
               <span className="inline-flex items-center gap-1.5 text-sm font-medium text-pine">
                 Explore {product.name}
-                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                >
+                  →
+                </span>
               </span>
               {product.badge && (
                 <span className="whitespace-nowrap rounded-sm border border-ink/10 bg-white/55 px-2 py-1 text-xs font-medium leading-none text-ink-soft">

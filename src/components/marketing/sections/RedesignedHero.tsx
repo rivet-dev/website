@@ -3,8 +3,9 @@
 import { productAccent } from "@/lib/product-accent";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import { useEffect, useState } from "react";
-import { Terminal, Check, ArrowRight } from "lucide-react";
+import { Terminal, Check } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { LatestPostCallout, type LatestPost } from "./LatestPostCallout";
 import {
   HERO_H1_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
@@ -16,12 +17,6 @@ interface ThinkingImage {
   title: string;
   artist: string;
   date: string;
-}
-
-interface LatestPost {
-  title: string;
-  href: string;
-  imageSrc: string | null;
 }
 
 const ThinkingImageCycler = ({ images }: { images: ThinkingImage[] }) => {
@@ -296,113 +291,74 @@ function ProductVerb({
   );
 }
 
-const LatestPostWindow = ({ post }: { post: LatestPost }) => {
-  return (
-    <a
-      href={canonicalizeInternalHref(post.href)}
-      className="group pointer-events-auto absolute top-24 right-4 z-20 hidden w-96 items-center gap-3 rounded-xl border border-ink/15 bg-white/80 p-2.5 backdrop-blur-md transition-colors hover:border-ink/25 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper md:right-12 md:top-28 xl:flex min-[1681px]:right-14"
-      {...settledHeroReveal(160)}
-    >
-      {post.imageSrc ? (
-        <img
-          src={post.imageSrc}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className="h-[4.5rem] w-28 shrink-0 rounded-lg border border-ink/10 object-cover"
-        />
-      ) : null}
-      <span className="min-w-0 flex-1 py-0.5">
-        <span className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-ink-faint">
-            Latest update
-          </span>
-          <ArrowRight
-            aria-hidden="true"
-            className="h-4 w-4 shrink-0 text-ink-faint transition-all motion-reduce:transition-none group-hover:translate-x-0.5 group-hover:text-ink"
-          />
-        </span>
-        <span className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-ink">
-          {post.title}
-        </span>
-      </span>
-    </a>
-  );
-};
-
 export const RedesignedHero = ({
   latestPost,
   thinkingImages,
 }: RedesignedHeroProps) => {
   return (
-    <section
-      className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}
-    >
-      <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
-        <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
-          <div className="max-w-2xl">
-            <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
-              Infrastructure for the <br />
-              agentic era.
-            </h1>
+    <div className="depth-wash bg-paper">
+      <section
+        className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}
+        style={{ background: "none" }}
+      >
+        <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
+            <div className="max-w-2xl">
+              <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
+                Infrastructure for the <br />
+                agentic era.
+              </h1>
 
-            <p
-              {...settledHeroReveal(40)}
-              className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft"
-            >
-              <ProductVerb href="/actors" accent="actors">
-                Orchestrate
-              </ProductVerb>{" "}
-              agents.{" "}
-              <ProductVerb href="/agentos" accent="agentos">
-                Operate
-              </ProductVerb>{" "}
-              their environment.{" "}
-              <ProductVerb href="/workflows" accent="workflows">
-                Automate
-              </ProductVerb>{" "}
-              their work.{" "}
-              <ProductVerb href="/dynamic-apps" accent="dynamic-apps">
-                Deploy
-              </ProductVerb>{" "}
-              what they build.
-            </p>
+              <p
+                {...settledHeroReveal(40)}
+                className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft"
+              >
+                <ProductVerb href="/actors" accent="actors">
+                  Orchestrate
+                </ProductVerb>{" "}
+                agents.{" "}
+                <ProductVerb href="/agentos" accent="agentos">
+                  Operate
+                </ProductVerb>{" "}
+                their environment.{" "}
+                <ProductVerb href="/workflows" accent="workflows">
+                  Automate
+                </ProductVerb>{" "}
+                their work.{" "}
+                <ProductVerb href="/dynamic-apps" accent="dynamic-apps">
+                  Deploy
+                </ProductVerb>{" "}
+                what they build.
+              </p>
+
+              <div
+                {...settledHeroReveal(80)}
+                className="flex flex-col gap-3 sm:flex-row"
+              >
+                <a href="/docs/" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
+                  Start Building
+                </a>
+                <CopyInstallButton />
+              </div>
+            </div>
 
             <div
-              {...settledHeroReveal(80)}
-              className="flex flex-col gap-3 sm:flex-row"
+              {...settledHeroReveal(120)}
+              className="relative hidden flex-shrink-0 lg:block"
             >
-              <a href="/docs/" className={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
-                Start Building
-              </a>
-              <CopyInstallButton />
+              <ThinkingImageCycler images={thinkingImages} />
             </div>
           </div>
 
-          <div
-            {...settledHeroReveal(120)}
-            className="relative hidden flex-shrink-0 lg:block"
-          >
-            <ThinkingImageCycler images={thinkingImages} />
+          {/* Mobile: Image */}
+          <div {...settledHeroReveal(120)} className="mb-10 mt-12 lg:hidden">
+            <div className="flex justify-center">
+              <ThinkingImageCycler images={thinkingImages} />
+            </div>
           </div>
         </div>
-
-        {/* Mobile: Image */}
-        <div {...settledHeroReveal(120)} className="mb-10 mt-12 lg:hidden">
-          <div className="flex justify-center">
-            <ThinkingImageCycler images={thinkingImages} />
-          </div>
-        </div>
-      </div>
-      {/* Ungutted rail matching the floating header's max width, so the card's
-          own gutter offsets (right-4/-12/-14) land on the same right edge as the
-          nav. A padded rail would not inset an absolutely-positioned child. */}
-      {latestPost ? (
-        <div className="pointer-events-none absolute inset-0 mx-auto w-full max-w-[1800px]">
-          <LatestPostWindow post={latestPost} />
-        </div>
-      ) : null}
-    </section>
+      </section>
+      {latestPost ? <LatestPostCallout post={latestPost} /> : null}
+    </div>
   );
 };
