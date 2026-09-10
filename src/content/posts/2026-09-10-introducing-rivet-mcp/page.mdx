@@ -8,7 +8,7 @@ title: "Introducing Rivet MCP"
 description: "Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code to Rivet to list actors, call actions, and open the Actor Inspector from your AI client."
 ---
 
-Rivet MCP lets your AI client work with your Rivet Actors. Connect Claude Code, Codex, Cursor, Gemini CLI, or VS Code to `https://mcp.rivet.dev/mcp`, approve the Rivet sign-in, and ask about your actors in plain language.
+Rivet MCP is available at `https://mcp.rivet.dev/mcp`. Setup instructions are in the [docs](/docs/mcp/).
 
 ## Supported Clients
 
@@ -17,25 +17,21 @@ Rivet MCP lets your AI client work with your Rivet Actors. Connect Claude Code, 
 - Cursor
 - Gemini CLI
 - VS Code
-- And more: any client that supports remote MCP servers
+- Any client that supports remote MCP servers
 
-Setup steps for each client are in the [Rivet MCP documentation](/docs/mcp/).
+## What You Can Do
 
-## What You Can Ask
+- List actors
+- Call actor actions
+- Open the Actor Inspector inside the conversation
+- Manage Rivet Compute pools
+- Read compute metrics
+- List Docker images
 
-- **Find actors**: "Which chat rooms are still awake?"
-- **Call actions**: "What has Acme been saying?"
-- **Inspect actors**: "Open the Actor Inspector for chat-room · acme." The dashboard's actor view opens inside the conversation, with State, Connections, Queue, Workflow, and Database tabs.
-- **Manage pools**: read and update the [Rivet Compute](/cloud/docs/compute/) deployment that hosts a namespace's actors.
-- **Retrieve compute metrics**: check usage for a deployment.
-- **List and retrieve images**: see the Docker images available to run.
+Access can be limited to one organization, project, or namespace.
 
-## Access
+## Links
 
-Every call goes through Rivet with the access you approved at sign-in. Your credentials never reach the model. To limit a connection to one organization, project, or namespace, add `?organization=ORG&project=PROJECT&namespace=NS` to the endpoint.
-
-## More Links
-
-- [Rivet MCP documentation](/docs/mcp/)
+- [Docs](/docs/mcp/)
 - [GitHub](https://github.com/rivet-dev/rivet)
 - [Discord](https://rivet.dev/discord)
