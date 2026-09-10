@@ -48,7 +48,7 @@
 }
 
 .story[data-enhanced] .track {
-  height: calc(var(--post-height, 320px) + 144px);
+  height: calc(var(--post-height, 320px) + 80px);
 }
 
 .story[data-enhanced] .sticky {

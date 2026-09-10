@@ -27,19 +27,19 @@ export function LatestPostCallout({ post }: { post: LatestPost }) {
   });
   const progress = useTransform(() => {
     const fullHeight = expandedHeight.get();
-    // The story includes the track's 144px spacing and 64px bottom padding.
-    const travel = scrollYProgress.get() * (fullHeight + 208) - 80;
-    // Follow as a pill first. Finish expanding exactly where sticky releases.
-    const t = Math.max(0, Math.min(1, (travel - 128) / (fullHeight - 32)));
+    // The story includes the track's 80px spacing and 64px bottom padding.
+    const travel = scrollYProgress.get() * (fullHeight + 144) - 80;
+    // Start after a short scroll and finish exactly where sticky releases.
+    const t = Math.max(0, Math.min(1, (travel - 48) / (fullHeight - 16)));
     const eased = t * t * (3 - 2 * t);
-    // Never let the growing top edge cross the hero: reserve at least 24px.
-    const clearance = Math.max(0, (travel - 104) / (fullHeight - 48));
+    // Grow into at most 64px of the hero's bottom padding, clear of its content.
+    const clearance = Math.max(0, (travel - 16) / (fullHeight - 48));
     return Math.min(eased, clearance, 1);
   });
   const height = useTransform(
     () => 48 + (expandedHeight.get() - 48) * progress.get(),
   );
-  const maxWidth = useTransform(progress, [0, 1], [896, 1152]);
+  const maxWidth = useTransform(progress, [0, 1], [672, 1152]);
   const pillOpacity = useTransform(progress, [0, 0.18], [1, 0]);
   const contentOpacity = useTransform(progress, [0.22, 0.72], [0, 1]);
   const contentY = useTransform(progress, [0.22, 1], [12, 0]);
