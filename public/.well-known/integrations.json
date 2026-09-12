@@ -1,0 +1,42 @@
+{
+	"version": 3,
+	"summary": "Rivet exposes an OAuth-protected MCP server for AI clients to inspect actors, call actions, and use the Actor Inspector.",
+	"credentials": {
+		"rivet_oauth": {
+			"type": "oauth2",
+			"label": "Rivet OAuth access",
+			"setup": "Connect your MCP client to https://mcp.rivet.dev/mcp and complete the Rivet sign-in and consent flow. The client discovers the authorization server through OAuth protected resource metadata and sends the access token as an Authorization bearer token."
+		}
+	},
+	"surfaces": [
+		{
+			"slug": "rivet-mcp",
+			"name": "Rivet MCP",
+			"type": "mcp",
+			"docs": "https://rivet.dev/docs/mcp/",
+			"url": "https://mcp.rivet.dev/mcp",
+			"transports": ["streamable-http"],
+			"basis": {
+				"via": "declared",
+				"source": "https://rivet.dev/.well-known/integrations.json"
+			},
+			"auth": {
+				"status": "required",
+				"entries": [
+					{
+						"use": [
+							{
+								"id": "rivet_oauth",
+								"mechanics": { "source": "well-known" }
+							}
+						],
+						"basis": {
+							"via": "declared",
+							"source": "https://rivet.dev/.well-known/integrations.json"
+						}
+					}
+				]
+			}
+		}
+	]
+}

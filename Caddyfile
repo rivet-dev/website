@@ -20,6 +20,12 @@
 	# because it hides the page from crawlers before they can see a noindex.
 	header /typedoc/* X-Robots-Tag "noindex"
 
+	# Publishing format: https://integrations.sh/publishing/
+	header /.well-known/integrations.json {
+		Content-Type "application/json"
+		Cache-Control "public, max-age=3600"
+	}
+
 	# CORS for *.rivet.dev subdomains to fetch changelog.json
 	@cors_preflight {
 		path /changelog.json
