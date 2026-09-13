@@ -33,6 +33,7 @@ src/content/docs/workflows
 /public/docs/
 /public/workflows/
 /public/metadata/
+/public/.well-known/agent-skills/index.json
 
 # Local manifests for orb service portals.
 /.amp/portals/
