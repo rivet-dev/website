@@ -1,0 +1,47 @@
+---
+interface Props { provider: 'aws' | 'gcp' }
+const { provider } = Astro.props;
+const aws = provider === 'aws';
+const account = aws ? 'YOUR AWS ACCOUNT' : 'YOUR GOOGLE CLOUD PROJECT';
+const cluster = aws ? 'AMAZON EKS' : 'GOOGLE KUBERNETES ENGINE';
+const services = aws
+  ? [['Amazon ECR', 'Container images'], ['Amazon S3', 'Object storage'], ['AWS Secrets Manager', 'Credentials']]
+  : [['Artifact Registry', 'Container images'], ['Cloud Storage', 'S3-compatible object storage'], ['Secret Manager', 'Credentials']];
+const titleId = `byoc-resources-${provider}-title`;
+const descriptionId = `byoc-resources-${provider}-description`;
+---
+
+<figure class="not-prose mx-auto my-8 max-w-[760px] overflow-x-auto">
+  <svg viewBox="0 0 800 404" role="img" aria-labelledby={`${titleId} ${descriptionId}`} class="block w-full min-w-[660px]" xmlns="http://www.w3.org/2000/svg">
+    <title id={titleId}>{aws ? 'AWS' : 'Google Cloud'} BYOC resources</title>
+    <desc id={descriptionId}>Your cloud account contains a VPC with load balancers and a Kubernetes cluster. The cluster runs the Rivet operator, Rivet control plane and FoundationDB. Cloud services provide container images, object storage and secrets. Networking and IAM connect these resources.</desc>
+    <g font-family="system-ui, sans-serif" fill="#1b1916">
+      <rect x="8" y="8" width="784" height="388" rx="10" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6" />
+      <text x="28" y="32" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">{account}</text>
+      <rect x="24" y="48" width="432" height="308" rx="8" fill="none" stroke="#2E4034" stroke-width="1" />
+      <text x="40" y="72" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">REGIONAL VPC</text>
+      <rect x="104" y="88" width="272" height="48" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+      <text x="240" y="118" text-anchor="middle" font-size="14" font-weight="600">{aws ? 'Application Load Balancers' : 'Cloud Load Balancing'}</text>
+      <path d="M240 136 V160" fill="none" stroke="#2E4034" stroke-width="1.4" />
+      <rect x="40" y="160" width="400" height="176" rx="8" fill="#faf8f3" stroke="#2E4034" stroke-width="1" />
+      <text x="56" y="184" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.1em" fill="#2E4034">{cluster}</text>
+      <rect x="136" y="200" width="208" height="40" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+      <text x="240" y="225" text-anchor="middle" font-size="14" font-weight="600">Rivet operator</text>
+      <rect x="56" y="268" width="184" height="48" rx="7" fill="#e7ece7" stroke="#1b1916" stroke-width="1.4" />
+      <text x="148" y="298" text-anchor="middle" font-size="14" font-weight="600">Rivet control plane</text>
+      <rect x="252" y="268" width="172" height="48" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+      <text x="338" y="298" text-anchor="middle" font-size="14" font-weight="600">FoundationDB</text>
+
+      <text x="512" y="72" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">CLOUD SERVICES</text>
+      <path d="M456 220 H484 M484 125 V301 M484 125 H512 M484 213 H512 M484 301 H512" fill="none" stroke="#2E4034" stroke-width="1.4" />
+      {services.map(([name, description], index) => (
+        <g>
+          <rect x="512" y={96 + index * 88} width="256" height="58" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+          <text x="640" y={120 + index * 88} text-anchor="middle" font-size="14" font-weight="600">{name}</text>
+          <text x="640" y={140 + index * 88} text-anchor="middle" font-size="12" fill="#56524a">{description}</text>
+        </g>
+      ))}
+      <text x="400" y="382" text-anchor="middle" font-size="12" fill="#56524a">Subnets · outbound NAT · private DNS · storage volumes · IAM</text>
+    </g>
+  </svg>
+</figure>

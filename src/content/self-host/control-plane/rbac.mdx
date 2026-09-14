@@ -1,0 +1,99 @@
+---
+title: "Role-Based Access Control"
+description: "Define roles and issue scoped API tokens for Rivet Enterprise Edition."
+badge: "Enterprise"
+---
+
+Role-based access control (RBAC) determines which actors, workers, gateways, and KV entries each API bearer token can access.
+
+RBAC requires Rivet Enterprise Edition. It is separate from Kubernetes RBAC, which controls access to your cluster.
+
+Use the ACL API to define permissions and issue tokens for a namespace. Keep your bootstrap admin token private; use scoped tokens for applications and individual users.
+
+## Setup
+
+- **API endpoint**: Your control-plane endpoint, such as `https://rivet.mycompany.com`
+- **Admin token**: Configured as `RIVET__AUTH__ADMIN_TOKEN`. For BYOC, see [Credentials & dashboard](/cloud/byoc/credentials). Use it to bootstrap ACL.
+- **Auth header**: `Authorization: Bearer <token>` for `/acl/*` calls. The admin token has `acl:create` + `token:create` by default.
+
+## Model
+
+Rivet groups permissions into four layers, each composed of the layer below it:
+
+<CodeSnippet file="examples/docs/self-host/rbac/model.txt" />
+
+- **Rule**: a single permission grant. Allows the listed operations on a resource in a namespace.
+- **Policy**: a named bundle of rules.
+- **Role**: a named bundle of policies.
+- **Token**: a bearer string bound to one or more roles. Carries the union of all granted permissions.
+
+Rules are additive. There are no deny rules. A token is allowed an operation if any of its rules grant it.
+
+### Rule schema
+
+| Field | Type | Description |
+|---|---|---|
+| `namespace` | `{ id: "<ns_id>" }` or `"any"` | Which namespace the rule applies to. |
+| `resource` | enum | One of `actor`, `actor_gateway`, `actor_kv`, `runner`, `runner_config`, `namespace`, `datacenter`, `acl`, `token`. |
+| `target` | `{ id: "<id>" }` or `"any"` | Which specific instance of the resource. |
+| `operations` | `string[]` | Subset of `create`, `read`, `update`, `delete`, `list`. |
+
+### Manifest
+
+The example namespace ID must be replaced with your actual namespace ID.
+
+`POST /acl/manifest` is an atomic upsert of rules, policies, and roles in one call. It is the recommended way to provision ACL.
+
+<CodeSnippet file="examples/docs/self-host/rbac/manifest.sh" />
+
+### All ACL endpoints
+
+Manifest covers most provisioning. The per-resource endpoints below exist for fine-grained reads, individual upserts, and deletes.
+
+| Method | Path | Use |
+|---|---|---|
+| `POST` | `/acl/manifest` | Atomic upsert of rules + policies + roles. |
+| `POST` | `/acl/tokens` | Mint a token. Body: `{ roles, prefix?, duration?, token? }`. |
+| `GET` | `/acl/tokens/inspect` | Inspect the current `Authorization` token. |
+| `DELETE` | `/acl/tokens/{token_id}` | Revoke a token. |
+| `GET` / `POST` / `DELETE` | `/acl/rules/{rule_name}` | Read, upsert, or delete a rule. |
+| `GET` / `POST` / `DELETE` | `/acl/policies/{policy_name}` | Read, upsert, or delete a policy. |
+| `GET` / `POST` / `DELETE` | `/acl/roles/{role_name}` | Read, upsert, or delete a role. |
+
+## Common token types
+
+The patterns below cover the publishable / secret / inspector split most deployments need.
+
+Set your endpoint, admin token, and actual namespace ID before running these examples:
+
+<CodeSnippet file="examples/docs/self-host/rbac/setup.sh" />
+
+### Dashboard role
+
+For a person signing into the Enterprise dashboard. This example grants namespace-scoped actor, worker, pool, and gateway management, inspector access through `actor_kv:read`, and permission to list datacenters. It does not grant ACL or token administration.
+
+<CodeSnippet file="examples/docs/self-host/rbac/dashboard.sh" />
+
+Issue one token per dashboard user so revoking individual access does not log everyone out. Optionally pass `"duration": 900` (seconds) to mint a short-lived token and re-issue on demand from a session layer.
+
+### Publishable key
+
+For a frontend client only when every holder should have the listed permissions across the namespace. This example can create, read, update, and connect to actors, but cannot list or delete actors or read their KV.
+
+A publishable token is not a user identity or tenant boundary. Anyone can copy it and exercise its permissions. Restrict rules and enforce application authorization for private actors. The `pk` prefix is only a label; it does not limit permissions.
+
+<CodeSnippet file="examples/docs/self-host/rbac/publishable.sh" />
+
+### Secret key
+
+Keep this token on your backend; never ship it to a frontend. This example grants actor and gateway management and worker registration (`runner:create`), but not actor KV access. The `sk` prefix does not itself provide additional protection.
+
+<CodeSnippet file="examples/docs/self-host/rbac/secret.sh" />
+
+### Inspector-capable role
+
+Same permissions as the publishable key, plus `actor_kv:read` so the holder can fetch per-actor inspector tokens.
+
+<CodeSnippet file="examples/docs/self-host/rbac/inspector.sh" />
+
+Keep inspector-capable tokens private. See [Debugging](/actors/docs/debugging) for how to use them.

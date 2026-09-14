@@ -1,0 +1,67 @@
+---
+title: "BYOC configuration"
+description: "Configure your cloud account, regions, and network access."
+---
+
+Edit `terraform.tfvars.json` in `terraform/aws/` or `terraform/gcp/`. These examples configure private access. The dashboard's `rivet.auto.tfvars.json` supplies the non-secret cluster identity; supply the operator token through `RIVET_BYOC_OPERATOR_TOKEN` for the first apply, never in a Terraform variable or file.
+
+<Tabs>
+<Tab title="AWS">
+<CodeSnippet file="examples/docs/byoc/aws.tfvars.json" title="terraform.tfvars.json" />
+</Tab>
+<Tab title="Google Cloud">
+<CodeSnippet file="examples/docs/byoc/gcp.tfvars.json" title="terraform.tfvars.json" />
+</Tab>
+</Tabs>
+
+## Configuration
+
+### Deployment
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `aws_account_id` | Required for AWS | Your existing 12-digit AWS account ID |
+| `gcp_project_id` | Required for Google Cloud | Your existing Google Cloud project ID |
+| `name` | Required | Stable deployment name, such as `rivet-prod`. Lowercase letters, digits, and hyphens; start with a letter. Length: 3–25 for AWS, 3–20 for Google Cloud |
+| `deletion_protection` | `true` | Disable only for an intentional teardown |
+| `byoc_cluster_id` | Required | Prefilled by the dashboard in `rivet.auto.tfvars.json`, which Terraform loads automatically |
+| `cloud_api_url` | `https://cloud-api.rivet.dev` | The dashboard includes this in cluster config only for a non-production environment |
+
+### Regions
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `regions` | Required | Map keyed by cloud region name, with each entry's `region` set to that same name |
+| `leader` | Inferred for one region | Required with multiple regions. Set to a region key and keep it stable |
+
+### Kubernetes
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `kubernetes_namespace` | `rivet` | Kubernetes namespace for the Rivet control plane |
+| `kubernetes_operator_namespace` | `rivet-operator` | Kubernetes namespace for the Rivet operator; must differ from `kubernetes_namespace` |
+| `regions.<key>.existing_kubernetes` | Create a cluster | Google Cloud: object with `cluster`, `network`, `subnetwork`, and `node_service_accounts`. AWS: object with `cluster_name` and `private_subnet_ids`; public access also requires `public_subnet_ids`. Omit `new_network` for this region |
+
+Existing AWS clusters must use EKS Auto Mode with compatible nodes, add-ons, and networking. This currently supports one region, with three private subnets in distinct availability zones and, for public access, three public subnets. See the setup kit's `terraform/aws/README.md` for the full compatibility requirements.
+
+### Image registry
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `existing_registry` | Create a registry | Google Cloud: object with `project`, `location`, and `repository`. AWS: object with `region` and `repository_prefix`; both `<prefix>/rivet-engine` and `<prefix>/rivet-operator` must already exist in the same account with immutable tags and AES256 encryption |
+| `registry_region` | Leader's cloud region | Location of the shared image registry. Omit when using `existing_registry` |
+
+### Storage
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `regions.<key>.existing_storage` | Create storage | Google Cloud: object with `bucket`, `endpoint`, `region`, and `config_secret` referencing the storage credentials. AWS: object with `bucket`, referencing a private, same-account S3 bucket in the selected region with AES256 encryption; cross-account and KMS-encrypted buckets are not supported |
+
+### Networking
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `rivet_endpoint_access` | Required | `private`: private HTTP only. `public`: public HTTPS plus private HTTP. Private HTTP is unencrypted and requires private network access |
+| `rivet_hostname` | Unset | Required for public access, such as `rivet.mycompany.com`. No scheme. Configure the DNS records returned by Terraform |
+| `regions.<key>.new_network.cidr` | Automatically allocated | Non-overlapping private IPv4 range: `/16` for AWS, `/14` for Google Cloud |
+| `advanced_neg_backends` | Automatically discovered | Google Cloud only. Advanced load-balancer override; leave unset unless directed by Enterprise Support |

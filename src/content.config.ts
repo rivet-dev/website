@@ -26,6 +26,7 @@ const selfHost = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
+		badge: z.string().optional(),
 		...seoOverrides,
 	}),
 });

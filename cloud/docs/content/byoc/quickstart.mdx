@@ -1,0 +1,157 @@
+---
+title: "BYOC quickstart"
+description: "Instructions for deploying Rivet BYOC."
+---
+
+import ByocOverviewDiagram from '@/components/docs/ByocOverviewDiagram.astro';
+
+<ByocOverviewDiagram />
+
+## Prerequisites
+
+- A [Rivet Cloud account](https://dashboard.rivet.dev)
+- An [AWS](https://aws.amazon.com/free/) or [Google Cloud](https://cloud.google.com/free) account
+- [Terraform](https://developer.hashicorp.com/terraform/install) 1.9 or newer, below 2.0
+- [Python](https://www.python.org/downloads/) 3.9 or newer
+- [Docker](https://docs.docker.com/get-started/get-docker/) 27 or newer with a running Linux container daemon
+- [Helm](https://helm.sh/docs/intro/install/) exactly v3.16.3 and [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- An authenticated [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) or [Google Cloud CLI](https://cloud.google.com/sdk/docs/install); Google Cloud also requires [gke-gcloud-auth-plugin](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin)
+- Optional: [Terraform state backend](https://developer.hashicorp.com/terraform/language/backend)
+
+## Steps
+
+<Steps>
+<Step title="Create a BYOC project">
+
+Go to the [Rivet dashboard](https://dashboard.rivet.dev), click **Create Project**, and select **BYOC**.
+
+</Step>
+<Step title="Download setup kit and cluster config">
+
+On your project's BYOC page, click **Download kit** and **Download config**.
+
+Extract the setup kit and place the non-secret `rivet.auto.tfvars.json` beside `terraform.tfvars.json`:
+
+<Tabs>
+<Tab title="AWS">
+<CodeSnippet file="examples/docs/byoc/bundle-tree.txt" />
+</Tab>
+<Tab title="Google Cloud">
+<CodeSnippet file="examples/docs/byoc/bundle-tree-gcp.txt" />
+</Tab>
+</Tabs>
+
+</Step>
+<Step title="Configure Terraform">
+
+Update these common settings in `terraform.tfvars.json`:
+
+- **Cloud account** (`aws_account_id` or `gcp_project_id`): Your AWS account ID, such as `"123456789012"`, or Google Cloud project ID, such as `"my-gcp-project"`.
+- **Deployment name** (`name`): A name such as `"rivet-prod"` (used for cloud resource names and internal DNS).
+- **Regions** (`regions`): The cloud regions to deploy in, such as `{"us-east-1": {"region": "us-east-1"}}` for AWS or `{"us-central1": {"region": "us-central1"}}` for Google Cloud.
+- **Kubernetes namespaces** (`kubernetes_namespace`, `kubernetes_operator_namespace`): Namespaces for the Rivet control plane and operator. Default to `rivet` and `rivet-operator`; they must differ.
+- **Endpoint access** (`rivet_endpoint_access`): Choose `private` for private HTTP or `public` for public HTTPS plus private HTTP.
+- **Public hostname** (`rivet_hostname`): A hostname such as `"rivet.mycompany.com"` for public access; omit for private access.
+
+See [Configuration](/cloud/byoc/configuration) for more settings.
+
+<Tabs>
+<Tab title="AWS">
+<CodeSnippet file="examples/docs/byoc/aws.tfvars.json" title="terraform.tfvars.json" />
+</Tab>
+<Tab title="Google Cloud">
+<CodeSnippet file="examples/docs/byoc/gcp.tfvars.json" title="terraform.tfvars.json" />
+</Tab>
+</Tabs>
+
+</Step>
+<Step title="Provision your infrastructure">
+
+Click **Copy token** on the dashboard and set it in your terminal (first apply only):
+
+<CodeSnippet file="examples/docs/byoc/operator-token.sh" />
+
+From the Terraform directory, run the following commands. Review the plan before approving it.
+
+<CodeSnippet file="examples/docs/byoc/terraform.sh" />
+
+This will provision:
+
+- A Kubernetes cluster
+- Networking and load balancers
+- S3-compatible object storage
+- A container image registry
+- Secrets and access permissions
+- The Rivet operator
+
+<Note>
+**Public AWS deployments:** `terraform apply` waits for DNS validation of your HTTPS certificates. In your DNS provider, create the CNAME records printed in the terminal using the provided names and values. Keep Terraform running while AWS validates your DNS records and issues the certificates. Provisioning then continues automatically. If validation times out, check your DNS records and run `terraform apply` again, keeping your existing state and resources.
+</Note>
+
+</Step>
+<Step title="Configure DNS">
+
+<span id="configure-dns-for-public-access" className="block scroll-mt-48" />
+
+*Skip this step for private-only deployments.*
+
+From your Terraform directory, display the deployment outputs:
+
+<CodeSnippet file="examples/docs/byoc/dns-outputs.sh" />
+
+Add the records listed under `dns_records` to your DNS provider. For AWS, only endpoint records remain; for Google Cloud, add all records. Keep validation records for certificate renewal.
+
+HTTPS is configured automatically once validation completes.
+
+<Tabs>
+<Tab title="AWS">
+
+| Type | Name | Value |
+| --- | --- | --- |
+| CNAME | `rivet.mycompany.com` | `example.awsglobalaccelerator.com` |
+| CNAME | `rivet-us-east-1.mycompany.com` | `example-alb.us-east-1.elb.amazonaws.com` |
+| CNAME | `_token.rivet.mycompany.com` | `_validation.acm-validations.aws` |
+| CNAME | `_token.rivet-us-east-1.mycompany.com` | `_regional-validation.acm-validations.aws` |
+
+AWS uses a CNAME to Global Accelerator for the base hostname and CNAMEs directly to the regional load balancers for regional hostnames. Use the actual targets from Terraform outputs, not these illustrative values.
+
+</Tab>
+<Tab title="Google Cloud">
+
+| Type | Name | Value |
+| --- | --- | --- |
+| A | `rivet.mycompany.com` | `203.0.113.10` |
+| A | `rivet-us-central1.mycompany.com` | `203.0.113.10` |
+| CNAME | `_acme-challenge.rivet.mycompany.com` | `example.authorize.certificatemanager.goog` |
+| CNAME | `_acme-challenge.rivet-us-central1.mycompany.com` | `regional-example.authorize.certificatemanager.goog` |
+
+Google Cloud uses A records pointing to the public load-balancer IP, plus CNAME records for certificate validation.
+
+</Tab>
+</Tabs>
+
+</Step>
+<Step title="Request deployment">
+
+Request a deployment from Rivet via Slack or email. Find your contact information on your BYOC page under **Enterprise Support**.
+
+Rivet will notify you when the control plane has been deployed.
+
+</Step>
+<Step title="Get credentials and view Rivet dashboard">
+
+Follow the [Credentials & dashboard guide](/cloud/byoc/credentials).
+
+</Step>
+<Step title="Connect a worker">
+
+Deploy a worker on:
+
+- [Kubernetes](/actors/self-host/workers/kubernetes)
+- [AWS ECS](/actors/self-host/workers/aws-ecs)
+- [Google Cloud Run](/actors/self-host/workers/gcp-cloud-run)
+- [AWS Lambda](/actors/self-host/workers/aws-lambda)
+- [More options](/actors/self-host/workers)
+
+</Step>
+</Steps>

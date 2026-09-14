@@ -42,6 +42,7 @@ const SIDEBARS = hydrateIcons(
 			learn?: SidebarItem[];
 			tutorials?: SidebarItem[];
 			integrations?: SidebarItem[];
+			byoc?: SidebarItem[];
 		}
 	>,
 );
@@ -57,6 +58,7 @@ function productSidebars(productId: string) {
 		docs: bundle.docs,
 		learn: bundle.learn ?? bundle.tutorials ?? [],
 		integrations: bundle.integrations ?? [],
+		byoc: bundle.byoc ?? [],
 	};
 }
 
@@ -67,7 +69,8 @@ export type ProductTabId =
 	| "docs"
 	| "integrations"
 	| "registry"
-	| "self-host";
+	| "self-host"
+	| "byoc";
 
 export interface ProductTab {
 	id: ProductTabId;
@@ -121,7 +124,7 @@ const PRODUCT_GLYPHS: Record<string, IconDefinition | undefined> = {
 
 function tabs(
 	meta: ProductMetadata,
-	sidebars: { docs: SidebarItem[]; learn: SidebarItem[]; integrations: SidebarItem[] },
+	sidebars: { docs: SidebarItem[]; learn: SidebarItem[]; integrations: SidebarItem[]; byoc: SidebarItem[] },
 ): ProductTab[] {
 	const id = meta.id;
 	const has = (tab: "learn" | "integrations" | "registry") =>
@@ -182,6 +185,9 @@ function tabs(
 			href: `/${id}/self-host/`,
 			sidebar: deploySidebar(id),
 		},
+		...(id === "cloud"
+			? [{ id: "byoc" as const, title: "BYOC", href: "/cloud/byoc/", sidebar: sidebars.byoc }]
+			: []),
 	];
 
 	const hidden = new Set<string>(meta.hiddenTabs ?? []);

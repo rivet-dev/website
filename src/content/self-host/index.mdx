@@ -1,13 +1,23 @@
 ---
 title: "Self-Host"
-description: "Run your workers, the control plane, or both on your own infrastructure."
+description: "Choose self-hosting, BYOW (Bring Your Own Workers), or fully managed BYOC (Bring Your Own Cloud)."
 ---
 
-## Self-Host vs BYOC
+import SelfHostByocDiagram from '@/components/docs/SelfHostByocDiagram.astro';
 
-Rivet provides two deployment models.
+## Self-host vs BYOW vs BYOC
 
-**Self-Host**: You manage the complete stack, including your workers, the control plane, and storage. This has higher complexity but enables air-gapped deployments and custom security policies.
+Choose where your control plane and workers run, and who manages them.
+
+| | Self-host | BYOW | BYOC |
+| --- | --- | --- | --- |
+| **Control plane and storage** | Your infrastructure | Rivet Cloud | Your VPC |
+| **Managed by** | You | Rivet | Rivet |
+| **Workers** | You manage | You manage | You manage |
+
+### Self-host
+
+You run and maintain the workers, control plane, and storage. Choose this when you need to operate the stack yourself, including fully air-gapped deployments.
 
 <svg viewBox="0 0 760 210" role="img" aria-label="Self-hosted architecture with a worker, the control plane, and storage connected bidirectionally inside your infrastructure." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
@@ -18,9 +28,11 @@ Rivet provides two deployment models.
   <g stroke="#2E4034" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
 </svg>
 
-**BYOC with Rivet Cloud**: You only manage your workers while Rivet Cloud runs the control plane and storage. This typically has lower operational overhead and supports serverless workers.
+### BYOW (Bring Your Own Workers)
 
-<svg viewBox="0 0 760 230" role="img" aria-label="BYOC architecture with a worker in your infrastructure connected bidirectionally to the control plane and storage in Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+You run your workers on your infrastructure. Rivet Cloud hosts and manages the control plane and storage, so you only maintain your application code and worker infrastructure.
+
+<svg viewBox="0 0 760 230" role="img" aria-label="Bring your own workers: a worker in your infrastructure connects to the control plane and storage hosted in Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs><marker id="byoc-cloud-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
   <rect x="20" y="25" width="230" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/><rect x="290" y="25" width="450" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
   <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034"><text x="42" y="51">YOUR INFRASTRUCTURE</text><text x="312" y="51">RIVET CLOUD</text></g>
@@ -29,17 +41,15 @@ Rivet provides two deployment models.
   <g stroke="#2E4034" stroke-width="1.4"><line x1="221" y1="120" x2="324" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/><line x1="486" y1="120" x2="549" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/></g>
 </svg>
 
-| | Self-Host | BYOC with Rivet Cloud |
-| --- | --- | --- |
-| **You manage** | Workers, control plane, and storage | Workers only |
-| **Complexity** | Higher | Lower |
-| **Cost** | Higher operational overhead | Usually lower usage-based cost |
-| **Serverless workers** | Requires the extra control plane infrastructure | Yes |
-| **Air-gapped deployments** | Yes | No |
-| **Best for** | Air-gapped environments, strict compliance, custom security policies | All other production deployments |
-| **Support** | [Talk to an engineer](/talk-to-an-engineer/) or community | Community, Slack, and email, varying by plan |
+See <SelfHostLink to="workers">worker deployment options</SelfHostLink> and manage your project in the [Rivet dashboard](https://dashboard.rivet.dev).
 
-Rivet runs the control plane for you at [dashboard.rivet.dev](https://dashboard.rivet.dev). Running your own workers against it is BYOC, documented in the Workers section.
+### BYOC (Bring Your Own Cloud)
+
+Rivet Enterprise Edition and FoundationDB run inside your VPC, fully managed by Rivet. An operator in your cluster pulls deployment instructions from Rivet Cloud and maintains the deployment. You manage your workers.
+
+<SelfHostByocDiagram />
+
+See the [BYOC quickstart](/cloud/byoc/quickstart).
 
 ## Architecture
 

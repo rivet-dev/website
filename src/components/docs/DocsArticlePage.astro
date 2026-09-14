@@ -210,7 +210,7 @@ const breadcrumbSchema = {
 				) : (
 					<Fragment>
 						<div class="relative flex justify-end">
-							<div class={`flex items-end md:absolute md:right-0 ${parentPage ? 'md:top-5' : 'md:top-0'}`}>
+							<div class:list={["flex items-end", !entry.data.badge && `md:absolute md:right-0 ${parentPage ? 'md:top-5' : 'md:top-0'}`]}>
 								<DocsPageDropdown
 									title={title || 'Documentation'}
 									markdownPath={markdownPath}
@@ -225,7 +225,12 @@ const breadcrumbSchema = {
 									{parentPage.title}
 								</div>
 							)}
-							<h1>{title}</h1>
+							<h1 class:list={[entry.data.badge && "!pr-0 flex flex-wrap items-center gap-x-3 gap-y-2"]}>
+								<span>{title}</span>
+								{entry.data.badge && (
+									<span class="inline-flex shrink-0 items-center rounded-md border border-pine/20 bg-pine/5 px-2.5 py-1 text-sm font-medium leading-5 tracking-normal text-pine whitespace-nowrap">{entry.data.badge}</span>
+								)}
+							</h1>
 							{description && <p>{description}</p>}
 							{integration && <IntegrationResourceBar integration={integration} />}
 							<Content components={{ ...mdxComponents, ...extraComponents }} />
