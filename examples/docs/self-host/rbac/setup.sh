@@ -1,0 +1,3 @@
+export RIVET_ENDPOINT="http://localhost:6420"
+export RIVET_ADMIN_TOKEN="..." # control-plane RIVET__AUTH__ADMIN_TOKEN value
+export RIVET_NAMESPACE="ns_abc123" # from GET /namespaces?name=...

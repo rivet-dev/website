@@ -74,6 +74,7 @@ export const WORKER_PAGES = [
 export const CONTROL_PLANE_PAGES = [
 	"index",
 	"configuration",
+	"rbac",
 	"ports",
 	"storage",
 	"tls",

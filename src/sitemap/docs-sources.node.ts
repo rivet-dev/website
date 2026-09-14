@@ -97,8 +97,8 @@ export function requireDocsRoot(productId: string): string {
  * Repo root that a content file's snippets resolve against.
  *
  * Product docs use their own repo. Everything else authored in this repo — the
- * shared self-host guides, cookbook, learn, blog posts — embeds Rivet's
- * examples, so it falls back to the Rivet repo.
+ * shared self-host guides use website-owned examples. Cookbook, learn, and
+ * blog posts fall back to Rivet's examples.
  */
 /**
  * The GitHub repo (under rivet-dev) that owns a content file's snippets, for
@@ -142,6 +142,9 @@ export function snippetRootForContentPath(
 		// shape is usually gone by the time we see it. Match on the repo root
 		// first and fall back to the path shape.
 		const normalized = path.resolve(contentPath);
+		if (normalized.startsWith(`${path.resolve(REPO_ROOT, "src/content/self-host")}${path.sep}`)) {
+			return REPO_ROOT;
+		}
 		for (const productId of Object.keys(DOCS_SOURCES)) {
 			if (productId === SITE_DOCS_NAMESPACE) continue;
 			const root = docsRoot(productId);

@@ -4,6 +4,7 @@ import { CONTROL_PLANE_PAGES, platformsFor } from "./deployMatrix";
 
 const REFERENCE_PAGES = new Set([
 	"configuration",
+	"rbac",
 	"ports",
 	"storage",
 	"tls",
@@ -14,6 +15,7 @@ const REFERENCE_PAGES = new Set([
 
 const PAGE_TITLES: Record<string, string> = {
 	configuration: "Configuration",
+	rbac: "RBAC",
 	ports: "Ports",
 	storage: "Storage",
 	tls: "TLS & Certificates",
@@ -75,6 +77,7 @@ export function deploySidebar(productId: string): SidebarItem[] {
 					).map((page) => ({
 						title: PAGE_TITLES[page] ?? page,
 						href: `${base}/control-plane/${page}/`,
+						...(page === "rbac" ? { badge: "Enterprise" } : {}),
 					})),
 				},
 			],

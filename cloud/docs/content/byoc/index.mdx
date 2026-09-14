@@ -1,0 +1,21 @@
+---
+title: "Bring Your Own Cloud"
+description: "Run Rivet in your VPC, fully managed by Rivet."
+---
+
+import ByocOverviewDiagram from '@/components/docs/ByocOverviewDiagram.astro';
+
+<ByocOverviewDiagram />
+
+BYOC deploys Rivet Enterprise Edition and FoundationDB inside your VPC, fully managed by Rivet.
+
+- **Managed by Rivet**: We handle deployment updates and maintenance
+- **No inbound management connection**: The operator connects to Rivet Cloud
+- **Public or private access**: Expose Rivet over HTTPS or keep it accessible only through your private network
+- **Dashboard included**: Inspect and manage your actors
+- **Choose where workers run**: Kubernetes, ECS, Cloud Run, and more
+
+## Get started
+
+- [Quickstart](/cloud/byoc/quickstart): download your setup kit, provision infrastructure, and connect your first worker.
+- [Architecture](/cloud/byoc/architecture): understand the operator, permissions, and network options.

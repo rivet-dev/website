@@ -44,7 +44,7 @@ export interface ProductMetadata {
 	 * Restricts the tab set. Omit for the standard set. Rivet Cloud is a managed
 	 * platform rather than a library, so it has no Use Cases or Self-Host.
 	 */
-	tabs?: ("overview" | "use-cases" | "learn" | "docs" | "integrations" | "registry" | "self-host")[];
+	tabs?: ("overview" | "use-cases" | "learn" | "docs" | "integrations" | "registry" | "self-host" | "byoc")[];
 	/**
 	 * Tabs that still build but are not shown in the nav.
 	 *
@@ -130,7 +130,7 @@ export const PRODUCTS: ProductMetadata[] = [
 		color: "#8A5A2B",
 		contrast: 5.72,
 		optionalTabs: [],
-		tabs: ["overview", "docs"],
+		tabs: ["overview", "docs", "byoc"],
 		hidden: true,
 	},
 ];

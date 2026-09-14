@@ -1,0 +1,75 @@
+---
+title: "BYOC architecture"
+description: "Your cloud runs the control plane. The operator receives deployment instructions over an outbound connection."
+---
+
+import ByocArchitectureDiagram from '@/components/docs/ByocArchitectureDiagram.astro';
+import ByocResourcesDiagram from '@/components/docs/ByocResourcesDiagram.astro';
+import ByocRegionsDiagram from '@/components/docs/ByocRegionsDiagram.astro';
+
+## How deployments work
+
+<ByocArchitectureDiagram />
+
+The Rivet operator runs inside your Kubernetes cluster and connects to Rivet Cloud to receive deployment instructions. It manages updates to the Rivet control plane and FoundationDB inside your VPC. No inbound management connection from Rivet Cloud is required.
+
+1. **Request a deployment or update** through Enterprise Support
+2. **The operator receives instructions** from Rivet Cloud
+3. **The operator applies the update** inside your cluster
+4. **The operator reports status** back to Rivet Cloud
+
+## What gets provisioned
+
+Terraform provisions networking, a Kubernetes cluster, container registry, object storage, secrets, and the Rivet operator. Rivet then deploys the control plane and FoundationDB.
+
+<Tabs>
+<Tab title="AWS">
+<ByocResourcesDiagram provider="aws" />
+</Tab>
+<Tab title="Google Cloud">
+<ByocResourcesDiagram provider="gcp" />
+</Tab>
+</Tabs>
+
+## Permissions and data
+
+You do not need to allow inbound network access from Rivet Cloud or provide it with a service account or your admin token.
+
+The Rivet operator runs inside your Kubernetes cluster, pulls deployment instructions from Rivet Cloud, and applies them locally. Your VPC needs no inbound management rules, and your admin token stays in your cloud secret manager.
+
+## Outbound access
+
+Private deployments still need outbound routes for:
+
+- Rivet Cloud command polling and status reporting.
+- Release downloads and deployment-log uploads.
+- Cloud APIs, image registries, and prerequisite downloads used during installation and deployment.
+
+If your organization restricts outbound access, allowlist these destinations.
+
+For a fully air-gapped deployment, [contact us](/talk-to-an-engineer/).
+
+## Accessing Rivet
+
+### From your backend
+
+Use the `private_endpoint` in your Terraform deployment outputs from your VPC or a connected network. Inside the same Kubernetes cluster, you can also use `http://rivet-engine.rivet.svc.cluster.local:6420` (replace `rivet` if you changed `kubernetes_namespace`).
+
+Authenticate with your admin token. See [Credentials & dashboard](/cloud/byoc/credentials) to retrieve it.
+
+### From a public endpoint
+
+When `rivet_endpoint_access` is `public`, use your configured hostname, such as `https://rivet.mycompany.com`. HTTPS is configured automatically after [DNS setup](/cloud/byoc/quickstart#configure-dns-for-public-access).
+
+Authenticate with your [admin token](/cloud/byoc/credentials), or [create a public token using ACL](/actors/self-host/control-plane/rbac#publishable-key).
+
+## Multi-region
+
+<ByocRegionsDiagram />
+
+Each region has its own VPC, Kubernetes cluster, operator, and Rivet deployment. Regions communicate over private connectivity and share a container registry. Workers connect to the regional endpoints provided by Rivet.
+
+## Next steps
+
+- [BYOC quickstart](/cloud/byoc/quickstart)
+- [Connect workers](/actors/self-host/workers)

@@ -1,0 +1,6 @@
+<extracted-bundle>/
+└── terraform/
+    └── aws/
+        ├── main.tf
+        ├── terraform.tfvars.json
+        └── rivet.auto.tfvars.json

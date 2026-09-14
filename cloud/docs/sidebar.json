@@ -1,4 +1,21 @@
 {
+	"byoc": [
+		{
+			"title": "General",
+			"pages": [
+				{ "title": "Overview", "href": "/cloud/byoc", "icon": "faSquareInfo" },
+				{ "title": "Quickstart", "href": "/cloud/byoc/quickstart", "icon": "faFastForward" }
+			]
+		},
+		{
+			"title": "Reference",
+			"pages": [
+				{ "title": "Configuration", "href": "/cloud/byoc/configuration", "icon": "faSliders" },
+				{ "title": "Credentials & dashboard", "href": "/cloud/byoc/credentials", "icon": "faKey" },
+				{ "title": "Architecture", "href": "/cloud/byoc/architecture", "icon": "faDiagramProject" }
+			]
+		}
+	],
 	"docs": [
 		{
 			"title": "General",
