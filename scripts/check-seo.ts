@@ -479,7 +479,10 @@ for (const page of pages) {
     continue;
   }
 
-  const titles = elements(page.root, "title");
+  // SVG accessibility labels are not document titles.
+  const titles = elements(page.root, "head").flatMap((head) =>
+    elements(head, "title"),
+  );
   const descriptions = metaByName(page.root, "description");
   const h1s = elements(page.root, "h1").filter((node) => normalizedText(node));
   const title = titles.length === 1 ? normalizedText(titles[0]) : "";
