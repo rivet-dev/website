@@ -138,10 +138,7 @@ async function buildSocialHtml(
 ): Promise<string> {
 	const [font, logo] = await Promise.all([
 		readFile(
-			path.join(
-				WEBSITE_DIR,
-				"public/fonts/perfectly-nineties/PerfectlyNineties-Semibold.otf",
-			),
+			path.join(WEBSITE_DIR, "public/fonts/manrope/Manrope-Variable-latin.woff2"),
 		),
 		readFile(
 			path.join(
@@ -159,10 +156,10 @@ async function buildSocialHtml(
 		<meta name="viewport" content="width=${SOCIAL_WIDTH}, initial-scale=1" />
 		<style>
 			@font-face {
-				font-family: "Perfectly Nineties";
-				src: url("${dataUrl("font/otf", font)}") format("opentype");
+				font-family: "Manrope";
+				src: url("${dataUrl("font/woff2", font)}") format("woff2");
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 200 800;
 			}
 
 			* { box-sizing: border-box; }
@@ -194,12 +191,12 @@ async function buildSocialHtml(
 				margin: 0;
 				max-width: 1450px;
 				color: #000;
-				font-family: "Perfectly Nineties", serif;
+				font-family: "Manrope", sans-serif;
 				font-size: 100px;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 500;
 				line-height: 136px;
-				letter-spacing: 0;
+				letter-spacing: -0.015em;
 				white-space: nowrap;
 			}
 			.logo {
@@ -265,7 +262,7 @@ export async function buildTechnicalHtml(
 	if (!options.technicalSnippets) return undefined;
 
 	const sections = await readCodeSections(options.technicalSnippets);
-	const [monoFont, sansFont, displayFont, logo] = await Promise.all([
+	const [monoFont, sansFont, logo] = await Promise.all([
 		readFile(
 			path.join(
 				WEBSITE_DIR,
@@ -276,12 +273,6 @@ export async function buildTechnicalHtml(
 			path.join(
 				WEBSITE_DIR,
 				"public/fonts/manrope/Manrope-Variable-latin.woff2",
-			),
-		),
-		readFile(
-			path.join(
-				WEBSITE_DIR,
-				"public/fonts/perfectly-nineties/PerfectlyNineties-Semibold.otf",
 			),
 		),
 		readFile(
@@ -327,12 +318,6 @@ export async function buildTechnicalHtml(
 				font-style: normal;
 				font-weight: 200 800;
 			}
-			@font-face {
-				font-family: "Perfectly Nineties";
-				src: url("${dataUrl("font/otf", displayFont)}") format("opentype");
-				font-style: normal;
-				font-weight: 600;
-			}
 
 			* { box-sizing: border-box; }
 			html, body {
@@ -358,11 +343,11 @@ export async function buildTechnicalHtml(
 			.header h1 {
 				margin: 0;
 				color: #18181b;
-				font-family: "Perfectly Nineties", serif;
+				font-family: "Manrope", sans-serif;
 				font-size: 88px;
-				font-weight: 600;
+				font-weight: 500;
 				line-height: 81px;
-				letter-spacing: 0;
+				letter-spacing: -0.015em;
 			}
 			.logo {
 				width: 198px;
