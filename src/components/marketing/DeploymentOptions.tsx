@@ -37,10 +37,12 @@ export const DeploymentOptions = ({
     <article className={DEPLOY_CARD_CLASS}>
       <div className="mb-3 flex h-6 items-center gap-2.5">
         <Laptop className="h-4 w-4 text-pine" aria-hidden="true" />
-        <h3 className={DEPLOY_CARD_TITLE_CLASS}>Local</h3>
+        <h3 className={DEPLOY_CARD_TITLE_CLASS}>Local & Self-Host</h3>
       </div>
       <p className={BODY_CLASS}>
-        Install {productName} and run it locally while you build.
+        Install {productName} and run it locally while you build. When you ship,
+        run the same open-source control plane as a Rust binary or container on
+        your own infrastructure.
       </p>
       <div className="flex-1" />
       <div className="mt-6 border-t border-ink/10 pt-6">
@@ -50,6 +52,13 @@ export const DeploymentOptions = ({
           className={`mt-4 ${DEPLOY_GHOST_BUTTON_CLASS}`}
         >
           Open the quickstart
+        </a>
+        <a
+          href={canonicalizeInternalHref(selfHostHref)}
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-pine no-underline hover:underline"
+        >
+          Read self-hosting docs
+          <span aria-hidden="true">→</span>
         </a>
       </div>
     </article>
@@ -77,15 +86,16 @@ export const DeploymentOptions = ({
     <article className={DEPLOY_CARD_CLASS}>
       <div className="mb-3 flex h-6 items-center gap-2.5">
         <Server className="h-4 w-4 text-pine" aria-hidden="true" />
-        <h3 className={DEPLOY_CARD_TITLE_CLASS}>Self-Host</h3>
+        <h3 className={DEPLOY_CARD_TITLE_CLASS}>BYOC</h3>
       </div>
       <p className={BODY_CLASS}>
-        Run the open-source Rivet control plane as a Rust binary or container on
-        your infrastructure.
+        Run the control plane inside your own VPC, fully managed by Rivet. Your
+        data never leaves your cloud and there is no inbound management
+        connection.
       </p>
       <div className="flex-1" />
-      <a href={canonicalizeInternalHref(selfHostHref)} className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
-        Read self-hosting docs
+      <a href="/cloud/byoc/" className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
+        Read the BYOC docs
       </a>
     </article>
   </div>

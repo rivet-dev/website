@@ -93,8 +93,24 @@ export default defineConfig({
 		// discovered mid-hydration, the re-optimize invalidates the in-flight
 		// import chain, and every large island on the page silently fails to
 		// hydrate — docs sidebar dropdowns dead until a lucky reload.
+		//
+		// `@rivet-gg/components` is a linked workspace package, which Vite serves
+		// as raw source in dev: its barrel `src/index.ts` fans out to ~130
+		// separate module requests on every page that imports even `cn`, and on
+		// a high-latency link that waterfall dominates page load. Listing it
+		// here pre-bundles it into a handful of chunks like any other dep. The
+		// cost is that edits inside packages/components need a dev-server
+		// restart (or `astro dev --force`) instead of HMR. Production builds are
+		// unaffected: optimizeDeps only applies to the dev server. Subpath
+		// entries are separate optimizer entries, so list each one the site
+		// imports; those resolve to `.tsx` files, which Vite refuses to treat
+		// as optimizable entries unless the extension is listed.
 		optimizeDeps: {
+			extensions: ['.tsx'],
 			include: [
+				'@rivet-gg/components',
+				'@rivet-gg/components/header',
+				'@rivet-gg/components/mdx',
 				'mermaid',
 				'framer-motion',
 				'@rivet-gg/icons',

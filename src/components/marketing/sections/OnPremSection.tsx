@@ -11,11 +11,11 @@ import {
 const pillars = [
   {
     title: "Single Rust binary",
-    body: "One process to install, monitor, and upgrade.",
+    body: "One process to install, monitor, and upgrade, on Kubernetes with the Enterprise Helm chart or as a systemd unit.",
   },
   {
-    title: "Kubernetes or systemd",
-    body: "Deploy with the Enterprise Helm chart or a systemd unit.",
+    title: "Managed in your VPC",
+    body: "With BYOC, Rivet deploys and maintains the control plane inside your cloud over an outbound connection.",
   },
   {
     title: "Storage you control",

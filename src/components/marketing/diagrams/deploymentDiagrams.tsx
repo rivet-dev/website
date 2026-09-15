@@ -2,29 +2,27 @@
 
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { useRef } from 'react';
-import { Icon, faRailway, faVercel, faCloudflare, faAws, faKubernetes } from '@rivet-gg/icons';
 
 // ---------------------------------------------------------------------------
 // The three deployment models drawn on one shared axis: every variant is the
 // identical backend → control plane → storage stack, and only the containment
 // boundary moves. Pine names what Rivet Cloud runs, ink names what you run,
-// and the dashed arrow is the backend dialling out across the network
+// and the dashed arrow is the BYOC operator dialling out across the network
 // boundary. Pine only — no ember; the page's one accent CTA lives elsewhere.
-// Restated from the self-host docs (src/content/self-host/index.mdx).
+// Restated from the self-host docs (src/content/self-host/index.mdx) and the
+// BYOC docs (/cloud/byoc/).
 // ---------------------------------------------------------------------------
 
-type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
+export type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
 
 const DEPLOYMENT_DIAGRAM_ARIA: Record<DeploymentDiagramVariant, string> = {
 	managed:
 		'Fully managed architecture: your backend, the control plane, and storage all run inside Rivet Cloud.',
 	byoc:
-		'Bring-your-own-compute architecture: your backend runs on your infrastructure — such as Railway, Vercel, Cloudflare, AWS, or Kubernetes — and connects outbound to the control plane and storage in Rivet Cloud.',
+		'Bring-your-own-cloud architecture: your backend, the control plane, and storage all run inside your VPC. A Rivet operator connects outbound to Rivet Cloud, which manages updates and maintenance.',
 	'self-hosted':
 		'Fully self-hosted architecture: your backend, the control plane, and storage all run on infrastructure you control.',
 };
-
-const COMPUTE_PROVIDERS = [faRailway, faVercel, faCloudflare, faAws, faKubernetes];
 
 // Staged fade-in gated on scroll-into-view; settled instantly under reduced
 // motion. Same hook as workflowDiagrams.tsx.
@@ -95,8 +93,8 @@ const Zone = ({
 );
 
 // The one edge that crosses the network boundary: a dashed arrow pointing
-// from your backend into Rivet Cloud (your backend dials out; no inbound
-// path to your infra). The shaft sits on the diagram's center axis — the
+// from your VPC into Rivet Cloud (the operator dials out; no inbound path
+// to your infra). The shaft sits on the diagram's center axis — the
 // label hangs off it absolutely so it cannot push the arrow off-center.
 const CrossConnector = ({ show, at }: { show: Show; at: number }) => (
 	<motion.div className='relative flex min-h-7 flex-1 justify-center' {...show(at)}>
@@ -114,6 +112,7 @@ const CrossConnector = ({ show, at }: { show: Show; at: number }) => (
 const Backend = () => <Node title='Your backend' sub='application code' />;
 const ControlPlane = () => <Node title='Control plane' sub='scheduling · routing' ink />;
 const Storage = () => <Node title='Storage' sub='actor state' />;
+const Management = () => <Node title='Managed by Rivet' sub='updates · maintenance' />;
 
 export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVariant }) => {
 	const { ref, show } = useDiagram();
@@ -127,28 +126,23 @@ export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVaria
 		>
 			{variant === 'byoc' ? (
 				<>
-					<Zone tone='ink' label='Your infrastructure' show={show} at={0}>
+					<Zone tone='ink' label='Your VPC' grow show={show} at={0}>
 						<motion.div {...show(1)}>
 							<Backend />
 						</motion.div>
-						<motion.div
-							aria-hidden='true'
-							className='mt-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 border-t border-ink/10 pt-2.5 text-ink-faint'
-							{...show(1.5)}
-						>
-							{COMPUTE_PROVIDERS.map((provider, i) => (
-								<Icon key={i} icon={provider} className='h-3.5 w-3.5' />
-							))}
-						</motion.div>
-					</Zone>
-					<CrossConnector show={show} at={2} />
-					<Zone tone='pine' label='Rivet Cloud' show={show} at={2.5}>
-						<motion.div {...show(3)}>
+						<Connector show={show} at={1.5} />
+						<motion.div {...show(2)}>
 							<ControlPlane />
 						</motion.div>
-						<Connector show={show} at={3.5} />
-						<motion.div {...show(4)}>
+						<Connector show={show} at={2.5} />
+						<motion.div {...show(3)}>
 							<Storage />
+						</motion.div>
+					</Zone>
+					<CrossConnector show={show} at={3.5} />
+					<Zone tone='pine' label='Rivet Cloud' show={show} at={4}>
+						<motion.div {...show(4.5)}>
+							<Management />
 						</motion.div>
 					</Zone>
 				</>

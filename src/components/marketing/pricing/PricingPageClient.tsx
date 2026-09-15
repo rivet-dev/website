@@ -12,8 +12,8 @@ import {
 import {
   Icon,
   faCloudArrowUp,
-  faServer,
-  faShareNodes
+  faCloudCheck,
+  faServer
 } from '@rivet-gg/icons';
 import imgYC from '@/images/logos/yc.svg';
 import imgA16z from '@/images/logos/a16z.svg';
@@ -39,30 +39,41 @@ import {
 } from '@/components/marketing/deployKit';
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
-import { DeploymentDiagram } from '@/components/marketing/diagrams/deploymentDiagrams';
+import { DeploymentDiagram, type DeploymentDiagramVariant } from '@/components/marketing/diagrams/deploymentDiagrams';
 
 // --- Page Sections ---
 
 const SelfHostingComparison = () => {
-  const deploymentModels = [
+  const deploymentModels: Array<{
+    title: string;
+    description: string;
+    hint: string;
+    icon: typeof faCloudArrowUp;
+    diagram: DeploymentDiagramVariant;
+    cta: string;
+    href: string;
+    primary: boolean;
+    secondaryLink?: { label: string; href: string };
+  }> = [
     {
-      title: 'Fully managed',
-      description: 'Rivet Cloud runs your backend, the control plane, and storage. Nothing to operate.',
+      title: 'Rivet Cloud',
+      description: 'Rivet Cloud runs the control plane and storage. Run your backend on Rivet Cloud too, or bring your own compute from Vercel, Railway, Cloudflare, AWS, or Kubernetes.',
       hint: 'Best for most teams shipping to production.',
       icon: faCloudArrowUp,
-      diagram: 'managed' as const,
+      diagram: 'managed',
       cta: 'Get Started',
       href: 'https://dashboard.rivet.dev',
       primary: true,
+      secondaryLink: { label: 'Connect your own compute', href: '/actors/self-host/' },
     },
     {
-      title: 'Bring your own compute',
-      description: 'Your backend runs on your own infrastructure and connects outbound to the control plane in Rivet Cloud.',
-      hint: 'Best for serverless platforms and keeping compute in your VPC.',
-      icon: faShareNodes,
-      diagram: 'byoc' as const,
-      cta: 'Connect Your Host',
-      href: '/actors/self-host/',
+      title: 'Bring your own cloud',
+      description: 'The whole stack runs inside your VPC, and Rivet manages it for you over an outbound connection.',
+      hint: 'Best for data residency without anything to operate.',
+      icon: faCloudCheck,
+      diagram: 'byoc',
+      cta: 'Read the BYOC Docs',
+      href: '/cloud/byoc/',
       primary: false,
     },
     {
@@ -70,7 +81,7 @@ const SelfHostingComparison = () => {
       description: 'You run the entire stack on infrastructure you control, including air-gapped networks.',
       hint: 'Best for strict compliance and air-gapped environments.',
       icon: faServer,
-      diagram: 'self-hosted' as const,
+      diagram: 'self-hosted',
       cta: 'View on GitHub',
       href: 'https://github.com/rivet-dev/rivet',
       primary: false,
@@ -112,12 +123,23 @@ const SelfHostingComparison = () => {
               </div>
 
               <p className="mt-4 text-xs leading-relaxed text-ink-faint">{model.hint}</p>
-              <a
-                href={canonicalizeInternalHref(model.href)}
-                className={`mt-6 ${model.primary ? DEPLOY_WHITE_BUTTON_CLASS : DEPLOY_GHOST_BUTTON_CLASS}`}
-              >
-                {model.cta}
-              </a>
+              <div className="mt-6 flex flex-col gap-4">
+                <a
+                  href={canonicalizeInternalHref(model.href)}
+                  className={model.primary ? DEPLOY_WHITE_BUTTON_CLASS : DEPLOY_GHOST_BUTTON_CLASS}
+                >
+                  {model.cta}
+                </a>
+                {model.secondaryLink ? (
+                  <a
+                    href={canonicalizeInternalHref(model.secondaryLink.href)}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-pine no-underline hover:underline"
+                  >
+                    {model.secondaryLink.label}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                ) : null}
+              </div>
             </article>
           ))}
         </div>
@@ -130,7 +152,7 @@ const SelfHostingComparison = () => {
             <div>
               <h3 className={CARD_TITLE_CLASS}>Enterprise Edition</h3>
               <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-ink-soft">
-                Add multi-tenancy, access controls, backups, and deployment guidance to a self-hosted deployment.
+                Add multi-tenancy, access controls, backups, and deployment guidance to a BYOC or self-hosted deployment.
               </p>
               <a href="/enterprise/" className="mt-3 inline-flex text-sm font-medium text-pine transition-colors motion-reduce:transition-none hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
                 Explore Enterprise

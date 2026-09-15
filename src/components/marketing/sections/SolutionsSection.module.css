@@ -1,0 +1,422 @@
+/* Hover playback for the solution-card vignettes. At rest every vignette is a
+   finished still; hovering (or keyboard-focusing) the card replays the story
+   once: terminal lines type in, steps tick, wires draw, messages arrive, a
+   cursor sweeps. Pure CSS so the section stays hook-free and unhydrated.
+   Only on pointer devices that can hover, and never under reduced motion.
+   Stagger comes from a per-element `--i` index set inline. */
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  /* Every vignette resets to its opening frame the instant the hover begins.
+     Do not fade the whole stage to cover that cut: the ink panels going
+     transparent for a frame reads as a bright flash, far worse than the cut. */
+
+  /* Coding agent: terminal replays line by line, status dot blinks. */
+  .card:hover .typeLine,
+  .card:focus-visible .typeLine {
+    animation: type-in 200ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 240ms + 80ms);
+  }
+  .card:hover .runDot,
+  .card:focus-visible .runDot {
+    animation: blink 900ms steps(2, end) infinite;
+  }
+
+  /* App builder: prompt lands, steps tick through, the app rises and its rows fill in. */
+  .card:hover .prompt,
+  .card:focus-visible .prompt {
+    animation: type-in 260ms ease-out both;
+  }
+  .card:hover .step,
+  .card:focus-visible .step {
+    animation: type-in 220ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 280ms + 320ms);
+  }
+  .card:hover .panel,
+  .card:focus-visible .panel {
+    animation: rise 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 1200ms;
+  }
+  .card:hover .row,
+  .card:focus-visible .row {
+    animation: type-in 240ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 160ms + 1550ms);
+  }
+  .card:hover .liveDot,
+  .card:focus-visible .liveDot {
+    animation: pulse 1.4s ease-in-out infinite;
+    animation-delay: 1200ms;
+  }
+
+  /* Company agent: a ticket lands, the agent wakes, wires draw out to each
+     system, systems light up, the resolution posts. */
+  .card:hover .ticket,
+  .card:focus-visible .ticket {
+    animation: flash 700ms ease-out both;
+  }
+  .card:hover .ticketDot,
+  .card:focus-visible .ticketDot {
+    animation: ping 900ms ease-out both;
+  }
+  .card:hover .agentBox,
+  .card:focus-visible .agentBox {
+    animation: connect 320ms ease-out both;
+    animation-delay: 350ms;
+  }
+  .card:hover .wire,
+  .card:focus-visible .wire {
+    transform-origin: left center;
+    animation: grow 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 260ms + 500ms);
+  }
+  .card:hover .system,
+  .card:focus-visible .system {
+    animation: connect 320ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 260ms + 860ms);
+  }
+  .card:hover .resultChip,
+  .card:focus-visible .resultChip {
+    transform-origin: left center;
+    animation: pop 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 1800ms;
+  }
+  .card:hover .connectedDot,
+  .card:focus-visible .connectedDot {
+    animation: pulse 1.4s ease-in-out infinite;
+    animation-delay: 1300ms;
+  }
+
+  /* Personal agent: the schedule fires, the request lands, the agent types,
+     replies, pins the reminder, and the memory count ticks up. */
+  .card:hover .schedule,
+  .card:focus-visible .schedule {
+    animation: flash 700ms ease-out both;
+  }
+  .card:hover .scheduleDot,
+  .card:focus-visible .scheduleDot {
+    animation: ping 900ms ease-out both;
+  }
+  .card:hover .bubbleOut,
+  .card:focus-visible .bubbleOut {
+    animation: slide-from-right 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 350ms;
+  }
+  .card:hover .typing,
+  .card:focus-visible .typing {
+    animation: hold 1000ms ease-in-out both;
+    animation-delay: 650ms;
+  }
+  .card:hover .typingDot,
+  .card:focus-visible .typingDot {
+    animation: bob 700ms ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+  .card:hover .bubbleIn,
+  .card:focus-visible .bubbleIn {
+    animation: slide-from-left 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 1650ms;
+  }
+  .card:hover .chip,
+  .card:focus-visible .chip {
+    transform-origin: left center;
+    animation: pop 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 2150ms;
+  }
+  .card:hover .countOld,
+  .card:focus-visible .countOld {
+    animation: count-out 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 2250ms;
+  }
+  .card:hover .countNew,
+  .card:focus-visible .countNew {
+    animation: count-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 2250ms;
+  }
+
+  /* Realtime: collaborators arrive, JM types a line, the box ticks, RS types
+     the next line, sync settles. A typed line is one clip-path wipe over the
+     full text plus one marker (caret + name tag) that sweeps from the left
+     edge to the right edge on the same linear clock, so the text edge and the
+     marker move together and the tag glides instead of jumping. The line
+     always occupies its full width, so nothing reflows while typing. */
+  .card:hover .avatar,
+  .card:focus-visible .avatar {
+    animation: pop 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 120ms + 80ms);
+  }
+  .card:hover .typedText,
+  .card:focus-visible .typedText {
+    animation: wipe var(--dur) linear var(--start) both;
+  }
+  .card:hover .typedMarker,
+  .card:focus-visible .typedMarker {
+    animation:
+      sweep var(--dur) linear var(--start) both,
+      appear var(--dur) step-start var(--start) both;
+  }
+  .card:hover .tick,
+  .card:focus-visible .tick {
+    animation: tick 260ms ease-out both;
+    animation-delay: 1650ms;
+  }
+  .card:hover .tickMark,
+  .card:focus-visible .tickMark {
+    animation: pop 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: 1720ms;
+  }
+  .card:hover .synced,
+  .card:focus-visible .synced {
+    animation: hidden-while 2500ms step-end both;
+    animation-delay: 450ms;
+  }
+  .card:hover .syncing,
+  .card:focus-visible .syncing {
+    animation: shown-while 2500ms step-end both;
+    animation-delay: 450ms;
+  }
+}
+
+/* Typed line: full-width inline box; the marker hangs off its right edge at
+   rest and sweeps across it on hover. */
+.typed {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+.typedMarker {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.typedCaret {
+  width: 1px;
+  height: 1.15em;
+  background: var(--caret);
+}
+.typedTag {
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: var(--caret);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@keyframes wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes sweep {
+  from {
+    left: 0;
+  }
+  to {
+    left: 100%;
+  }
+}
+/* Hidden until its start; `step-start` (not step-end) so a rounding-short
+   finish can never leave it stuck on the `from` frame. */
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes type-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes connect {
+  from {
+    border-color: rgb(27 25 22 / 0.1);
+    color: #56524a;
+  }
+  to {
+    border-color: rgb(46 64 52 / 0.6);
+    color: #1b1916;
+  }
+}
+
+@keyframes flash {
+  0% {
+    background-color: rgb(46 64 52 / 0.12);
+  }
+  100% {
+    background-color: #efefef;
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tick {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: #2e4034;
+  }
+}
+
+/* Quick expand-and-settle ring for a scheduled trigger firing. */
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 rgb(46 64 52 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 7px rgb(46 64 52 / 0);
+  }
+}
+
+/* Visible only for the middle of its run (used for transient states such as
+   a typing indicator or a "syncing…" label). */
+@keyframes hold {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+  }
+}
+
+/* Inverse of `hold` with hard edges, for the label that gets replaced. */
+@keyframes hidden-while {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  1%,
+  99% {
+    opacity: 0;
+  }
+}
+
+@keyframes shown-while {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  1%,
+  99% {
+    opacity: 1;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+}
+
+@keyframes count-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes count-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -24,7 +24,7 @@ import {
 
 const title = 'Enterprise Infrastructure';
 const description =
-	'Run Rivet on-prem, in your VPC, inside customer environments, or fully air-gapped with an enterprise control plane and no required outbound connections.';
+	'Run Rivet in your VPC with BYOC, on-prem, inside customer environments, or fully air-gapped with an enterprise control plane and no required outbound connections.';
 const canonicalUrl = 'https://rivet.dev/enterprise/';
 
 const breadcrumbSchema = {
@@ -68,6 +68,21 @@ const footprints = [
 	},
 ];
 
+const deploymentPaths = [
+	{
+		title: 'Bring your own cloud',
+		body: 'Rivet deploys and maintains the control plane and storage inside your VPC over an outbound connection. Your data stays in your cloud, and there is nothing for your team to operate.',
+		href: '/cloud/byoc/',
+		linkLabel: 'Read the BYOC docs',
+	},
+	{
+		title: 'Self-host',
+		body: 'Run the control plane yourself on Kubernetes or systemd, with no required connection to Rivet Cloud. The path for air-gapped and sovereign-cloud deployments.',
+		href: '/actors/self-host/control-plane/',
+		linkLabel: 'Read self-hosting docs',
+	},
+];
+
 const enterpriseEditionFeatures = [
 	'Actor control plane',
 	'FoundationDB persistence layer',
@@ -98,7 +113,8 @@ const enterpriseEditionFeatures = [
 							<h1 class={HERO_H1_CLASS} data-site-reveal-child>Run Rivet inside your perimeter.</h1>
 							<p class="mt-4 max-w-xl text-[17px] leading-relaxed text-ink-soft" data-site-reveal-child>
 								Keep runtime, control plane, and data under the controls your team already
-								operates. The same platform that powers Rivet Cloud.
+								operates, managed by Rivet in your VPC or run entirely by you. The same
+								platform that powers Rivet Cloud.
 							</p>
 							<div class="mt-8 flex flex-col gap-3 sm:flex-row" data-site-reveal-child>
 								<a href="/talk-to-an-engineer/" class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS}>
@@ -112,6 +128,36 @@ const enterpriseEditionFeatures = [
 						<div class="mx-auto w-full min-w-0 max-w-2xl lg:max-w-none" data-site-reveal data-site-reveal-delay="120">
 							<DeploymentBoundaryDiagram />
 						</div>
+					</div>
+				</div>
+			</section>
+
+			<SectionRule />
+
+			<!-- Deployment paths -->
+			<section class={`bg-paper ${SITE_SECTION_CLASS}`}>
+				<div class={SITE_STANDARD_RAIL_CLASS}>
+					<div class="max-w-3xl" data-site-reveal>
+						<h2 class={`text-balance ${SECTION_H2_CLASS}`}>Two ways to run it inside your perimeter.</h2>
+						<p class={SECTION_LEDE_CLASS}>
+							Both run the same Enterprise Edition control plane. Choose whether Rivet operates it or your team does.
+						</p>
+					</div>
+					<div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2" data-site-reveal-group data-site-reveal-stagger="70">
+						{
+							deploymentPaths.map((path) => (
+								<div class="h-full" data-site-reveal-child>
+									<CatalogCard
+										title={path.title}
+										href={path.href}
+										linkLabel={path.linkLabel}
+										className="flex h-full flex-col"
+									>
+										<p class={`mt-2 flex-1 ${BODY_CLASS}`}>{path.body}</p>
+									</CatalogCard>
+								</div>
+							))
+						}
 					</div>
 				</div>
 			</section>
@@ -210,13 +256,13 @@ const enterpriseEditionFeatures = [
 			<!-- Closing CTA -->
 			<ClosingCtaPanel
 				title="Bring Rivet inside your boundary."
-				description="Walk through your deployment model with an engineer, or start with the self-hosting docs and run it yourself."
+				description="Walk through your deployment model with an engineer, or start with the BYOC docs and let Rivet run it in your cloud."
 			>
 				<a href="/talk-to-an-engineer/" class={INK_PANEL_LIGHT_BUTTON_CLASS}>
 					Talk to an engineer
 				</a>
-				<a href="/actors/self-host/control-plane/" class={INK_PANEL_GHOST_BUTTON_CLASS}>
-					Read self-hosting docs
+				<a href="/cloud/byoc/" class={INK_PANEL_GHOST_BUTTON_CLASS}>
+					Read the BYOC docs
 				</a>
 			</ClosingCtaPanel>
 	</main>
