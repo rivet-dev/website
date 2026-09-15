@@ -20,6 +20,15 @@
 	# because it hides the page from crawlers before they can see a noindex.
 	header /typedoc/* X-Robots-Tag "noindex"
 
+	header /.well-known/agent-skills/index.json {
+		Content-Type "application/json"
+		Cache-Control "public, max-age=3600"
+	}
+	header /metadata/skills/rivet/SKILL.md {
+		Content-Type "text/markdown; charset=utf-8"
+		Cache-Control "public, max-age=3600"
+	}
+
 	# Publishing format: https://integrations.sh/publishing/
 	header /.well-known/integrations.json {
 		Content-Type "application/json"

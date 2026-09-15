@@ -1,7 +1,7 @@
 # Publishes the generated AI skills to https://github.com/rivet-dev/skills.
 #
 # There is nothing hand-written to publish. `pnpm gen:skills` derives one skill
-# per product straight from that product's docs, so this workflow is a build and
+# per product and a combined Rivet skill from the docs, so this workflow is a build and
 # a copy: change the docs, and the skill changes on the next push to main.
 #
 # To test this workflow:
@@ -78,8 +78,9 @@ jobs:
           cat > skills-repo/README.md <<'EOF'
           # Rivet Skills
 
-          One skill per Rivet product, plus the example projects its documentation
-          embeds. Every file here is generated from the docs by
+          A combined `rivet` skill and one skill per Rivet product, plus the example
+          projects its documentation embeds. Every file here is generated from the
+          docs by
           [rivet-dev/website](https://github.com/rivet-dev/website)
           (`.github/workflows/skills.yml`) and replaced wholesale on each publish.
 
