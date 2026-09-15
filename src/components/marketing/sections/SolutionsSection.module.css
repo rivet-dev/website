@@ -21,20 +21,18 @@
     animation: blink 900ms steps(2, end) infinite;
   }
 
-  /* App builder: prompt lands, steps tick through, the app rises and its rows fill in. */
-  .card:hover .prompt,
-  .card:focus-visible .prompt {
-    animation: type-in 260ms ease-out both;
-  }
+  /* App builder: the prompt and the app frame stay put; steps tick through,
+     then the app's tiles and rows fill in. Only small text elements reset,
+     so the replay reads as data loading rather than the card blinking. */
   .card:hover .step,
   .card:focus-visible .step {
     animation: type-in 220ms ease-out both;
     animation-delay: calc(var(--i, 0) * 280ms + 320ms);
   }
-  .card:hover .panel,
-  .card:focus-visible .panel {
-    animation: rise 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    animation-delay: 1200ms;
+  .card:hover .stat,
+  .card:focus-visible .stat {
+    animation: type-in 240ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 120ms + 1200ms);
   }
   .card:hover .row,
   .card:focus-visible .row {
@@ -64,8 +62,9 @@
   }
   .card:hover .wire,
   .card:focus-visible .wire {
-    transform-origin: left center;
-    animation: grow 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    /* Left-to-right wipe rather than a dash draw: the paths are stretched
+       non-uniformly by preserveAspectRatio="none", which breaks dash maths. */
+    animation: wipe 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: calc(var(--i, 0) * 260ms + 500ms);
   }
   .card:hover .system,
@@ -75,8 +74,7 @@
   }
   .card:hover .resultChip,
   .card:focus-visible .resultChip {
-    transform-origin: left center;
-    animation: pop 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation: type-in 320ms ease-out both;
     animation-delay: 1800ms;
   }
   .card:hover .connectedDot,
@@ -259,24 +257,8 @@
   }
 }
 
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes grow {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
+.wire {
+  stroke-width: 1;
 }
 
 @keyframes connect {
