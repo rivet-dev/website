@@ -2,35 +2,38 @@
 author: nicholas-kissel
 published: "2026-09-15"
 category: changelog
-image: { file: "image.png?v=7" }
+image: { file: "hero.png" }
 keywords: ["byoc", "bring your own cloud", "vpc", "aws", "google cloud", "terraform", "kubernetes", "enterprise", "self-host", "rivet actors"]
 title: "Introducing Rivet BYOC"
 description: "Run the Rivet control plane inside your own AWS or Google Cloud VPC, fully managed by Rivet. Your data stays in your account and Rivet Cloud never needs inbound access."
 ---
 
-import ByocArchitectureDiagram from '@/components/docs/ByocArchitectureDiagram.astro';
+import ByocOverviewDiagram from '@/components/docs/ByocOverviewDiagram.astro';
 import ByocRegionsDiagram from '@/components/docs/ByocRegionsDiagram.astro';
 
-Today we're releasing **Rivet BYOC** (Bring Your Own Cloud): the Rivet control plane deployed inside your own AWS or Google Cloud VPC and managed by Rivet.
+Today we're releasing **Rivet BYOC** (Bring Your Own Cloud): the Rivet control plane deployed inside your own AWS or Google Cloud VPC, managed by Rivet. Your data and compute never leave your security perimeter, and the only connection to Rivet Cloud is outbound.
 
-- **Rivet Cloud**: Rivet runs everything.
-- **Self-host**: you run everything.
-- **BYOC**: your data and compute stay in your account. Rivet handles deployment, updates, and maintenance.
+## What you get
 
-## How deployments work
+- **Your account, your data**: the control plane, FoundationDB, and your actors run in your VPC
+- **Outbound only**: no inbound rules from Rivet Cloud. Your admin token stays in your cloud secret manager.
+- **Managed by Rivet**: deployment, updates, and maintenance are handled for you
+- **Public or private**: expose Rivet over HTTPS on your own hostname, or keep it on your private network
+- **Dashboard included**: manage your actors from the Rivet dashboard, tunneled to your deployment
 
-<ByocArchitectureDiagram />
+## Deploy from the dashboard
 
-A Rivet operator runs in your Kubernetes cluster and connects outbound to Rivet Cloud.
+1. Open the [Rivet dashboard](https://dashboard.rivet.dev), click **Create Project**, and select **BYOC**
+2. Download the setup kit and cluster config from your project's BYOC page
+3. Set your account, regions, and hostname in `terraform.tfvars.json`, then run `terraform apply`
 
-1. Request a deployment or update
-2. The operator pulls instructions from Rivet Cloud
-3. The operator applies the update inside your cluster
-4. The operator reports status back to Rivet Cloud
+Full steps are in the [quickstart](/cloud/byoc/quickstart).
 
-- **No inbound access**: your VPC needs no inbound rules from Rivet Cloud. Your admin token stays in your cloud secret manager.
-- **Public or private**: expose Rivet over HTTPS on your own hostname, or keep it on your private network.
-- **Dashboard included**: manage your actors from the Rivet dashboard, tunneled to your deployment.
+## How it works
+
+<ByocOverviewDiagram />
+
+A Rivet operator runs in your Kubernetes cluster. It pulls commands from Rivet Cloud, applies updates to the control plane inside your cluster, and reports status back. Rivet Cloud never connects in.
 
 ## Multi-region
 
@@ -40,15 +43,6 @@ A Rivet operator runs in your Kubernetes cluster and connects outbound to Rivet 
 - Data stays in the region that produced it. Pin EU users to an EU region for GDPR, or keep regulated workloads in-country.
 - Regions talk over private connectivity and share a container registry
 - Workers connect to their regional endpoint
-
-## BYOC for your product too
-
-If you build on Rivet, BYOC is also how you offer BYOC to your own customers.
-
-- Create a BYOC project per customer. They apply the setup kit in their AWS or Google Cloud account.
-- Rivet brings up the control plane in their VPC and keeps it updated.
-- Deploy your workers against it the same way you deploy against Rivet Cloud. Same build everywhere.
-- Every deployment is isolated: its own VPC, cluster, storage, and admin token.
 
 ## Availability
 
