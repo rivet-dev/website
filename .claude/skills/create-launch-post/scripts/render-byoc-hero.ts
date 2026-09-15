@@ -67,12 +67,13 @@ async function buildHtml(): Promise<string> {
 	html, body { margin: 0; background: ${PAPER}; }
 	.stage { position: relative; width: ${CARD_W}px; height: ${CARD_H}px; overflow: hidden; background: ${PAPER}; }
 	.card { position: absolute; left: 0; top: 0; width: ${CARD_W}px; height: ${CARD_H}px; font-family: "Manrope", sans-serif; color: ${INK}; }
-	h1 { position: absolute; top: 88px; left: 0; right: 0; margin: 0; text-align: center; font-size: 96px; line-height: 1.06; letter-spacing: -0.015em; font-weight: 500; }
+	/* No title on the hero; the post title carries it. The diagram is drawn
+	   in the coordinates it had under the title and recentred here. */
+	.scene { position: absolute; inset: 0; transform: translateY(-68px); }
 	svg.diagram { position: absolute; left: 0; top: 0; width: ${CARD_W}px; height: ${CARD_H}px; font-family: "Manrope", sans-serif; }
 	.logo { position: absolute; display: flex; align-items: center; justify-content: center; }
 	.logo svg { display: block; height: 100%; width: auto; }
-	</style></head><body><div class="stage" id="stage"><div class="card" id="card">
-	<h1>Introducing Rivet BYOC</h1>
+	</style></head><body><div class="stage" id="stage"><div class="card" id="card"><div class="scene">
 	<svg class="diagram" viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg">
 		<defs>
 			<marker id="ah-pine" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${PINE}"/></marker>
@@ -108,7 +109,7 @@ async function buildHtml(): Promise<string> {
 	<!-- Provider marks, top-right of the VPC -->
 	<div class="logo" style="left:1636px;top:330px;height:48px">${aws}</div>
 	<div class="logo" style="left:1748px;top:330px;height:48px">${gcp}</div>
-	</div></div></body></html>`;
+	</div></div></div></body></html>`;
 }
 
 function parseOutputDir(argv: string[]): string {
