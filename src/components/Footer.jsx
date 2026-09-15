@@ -26,6 +26,7 @@ const footer = {
 	product: VISIBLE_PRODUCTS.map((item) => ({ name: item.name, href: `/${item.id}` })),
 	company: [
 		{ name: "Cloud Pricing", href: "/cloud" },
+		{ name: "Bring Your Own Cloud", href: "/cloud/byoc" },
 		{ name: "Enterprise", href: "/enterprise" },
 		{ name: "Careers", href: "/careers" },
 		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },

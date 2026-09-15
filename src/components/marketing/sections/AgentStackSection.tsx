@@ -634,8 +634,26 @@ ${answeringLayers
   // cards in normal document flow so every need remains readable below it,
   // including the taller agentOS step, without introducing a nested scroll
   // container.
+  // On phones each card snaps to the slot between the diagram and the bottom
+  // of the screen and grows to fill it. The root is the snap container (the
+  // cards live in normal flow), with `proximity` so the rest of the page
+  // scrolls freely and only settles when a card is already close.
   `[data-agent-stack-story]{
     --agent-stack-sticky-top:calc(var(--header-height,3.5rem) + 2.5rem);
+    --agent-stack-panel-height:38svh;
+    --agent-stack-card-top:calc(var(--agent-stack-sticky-top) + var(--agent-stack-panel-height) + 1.5rem);
+  }
+  @media (max-width: 47.999rem){
+    html{scroll-snap-type:y proximity;}
+    [data-agent-stack-step]{
+      scroll-snap-align:start;
+      scroll-margin-top:var(--agent-stack-card-top);
+    }
+    [data-agent-stack-card]{
+      display:flex;
+      flex-direction:column;
+      min-height:calc(100svh - var(--agent-stack-card-top) - 1rem);
+    }
   }
   [data-agent-stack-story] [data-mobile-plate]{
     opacity:.24;
@@ -811,7 +829,7 @@ const MobileStackStory = () => (
           className="pointer-events-none absolute inset-x-0 bottom-full h-10 bg-paper"
         />
         <div
-          className="h-[38svh] overflow-hidden rounded-xl border border-ink/10 bg-paper px-3 py-2 md:h-[46svh] md:p-5"
+          className="h-[var(--agent-stack-panel-height)] overflow-hidden rounded-xl border border-ink/10 bg-paper px-3 py-2 md:h-[46svh] md:p-5"
           data-agent-stack-diagram-panel=""
         >
           <CompactStackDiagram />
@@ -852,7 +870,8 @@ const MobileStackStory = () => (
                   </h3>
                 </div>
 
-                <div className="mt-4">
+                {/* Grows on phones so the solution line anchors to the card's bottom. */}
+                <div className="mt-4 flex-1">
                   <p className="text-xs font-medium text-ink-faint">
                     What agents need
                   </p>
