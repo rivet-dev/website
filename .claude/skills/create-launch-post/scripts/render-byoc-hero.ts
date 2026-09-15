@@ -83,11 +83,20 @@ async function buildHtml(vpc: boolean): Promise<string> {
 
 	const PAD = 44;
 	const vpcHtml = vpc
-		? `<svg class="vpc" id="vpc" viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg" style="transform-origin:${CARD_W / 2}px ${rowY + TILE / 2}px">
-			<rect x="${rowX - PAD}" y="${rowY - PAD - 26}" width="${rowW + PAD * 2}" height="${TILE + PAD * 2 + 26}" rx="34" fill="none" stroke="${PINE}" stroke-width="3" stroke-dasharray="14 12"/>
-			<rect x="${CARD_W / 2 - 92}" y="${rowY - PAD - 44}" width="184" height="36" fill="${PAPER}"/>
-			<text x="${CARD_W / 2}" y="${rowY - PAD - 16}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="30" font-weight="500" fill="${PINE}">Your VPC</text>
-		</svg>`
+		? (() => {
+				// The dashed outline is masked by a solid stroke on the same geometry;
+				// the animation shortens that stroke's dash so the line draws on
+				// clockwise from the top-left corner.
+				const geom = `x="${rowX - PAD}" y="${rowY - PAD - 26}" width="${rowW + PAD * 2}" height="${TILE + PAD * 2 + 26}" rx="34" fill="none"`;
+				return `<svg class="vpc" id="vpc" viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg">
+			<defs><mask id="vpc-mask"><rect id="vpc-draw" ${geom} stroke="#FFFFFF" stroke-width="12"/></mask></defs>
+			<rect ${geom} stroke="${PINE}" stroke-width="3" stroke-dasharray="14 12" mask="url(#vpc-mask)"/>
+			<g id="vpc-label">
+				<rect x="${CARD_W / 2 - 92}" y="${rowY - PAD - 44}" width="184" height="36" fill="${PAPER}"/>
+				<text x="${CARD_W / 2}" y="${rowY - PAD - 16}" text-anchor="middle" font-family="Manrope, sans-serif" font-size="30" font-weight="500" fill="${PINE}">Your VPC</text>
+			</g>
+		</svg>`;
+			})()
 		: "";
 
 	// Animation: every frame is a pure function of t (seconds), driven from
@@ -112,9 +121,13 @@ async function buildHtml(vpc: boolean): Promise<string> {
 			});
 			const vpc = document.getElementById("vpc");
 			if (vpc) {
-				const p = outCubic(seg(t, 1.35, 0.6));
-				vpc.style.opacity = String(p * fade);
-				vpc.style.transform = "scale(" + (0.97 + 0.03 * p) + ")";
+				vpc.style.opacity = String(fade);
+				const draw = document.getElementById("vpc-draw");
+				const len = draw.getTotalLength();
+				const p = outCubic(seg(t, 1.3, 1.1));
+				draw.setAttribute("stroke-dasharray", String(len));
+				draw.setAttribute("stroke-dashoffset", String(len * (1 - p)));
+				document.getElementById("vpc-label").style.opacity = String(outCubic(seg(t, 2.2, 0.4)));
 			}
 		};
 	</script>`;
