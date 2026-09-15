@@ -107,6 +107,7 @@ pnpm render-tile-images -- \
 ```
 
 4. When Rivet itself is one of the tiles, pass `src/images/rivet-logos/icon-white.svg` and add `--ink-tile <n>` (1-based, left to right) for that position. That tile is painted as the product-mark badge — ink fill, `34.375%` radius, white ring and R filling the tile — instead of a black badge floating inside a white app tile. Never place a Rivet or product wordmark in a light tile. The badge is sized level with the smallest neighboring tile. Add `--no-wordmark` to drop the Rivet wordmark above the title when the title or a tile already carries the Rivet mark; the title and tiles shift up to stay balanced.
+5. For a diagram hero instead of tiles, start from `scripts/render-byoc-hero.ts` (`pnpm render-byoc-hero -- --output-dir <path>`): a colored, simplified architecture diagram on paper using pine, sage, ink, one accent arrow, and brand-colored provider marks. Copy and adapt it per launch rather than adding flags.
 5. Inspect both PNGs. If a title wraps to a third line or a tile crowds the title, shorten the title rather than hand-editing the output. Tile geometry lives in `TILE_LAYOUTS` in the renderer; change it there if a lockup genuinely needs different placement.
 
 When short code demonstrations would help launch distribution, create a temporary JSON file outside the repository with one to four sections:

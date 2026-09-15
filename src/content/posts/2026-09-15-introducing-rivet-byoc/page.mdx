@@ -2,36 +2,59 @@
 author: nicholas-kissel
 published: "2026-09-15"
 category: changelog
-image: { file: "image.png?v=2" }
+image: { file: "image.png?v=5" }
 keywords: ["byoc", "bring your own cloud", "vpc", "aws", "google cloud", "terraform", "kubernetes", "enterprise", "self-host", "rivet actors"]
 title: "Introducing Rivet BYOC"
 description: "Run the Rivet control plane inside your own AWS or Google Cloud VPC, fully managed by Rivet. Your data stays in your account and Rivet Cloud never needs inbound access."
 ---
 
+import ByocArchitectureDiagram from '@/components/docs/ByocArchitectureDiagram.astro';
+import ByocRegionsDiagram from '@/components/docs/ByocRegionsDiagram.astro';
+
 Today we're releasing **Rivet BYOC** (Bring Your Own Cloud): the Rivet control plane deployed inside your own AWS or Google Cloud VPC and managed by Rivet.
 
-Until now you had two options. Rivet Cloud runs everything for you, or you self-host the control plane and own the provisioning, upgrades, and on-call that come with it. BYOC sits between them. Your data and compute stay in your account. Rivet handles deployment, updates, and maintenance.
+- **Rivet Cloud**: Rivet runs everything.
+- **Self-host**: you run everything.
+- **BYOC**: your data and compute stay in your account. Rivet handles deployment, updates, and maintenance.
 
-## Your VPC, operated by Rivet
+## How deployments work
 
-A Rivet operator runs inside your Kubernetes cluster and connects outbound to Rivet Cloud to receive deployment instructions. It applies updates to the control plane and FoundationDB locally and reports status back.
+<ByocArchitectureDiagram />
+
+A Rivet operator runs in your Kubernetes cluster and connects outbound to Rivet Cloud.
+
+1. Request a deployment or update
+2. The operator pulls instructions from Rivet Cloud
+3. The operator applies the update inside your cluster
+4. The operator reports status back to Rivet Cloud
 
 - **No inbound access**: your VPC needs no inbound rules from Rivet Cloud. Your admin token stays in your cloud secret manager.
-- **Public or private**: expose Rivet over HTTPS on your own hostname, or keep it reachable only from your private network.
-- **Multi-region**: each region gets its own VPC, cluster, operator, and control plane. Regions share a container registry and talk over private connectivity.
-- **Dashboard included**: inspect and manage your actors from the Rivet dashboard, tunneled to your deployment.
+- **Public or private**: expose Rivet over HTTPS on your own hostname, or keep it on your private network.
+- **Dashboard included**: manage your actors from the Rivet dashboard, tunneled to your deployment.
+
+## Multi-region
+
+<ByocRegionsDiagram />
+
+- Each region gets its own VPC, cluster, operator, and control plane
+- Data stays in the region that produced it. Pin EU users to an EU region for GDPR, or keep regulated workloads in-country.
+- Regions talk over private connectivity and share a container registry
+- Workers connect to their regional endpoint
 
 ## BYOC for your product too
 
-If you build on Rivet, BYOC is also how you offer BYOC to your own customers. When a customer needs your product running inside their cloud, you create a BYOC project for them and they apply the setup kit in their AWS or Google Cloud account. Rivet brings up the control plane in their VPC and keeps it updated. You deploy your workers against it the same way you deploy against Rivet Cloud.
+If you build on Rivet, BYOC is also how you offer BYOC to your own customers.
 
-- **Same build everywhere**: the code you ship to your hosted offering is the code you ship into a customer's VPC.
-- **Isolated per customer**: each deployment has its own VPC, cluster, storage, and admin token.
-- **Nothing extra to operate**: Rivet handles upgrades and maintenance in every customer environment, not you.
+- Create a BYOC project per customer. They apply the setup kit in their AWS or Google Cloud account.
+- Rivet brings up the control plane in their VPC and keeps it updated.
+- Deploy your workers against it the same way you deploy against Rivet Cloud. Same build everywhere.
+- Every deployment is isolated: its own VPC, cluster, storage, and admin token.
 
 ## Availability
 
-BYOC is available today on AWS and Google Cloud as part of [Rivet Enterprise Edition](/enterprise/), with a free 14-day trial. Create a BYOC project in the [Rivet dashboard](https://dashboard.rivet.dev) and follow the [quickstart](/cloud/byoc/quickstart). The deployment shuts down automatically when the trial ends. For air-gapped deployments, [talk to an engineer](/talk-to-an-engineer/).
+- Available today on AWS and Google Cloud with [Rivet Enterprise Edition](/enterprise/)
+- Free 14-day trial: create a BYOC project in the [Rivet dashboard](https://dashboard.rivet.dev) and follow the [quickstart](/cloud/byoc/quickstart). The deployment shuts down automatically when the trial ends.
+- Air-gapped deployment? [Talk to an engineer](/talk-to-an-engineer/)
 
 ## Links
 

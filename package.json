@@ -14,6 +14,7 @@
 		"new-post": "tsx ./scripts/new-post.ts",
 		"render-launch-images": "tsx ./.claude/skills/create-launch-post/scripts/render-launch-images.ts",
 		"render-tile-images": "tsx ./.claude/skills/create-launch-post/scripts/render-tile-images.ts",
+		"render-byoc-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-byoc-hero.ts",
 		"render-technical-image": "tsx ./.claude/skills/create-launch-post/scripts/render-technical-image.ts",
 		"gen:markdown": "tsx ./scripts/generate-markdown.ts",
 		"gen:skills": "tsx ./scripts/generate-skills.ts",
