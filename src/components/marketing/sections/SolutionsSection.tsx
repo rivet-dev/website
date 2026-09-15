@@ -117,9 +117,7 @@ const AppBuilderVignette = () => {
       </MiniChromeBar>
       <div className="grid flex-1 gap-3 p-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="flex flex-col gap-2.5">
-          <div
-            className={`ml-auto w-fit max-w-[92%] rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream ${styles.prompt}`}
-          >
+          <div className="ml-auto w-fit max-w-[92%] rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream">
             Build a CRM for my roofing business with a quotes pipeline.
           </div>
           <ul className="space-y-1.5 px-1 text-[11px] text-ink-faint">
@@ -137,9 +135,7 @@ const AppBuilderVignette = () => {
             Release v3 · live for 2 users
           </p>
         </div>
-        <div
-          className={`flex flex-col rounded-md border border-ink/10 p-2.5 ${styles.panel}`}
-        >
+        <div className="flex flex-col rounded-md border border-ink/10 p-2.5">
           <div className="flex items-center justify-between text-[11px]">
             <span className="font-medium text-ink">Quotes</span>
             <span className="flex items-center gap-1.5 text-ink-faint">
@@ -155,10 +151,11 @@ const AppBuilderVignette = () => {
               ["New", "6"],
               ["Sent", "3"],
               ["Won", "9"],
-            ].map(([stage, count]) => (
+            ].map(([stage, count], i) => (
               <div
                 key={stage}
-                className="flex items-baseline justify-between rounded-sm bg-paper px-2 py-1"
+                className={`flex items-baseline justify-between rounded-sm bg-paper px-2 py-1 ${styles.stat}`}
+                style={stagger(i)}
               >
                 <span className="text-ink-faint">{stage}</span>
                 <span className="font-mono text-[12px] text-ink">{count}</span>
@@ -211,28 +208,48 @@ const CompanyAgentVignette = () => (
         </span>
         <span className="shrink-0 font-mono text-ink-faint">Helpdesk · 2m</span>
       </div>
-      {/* Wire and system share a grid row so each wire ends at its chip at any width. */}
-      <div className="mt-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5">
+      {/* One SVG spans the three system rows; rows are equal height (chip +
+          margin, no row gap) so its 1/6, 1/2, 5/6 endpoints sit on the chip
+          centers at any width. Wires fan out from the agent's vertical center. */}
+      <div className="mt-2.5 grid auto-rows-fr grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3">
         <div
           className={`row-span-3 self-center rounded-md border border-ink/10 bg-paper px-2.5 py-2 ${styles.agentBox}`}
         >
           <div className="text-[10px] text-ink-faint">Agent</div>
           <div className="font-medium text-ink">Support triage</div>
         </div>
+        {/* Out of flow so the SVG's square viewBox never contributes height to the rows. */}
+        <div className="relative row-span-3 self-stretch">
+          <svg
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            fill="none"
+          >
+            {[
+              "M0 50 C 55 50, 45 16.667, 100 16.667",
+              "M0 50 H 100",
+              "M0 50 C 55 50, 45 83.333, 100 83.333",
+            ].map((d, i) => (
+              <path
+                key={d}
+                d={d}
+                vectorEffect="non-scaling-stroke"
+                className={`stroke-pine/40 ${styles.wire}`}
+                style={stagger(i)}
+              />
+            ))}
+          </svg>
+        </div>
         {["Postgres", "Orders API", "Helpdesk"].map((system, i) => (
-          <Fragment key={system}>
-            <span
-              aria-hidden="true"
-              className={`h-px w-full bg-pine/40 ${styles.wire}`}
-              style={stagger(i)}
-            />
-            <span
-              className={`rounded-sm border border-ink/10 bg-white px-2 py-0.5 font-mono text-[11px] text-ink-soft ${styles.system}`}
-              style={stagger(i)}
-            >
-              {system}
-            </span>
-          </Fragment>
+          <span
+            key={system}
+            className={`my-[3px] rounded-sm border border-ink/10 bg-white px-2 py-0.5 font-mono text-[11px] text-ink-soft ${styles.system}`}
+            style={stagger(i)}
+          >
+            {system}
+          </span>
         ))}
       </div>
     </div>
