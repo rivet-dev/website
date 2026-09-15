@@ -24,11 +24,19 @@ const PAPER = "#EFEFEF";
 interface Options {
 	title: string;
 	logos: string[];
+	// 1-based index of a tile that is painted as a filled ink badge (the site's
+	// product-mark tile) instead of a light app tile. The mark inside is white.
+	inkTile?: number;
+	// Omit the Rivet wordmark above the title. Use when the title or a tile
+	// already carries the Rivet mark.
+	noWordmark: boolean;
 	outputDir: string;
 }
 
 function parseArgs(argv: string[]): Options {
-	const args = argv[0] === "--" ? argv.slice(1) : argv;
+	const rawArgs = argv[0] === "--" ? argv.slice(1) : argv;
+	const noWordmark = rawArgs.includes("--no-wordmark");
+	const args = rawArgs.filter((arg) => arg !== "--no-wordmark");
 	const values = new Map<string, string>();
 	for (let index = 0; index < args.length; index += 2) {
 		const key = args[index];
@@ -42,9 +50,10 @@ function parseArgs(argv: string[]): Options {
 	const title = values.get("title");
 	const logos = values.get("logos");
 	const outputDir = values.get("output-dir");
+	const inkTileRaw = values.get("ink-tile");
 	if (!title || !logos || !outputDir) {
 		throw new Error(
-			"Usage: pnpm render-tile-images -- --title <text> --logos <svg,svg,svg> --output-dir <path>",
+			"Usage: pnpm render-tile-images -- --title <text> --logos <svg,svg,svg> [--ink-tile <n>] [--no-wordmark] --output-dir <path>",
 		);
 	}
 
@@ -57,7 +66,15 @@ function parseArgs(argv: string[]): Options {
 		throw new Error("--logos must list two to four SVG paths");
 	}
 
-	return { title, logos: logoPaths, outputDir: path.resolve(outputDir) };
+	let inkTile: number | undefined;
+	if (inkTileRaw !== undefined) {
+		inkTile = Number(inkTileRaw);
+		if (!Number.isInteger(inkTile) || inkTile < 1 || inkTile > logoPaths.length) {
+			throw new Error(`--ink-tile must be an integer from 1 to ${logoPaths.length}`);
+		}
+	}
+
+	return { title, logos: logoPaths, inkTile, noWordmark, outputDir: path.resolve(outputDir) };
 }
 
 function escapeHtml(value: string): string {
@@ -74,6 +91,17 @@ function dataUrl(mime: string, bytes: Buffer): string {
 
 function stripDoctype(svg: string): string {
 	return svg.replace(/<\?xml[^>]*\?>/i, "").replace(/<!DOCTYPE[^>]*>/i, "");
+}
+
+// An inline SVG with width/height but no viewBox ignores CSS sizing and draws
+// at its intrinsic pixel size, so derive a viewBox from the declared size.
+function ensureViewBox(svg: string): string {
+	const open = svg.match(/<svg\b[^>]*>/i)?.[0];
+	if (!open || /\bviewBox=/i.test(open)) return svg;
+	const width = open.match(/\bwidth="([\d.]+)(px)?"/i)?.[1];
+	const height = open.match(/\bheight="([\d.]+)(px)?"/i)?.[1];
+	if (!width || !height) return svg;
+	return svg.replace(open, open.replace(/<svg\b/i, `<svg viewBox="0 0 ${width} ${height}"`));
 }
 
 // Prefix ids and their references so inlining several SVGs cannot collide on a
@@ -118,10 +146,7 @@ async function buildHtml(
 ): Promise<string> {
 	const [titleFont, rivetLogoRaw, ...logoSources] = await Promise.all([
 		readFile(
-			path.join(
-				WEBSITE_DIR,
-				"public/fonts/perfectly-nineties/PerfectlyNineties-Semibold.otf",
-			),
+			path.join(WEBSITE_DIR, "public/fonts/manrope/Manrope-Variable-latin.woff2"),
 		),
 		readFile(
 			path.join(WEBSITE_DIR, "src/images/rivet-logos/icon-text-black.svg"),
@@ -133,21 +158,31 @@ async function buildHtml(
 	const rivetLogo = namespaceIds(stripDoctype(rivetLogoRaw), "rv-");
 	// Marks authored white for dark UIs are recolored to the site ink so they
 	// read on the light tile.
-	const art = logoSources.map((source, index) =>
-		namespaceIds(
-			stripDoctype(source)
-				.replace(/white/g, INK)
-				.replace(/#fff(fff)?\b/gi, INK),
-			`lg${index}-`,
-		),
-	);
+	const art = logoSources.map((source, index) => {
+		const svg = ensureViewBox(stripDoctype(source));
+		const isInk = options.inkTile === index + 1;
+		// On the ink tile the mark is white and any dark badge fill in the source
+		// (the Rivet icon's own rounded square) becomes the tile's ink.
+		const recolored = isInk
+			? svg
+					.replace(/#f0f0f0\b/gi, "#FFFFFF")
+					.replace(/#0f0f0f\b/gi, INK)
+			: svg.replace(/white/g, INK).replace(/#fff(fff)?\b/gi, INK);
+		return namespaceIds(recolored, `lg${index}-`);
+	});
 
 	const placements = TILE_LAYOUTS[options.logos.length];
 	const tiles = placements
 		.map((tile, index) => {
-			const inner = Math.round(tile.size * tile.inner);
-			const radius = Math.round(tile.size * 0.2);
-			return `<div class="tile" style="left:${tile.left}%;top:${tile.top}%;width:${tile.size}px;height:${tile.size}px;
+			const isInk = options.inkTile === index + 1;
+			// The ink tile is the badge itself: the mark fills it edge to edge at
+			// the product-mark geometry (`rounded-[34.375%]`). Because the mark
+			// fills the tile, the badge sits level with the smallest neighbor so
+			// it does not outweigh the other marks.
+			const size = isInk ? Math.min(...placements.map((p) => p.size)) : tile.size;
+			const inner = isInk ? size : Math.round(size * tile.inner);
+			const radius = Math.round(size * (isInk ? 0.34375 : 0.2));
+			return `<div class="tile${isInk ? " tile-ink" : ""}" style="left:${tile.left}%;top:${tile.top}%;width:${size}px;height:${size}px;
 			border-radius:${radius}px;transform:translate(-50%,-50%) rotate(${tile.rot}deg)">
 			<div class="tlogo" style="height:${inner}px">${art[index]}</div></div>`;
 		})
@@ -156,6 +191,9 @@ async function buildHtml(
 	// The composition is authored against the 2048x1024 blog crop and shifted
 	// down by half the surplus so the taller social canvas stays centered.
 	const offset = Math.round((height - BLOG_HEIGHT) / 2);
+	// Without the wordmark the title and tiles move up so the composition stays
+	// vertically balanced.
+	const lift = options.noWordmark ? 40 : 0;
 
 	return `<!doctype html>
 <html lang="en">
@@ -163,10 +201,10 @@ async function buildHtml(
 		<meta charset="utf-8" />
 		<style>
 			@font-face {
-				font-family: "Perfectly Nineties";
-				src: url("${dataUrl("font/otf", titleFont)}") format("opentype");
+				font-family: "Manrope";
+				src: url("${dataUrl("font/woff2", titleFont)}") format("woff2");
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 200 800;
 			}
 
 			* { box-sizing: border-box; }
@@ -190,23 +228,23 @@ async function buildHtml(
 			.logo svg { display: block; height: 100%; width: auto; }
 			h1 {
 				position: absolute;
-				top: ${236 + offset}px;
+				top: ${236 + offset - lift}px;
 				left: 50%;
 				transform: translateX(-50%);
 				width: 1720px;
 				margin: 0;
 				text-align: center;
 				color: ${INK};
-				font-family: "Perfectly Nineties", serif;
+				font-family: "Manrope", sans-serif;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 500;
 				font-size: 112px;
-				line-height: 1.1;
-				letter-spacing: -0.01em;
+				line-height: 1.06;
+				letter-spacing: -0.015em;
 			}
 			.scatter {
 				position: absolute;
-				top: ${512 + offset}px;
+				top: ${512 + offset - lift}px;
 				left: 50%;
 				transform: translateX(-50%);
 				width: 1340px;
@@ -223,13 +261,14 @@ async function buildHtml(
 				box-shadow: 0 4px 12px -2px rgba(20, 20, 22, 0.10),
 					0 34px 70px -26px rgba(20, 20, 22, 0.26);
 			}
+			.tile-ink { background: ${INK}; border-color: ${INK}; }
 			.tlogo { display: flex; align-items: center; justify-content: center; }
 			.tlogo svg { display: block; height: 100%; width: auto; }
 		</style>
 	</head>
 	<body>
 		<main class="card">
-			<div class="logo" aria-label="Rivet">${rivetLogo}</div>
+			${options.noWordmark ? "" : `<div class="logo" aria-label="Rivet">${rivetLogo}</div>`}
 			<h1>${escapeHtml(options.title)}</h1>
 			<div class="scatter">${tiles}</div>
 		</main>
