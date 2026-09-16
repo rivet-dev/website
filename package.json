@@ -17,6 +17,7 @@
 		"render-byoc-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-byoc-hero.ts",
 		"render-technical-image": "tsx ./.claude/skills/create-launch-post/scripts/render-technical-image.ts",
 		"gen:markdown": "tsx ./scripts/generate-markdown.ts",
+		"index:search": "tsx ./scripts/index-search.ts",
 		"gen:skills": "tsx ./scripts/generate-skills.ts",
 		"check:sitemap": "tsx ./scripts/check-sitemap.ts",
 		"check:seo": "tsx ./scripts/check-seo.ts",

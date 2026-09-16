@@ -28,16 +28,54 @@ const searchClient = new Typesense.Client({
 	connectionTimeoutSeconds: 2,
 });
 
+/** Mirrors `SearchDocument` in `src/metadata/search-index.ts`. */
+interface SearchDocument {
+	id: string;
+	title: string;
+	description: string;
+	slug: string;
+	headings: string[];
+	content: string;
+	path: string;
+	product: string;
+	section: string;
+}
+
 interface SearchResult {
 	id: string;
 	title: string;
-	content: string;
-	url: string;
-	hierarchy: {
-		lvl0?: string;
-		lvl1?: string;
-		lvl2?: string;
-	};
+	path: string;
+	/** `Rivet Cloud › BYOC`; the section is empty for a product's root page. */
+	crumbs: string[];
+	/** Best matching passage, with `<mark>` around matched tokens. */
+	snippet: string;
+}
+
+const MARK = /<\/?mark>/;
+
+/**
+ * Typesense returns snippets as-is apart from the `<mark>` tags it inserts, so
+ * a page that documents HTML would inject markup if rendered as HTML. Split on
+ * the tags instead and render the text between them as text.
+ */
+function Snippet({ value }: { value: string }) {
+	const parts = value.split(MARK);
+	return (
+		<>
+			{parts.map((part, index) =>
+				index % 2 === 1 ? (
+					<mark
+						key={index}
+						className="rounded-sm bg-pine/15 px-0.5 text-ink"
+					>
+						{part}
+					</mark>
+				) : (
+					<span key={index}>{part}</span>
+				),
+			)}
+		</>
+	);
 }
 
 export function TypesenseSearch({ light = false }: { light?: boolean }) {
@@ -47,9 +85,10 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [inputFocused, setInputFocused] = useState(false);
+	const [failed, setFailed] = useState(false);
 
 	const handleResultClick = useCallback((result: SearchResult) => {
-		window.location.href = result.url;
+		window.location.href = result.path;
 		setIsOpen(false);
 		setQuery("");
 	}, []);
@@ -109,28 +148,46 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 		const searchDebounce = setTimeout(async () => {
 			try {
 				const searchResults = await searchClient
-					.collections(TYPESENSE_COLLECTION_NAME)
+					.collections<SearchDocument>(TYPESENSE_COLLECTION_NAME)
 					.documents()
 					.search({
 						q: query,
-						query_by: "title,content",
-						per_page: 8,
-						highlight_full_fields: "title,content",
+						// A hit on the page's own name (title or URL slug)
+						// outranks a heading, which outranks a mention in the
+						// body. Without the ordering every page that says
+						// "state" ties with the State page.
+						query_by: "title,slug,headings,description,content",
+						query_by_weights: "10,8,6,4,1",
+						per_page: 10,
+						highlight_fields: "content,description",
+						highlight_affix_num_tokens: 10,
 					});
 
 				const hits =
-					searchResults.hits?.map((hit) => ({
-						id: hit.document.id,
-						title: hit.document.title,
-						content: hit.document.content,
-						url: hit.document.url,
-						hierarchy: hit.document.hierarchy || {},
-					})) || [];
+					searchResults.hits?.map((hit) => {
+						const highlight = hit.highlight ?? {};
+						return {
+							id: hit.document.id,
+							title: hit.document.title,
+							path: hit.document.path,
+							crumbs: [
+								hit.document.product,
+								hit.document.section,
+							].filter(Boolean),
+							snippet:
+								highlight.content?.snippet ??
+								highlight.description?.snippet ??
+								hit.document.description,
+						};
+					}) ?? [];
 
 				setResults(hits);
 				setSelectedIndex(0);
+				setFailed(false);
 			} catch (error) {
 				console.error("Search error:", error);
+				setResults([]);
+				setFailed(true);
 			} finally {
 				setIsLoading(false);
 			}
@@ -192,8 +249,14 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 										Searching...
 									</div>
 								)}
+								{!isLoading && query && failed && (
+									<div className="p-4 text-center text-sm text-ink-faint">
+										Search is unavailable right now.
+									</div>
+								)}
 								{!isLoading &&
 									query &&
+									!failed &&
 									results.length === 0 && (
 										<div className="p-4 text-center text-sm text-ink-faint">
 											No results found for "{query}"
@@ -215,18 +278,16 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 											<div className="text-sm font-medium text-ink">
 												{result.title}
 											</div>
-											{result.hierarchy?.lvl1 && (
-												<div className="mb-1 text-xs text-pine">
-													{result.hierarchy.lvl1}
+											<div className="mb-1 text-xs text-pine">
+												{result.crumbs.join(" › ")}
+											</div>
+											{result.snippet && (
+												<div className="text-xs text-ink-faint line-clamp-2">
+													<Snippet
+														value={result.snippet}
+													/>
 												</div>
 											)}
-											<div className="text-xs text-ink-faint line-clamp-2">
-												{result.content?.substring(
-													0,
-													150,
-												)}
-												...
-											</div>
 										</div>
 									))}
 							</div>

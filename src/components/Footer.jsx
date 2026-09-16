@@ -316,18 +316,6 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 				>
 					Are you as well?
 				</a>
-				<span className="ml-auto flex items-center gap-1.5 text-xs text-ink-faint">
-					<svg width="14" height="10" viewBox="0 0 14 10" fill="none">
-						<rect width="14" height="10" fill="white" />
-						<rect y="0" width="14" height="1.2" fill="black" />
-						<rect y="2.2" width="14" height="1.2" fill="black" />
-						<rect y="4.4" width="14" height="1.2" fill="black" />
-						<rect y="6.6" width="14" height="1.2" fill="black" />
-						<rect y="8.8" width="14" height="1.2" fill="black" />
-						<rect width="5" height="5" fill="black" />
-					</svg>
-					Built in San Francisco, United States and around the world
-				</span>
 			</div>
 
 			{/* Copyright */}

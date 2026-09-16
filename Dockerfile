@@ -34,19 +34,24 @@ ENV FONTAWESOME_PACKAGE_TOKEN=${FONTAWESOME_PACKAGE_TOKEN}
 RUN --mount=type=cache,id=s/d133ea35-d9c8-4da7-a34c-b115adf85a9e-/pnpm/store,target=/pnpm/store \
     pnpm install --no-frozen-lockfile
 
-# Build arguments for PUBLIC_* environment variables
+# Build arguments for PUBLIC_* environment variables. These are baked into the
+# client bundle; the search ones override the defaults in
+# src/components/v2/TypesenseSearch.tsx and take the *search-only* key. The
+# index itself is written by .github/workflows/search-index.yml, not here.
 ARG PUBLIC_SITE_URL="https://rivet.dev"
 ARG PUBLIC_POSTHOG_KEY=""
 ARG PUBLIC_POSTHOG_HOST=""
 ARG PUBLIC_TYPESENSE_HOST=""
-ARG PUBLIC_TYPESENSE_API_KEY=""
+ARG PUBLIC_TYPESENSE_SEARCH_API_KEY=""
+ARG PUBLIC_TYPESENSE_COLLECTION_NAME=""
 
 # Set environment variables for build
 ENV PUBLIC_SITE_URL=${PUBLIC_SITE_URL}
 ENV PUBLIC_POSTHOG_KEY=${PUBLIC_POSTHOG_KEY}
 ENV PUBLIC_POSTHOG_HOST=${PUBLIC_POSTHOG_HOST}
 ENV PUBLIC_TYPESENSE_HOST=${PUBLIC_TYPESENSE_HOST}
-ENV PUBLIC_TYPESENSE_API_KEY=${PUBLIC_TYPESENSE_API_KEY}
+ENV PUBLIC_TYPESENSE_SEARCH_API_KEY=${PUBLIC_TYPESENSE_SEARCH_API_KEY}
+ENV PUBLIC_TYPESENSE_COLLECTION_NAME=${PUBLIC_TYPESENSE_COLLECTION_NAME}
 
 # Build the website (static export to 'dist'). prebuild runs scripts/assemble.ts,
 # which has no sibling checkouts in the image and therefore links each product's

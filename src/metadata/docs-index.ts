@@ -107,13 +107,13 @@ export function renderDocMarkdown(page: DocPage): string {
 	});
 }
 
-function splitFrontmatter(raw: string) {
+export function splitFrontmatter(raw: string) {
 	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
 	if (!match) return { frontmatter: "", body: raw };
 	return { frontmatter: match[1], body: match[2] };
 }
 
-function frontmatterValue(frontmatter: string, key: string) {
+export function frontmatterValue(frontmatter: string, key: string) {
 	const match = frontmatter.match(
 		new RegExp(`^${key}:[ \\t]*(.+?)[ \\t]*$`, "m"),
 	);

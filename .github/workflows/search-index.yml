@@ -1,0 +1,55 @@
+# Rebuilds the Typesense index behind the site's search dialog.
+#
+# The index is derived entirely from the docs (`scripts/index-search.ts`), so
+# this runs on every push to main, which includes the vendor/ syncs that bring
+# in product docs. It replaces the collection atomically behind the `rivet-docs`
+# alias, so there is no window where search returns nothing.
+#
+# Secrets:
+#   TYPESENSE_HOST     the cluster hostname, e.g. xyz-1.a1.typesense.net
+#   TYPESENSE_API_KEY  an admin key (the browser's search-only key cannot write)
+#
+# To test this workflow:
+#   1. Trigger manually: gh workflow run search-index.yml --repo rivet-dev/website
+#   2. Watch execution:  gh run watch --repo rivet-dev/website
+#   3. Check failures:   gh run view --repo rivet-dev/website --log-failed
+#   4. Verify: search for "bring your own cloud" on rivet.dev; /cloud/byoc is the first hit.
+
+name: Publish Search Index
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: search-index
+  cancel-in-progress: true
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Product docs are not authored here. With no sibling checkouts in CI,
+      # assemble links every product to its committed vendor/<product> bundle.
+      - name: Assemble docs sources
+        run: pnpm assemble
+
+      - name: Index docs into Typesense
+        run: pnpm index:search
+        env:
+          TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+          TYPESENSE_API_KEY: ${{ secrets.TYPESENSE_API_KEY }}
