@@ -3,7 +3,6 @@
 import { useId, useState } from 'react';
 import {
   ArrowRight,
-  Check,
   ShieldCheck,
   Cpu,
   MemoryStick,
@@ -20,6 +19,7 @@ import imgA16z from '@/images/logos/a16z.svg';
 import { canonicalizeInternalHref } from '@/lib/internalHref';
 import {
   CARD_TITLE_CLASS,
+  EYEBROW_CLASS,
   EYEBROW_ON_INK_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
@@ -40,6 +40,7 @@ import {
 import { InkPanel } from '@/components/marketing/editorial/InkPanel';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import { DeploymentDiagram, type DeploymentDiagramVariant } from '@/components/marketing/diagrams/deploymentDiagrams';
+import { PlanBadge, type PlanKey } from '@/components/marketing/pricing/PlanBadge';
 
 // --- Page Sections ---
 
@@ -178,17 +179,9 @@ const ComparisonTable = () => {
       { name: "Writes / mo", free: "5 Million max", hobby: "50 Million included", team: "50 Million included" },
       { name: "Egress", free: "100GB max", hobby: "1TB included", team: "1TB included" },
       { name: "Support", free: "Community", hobby: "Email", team: "Slack & Email" },
-      { name: "MFA", free: false, hobby: false, team: true },
     ];
 
-    const renderCell = (value) => {
-      if (typeof value === 'boolean') {
-        return value ?
-          <div className="flex justify-center"><Check className="h-4 w-4 text-pine" /></div> :
-          <div className="flex justify-center"><div className="h-1.5 w-1.5 rounded-full bg-ink/20" /></div>;
-      }
-      return <span className="text-sm text-ink-soft">{value}</span>;
-    };
+    const renderCell = (value: string) => <span className="text-sm text-ink-soft">{value}</span>;
 
     return (
         <div className="mt-24 pt-16" data-site-reveal>
@@ -198,9 +191,9 @@ const ComparisonTable = () => {
                     <thead>
                         <tr className="border-b border-ink/15">
                             <th className="w-1/4 p-4 text-left text-sm font-medium text-ink-faint">Feature</th>
-                            <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Free</th>
-                            <th className="w-[18%] p-4 text-center text-sm font-medium text-pine">Hobby</th>
-                            <th className="w-[18%] p-4 text-center text-sm font-medium text-ink">Team</th>
+                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="free">Free</PlanBadge></th>
+                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="hobby">Hobby</PlanBadge></th>
+                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="team">Team</PlanBadge></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -380,71 +373,85 @@ const ComputeCalculator = () => {
     );
 };
 
+// One row of a plan card's spec table. A `value` renders a two-column
+// label | value row; without one the label spans the row (used for the
+// Enterprise Edition capability list, which has no per-item quantity).
+interface PlanRow {
+    label: string;
+    value?: string;
+}
+
 interface Plan {
+    key: PlanKey;
     name: string;
     prefix?: string;
     price: string;
     period: string;
     desc: string;
-    features: string[];
+    rows: PlanRow[];
     cta: string;
     highlight: boolean;
-    inkHeader?: boolean;
+    /** Quiet label shown opposite the badge (e.g. "On-Prem"). */
+    tag?: string;
 }
 
 const Pricing = () => {
     const cloudPlans: Plan[] = [
         {
+            key: "free",
             name: "Free",
             price: "$0",
             period: "/mo",
             desc: "For prototyping and small projects.",
-            features: [
-                "100,000 Awake Actor Hours /mo limit",
-                "$5 /mo Compute limit",
-                "1 vCPU Max",
-                "5GB Limit",
-                "5 Million Writes /mo Limit",
-                "200 Million Reads /mo Limit",
-                "100GB Egress Limit",
-                "Community Support"
+            rows: [
+                { label: "Awake Actor Hours", value: "100,000 /mo max" },
+                { label: "Compute", value: "$5 /mo max" },
+                { label: "Max vCPU", value: "1" },
+                { label: "Storage", value: "5GB max" },
+                { label: "Reads", value: "200M /mo max" },
+                { label: "Writes", value: "5M /mo max" },
+                { label: "Egress", value: "100GB max" },
+                { label: "Support", value: "Community" },
             ],
             cta: "Get Started",
             highlight: false
         },
         {
+            key: "hobby",
             name: "Hobby",
             prefix: "From",
             price: "$20",
             period: "/mo + Usage",
             desc: "For scaling applications.",
-            features: [
-                "400,000 Awake Actor Hours Included",
-                "Up to 8 vCPU",
-                "25 Billion Reads /mo included",
-                "50 Million Writes /mo included",
-                "5GB Storage included",
-                "1TB Egress included",
-                "Email Support"
+            rows: [
+                { label: "Awake Actor Hours", value: "400,000 /mo" },
+                { label: "Compute", value: "Usage-based" },
+                { label: "Max vCPU", value: "8" },
+                { label: "Storage", value: "5GB" },
+                { label: "Reads", value: "25B /mo" },
+                { label: "Writes", value: "50M /mo" },
+                { label: "Egress", value: "1TB" },
+                { label: "Support", value: "Email" },
             ],
             cta: "Get Started",
             highlight: true
         },
         {
+            key: "team",
             name: "Team",
             prefix: "From",
             price: "$200",
             period: "/mo + Usage",
             desc: "For growing teams and businesses.",
-            features: [
-                "400,000 Awake Actor Hours Included",
-                "Up to 8 vCPU",
-                "25 Billion Reads /mo included",
-                "50 Million Writes /mo included",
-                "5GB Storage included",
-                "1TB Egress included",
-                "MFA",
-                "Slack Support"
+            rows: [
+                { label: "Awake Actor Hours", value: "400,000 /mo" },
+                { label: "Compute", value: "Usage-based" },
+                { label: "Max vCPU", value: "8" },
+                { label: "Storage", value: "5GB" },
+                { label: "Reads", value: "25B /mo" },
+                { label: "Writes", value: "50M /mo" },
+                { label: "Egress", value: "1TB" },
+                { label: "Support", value: "Slack & Email" },
             ],
             cta: "Get Started",
             highlight: false
@@ -454,32 +461,33 @@ const Pricing = () => {
     // Enterprise Edition is the self-hosted, on-prem offering. It is the only
     // enterprise tier, so it is shown on both toggle states: alongside the
     // self-hosted plans, and appended to the cloud plans so it stays visible by
-    // default (it keeps its "Self-Hosted" header tag in either view).
+    // default (it keeps its "On-Prem" tag in either view).
     const enterpriseEditionPlan: Plan = {
+        key: "enterprise",
         name: "Enterprise Edition",
         price: "Custom",
         period: "",
         desc: "Additional operational features for running Rivet in your own VPC, customer environments, or regulated networks.",
-        features: [
-            "Actor control plane",
-            "FoundationDB persistence layer",
-            "Cloud layer for multi-tenant",
-            "SQLite backup",
-            "SQLite PITR",
-            "Forking",
-            "ACL system",
-            "ACL for agents",
-            "Advanced ClickHouse analytics",
-            "OpenTelemetry integration",
-            "Alert manager rules, Prometheus rules, Grafana configs",
-            "Kubernetes manifests",
-            "Air-gapped & sovereign-cloud deployments",
-            "Priority support & SLA",
-            "Hardening guidance for FedRAMP, HIPAA, regulated industries"
+        rows: [
+            { label: "Actor control plane" },
+            { label: "FoundationDB persistence layer" },
+            { label: "Cloud layer for multi-tenant" },
+            { label: "SQLite backup" },
+            { label: "SQLite PITR" },
+            { label: "Forking" },
+            { label: "ACL system" },
+            { label: "ACL for agents" },
+            { label: "Advanced ClickHouse analytics" },
+            { label: "OpenTelemetry integration" },
+            { label: "Alert manager rules, Prometheus rules, Grafana configs" },
+            { label: "Kubernetes manifests" },
+            { label: "Air-gapped & sovereign-cloud deployments" },
+            { label: "Priority support & SLA" },
+            { label: "Hardening guidance for FedRAMP, HIPAA, regulated industries" },
         ],
         cta: "Contact Sales",
         highlight: false,
-        inkHeader: true
+        tag: "On-Prem"
     };
 
     const plans = [...cloudPlans, enterpriseEditionPlan];
@@ -507,19 +515,18 @@ const Pricing = () => {
                                            plan.highlight ? 'border-pine/60' : 'border-ink/10'
                                        }`}
                                     >
-                                        {plan.inkHeader ? (
-                                            <div className="selection-paper flex items-center justify-between gap-4 bg-ink px-7 py-3">
-                                                <span className="text-sm font-medium text-cream">{plan.name}</span>
-                                                <span className={EYEBROW_ON_INK_CLASS}>On-Prem</span>
-                                            </div>
-                                        ) : null}
                                         <div className="flex flex-grow flex-col p-6 md:p-8">
-                                            {!plan.inkHeader ? (
-                                                <h3 className={`mb-2 ${CARD_TITLE_CLASS}`}>{plan.name}</h3>
-                                            ) : null}
+                                            <h3 className="mb-3 flex items-center justify-between gap-4">
+                                                <PlanBadge plan={plan.key} className="text-sm">{plan.name}</PlanBadge>
+                                                {plan.tag ? <span className={EYEBROW_CLASS}>{plan.tag}</span> : null}
+                                            </h3>
 
                                             <div className="mb-6">
-                                                {plan.prefix && <span className="mb-1 block text-sm font-medium text-ink-faint">{plan.prefix}</span>}
+                                                {/* Always reserve the prefix line so prices and the
+                                                    spec rows below stay level across cards. */}
+                                                <span className={`mb-1 block text-sm font-medium text-ink-faint ${plan.prefix ? '' : 'invisible'}`} aria-hidden={!plan.prefix}>
+                                                    {plan.prefix ?? 'From'}
+                                                </span>
                                                 <div className="flex items-baseline gap-1">
                                                     <span className="text-3xl font-medium tracking-[-0.015em] text-ink">{plan.price}</span>
                                                     {plan.period && <span className="ml-1 text-xs text-ink-faint">{plan.period}</span>}
@@ -528,16 +535,22 @@ const Pricing = () => {
 
                                             <div className="mb-6 h-px bg-ink/10" />
 
-                                            {plan.desc && <p className="mb-6 min-h-[2.5rem] text-[15px] leading-relaxed text-ink-soft">{plan.desc}</p>}
+                                            {/* min-height is exactly two lines at 15px/1.625 so one-line descriptions
+                                                don't pull the spec rows out of line with neighboring cards. */}
+                                            {plan.desc && <p className="mb-6 min-h-[calc(2*15px*1.625)] text-[15px] leading-relaxed text-ink-soft">{plan.desc}</p>}
 
-                                            <div className="mb-8 space-y-3">
-                                                {plan.features.map((feat, i) => (
-                                                    <div key={i} className="flex items-start gap-3 text-xs text-ink-soft">
-                                                        <Check className="mt-0.5 h-3 w-3 flex-shrink-0 text-pine" />
-                                                        <span>{feat}</span>
+                                            {/* Spec table: hairline-divided label | value rows, so
+                                                the four cards scan like columns of one table. */}
+                                            <dl className="mb-8 divide-y divide-ink/10 border-y border-ink/10 text-xs">
+                                                {plan.rows.map((row) => (
+                                                    <div key={row.label} className="flex items-baseline justify-between gap-3 py-2">
+                                                        <dt className={row.value ? 'text-ink-faint' : 'text-ink-soft'}>{row.label}</dt>
+                                                        {row.value ? (
+                                                            <dd className="text-right font-medium text-ink">{row.value}</dd>
+                                                        ) : null}
                                                     </div>
                                                 ))}
-                                            </div>
+                                            </dl>
 
                                             <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer/" : "https://dashboard.rivet.dev"}
                                                 className={`mt-auto ${
