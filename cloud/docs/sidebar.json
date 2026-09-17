@@ -11,6 +11,7 @@
 			"title": "Reference",
 			"pages": [
 				{ "title": "Configuration", "href": "/cloud/byoc/configuration", "icon": "faSliders" },
+				{ "title": "Shipping metrics", "href": "/cloud/byoc/shipping-metrics", "icon": "faChartLine" },
 				{ "title": "Credentials & dashboard", "href": "/cloud/byoc/credentials", "icon": "faKey" },
 				{ "title": "Architecture", "href": "/cloud/byoc/architecture", "icon": "faDiagramProject" }
 			]

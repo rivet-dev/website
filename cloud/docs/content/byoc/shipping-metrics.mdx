@@ -1,0 +1,27 @@
+---
+title: "Shipping metrics"
+description: "Send OpenTelemetry metrics from your BYOC cluster to Rivet."
+---
+
+Sharing metrics lets the Rivet team monitor your cluster's health and support your deployment. Metrics are sent over OTLP/HTTP and authorized with a per-cluster token.
+
+## Requirements
+
+- A BYOC cluster. If you don't have one yet, follow the [Quickstart](/cloud/byoc/quickstart).
+
+## Steps
+
+<Steps>
+<Step title="Create a token">
+
+On your cluster's BYOC page in the [Rivet dashboard](https://dashboard.rivet.dev), open **Metrics ingest token** and click **Create token**. Copy it now, it's shown only once.
+
+</Step>
+<Step title="Add Rivet to your Collector">
+
+Add Rivet as an `otlphttp` exporter in your OpenTelemetry Collector config, using the token you just created, and reference it from your metrics pipeline:
+
+<CodeSnippet file="examples/docs/byoc/metrics-collector.yaml" />
+
+</Step>
+</Steps>
