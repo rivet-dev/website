@@ -19,7 +19,11 @@ On your cluster's BYOC page in the [Rivet dashboard](https://dashboard.rivet.dev
 </Step>
 <Step title="Add Rivet to your Collector">
 
-Add Rivet as an `otlphttp` exporter in your OpenTelemetry Collector config, using the token you just created, and reference it from your metrics pipeline:
+Store the token in a Kubernetes Secret in the Collector's namespace, or sync it there from your secret store. Keep the token out of the Collector config and source control.
+
+<CodeSnippet file="examples/docs/byoc/metrics-collector-secret.yaml" />
+
+Add Rivet as an `otlphttp` exporter in your OpenTelemetry Collector config and reference it from your metrics pipeline. The Collector reads the token from its environment:
 
 <CodeSnippet file="examples/docs/byoc/metrics-collector.yaml" />
 

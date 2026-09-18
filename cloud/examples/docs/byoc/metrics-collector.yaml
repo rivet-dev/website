@@ -2,7 +2,7 @@ exporters:
   otlphttp/rivet:
     metrics_endpoint: https://byoc-otel.rivet.dev/v1/metrics
     headers:
-      Authorization: "Bearer <token>"
+      Authorization: "Bearer ${env:RIVET_METRICS_TOKEN}"
 
 service:
   pipelines:
