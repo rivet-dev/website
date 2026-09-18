@@ -7,7 +7,7 @@ export const workflowsFaqs: FaqItem[] = [
   {
     question: "What is a Rivet Workflow?",
     answerHtml:
-      'An <a href="https://rivet.dev/actors/docs/">Actor</a> run handler wrapped in workflow(). Each ctx.step() records its result, so a run resumes after restarts and deployments.',
+      'An <a href="https://rivet.dev/actors/docs/">Actor</a> defined with workflow() from @rivet-dev/workflows. Each ctx.step() records its result, so a run resumes after restarts and deployments.',
   },
   {
     question: "Does Workflows guarantee exactly-once execution?",
@@ -32,6 +32,6 @@ export const workflowsFaqs: FaqItem[] = [
   {
     question: "Is Rivet Workflows open source?",
     answerHtml:
-      'Yes, Apache 2.0. Read the <a href="https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/workflow">implementation on GitHub</a>.',
+      'Yes, Apache 2.0. Read the <a href="https://github.com/rivet-dev/workflows">implementation on GitHub</a>.',
   },
 ];
