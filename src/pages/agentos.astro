@@ -116,17 +116,16 @@ await bob.prompt({
 	{ key: 'workflows', fileName: 'workflow.ts', code: `// server.ts
 import { agentOS, setup } from "@rivet-dev/agentos";
 import pi from "@agentos-software/pi";
-import { actor, queue } from "rivetkit";
-import { workflow } from "rivetkit/workflow";
+import { queue, workflow } from "@rivet-dev/workflows";
 
 const vm = agentOS({ software: [pi] });
 
-const codeReview = actor({
+const codeReview = workflow({
   state: { status: "pending" },
   queues: {
     review: queue<{ approved: boolean; feedback?: string }>(),
   },
-  run: workflow(async (ctx) => {
+  run: async (ctx) => {
     let feedback = "";
 
     for (let revision = 1; revision <= 3; revision++) {
@@ -164,7 +163,7 @@ const codeReview = actor({
     }
 
     throw new Error("Review rejected after 3 revisions");
-  }),
+  },
 });
 
 export const registry = setup({ use: { vm, codeReview } });

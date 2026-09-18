@@ -42,7 +42,6 @@ Pages that render a TODO callout. These are live and indexed.
 | `/actors/docs/http-api` | rivet repo |
 | `/agentos/docs/software` | agentos repo |
 | `/dynamic-apps/docs`, `/docs/concepts`, `/docs/quickstart` | dynamic-apps repo — whole vertical unwritten |
-| `/workflows/docs`, `/docs/concepts`, `/docs/quickstart` | workflows repo — whole vertical unwritten |
 
 ## Content parked, not published
 

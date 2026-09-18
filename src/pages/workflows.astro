@@ -46,16 +46,15 @@ import {
 	SITE_SECTION_CLASS,
 } from '@/components/marketing/layout';
 
-const WORKFLOW_SOURCE_ROOT =
-	'https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/workflow';
-const ACTOR_EXAMPLE_ROOT =
-	'https://github.com/rivet-dev/rivet/blob/main/examples/docs/actors-workflows';
+const WORKFLOW_SOURCE_ROOT = 'https://github.com/rivet-dev/workflows';
+const WORKFLOW_EXAMPLE_ROOT =
+	'https://github.com/rivet-dev/workflows/blob/main/examples/docs/actors-workflows';
 const BUG_FIXER_SOURCE_URL_ROOT =
 	'https://github.com/rivet-dev/agentos/blob/main/examples/workflows';
 const INSPECTOR_IMAGE =
 	'https://assets.rivet.dev/website/marketing/screenshots/rivet-workflows-inspector.png';
 
-const actorsRoot = requireDocsRoot('actors');
+const workflowsRoot = requireDocsRoot('workflows');
 const workflowsProduct = getProduct('workflows');
 
 if (!workflowsProduct) {
@@ -86,14 +85,14 @@ const progressTabs = await Promise.all([
 	sourceTab({
 		key: 'invoice',
 		label: 'invoice.ts',
-		root: actorsRoot,
+		root: workflowsRoot,
 		file: 'examples/docs/actors-workflows/simple-workflow/index.ts',
 		documentationUrl: '/workflows/docs/quickstart',
-		sourceUrl: `${ACTOR_EXAMPLE_ROOT}/simple-workflow/index.ts`,
+		sourceUrl: `${WORKFLOW_EXAMPLE_ROOT}/simple-workflow/index.ts`,
 	}),
 ]);
 
-// What every run gets from the Actor it lives in. These double as the
+// What every run gets from being an Actor. These double as the
 // differentiators against cluster-based durable execution, stated positively.
 const actorInheritance = [
 	{
@@ -129,7 +128,7 @@ const compositionLayers = [
 	{
 		name: 'Actors',
 		logo: productLogos.actors.src,
-		body: 'Every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.',
+		body: 'Every workflow is an Actor. Actors provide identity, state, queues, and scheduling.',
 		href: '/actors/',
 	},
 	{
