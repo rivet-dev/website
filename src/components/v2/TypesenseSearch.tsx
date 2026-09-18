@@ -205,7 +205,9 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 					"relative h-8 w-full justify-start rounded-md text-sm font-normal shadow-none hidden md:flex md:w-24 lg:w-40",
 					light
 						? "border-ink/15 bg-white/55 text-ink-faint hover:border-ink/30 hover:bg-white hover:text-ink"
-						: "bg-paper text-ink-faint",
+						: // Dark header (the Secure Exec overview). Matches the GitHub
+							// and Sign In buttons beside it.
+							"border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:bg-white/10 hover:text-white",
 				)}
 			>
 				<span className="hidden lg:inline-flex">Search...</span>
@@ -213,7 +215,9 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 				<Kbd
 					className={cn(
 						"absolute right-1.5 top-1/2 -translate-y-1/2 hidden sm:flex",
-						light && "!border-ink/20 !bg-ink/[0.06] !text-ink-soft",
+						light
+							? "!border-ink/20 !bg-ink/[0.06] !text-ink-soft"
+							: "!border-white/15 !bg-white/10 !text-white/70",
 					)}
 				>
 					<Kbd.Key />K

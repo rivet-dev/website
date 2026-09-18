@@ -1,0 +1,315 @@
+/*
+ * Secure Exec landing page theme, ported from secureexec.dev.
+ *
+ * That site was a standalone dark Astro app whose globals (body colors, `*`
+ * border color, IBM Plex fonts, the chrome-border system) applied to the whole
+ * document. Here everything is scoped under `.secure-exec-page` so the page
+ * keeps its look without touching the Rivet header, footer, or any other page.
+ */
+
+/* Registered so the chrome hover offset and brightness can be transitioned. */
+@property --chrome-hover-offset {
+	syntax: "<angle>";
+	inherits: true;
+	initial-value: 0deg;
+}
+
+@property --chrome-hover-brightness {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 0;
+}
+
+.secure-exec-page {
+	/* Height of the sticky Rivet header above the page: one row on mobile, two
+	   (nav + product bar) from `md` up. The hero subtracts it so its CTA stays
+	   above the fold, as it did under secureexec.dev's overlaid nav. */
+	--secure-exec-header: 57px;
+	background-color: #09090b;
+	color: #fff;
+	font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 768px) {
+	.secure-exec-page {
+		--secure-exec-header: 121px;
+	}
+}
+
+/* Default border color. `:not(html)` lifts this just above the site-wide
+   `* { border-color }` base rule while staying below every border utility. */
+:where(.secure-exec-page) *:not(html) {
+	border-color: rgb(255 255 255 / 0.1);
+}
+
+.secure-exec-page .font-mono,
+.secure-exec-page :is(pre, code, kbd, samp) {
+	font-family: "IBM Plex Mono", SFMono-Regular, monospace;
+}
+
+.secure-exec-page ::selection {
+	background-color: rgba(204, 0, 0, 0.3);
+	color: #fca5a5;
+}
+
+.secure-exec-page .selection-dark::selection {
+	background-color: #18181b;
+	color: white;
+}
+
+.secure-exec-page :is(pre, code, .overflow-x-auto) {
+	scrollbar-width: thin;
+	scrollbar-color: #52525b #18181b;
+}
+
+.secure-exec-page :is(pre, code, .overflow-x-auto)::-webkit-scrollbar {
+	height: 0.5rem;
+}
+
+.secure-exec-page :is(pre, code, .overflow-x-auto)::-webkit-scrollbar-track {
+	background-color: #18181b;
+}
+
+.secure-exec-page :is(pre, code, .overflow-x-auto)::-webkit-scrollbar-thumb {
+	background-color: #52525b;
+	border-radius: 9999px;
+}
+
+/* Chrome border mask — reusable mixin via pseudo-element.
+	 --chrome-angle: base direction per element
+	 --chrome-scroll-offset / --chrome-brightness: driven by scroll JS
+	 --chrome-hover-offset / --chrome-hover-brightness: animated on hover */
+.secure-exec-page .chrome-gradient-border,
+.secure-exec-page .btn-chrome,
+.secure-exec-page .btn-chrome-outline {
+	--chrome-angle: 135deg;
+	--chrome-hover-offset: 0deg;
+	--chrome-hover-brightness: 0;
+	position: relative;
+}
+
+/* S-curve hover animation for interactive chrome elements. */
+.secure-exec-page .chrome-gradient-border.chrome-hover {
+	background-color: rgba(255, 255, 255, 0.02);
+	transition:
+		background-color 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		box-shadow 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-offset 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-brightness 0.7s cubic-bezier(0.37, 0, 0.63, 1);
+}
+
+.secure-exec-page .chrome-gradient-border.chrome-hover:hover {
+	background-color: rgba(255, 255, 255, 0.06);
+	box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.85), 0 0 20px 2px rgba(255, 255, 255, 0.08);
+}
+
+
+.secure-exec-page .chrome-gradient-border.chrome-hover:hover,
+.secure-exec-page .btn-chrome:hover,
+.secure-exec-page .btn-chrome-outline:hover {
+	--chrome-hover-offset: 60deg;
+	--chrome-hover-brightness: 0.5;
+}
+
+.secure-exec-page .chrome-gradient-border {
+	border: 1px solid transparent;
+}
+
+/* On secureexec.dev this lived in Tailwind's components layer, so a shadow
+   utility on the same element won. The scoping class outranks utilities here,
+   so step aside for the one card that carries `shadow-2xl`. */
+.secure-exec-page .chrome-gradient-border:not(.shadow-2xl) {
+	box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.85);
+}
+
+.secure-exec-page .chrome-gradient-border::before,
+.secure-exec-page .btn-chrome::before,
+.secure-exec-page .btn-chrome-outline::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: 1px;
+	background: conic-gradient(
+		from calc(var(--chrome-angle) + var(--chrome-scroll-offset, 0deg) + var(--chrome-hover-offset)),
+		#5c6a7a 0%, #8b7d6b 5%, #f0f0f0 11%,
+		#6a7e94 16%, #a09888 21%, #ffffff 27%,
+		#4a5a6a 32%, #5e4f40 37%, #d8dce0 43%,
+		#8896a4 48%, #a89880 53%, #ffffff 59%,
+		#7a8a9c 64%, #b8b0a4 69%, #f8f8f8 75%,
+		#506070 80%, #c4beb4 85%, #e8e4e0 90%,
+		#6e7c8a 94%, #8a7c6c 97%, #b0a898 100%
+	);
+	filter: brightness(calc(var(--chrome-brightness, 1) + var(--chrome-hover-brightness)));
+	-webkit-mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+	mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	pointer-events: none;
+}
+
+/* Soft glow at the white peaks — masked so it only shows near edges */
+.secure-exec-page .chrome-gradient-border::after,
+.secure-exec-page .btn-chrome::after,
+.secure-exec-page .btn-chrome-outline::after {
+	content: "";
+	position: absolute;
+	inset: -3px;
+	border-radius: inherit;
+	background: linear-gradient(
+		calc(var(--chrome-angle) + var(--chrome-scroll-offset, 0deg) + var(--chrome-hover-offset)),
+		transparent 18%,
+		rgba(255, 255, 255, 0.08) 23%,
+		rgba(255, 255, 255, 0.25) 27%,
+		rgba(255, 255, 255, 0.08) 31%,
+		transparent 36%,
+		transparent 50%,
+		rgba(255, 255, 255, 0.06) 55%,
+		rgba(255, 255, 255, 0.2) 59%,
+		rgba(255, 255, 255, 0.06) 63%,
+		transparent 68%,
+		rgba(255, 255, 255, 0.05) 71%,
+		rgba(255, 255, 255, 0.15) 75%,
+		rgba(255, 255, 255, 0.05) 79%,
+		transparent 84%
+	);
+	filter: blur(4px) brightness(calc(var(--chrome-brightness, 1) + var(--chrome-hover-brightness)));
+	-webkit-mask: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 75%);
+	mask: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.4) 75%);
+	pointer-events: none;
+}
+
+/* Bigger cards need a tighter mask — push glow further to edges */
+.secure-exec-page .chrome-gradient-border::after {
+	-webkit-mask: radial-gradient(ellipse at center, transparent 65%, rgba(0,0,0,0.3) 95%);
+	mask: radial-gradient(ellipse at center, transparent 65%, rgba(0,0,0,0.3) 95%);
+}
+
+/* Background glow that tracks the bright parts of the chrome border */
+.secure-exec-page .chrome-gradient-border::before {
+	filter:
+		brightness(calc(var(--chrome-brightness, 1) + var(--chrome-hover-brightness)))
+		drop-shadow(0 0 12px rgba(255, 255, 255, 0.2))
+		drop-shadow(0 0 25px rgba(255, 255, 255, 0.1));
+}
+
+/* White chrome button — chopped radial metallic bands from center outward */
+.secure-exec-page .btn-chrome::after {
+	background: radial-gradient(
+		ellipse at center,
+		transparent 0%,
+		rgba(70, 80, 95, 0.12) 15%, rgba(120, 100, 80, 0.1) 20%,
+		transparent 25%,
+		rgba(60, 75, 90, 0.18) 35%, rgba(90, 75, 60, 0.15) 40%,
+		transparent 45%,
+		rgba(80, 95, 110, 0.22) 55%, rgba(110, 90, 70, 0.18) 60%,
+		transparent 65%,
+		rgba(65, 80, 100, 0.28) 75%, rgba(105, 85, 65, 0.22) 80%,
+		transparent 85%,
+		rgba(55, 70, 90, 0.3) 92%, rgba(95, 80, 60, 0.25) 100%
+	);
+	inset: 0;
+	filter: blur(2px);
+}
+
+.secure-exec-page .btn-chrome {
+	background: conic-gradient(
+		from calc(var(--chrome-angle) + var(--chrome-scroll-offset, 0deg) + var(--chrome-hover-offset)),
+		#b8c0c8 0%, #c0b8b0 5%, #e8e8e8 11%,
+		#bcc4cc 16%, #c8c0b8 21%, #f0f0f0 27%,
+		#b0b8c0 32%, #b8b0a8 37%, #d8d8d8 43%,
+		#c0c8d0 48%, #c8c0b4 53%, #ececec 59%,
+		#bcc4cc 64%, #c4beb4 69%, #e4e4e4 75%,
+		#b4bcc4 80%, #c8c4bc 85%, #e0e0e0 90%,
+		#bcc4c8 94%, #c0b8b0 97%, #c8c4bc 100%
+	);
+	color: #111;
+	font-weight: 600;
+	border: none;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+	box-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.6),
+		0 4px 12px rgba(0, 0, 0, 0.3),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6),
+		inset 0 0 0 2px rgba(0, 0, 0, 0.85),
+		0 0 10px 2px rgba(255, 255, 255, 0.1);
+	transition:
+		background 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		box-shadow 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-offset 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-brightness 0.7s cubic-bezier(0.37, 0, 0.63, 1);
+}
+
+.secure-exec-page .btn-chrome:hover {
+	background: conic-gradient(
+		from calc(var(--chrome-angle) + var(--chrome-scroll-offset, 0deg) + var(--chrome-hover-offset)),
+		#c4ccd4 0%, #ccc4bc 5%, #f0f0f0 11%,
+		#c8d0d8 16%, #d4ccc4 21%, #f8f8f8 27%,
+		#bcc4cc 32%, #c4bcb4 37%, #e4e4e4 43%,
+		#ccd4dc 48%, #d4ccc0 53%, #f4f4f4 59%,
+		#c8d0d8 64%, #d0ccc0 69%, #ececec 75%,
+		#c0c8d0 80%, #d4d0c8 85%, #e8e8e8 90%,
+		#c8d0d4 94%, #ccc4bc 97%, #d4d0c8 100%
+	);
+	box-shadow:
+		0 3px 10px rgba(0, 0, 0, 0.7),
+		0 6px 20px rgba(0, 0, 0, 0.35),
+		inset 0 1px 0 rgba(255, 255, 255, 0.7),
+		inset 0 0 0 2px rgba(0, 0, 0, 0.85),
+		0 0 24px 5px rgba(255, 255, 255, 0.15);
+}
+
+.secure-exec-page .btn-chrome-outline {
+	background: linear-gradient(135deg, rgba(200,200,200,0.12) 0%, rgba(255,255,255,0.08) 40%, rgba(120,120,120,0.12) 70%, rgba(200,200,200,0.08) 100%);
+	border: none;
+	color: #d4d4d8;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 2px rgba(0, 0, 0, 0.85);
+	transition:
+		background 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		box-shadow 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		color 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-offset 0.7s cubic-bezier(0.37, 0, 0.63, 1),
+		--chrome-hover-brightness 0.7s cubic-bezier(0.37, 0, 0.63, 1);
+}
+
+.secure-exec-page .btn-chrome-outline:hover {
+	background: linear-gradient(135deg, rgba(200,200,200,0.18) 0%, rgba(255,255,255,0.12) 40%, rgba(120,120,120,0.18) 70%, rgba(200,200,200,0.12) 100%);
+	color: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 0 0 2px rgba(0, 0, 0, 0.85), 0 0 20px 2px rgba(255, 255, 255, 0.08);
+}
+
+/* Chrome gradient horizontal divider — 1px line matching the border palette */
+.secure-exec-page .chrome-divider {
+	position: relative;
+	border-bottom: none;
+}
+
+.secure-exec-page .chrome-divider::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		#5c6a7a 0%, #8b7d6b 5%, #f0f0f0 11%,
+		#6a7e94 16%, #a09888 21%, #ffffff 27%,
+		#4a5a6a 32%, #5e4f40 37%, #d8dce0 43%,
+		#8896a4 48%, #a89880 53%, #ffffff 59%,
+		#7a8a9c 64%, #b8b0a4 69%, #f8f8f8 75%,
+		#506070 80%, #c4beb4 85%, #e8e4e0 90%,
+		#6e7c8a 94%, #8a7c6c 97%, #b0a898 100%
+	);
+	background-size: 200% 100%;
+	background-position-x: var(--chrome-divider-offset, 0%);
+	filter: brightness(var(--chrome-brightness, 1));
+	pointer-events: none;
+}

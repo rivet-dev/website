@@ -32,6 +32,12 @@ interface Props {
 	pageFamily?: 'default' | 'site';
 	preconnectAssets?: boolean;
 	exactTitle?: boolean;
+	/**
+	 * Forces the footer (and the body behind it) dark for one page. The header is
+	 * rendered by the page itself, so pair this with `light={false}` on `Header`.
+	 * Only the Secure Exec overview sets it; its docs stay light.
+	 */
+	darkChrome?: boolean;
 }
 
 const {
@@ -52,6 +58,7 @@ const {
 	pageFamily = 'default',
 	preconnectAssets = false,
 	exactTitle = false,
+	darkChrome = false,
 } = Astro.props;
 
 const seoTitle = stripSeoMarkup(title);
@@ -338,7 +345,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 
 		<ViewTransitions />
 	</head>
-	<body class:list={["dark", pageFamily === 'site' && "bg-paper"]}>
+	<body class:list={["dark", darkChrome ? "bg-neutral-950" : pageFamily === 'site' && "bg-paper"]}>
 		<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
 			Skip to main content
 		</a>
@@ -349,7 +356,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		</TooltipProvider>
 		<EmbedDetector client:only="react" />
 		{pageFamily === 'site' && <ScrollObserver client:only="react" />}
-		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} pageFamily={pageFamily} />
+		<Footer client:load initialPathname={Astro.url.pathname} initialOpenings={footerOpenings} pageFamily={pageFamily} dark={darkChrome} />
 		<CopyCodeScript />
 		<TabsScript />
 		<MermaidScript />

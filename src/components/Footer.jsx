@@ -23,7 +23,15 @@ import {
 const footer = {
 	// Derived so the footer cannot drift from the product registry. Each entry
 	// points at the product's Overview page, matching the header switcher.
-	product: VISIBLE_PRODUCTS.map((item) => ({ name: item.name, href: `/${item.id}` })),
+	product: [
+		...VISIBLE_PRODUCTS.map((item) => ({ id: item.id, name: item.name, href: `/${item.id}` })),
+		// Secure Exec is a library rather than a pillar, so it may be hidden from
+		// the switcher; the footer is then its only way in. Appended only when the
+		// registry has not already listed it, so the link survives either setting.
+		{ id: "secure-exec", name: "Secure Exec", href: "/secure-exec" },
+	].filter(
+		(item, index, all) => all.findIndex((other) => other.id === item.id) === index,
+	),
 	company: [
 		{ name: "Cloud Pricing", href: "/cloud" },
 		{ name: "Bring Your Own Cloud", href: "/cloud/byoc" },
@@ -336,18 +344,24 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 // a dark override wrapper instead.
 const DARK_THEMED_PATH_PREFIXES = ['/learn'];
 
-export function Footer({ initialPathname = "", initialOpenings = null, pageFamily = "default" }) {
+export function Footer({ initialPathname = "", initialOpenings = null, pageFamily = "default", dark = false }) {
 	// usePathname returns "" during SSR; fall back to the server-provided path
 	// so docs pages do not flash a light footer before hydration.
 	const pathname = usePathname() || initialPathname;
-	const isDark = DARK_THEMED_PATH_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
+	// `dark` is the per-page flag (BaseLayout's `darkChrome`). Unlike the Learn
+	// shell, such a page has no dark container behind the footer, so the footer
+	// paints its own ground.
+	const isDark = dark || DARK_THEMED_PATH_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
 
 	return (
 		<div
 			data-page-family={pageFamily}
 			className={
 				isDark
-					? '[&_*]:!border-white/10 [&_a]:!text-zinc-400 [&_a:hover]:!text-white [&_h3]:!text-zinc-500 [&_p]:!text-zinc-600 [&_span]:!text-zinc-500'
+					? clsx(
+							'[&_*]:!border-white/10 [&_a]:!text-zinc-400 [&_a:hover]:!text-white [&_h3]:!text-zinc-500 [&_p]:!text-zinc-600 [&_span]:!text-zinc-500',
+							dark && 'bg-neutral-950',
+						)
 					: 'bg-paper [&_.footer-invert]:invert'
 			}
 		>

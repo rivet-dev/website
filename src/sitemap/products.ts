@@ -85,6 +85,8 @@ export interface ProductTab {
 export interface Product {
 	/** Kept out of the switcher and the docs index. Still routed. */
 	hidden?: boolean;
+	/** Listed everywhere except the Products menu. */
+	hiddenFromSwitcher?: boolean;
 	/** Short status chip shown next to the name. */
 	badge?: string;
 	/** URL segment and content-collection prefix, e.g. `actors`. */
@@ -211,12 +213,27 @@ export const products: Product[] = PRODUCTS.map((meta) => ({
 	href: `/${meta.id}/`,
 	icon: PRODUCT_GLYPHS[meta.id],
 	hidden: meta.hidden,
+	hiddenFromSwitcher: meta.hiddenFromSwitcher,
 	badge: meta.badge,
 	tabs: tabs(meta, productSidebars(meta.id)),
 }));
 
 /** The pillars, in display order. Everything user-facing lists these. */
 export const visibleProducts = products.filter((product) => !product.hidden);
+
+/**
+ * What the Products menu offers. A product may be documented and listed
+ * elsewhere while still not belonging in the switcher.
+ */
+export const switcherProducts = visibleProducts.filter(
+	(product) => !product.hiddenFromSwitcher,
+);
+
+/**
+ * The four pillars: the verb-led set the homepage stack and its diagrams are
+ * composed around. Anything without a verb has no plate to stand on.
+ */
+export const pillarProducts = visibleProducts.filter((product) => product.verb);
 
 /**
  * Tabs to render beside the product overview link. The product label itself

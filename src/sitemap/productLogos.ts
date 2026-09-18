@@ -8,6 +8,7 @@
 import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
 import dynamicAppsLogoUrl from "@/images/products/dynamic-apps-logo.svg";
+import secureExecLogoUrl from "@/images/products/secure-exec-logo.svg";
 import workflowsLogoUrl from "@/images/products/workflows-logo.svg";
 
 // Rivet Cloud stays off this map on purpose: its product-bar mark is the
@@ -17,4 +18,7 @@ export const productLogos: Record<string, { src: string }> = {
 	agentos: agentosLogoUrl,
 	workflows: workflowsLogoUrl,
 	"dynamic-apps": dynamicAppsLogoUrl,
+	// The secureexec.dev wordmark, stacked. It fills the tile without the inset
+	// ring the pillars carry: inside the ring it is illegible at product-bar size.
+	"secure-exec": secureExecLogoUrl,
 };

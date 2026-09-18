@@ -21,6 +21,7 @@ src/content/docs/actors
 src/content/docs/agentos
 src/content/docs/cloud
 src/content/docs/dynamic-apps
+src/content/docs/secure-exec
 src/content/docs/workflows
 
 # Written into public/ by `pnpm gen:markdown` and `pnpm gen:skills`: the
@@ -31,6 +32,7 @@ src/content/docs/workflows
 /public/cloud/
 /public/dynamic-apps/
 /public/docs/
+/public/secure-exec/
 /public/workflows/
 /public/metadata/
 

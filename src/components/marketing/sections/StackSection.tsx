@@ -1,5 +1,5 @@
 import { Icon } from "@rivet-gg/icons";
-import { visibleProducts, type Product } from "@/sitemap/products";
+import { pillarProducts, type Product } from "@/sitemap/products";
 import { productLogos } from "@/sitemap/productLogos";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import {
@@ -16,7 +16,7 @@ import { canonicalizeInternalHref } from "@/lib/internalHref";
 // premise — the same strings the Products menu carries — then one sentence of
 // evidence. Sits directly under the hero so the map of the stack precedes the
 // deep dives.
-const stack = visibleProducts.map((product) => ({
+const stack = pillarProducts.map((product) => ({
   product,
   accent: productAccent(product.id),
   highlight: product.id === "actors",

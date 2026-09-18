@@ -59,6 +59,12 @@ export interface ProductMetadata {
 	 * builds and is linked from its own pages; it is just not one of the pillars.
 	 */
 	hidden?: boolean;
+	/**
+	 * Kept out of the Products menu only. Unlike `hidden`, the product still
+	 * appears in the `/docs` index, the footer, and anywhere else products are
+	 * listed — it is simply not offered as one of the pillars to switch to.
+	 */
+	hiddenFromSwitcher?: boolean;
 	/** Short status chip shown next to the name, e.g. "Preview". */
 	badge?: string;
 	/**
@@ -68,6 +74,12 @@ export interface ProductMetadata {
 	 * these docs out later is a delete plus a checkout.
 	 */
 	localBundle?: string;
+	/**
+	 * Bundle directory inside the product's repo, when it is not `docs/`. Secure
+	 * Exec ships from the agentOS repo at `secure-exec/docs`, and its snippets
+	 * resolve against that repo's root. The vendored CI copy is always `docs/`.
+	 */
+	bundlePath?: string;
 }
 
 /** Display order across the whole site. */
@@ -132,6 +144,22 @@ export const PRODUCTS: ProductMetadata[] = [
 		optionalTabs: [],
 		tabs: ["overview", "docs", "byoc"],
 		hidden: true,
+	},
+	{
+		// The isolate runtime underneath agentOS, moved here from secureexec.dev.
+		// A library rather than a pillar, so it stays out of the switcher. It
+		// ships from the agentOS repo, where its docs and examples sit together
+		// under `secure-exec/`.
+		id: "secure-exec",
+		name: "Secure Exec",
+		tagline: "Secure Node.js execution without a sandbox",
+		repo: "agentos",
+		bundlePath: "secure-exec/docs",
+		color: "#565A66",
+		contrast: 5.99,
+		optionalTabs: [],
+		tabs: ["overview", "docs"],
+		hiddenFromSwitcher: true,
 	},
 ];
 

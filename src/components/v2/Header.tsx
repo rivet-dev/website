@@ -33,6 +33,7 @@ import { productAccent } from "@/lib/product-accent";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import {
 	findProductForPath,
+	switcherProducts,
 	visibleProducts as productVerticals,
 	visibleTabs,
 } from "@/sitemap/products";
@@ -87,7 +88,7 @@ function ProductsDropdown({
 
 	// The product verticals, in registry order. Each item opens the product's
 	// overview; its product bar then exposes the documentation and other sections.
-	const products = productVerticals.map((product) => ({
+	const products = switcherProducts.map((product) => ({
 		id: product.id,
 		label: product.name,
 		href: product.href,
@@ -107,7 +108,6 @@ function ProductsDropdown({
 		cancelClose();
 		closeTimeoutRef.current = setTimeout(() => {
 			if (
-				lightTheme &&
 				document.activeElement instanceof Node &&
 				lightDropdownRef.current?.contains(document.activeElement)
 			) {
@@ -146,7 +146,7 @@ function ProductsDropdown({
 	}, []);
 
 	useEffect(() => {
-		if (!lightTheme || !isOpen) return;
+		if (!isOpen) return;
 
 		const closeOnOutsidePointer = (event: PointerEvent) => {
 			if (lightDropdownRef.current?.contains(event.target as Node)) return;
@@ -162,242 +162,148 @@ function ProductsDropdown({
 		return () => {
 			document.removeEventListener("pointerdown", closeOnOutsidePointer, true);
 		};
-	}, [isOpen, lightTheme]);
-
-	if (lightTheme) {
-		return (
-			<div
-				ref={lightDropdownRef}
-				className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-				onPointerDownCapture={() => {
-					// Pointer activation focuses the button before `click`. Let `click`
-					// perform the toggle so touch users do not immediately reopen it.
-					focusFromPointerRef.current = true;
-					queueMicrotask(() => {
-						focusFromPointerRef.current = false;
-					});
-				}}
-				onFocusCapture={() => {
-					if (focusFromPointerRef.current) return;
-					cancelClose();
-					setIsOpen(true);
-				}}
-				onBlurCapture={(event) => {
-					if (
-						event.relatedTarget instanceof Node &&
-						event.currentTarget.contains(event.relatedTarget)
-					) {
-						return;
-					}
-					cancelClose();
-					pinnedOpenRef.current = false;
-					setIsOpen(false);
-				}}
-				onKeyDown={(event) => {
-					if (event.key !== "Escape" || !isOpen) return;
-					event.preventDefault();
-					event.stopPropagation();
-					cancelClose();
-					lightTriggerRef.current?.focus();
-					pinnedOpenRef.current = false;
-					setIsOpen(false);
-				}}
-			>
-				<RivetHeader.NavItem asChild>
-					<button
-						ref={lightTriggerRef}
-						type="button"
-						aria-expanded={isOpen}
-						aria-controls={lightDropdownId}
-						className={cn(
-							"cursor-pointer flex items-center gap-1 relative rounded-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
-							"!text-ink-soft hover:!text-ink",
-							active && "!text-ink",
-							// Invisible hover bridge spanning the visual gap down to the
-							// dropdown panel so moving the mouse from the trigger to the
-							// panel does not cross a dead zone and close the menu. Keep
-							// this height >= the panel's gap below (top-[71px] / lg:mt-5).
-							"after:absolute after:left-0 after:right-0 after:top-full after:h-10 after:content-['']",
-						)}
-						onMouseEnter={handleMouseEnter}
-						onClick={() => {
-							cancelClose();
-							pinnedOpenRef.current = !pinnedOpenRef.current;
-							setIsOpen(pinnedOpenRef.current);
-						}}
-					>
-						Products
-						<Icon
-							aria-hidden="true"
-							icon={faChevronDown}
-							className={cn(
-								"h-3 w-3 ml-0.5 transition-transform duration-200",
-								isOpen && "rotate-180",
-							)}
-						/>
-					</button>
-				</RivetHeader.NavItem>
-				<div
-					id={lightDropdownId}
-					inert={!isOpen}
-					aria-hidden={!isOpen}
-					className={cn(
-						// Solid white so page content never shows through the panel,
-						// while keeping the header pill's white tint (not the cooler
-						// `paper`). Opaque overrides the frosted look on purpose: the
-						// dropdown overlays body copy, unlike the pill at the top edge.
-						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-white p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.4] transition-all duration-150 pointer-events-none",
-						align === "start"
-							? "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-5 lg:translate-x-0"
-							: "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
-						isOpen
-							? "pointer-events-auto translate-y-0 opacity-100"
-							: "pointer-events-none -translate-y-1 opacity-0",
-					)}
-					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
-				>
-					{/* Verb-led premise grid: Orchestrate / Operate on the runtime row,
-					    Automate / Deploy on the outcome row. Order comes from the
-					    registry, which is kept in this lifecycle order. */}
-					<div className="grid gap-1 sm:grid-cols-2">
-						{products.map((product) => (
-							<div key={product.href} className="flex flex-col">
-								{/* The verb sits outside the link so the hover tint colors
-								    only the product lockup, not the category label. */}
-								{product.product.verb && (
-									<div className={`${EYEBROW_CLASS} px-3 pt-3 pb-1`}>
-										{product.product.verb}
-									</div>
-								)}
-								<a
-									href={canonicalizeInternalHref(product.href)}
-									className={cn(
-										"flex items-center gap-3 rounded-xl px-3 py-2.5 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
-										product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
-									)}
-								>
-									{/* The product color is the tile, not the mark. */}
-									<ProductBadge product={product.product} className="size-8" />
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
-											{product.label}
-											{product.product.badge && (
-												<span className="shrink-0 rounded-sm border border-ink/10 bg-ink/[0.06] px-1.5 py-px text-[10px] font-medium leading-[1.4] text-ink-soft whitespace-nowrap">
-													{product.product.badge}
-												</span>
-											)}
-										</div>
-										<div className="mt-0.5 text-pretty text-xs leading-snug text-ink-soft">
-											{product.product.premise ?? product.description}
-										</div>
-									</div>
-								</a>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		);
-	}
+	}, [isOpen]);
 
 	return (
 		<div
-			className="px-2.5 py-2"
+			ref={lightDropdownRef}
+			className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
+			onPointerDownCapture={() => {
+				// Pointer activation focuses the button before `click`. Let `click`
+				// perform the toggle so touch users do not immediately reopen it.
+				focusFromPointerRef.current = true;
+				queueMicrotask(() => {
+					focusFromPointerRef.current = false;
+				});
+			}}
+			onFocusCapture={() => {
+				if (focusFromPointerRef.current) return;
+				cancelClose();
+				setIsOpen(true);
+			}}
+			onBlurCapture={(event) => {
+				if (
+					event.relatedTarget instanceof Node &&
+					event.currentTarget.contains(event.relatedTarget)
+				) {
+					return;
+				}
+				cancelClose();
+				pinnedOpenRef.current = false;
+				setIsOpen(false);
+			}}
+			onKeyDown={(event) => {
+				if (event.key !== "Escape" || !isOpen) return;
+				event.preventDefault();
+				event.stopPropagation();
+				cancelClose();
+				lightTriggerRef.current?.focus();
+				pinnedOpenRef.current = false;
+				setIsOpen(false);
+			}}
 		>
-			<DropdownMenu open={isOpen} onOpenChange={handleOpenChange} modal={false}>
-				<DropdownMenuTrigger asChild>
-					<RivetHeader.NavItem asChild>
-						<button
-							type="button"
-							className={cn(
-								"cursor-pointer flex items-center gap-1 relative transition-colors duration-200",
-								lightTheme ? "!text-ink-soft hover:!text-ink" : "!text-zinc-400 hover:!text-white",
-								active && !lightTheme && "!text-white",
-								"after:absolute after:left-0 after:right-0 after:top-full after:h-4 after:content-['']",
-							)}
-							onPointerDown={handlePointerDown}
-							onMouseEnter={handleMouseEnter}
-						>
-							Products
-							<Icon icon={faChevronDown} className="h-3 w-3 ml-0.5" />
-						</button>
-					</RivetHeader.NavItem>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					align="start"
+			<RivetHeader.NavItem asChild>
+				<button
+					ref={lightTriggerRef}
+					type="button"
+					aria-expanded={isOpen}
+					aria-controls={lightDropdownId}
 					className={cn(
-						"min-w-[280px] p-4 rounded-xl shadow-xl",
+						"cursor-pointer flex items-center gap-1 relative rounded-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
 						lightTheme
-							? "bg-white/95 backdrop-blur-lg border border-ink/10"
-							: "bg-black/95 backdrop-blur-lg border border-white/10",
+							? "focus-visible:ring-pine focus-visible:ring-offset-paper !text-ink-soft hover:!text-ink"
+							: "focus-visible:ring-white/60 focus-visible:ring-offset-neutral-950 !text-zinc-400 hover:!text-white",
+						active && (lightTheme ? "!text-ink" : "!text-white"),
+						// Invisible hover bridge spanning the visual gap down to the
+						// dropdown panel so moving the mouse from the trigger to the
+						// panel does not cross a dead zone and close the menu. Keep
+						// this height >= the panel's gap below (top-[71px] / lg:mt-5).
+						"after:absolute after:left-0 after:right-0 after:top-full after:h-10 after:content-['']",
 					)}
 					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
-					sideOffset={0}
-					alignOffset={0}
-					side="bottom"
+					onClick={() => {
+						cancelClose();
+						pinnedOpenRef.current = !pinnedOpenRef.current;
+						setIsOpen(pinnedOpenRef.current);
+					}}
 				>
-					<div className="flex flex-col gap-1">
-						{products.map((product) => (
-							<React.Fragment key={product.href}>
-								<a
-									href={canonicalizeInternalHref(product.href)}
-									className={cn(
-										"group flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer",
-										lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
-									)}
-								>
-									<ProductBadge product={product.product} className="size-6" />
-									<div className="flex flex-col">
-										<div className={cn(
-											"font-medium text-sm transition-colors",
-											lightTheme ? "text-ink" : "text-white group-hover:text-white",
-										)}>
-											{product.label}
-										</div>
-										<div className={cn(
-											"text-xs transition-colors leading-relaxed",
-											lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
-										)}>
-											{product.description}
-										</div>
-									</div>
-								</a>
-								{product.subItems?.map((sub) => (
-									<a
-										key={sub.href}
-										href={canonicalizeInternalHref(sub.href)}
-										className={cn(
-											"group flex items-center gap-2.5 py-1.5 pl-12 pr-3 rounded-lg transition-colors cursor-pointer",
-											lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
+					Products
+					<Icon
+						aria-hidden="true"
+						icon={faChevronDown}
+						className={cn(
+							"h-3 w-3 ml-0.5 transition-transform duration-200",
+							isOpen && "rotate-180",
+						)}
+					/>
+				</button>
+			</RivetHeader.NavItem>
+			<div
+				id={lightDropdownId}
+				inert={!isOpen}
+				aria-hidden={!isOpen}
+				className={cn(
+					// Opaque on purpose, in either theme: the dropdown overlays body
+					// copy, unlike the pill at the top edge, so page content must
+					// never show through it.
+					"z-50 -translate-y-1 overflow-hidden rounded-2xl border p-1.5 opacity-0 backdrop-blur-[18px] backdrop-saturate-[1.4] transition-all duration-150 pointer-events-none",
+					lightTheme
+						? "border-ink/10 bg-white shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)]"
+						: "border-white/10 bg-neutral-950 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.85)]",
+					align === "start"
+						? "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-5 lg:translate-x-0"
+						: "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
+					isOpen
+						? "pointer-events-auto translate-y-0 opacity-100"
+						: "pointer-events-none -translate-y-1 opacity-0",
+				)}
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+			>
+				{/* Verb-led premise grid: Orchestrate / Operate on the runtime row,
+				    Automate / Deploy on the outcome row. Order comes from the
+				    registry, which is kept in this lifecycle order. */}
+				<div className="grid gap-1 sm:grid-cols-2">
+					{products.map((product) => (
+						<div key={product.href} className="flex flex-col">
+							{/* The verb sits outside the link so the hover tint colors
+							    only the product lockup, not the category label. */}
+							{product.product.verb && (
+								<div className={cn(EYEBROW_CLASS, "px-3 pt-3 pb-1", !lightTheme && "!text-zinc-500")}>
+									{product.product.verb}
+								</div>
+							)}
+							<a
+								href={canonicalizeInternalHref(product.href)}
+								className={cn(
+									"flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
+									lightTheme
+										? cn("text-ink focus-visible:ring-pine", product.accent?.tintHover ?? "hover:bg-ink/[0.07]")
+										: "text-white focus-visible:ring-white/60 hover:bg-white/5",
+								)}
+							>
+								{/* The product color is the tile, not the mark. */}
+								<ProductBadge product={product.product} className="size-8" />
+								<div className="min-w-0 flex-1">
+									<div className={cn("flex items-center gap-2 text-sm font-medium leading-tight", lightTheme ? "text-ink" : "text-white")}>
+										{product.label}
+										{product.product.badge && (
+											<span className={cn("shrink-0 rounded-sm border px-1.5 py-px text-[10px] font-medium leading-[1.4] whitespace-nowrap", lightTheme ? "border-ink/10 bg-ink/[0.06] text-ink-soft" : "border-white/15 bg-white/10 text-zinc-300")}>
+												{product.product.badge}
+											</span>
 										)}
-									>
-										<sub.icon
-											className={cn(
-												"h-3.5 w-3.5 transition-colors",
-												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-500 group-hover:text-zinc-300",
-											)}
-										/>
-										<span
-											className={cn(
-												"text-xs transition-colors",
-												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
-											)}
-										>
-											{sub.label}
-										</span>
-									</a>
-								))}
-							</React.Fragment>
-						))}
-					</div>
-				</DropdownMenuContent>
-			</DropdownMenu>
+									</div>
+									<div className={cn("mt-0.5 text-pretty text-xs leading-snug", lightTheme ? "text-ink-soft" : "text-zinc-400")}>
+										{product.product.premise ?? product.description}
+									</div>
+								</div>
+							</a>
+						</div>
+					))}
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -462,7 +368,7 @@ export function Header({
 	// Inside a product vertical the second header row is the product bar: which
 	// product you are in, a switcher, and that product's three docs tabs.
 	const effectiveSubnav = showProductBar ? (
-		<ProductBar initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} />
+		<ProductBar initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} dark={!isLightTheme} />
 	) : (
 		subnav
 	);
@@ -737,7 +643,7 @@ function DocsMobileNavigation({
 		{ href: "/cloud", label: "Pricing" },
 	];
 
-	const products = productVerticals.map((product) => ({
+	const products = switcherProducts.map((product) => ({
 		id: product.id,
 		label: product.name,
 		href: product.href,

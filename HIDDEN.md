@@ -30,6 +30,7 @@ Still routed at `/actors/learn/*`, unreachable from the nav:
 | Product | Why |
 | --- | --- |
 | Rivet Cloud (`/cloud`) | Managed platform, not one of the four pillars. `hidden: true` keeps it out of the switcher and the `/docs` index; it is reachable from Pricing and from its own docs |
+| Secure Exec (`/secure-exec`) | The isolate runtime underneath agentOS, moved here from secureexec.dev. A library, not one of the four pillars. `hidden: true` keeps it out of the switcher and the `/docs` index; it is reachable from the footer. Its Overview keeps secureexec.dev's own dark design on purpose, scoped under `.secure-exec-page`, with the header and footer forced dark for that page only (`darkChrome`) |
 
 ## TODO pages
 
@@ -43,6 +44,7 @@ Pages that render a TODO callout. These are live and indexed.
 | `/agentos/docs/software` | agentos repo |
 | `/dynamic-apps/docs`, `/docs/concepts`, `/docs/quickstart` | dynamic-apps repo — whole vertical unwritten |
 | `/workflows/docs`, `/docs/concepts`, `/docs/quickstart` | workflows repo — whole vertical unwritten |
+| `/secure-exec/docs` | secure-exec repo — docs not ported from secureexec.dev yet. `vendor/secure-exec` is a one-page placeholder bundle, and the Overview's deep docs links still point at `https://secureexec.dev/docs/*` until they land |
 
 ## Content parked, not published
 

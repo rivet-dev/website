@@ -109,6 +109,20 @@ const CLASSES: Record<string, Omit<ProductAccent, "hex">> = {
 		focusRing: "focus-visible:ring-product-cloud",
 		textHover: "hover:text-product-cloud",
 	},
+	"secure-exec": {
+		text: "text-product-secure-exec",
+		tint: "bg-product-secure-exec-soft",
+		border: "border-product-secure-exec-hairline",
+		fill: "bg-product-secure-exec",
+		underline: "decoration-product-secure-exec",
+		tintHover: "hover:bg-product-secure-exec-soft",
+		activeBorder: "aria-current-page:border-product-secure-exec",
+		borderHover: "hover:border-product-secure-exec-hairline",
+		activeText: "aria-current-page:text-product-secure-exec",
+		activeBorderLeft: "aria-current-page:border-l-product-secure-exec",
+		focusRing: "focus-visible:ring-product-secure-exec",
+		textHover: "hover:text-product-secure-exec",
+	},
 };
 
 const ACCENTS: Record<string, ProductAccent> = Object.fromEntries(
