@@ -69,6 +69,32 @@ rivet-engine --config /etc/rivet/base.json --config /etc/rivet/override.json
 
 Use `samples: 1` for a uniform random pick that skips slot reads, or `samples: 2` or higher for power-of-K choices over envoy slot counts. Treat `virtual_nodes` as an operational invariant once envoys have registered: changing it reshuffles the ring.
 
+### Outbound destination policy
+
+The serverless URL in a runner config is supplied by whoever can write that config, and the control plane dials it from inside its own network. `outbound` controls which destinations those requests may reach. It is enforced when the URL is submitted, when its hostname resolves, and on every redirect hop.
+
+By default the control plane allows loopback and any globally routable address, and denies everything else: private ranges, link-local (including the `169.254.169.254` cloud metadata endpoint), carrier-grade NAT, and other reserved ranges. IPv6 forms that wrap an IPv4 destination are resolved to that destination before being checked.
+
+If your workers live on your own network, for example a Docker Compose service name or a Kubernetes service, open only what you need:
+
+```json
+{
+	"outbound": {
+		// Allow every private range. Simplest, but the broadest.
+		"allow_private_networks": true,
+		// Or allow specific ranges or hosts instead.
+		"allow_cidrs": ["10.1.2.0/24"],
+		"allow_hosts": ["runner.internal"],
+		// Always denied, even if an allow rule would match.
+		"deny_cidrs": ["169.254.169.254"]
+	}
+}
+```
+
+`allow_hosts` matches hostnames exactly and case-insensitively, with no wildcards. Everything served at a listed host becomes reachable by every runner config, so list individual hosts rather than a shared entry point.
+
+A blocked destination surfaces as the `serverless_destination_blocked` error on the runner config.
+
 ## Telemetry
 
 ### OpenTelemetry export
