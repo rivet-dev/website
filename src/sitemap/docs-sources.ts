@@ -28,6 +28,12 @@ export interface DocsSource {
 	 * Takes precedence over `repo`.
 	 */
 	localBundle?: string;
+	/**
+	 * Bundle directory inside the product's repo, when it is not `docs/`. The
+	 * product's repo root stays the snippet root, so a bundle at
+	 * `secure-exec/docs` still resolves `secure-exec/examples/...` snippets.
+	 */
+	bundlePath?: string;
 }
 
 const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
@@ -36,6 +42,7 @@ const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 		{
 			repo: product.repo,
 			localBundle: product.localBundle,
+			bundlePath: product.bundlePath,
 		},
 	]),
 );

@@ -41,14 +41,18 @@ const CONTENT_BASE = path.join(REPO_ROOT, "src/content/docs");
 const DOCS_SOURCES = Object.fromEntries(
 	PRODUCTS.map((product) => [
 		product.id,
-		{ repo: product.repo, localBundle: product.localBundle },
+		{
+			repo: product.repo,
+			localBundle: product.localBundle,
+			bundlePath: product.bundlePath ?? "docs",
+		},
 	]),
 );
 
 const force = process.argv.includes("--force");
 
 /** Where a product's docs should come from, and how we found it. */
-function resolveTarget(productId, repo, localBundle) {
+function resolveTarget(productId, repo, localBundle, bundlePath = "docs") {
 	// A bundle in this repo has no sibling to prefer and no override to respect.
 	if (localBundle) {
 		const local = path.resolve(REPO_ROOT, localBundle, "docs/content");
@@ -57,7 +61,7 @@ function resolveTarget(productId, repo, localBundle) {
 			: { target: null, via: "missing" };
 	}
 
-	const sibling = path.resolve(REPO_ROOT, "..", repo, "docs/content");
+	const sibling = path.resolve(REPO_ROOT, "..", repo, bundlePath, "content");
 	if (existsSync(sibling)) return { target: sibling, via: "sibling" };
 
 	const vendored = path.resolve(REPO_ROOT, "vendor", productId, "docs/content");
@@ -82,10 +86,12 @@ mkdirSync(CONTENT_BASE, { recursive: true });
 const rows = [];
 const problems = [];
 
-for (const [productId, { repo, localBundle }] of Object.entries(DOCS_SOURCES)) {
+for (const [productId, { repo, localBundle, bundlePath }] of Object.entries(
+	DOCS_SOURCES,
+)) {
 	const linkPath = path.join(CONTENT_BASE, productId);
 	const current = describe(linkPath);
-	const { target, via } = resolveTarget(productId, repo, localBundle);
+	const { target, via } = resolveTarget(productId, repo, localBundle, bundlePath);
 
 	// An in-repo bundle is always relinked: there is nothing to override it with,
 	// so a stale link here is a mistake rather than a choice.
@@ -116,7 +122,8 @@ for (const [productId, { repo, localBundle }] of Object.entries(DOCS_SOURCES)) {
 	if (!target) {
 		problems.push(
 			`${productId}: no docs source. Clone the ${repo} repo next to this one ` +
-				`(${path.resolve(REPO_ROOT, "..", repo)}) or add vendor/${productId}/docs/content.`,
+				`(${path.resolve(REPO_ROOT, "..", repo, bundlePath ?? "docs")}) or add ` +
+					`vendor/${productId}/docs/content.`,
 		);
 		continue;
 	}

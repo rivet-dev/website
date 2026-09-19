@@ -158,7 +158,7 @@ const productContentPath = normalizedFilePath?.includes('/docs/content/')
 const editUrl = editUrlOverride ?? (product && tabId !== 'self-host'
 	? product.localBundle
 		? `https://github.com/rivet-dev/website/edit/main/${product.localBundle}/docs/content/${productContentPath}`
-		: `https://github.com/rivet-dev/${product.repo}/edit/main/docs/content/${productContentPath}`
+		: `https://github.com/rivet-dev/${product.repo}/edit/main/${product.bundlePath ?? 'docs'}/content/${productContentPath}`
 	: `https://github.com/rivet-dev/website/edit/main/src/content/${componentSourcePath}`);
 
 // Build BreadcrumbList schema

@@ -351,6 +351,8 @@ redir /meme/wired-in /{http.request.uri.prefixed_query} 301
 redir /meme/wired-in/ /{http.request.uri.prefixed_query} 301
 redir /agentos/docs/deployment /agentos/self-host/{http.request.uri.prefixed_query} 301
 redir /agentos/docs/deployment/ /agentos/self-host/{http.request.uri.prefixed_query} 301
+redir /agentos/docs/bindings /agentos/docs/host-functions/{http.request.uri.prefixed_query} 301
+redir /agentos/docs/bindings/ /agentos/docs/host-functions/{http.request.uri.prefixed_query} 301
 redir /actors/learn/vpc-air-gapped /actors/self-host/control-plane/vm/{http.request.uri.prefixed_query} 301
 redir /actors/learn/vpc-air-gapped/ /actors/self-host/control-plane/vm/{http.request.uri.prefixed_query} 301
 redir /cookbook/vpc-air-gapped /actors/self-host/control-plane/vm/{http.request.uri.prefixed_query} 301

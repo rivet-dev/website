@@ -33,15 +33,28 @@ export function contentLinkPath(productId: string): string {
 	return path.resolve(REPO_ROOT, "src/content/docs", productId);
 }
 
+/** The bundle directory inside a product's repo. Defaults to `docs`. */
+export function bundlePath(productId: string): string {
+	return DOCS_SOURCES[productId]?.bundlePath ?? "docs";
+}
+
 /**
  * The repo root behind an existing content symlink. The link points at
- * `<repo>/docs/content`, so the root is two levels up.
+ * `<repo>/<bundle>/content`, so the root is one level above the bundle. A
+ * vendored bundle is always normalized to `<vendor>/<product>/docs`, whatever
+ * the product's own bundle path is.
  */
 function rootFromContentLink(productId: string): string | undefined {
 	const link = contentLinkPath(productId);
 	try {
 		if (!lstatSync(link).isSymbolicLink()) return undefined;
-		return path.resolve(realpathSync(link), "../..");
+		const bundleRoot = path.resolve(realpathSync(link), "..");
+		const vendorRoot = path.resolve(bundleRoot, "..");
+		if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId)) {
+			return vendorRoot;
+		}
+		const depth = bundlePath(productId).split("/").length;
+		return path.resolve(bundleRoot, ...Array(depth).fill(".."));
 	} catch {
 		return undefined;
 	}
@@ -70,7 +83,9 @@ export function docsRoot(productId: string): string | undefined {
 	if (linked) return linked;
 
 	const sibling = path.resolve(REPO_ROOT, "..", source.repo);
-	if (existsSync(sibling)) return sibling;
+	if (existsSync(path.join(sibling, bundlePath(productId), "content"))) {
+		return sibling;
+	}
 
 	const vendored = path.resolve(REPO_ROOT, "vendor", productId);
 	if (existsSync(vendored)) return vendored;

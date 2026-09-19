@@ -141,6 +141,8 @@ const explicitRedirects = {
 	'/oss-friends': '/',
 	// Deployment folded into the shared Self-Host section.
 	'/agentos/docs/deployment': '/agentos/self-host/',
+	// Bindings were renamed to host functions.
+	'/agentos/docs/bindings': '/agentos/docs/host-functions/',
 	// Air-gapped deployment is a self-hosting topic, not an actors cookbook.
 	'/actors/learn/vpc-air-gapped': '/actors/self-host/control-plane/vm/',
 	'/cookbook/vpc-air-gapped': '/actors/self-host/control-plane/vm/',
