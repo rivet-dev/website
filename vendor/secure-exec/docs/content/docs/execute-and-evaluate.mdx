@@ -1,0 +1,78 @@
+---
+title: "Execute & Evaluate"
+description: "Run untrusted JavaScript with evaluate and execute, pass data in with inputs, and read structured results."
+skill: true
+---
+
+## Evaluate an expression
+
+`evaluate` runs **one expression** and returns its JSON-serializable value.
+
+<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="evaluate" />
+
+The expression may be a promise, which is awaited. Returning `undefined`, a
+function, a symbol, or a circular value fails instead of silently losing the
+value.
+
+Several statements go in a function:
+
+<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="statements" />
+
+## Execute a module
+
+`execute` runs source as an ES module, so `import` and top-level `await` work.
+It returns captured output instead of a value.
+
+<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="execute" />
+
+## Run a file
+
+`executeFile` runs a JavaScript file that is already in the VM, by its guest
+path. Mount a host directory to run a script in a one-shot call. On a
+[VM](/secure-exec/docs/vms), write the file with `vm.filesystem` first.
+`secure-exec/typescript` has the same function for TypeScript files.
+
+<CodeSnippet file="secure-exec/examples/mounts/src/index.ts" region="execute-file" />
+
+A file resolves its imports from its own directory, the same as in Node.js, so a
+file under `/workspace` finds packages installed there.
+
+## Pass data in
+
+<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="inputs" />
+
+## Results
+
+Both functions resolve to a result with an `outcome`.
+
+| `outcome` | Meaning |
+|---|---|
+| `succeeded` | The code finished. `evaluate` results carry `value`. |
+| `failed` | The code threw or exited non-zero. |
+| `timed_out` | `timeoutMs` elapsed. |
+| `cancelled` | The `signal` you passed was aborted. |
+
+Every outcome other than `succeeded` carries an `error` with a `code` and
+`message`. The guest's own stack trace arrives on `stderr`, so capture it when
+you want to show it to a user or a model.
+
+<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="errors" />
+
+Guest failures are never thrown. A call rejects only when the host cannot run
+it at all, such as an invalid option.
+
+## Options
+
+| Option | Purpose |
+|---|---|
+| `inputs` | JSON values the code reads from `inputs` |
+| `timeoutMs` | Stop the code after this long. Set it for any code you did not write |
+| `signal` | An `AbortSignal` that cancels the call |
+| `output`, `onStdout`, `onStderr` | [Capture or stream output](/secure-exec/docs/output-capture) |
+| `env`, `cwd`, `args`, `stdin` | The process environment the code sees. The working directory defaults to `/workspace` |
+| `filePath` | The path the code reports in stack traces and resolves imports from |
+
+The top-level functions also take [VM options](/secure-exec/docs/permissions),
+such as `permissions`, `limits`, and `mounts`, because each call creates its own
+VM. To keep anything between calls, create a [VM](/secure-exec/docs/vms) and
+call the same methods on `vm.javascript`.
