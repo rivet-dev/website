@@ -884,7 +884,7 @@ const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
 						<Activity className='h-5 w-5 text-pine' />
 						<span className='mt-3 text-xs font-medium text-ink sm:text-sm'>Writer agent</span>
 					</DiagramNode>
-					<div className='absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink/10 bg-paper px-3 py-1.5 text-[10px] font-medium text-ink-soft'>binding</div>
+					<div className='absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink/10 bg-paper px-3 py-1.5 text-[10px] font-medium text-ink-soft'>host function</div>
 					<DiagramNode className='absolute top-1/2 right-0 h-28 w-24 -translate-y-1/2 flex-col px-3 sm:w-32'>
 						<ShieldCheck className='h-5 w-5 text-pine' />
 						<span className='mt-3 text-xs font-medium text-ink sm:text-sm'>Reviewer agent</span>
@@ -1223,7 +1223,7 @@ const executionFeatures = [
 	},
 	{
 		icon: Blocks,
-		title: 'Bindings',
+		title: 'Host functions',
 		description: 'Expose typed backend functions without giving credentials to the VM.',
 	},
 	{
@@ -2231,9 +2231,9 @@ const secondaryFeatures = [
 	},
 	{
 		icon: Wrench,
-		title: 'Bindings',
+		title: 'Host functions',
 		description: 'Expose typed JavaScript functions as CLI tools while credentials remain on the host.',
-		docsHref: '/agentos/docs/bindings',
+		docsHref: '/agentos/docs/host-functions',
 	},
 	{
 		icon: ShieldCheck,
