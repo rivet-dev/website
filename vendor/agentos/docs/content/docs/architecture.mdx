@@ -73,7 +73,7 @@ The client speaks to the agentOS server over the wire. The server runs the **sid
 ### The VM
 
 - **A fully virtualized Linux environment.** Each VM has its own filesystem, process table, and network policy. Two VMs share nothing.
-- **The unit of isolation.** Put one tenant or one task per VM to control the blast radius. A crash or runaway in one VM never affects another.
+- **The unit of isolation.** A crash or runaway in one VM never affects another.
 - **Where guest code lives.** The agent, the shell, npm packages, and any generated code all run inside the VM, behind the kernel's boundary.
 
 ## Anatomy of a Linux VM

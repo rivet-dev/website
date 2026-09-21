@@ -85,8 +85,7 @@ Pi session with MCP servers and mounted filesystems.
 - agentOS runs on hardware you provision, not per-VM-second billing.
 - Estimate: instance cost per second ÷ concurrent VMs it holds with realistic
   memory + utilization headroom.
-- A VM per task/tenant → strongest isolation; safely reusing a VM for trusted
-  sequential work amortizes boot + filesystem setup.
+- Reusing a VM for sequential work amortizes boot and filesystem setup.
 - Small short executions benefit most from dense packing; heavy long-lived work
   depends more on hardware choice and avoiding per-sandbox minimums.
 
