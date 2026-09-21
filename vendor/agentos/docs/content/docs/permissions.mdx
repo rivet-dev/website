@@ -23,12 +23,24 @@ The sandbox is deny-by-default for outward-facing capabilities. When you pass no
   childProcess: "allow",
   process: "allow",
   env: "allow",
-  network: "deny",      // no network egress until you opt in
+  binding: "allow",
+  network: {             // VM-local listeners and loopback only
+    default: "deny",
+    rules: [
+      { mode: "allow", operations: ["listen"], patterns: ["tcp://**", "unix:**"] },
+      {
+        mode: "allow",
+        operations: ["http"],
+        patterns: ["tcp://127.0.0.1:*", "tcp://localhost:*", "tcp://::1:*", "unix:**"],
+      },
+    ],
+  },
 }
 ```
 
-- `fs`/`childProcess`/`process`/`env` are allowed because they are fully virtualized (the guest sees only the VM, never the host) and are required to run a program at all.
-- `network` is denied: guest code cannot reach the network until you opt in.
+- `fs`/`childProcess`/`process`/`env` are allowed because they are fully virtualized (the guest sees only the VM, never the host) and are required to run a program at all. `binding` is allowed so the bindings you register can be called.
+- Guest listeners and loopback connections work because they stay inside the VM. External DNS and network connections are denied until you opt in; model providers have no special exception.
+- The sidecar owns this baseline, so the TypeScript and Rust clients behave identically.
 - Your policy is merged **over** this baseline. Omitted scopes keep their default; they are **not** denied. So `{ network: "allow" }` grants the network while keeping the execution essentials.
 
 <CodeSnippet file="examples/permissions/server.ts" region="grant-network" />
@@ -38,7 +50,7 @@ The sandbox is deny-by-default for outward-facing capabilities. When you pass no
 | Scope | Controls | Default |
 |---|---|---|
 | `fs` | Filesystem reads, writes, and metadata operations | `allow` |
-| `network` | Outbound connections: `fetch`, HTTP, DNS, and inbound `listen` | `deny` |
+| `network` | External connections, DNS, VM-local connections, and `listen` | VM-local only |
 | `childProcess` | Spawning child processes | `allow` |
 | `process` | Process-control operations | `allow` |
 | `env` | Environment variable access | `allow` |
@@ -77,7 +89,9 @@ To invert it, flip `default` to `"deny"` and allow just one subtree:
 
 ## Allow only specific network hosts
 
-Every non-`fs` scope matches by `patterns` instead of `paths`. For `network`, a pattern is a host (or `host:port`), and the operations are `fetch`, `http`, `dns`, and `listen`.
+Every non-`fs` scope matches by `patterns` instead of `paths`. For `network`, a pattern matches a resource, not a bare hostname: `dns://<host>` for name resolution and `tcp://<host>:<port>` for the connection. Allowing a host needs both, and `*` matches any port. The operations are `fetch`, `http`, `dns`, and `listen`.
+
+A bare hostname such as `api.example.com` matches nothing, so the host stays denied.
 
 <CodeSnippet file="examples/permissions/server.ts" region="allow-one-host" />
 
@@ -87,7 +101,7 @@ Bindings registered with the runtime are gated by the `binding` scope, matched b
 
 <CodeSnippet file="examples/permissions/server.ts" region="allow-one-binding" />
 
-The `childProcess`, `process`, and `env` scopes work the same way: `childProcess` patterns match the command (`operations: ["spawn"]`), `env` patterns match the variable name (`operations: ["read", "write"]`), and `process` is matched by pattern with `operations: ["*"]`.
+The `childProcess`, `process`, and `env` scopes work the same way: `childProcess` patterns match the command (`operations: ["spawn"]`), `env` patterns match the variable name (`operations: ["read", "write"]`), and `process` is matched by pattern with `operations: ["*"]`. Setting `childProcess: "deny"` blocks subprocesses created by guest code; it does not block the trusted runtime from starting the VM's requested root program.
 
 ## Combine policies and see denials
 
