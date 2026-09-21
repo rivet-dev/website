@@ -26,7 +26,7 @@ create the VM yourself.
 | `vm.createContext()` | JavaScript state that survives between calls |
 | `vm.dispose()` | Shut the VM down |
 
-A Secure Exec VM **is** an [agentOS](/secure-exec/docs/agentos) VM with Secure
+A Secure Exec VM **is** an [agentOS](https://rivet.dev/agentos) VM with Secure
 Exec's defaults, so each namespace behaves exactly as the agentOS docs describe.
 
 ## Files across calls
@@ -48,9 +48,6 @@ A VM holds memory until you dispose it. Use `try` and `finally`, or
 `await using` with TypeScript 5.2 or newer.
 
 <CodeSnippet file="secure-exec/examples/vm/src/index.ts" region="dispose" />
-
-Give each tenant its own VM. Everything in one VM shares a filesystem, a network,
-and one set of limits.
 
 ## What you usually do not need
 

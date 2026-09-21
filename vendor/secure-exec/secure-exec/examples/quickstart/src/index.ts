@@ -1,5 +1,5 @@
 // docs:start evaluate
-import { evaluate, execute } from "secure-exec";
+import { evaluate } from "secure-exec";
 
 // Each call runs in a fresh VM that is disposed when the call finishes.
 const sum = await evaluate<number>("1 + 2");
@@ -26,19 +26,6 @@ const report = await evaluate<{ count: number; max: number }>(`
 `);
 console.log(report.outcome === "succeeded" ? report.value : report.error);
 // docs:end statements
-
-// docs:start execute
-// `execute` runs a whole ES module for its side effects. Capture output to read
-// it back.
-const run = await execute(
-	`
-	import { platform } from "node:os";
-	console.log("running on", platform());
-	`,
-	{ output: { capture: "all" } },
-);
-console.log(run.stdout?.trim()); // running on linux
-// docs:end execute
 
 // docs:start errors
 // Guest errors are returned, not thrown. Capture stderr to see the stack.

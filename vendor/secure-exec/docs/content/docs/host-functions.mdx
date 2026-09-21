@@ -7,7 +7,7 @@ skill: true
 Untrusted code should never hold your database password or API key. A host
 function runs in your process with your credentials, and the guest only sees its
 inputs and outputs. This is what makes
-[code mode](/secure-exec/docs/use-cases/ai-agent-code-exec) useful: the model
+[Code Mode](/secure-exec/docs/use-cases/code-mode) useful: the model
 writes one program that chains your tools.
 
 ## Define host functions
@@ -39,5 +39,5 @@ Inside the VM each collection is a global object and each function is async.
 
 The same functions are also available to shell scripts and other languages as
 commands. Read the [agentOS host functions
-reference](/agentos/docs/host-functions) for that,
-and for schemas, timeouts, and examples.
+reference](/agentos/docs/host-functions) for that, and for schemas, timeouts,
+and examples.

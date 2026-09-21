@@ -12,11 +12,6 @@
 					"title": "Quickstart",
 					"href": "/secure-exec/docs/quickstart",
 					"icon": "faForwardFast"
-				},
-				{
-					"title": "Platforms & Install",
-					"href": "/secure-exec/docs/platforms",
-					"icon": "faDownload"
 				}
 			]
 		},
@@ -24,9 +19,14 @@
 			"title": "Use Cases",
 			"pages": [
 				{
-					"title": "AI Agent Code Exec",
-					"href": "/secure-exec/docs/use-cases/ai-agent-code-exec",
+					"title": "Agent Code Tool",
+					"href": "/secure-exec/docs/use-cases/agent-code-tool",
 					"icon": "faRobot"
+				},
+				{
+					"title": "Code Mode",
+					"href": "/secure-exec/docs/use-cases/code-mode",
+					"icon": "faCode"
 				},
 				{
 					"title": "Plugin Systems",
@@ -41,102 +41,64 @@
 			]
 		},
 		{
-			"title": "Running Code",
+			"title": "Executing Code",
 			"pages": [
 				{
 					"title": "Execute & Evaluate",
-					"href": "/secure-exec/docs/execute-and-evaluate",
-					"icon": "faTerminal"
-				},
-				{
-					"title": "Output Capture",
-					"href": "/secure-exec/docs/output-capture",
-					"icon": "faMessages"
-				},
-				{
-					"title": "VMs",
-					"href": "/secure-exec/docs/vms",
-					"icon": "faHardDrive"
-				},
-				{
-					"title": "Long-Running Code",
-					"href": "/secure-exec/docs/long-running-code",
-					"icon": "faClock"
-				},
-				{
-					"title": "TypeScript",
-					"href": "/secure-exec/docs/typescript",
-					"icon": "faCheck"
-				},
-				{
-					"title": "npm Packages",
-					"href": "/secure-exec/docs/npm",
-					"icon": "faNodeJs"
+					"href": "/secure-exec/docs/execute-and-evaluate"
 				},
 				{
 					"title": "Host Functions",
-					"href": "/secure-exec/docs/host-functions",
-					"icon": "faWrench"
+					"href": "/secure-exec/docs/host-functions"
+				},
+				{
+					"title": "TypeScript",
+					"href": "/secure-exec/docs/typescript"
+				},
+				{
+					"title": "VMs",
+					"href": "/secure-exec/docs/vms"
+				},
+				{
+					"title": "Contexts",
+					"href": "/secure-exec/docs/contexts"
+				},
+				{
+					"title": "Long-Running Processes",
+					"href": "/secure-exec/docs/long-running-code"
+				},
+				{
+					"title": "npm Packages",
+					"href": "/secure-exec/docs/npm"
+				},
+				{
+					"title": "Output Capture",
+					"href": "/secure-exec/docs/output-capture"
 				}
 			]
 		},
 		{
-			"title": "Isolation",
+			"title": "Security",
 			"pages": [
 				{
-					"title": "Security",
-					"href": "/secure-exec/docs/security",
-					"icon": "faCheck"
+					"title": "Overview",
+					"href": "/secure-exec/docs/security"
 				},
 				{
 					"title": "Permissions",
-					"href": "/secure-exec/docs/permissions",
-					"icon": "faKey"
+					"href": "/secure-exec/docs/permissions"
 				},
 				{
 					"title": "Resource Limits",
-					"href": "/secure-exec/docs/resource-limits",
-					"icon": "faGauge"
+					"href": "/secure-exec/docs/resource-limits"
 				},
 				{
 					"title": "Filesystem & Mounts",
-					"href": "/secure-exec/docs/filesystem",
-					"icon": "faFloppyDisk"
+					"href": "/secure-exec/docs/filesystem"
 				},
 				{
 					"title": "Networking",
-					"href": "/secure-exec/docs/networking",
-					"icon": "faGlobe"
-				}
-			]
-		},
-		{
-			"title": "Advanced",
-			"pages": [
-				{
-					"title": "Contexts",
-					"href": "/secure-exec/docs/contexts",
-					"icon": "faLayerGroup"
-				},
-				{
-					"title": "Execution Model",
-					"href": "/secure-exec/docs/execution-model",
-					"icon": "faDiagramNext"
-				},
-				{
-					"title": "Lifecycle",
-					"href": "/secure-exec/docs/lifecycle",
-					"icon": "faBolt"
-				},
-				{
-					"title": "Errors",
-					"href": "/secure-exec/docs/errors",
-					"icon": "faMessages"
-				},
-				{
-					"title": "Limitations",
-					"href": "/secure-exec/docs/limitations",
-					"icon": "faClock"
+					"href": "/secure-exec/docs/networking"
 				}
 			]
 		},
@@ -144,55 +106,12 @@
 			"title": "Reference",
 			"pages": [
 				{
-					"title": "API Reference",
-					"href": "/secure-exec/docs/api-reference",
-					"icon": "faWindowMaximize"
-				},
-				{
-					"title": "Going Further with agentOS",
-					"href": "/secure-exec/docs/agentos",
-					"icon": "faArrowsLeftRight"
+					"title": "Lifecycle",
+					"href": "/secure-exec/docs/lifecycle"
 				},
 				{
 					"title": "Benchmarks",
-					"href": "/secure-exec/docs/benchmarks",
-					"icon": "faGauge"
-				},
-				{
-					"title": "Python",
-					"href": "/agentos/docs/python",
-					"icon": "faPython"
-				},
-				{
-					"title": "Comparison",
-					"collapsible": true,
-					"icon": "faScaleBalanced",
-					"pages": [
-						{
-							"title": "vs Vercel Run",
-							"href": "/secure-exec/docs/comparison/vercel-run"
-						},
-						{
-							"title": "vs QuickJS",
-							"href": "/secure-exec/docs/comparison/quickjs"
-						},
-						{
-							"title": "vs secure-eval-worker",
-							"href": "/secure-exec/docs/comparison/secure-eval-worker"
-						},
-						{
-							"title": "vs isolated-vm",
-							"href": "/secure-exec/docs/comparison/isolated-vm"
-						},
-						{
-							"title": "vs Cloudflare Workers",
-							"href": "/secure-exec/docs/comparison/cloudflare-workers"
-						},
-						{
-							"title": "vs Container Sandboxes",
-							"href": "/secure-exec/docs/comparison/container-sandboxes"
-						}
-					]
+					"href": "/secure-exec/docs/benchmarks"
 				}
 			]
 		}

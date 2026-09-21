@@ -1,5 +1,5 @@
 ---
-title: "Security"
+title: "Overview"
 description: "What Secure Exec isolates, what it denies by default, and what remains your responsibility when running untrusted code."
 skill: true
 ---
@@ -27,8 +27,6 @@ before anything happens.
 ## Your responsibilities
 
 - **Set `timeoutMs` on every call** that runs code you did not write.
-- **Give each tenant its own VM.** Everything in one VM shares a filesystem and a
-  network.
 - **Treat [host functions](/secure-exec/docs/host-functions) as your API
   surface.** They run with your credentials, so validate and authorize inside
   them.
@@ -36,4 +34,4 @@ before anything happens.
 - **Grant hosts, not the whole network,** when the code only needs one API.
 
 Read the [agentOS security model](/agentos/docs/security-model) for the full
-trust model, what is guaranteed, and the known [limitations](/secure-exec/docs/limitations).
+trust model and what is guaranteed.
