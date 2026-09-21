@@ -12,8 +12,7 @@ skill: true
 npm install secure-exec
 ```
 
-Secure Exec requires Node.js 22 or newer on Linux or macOS. See
-[Platforms & Install](/secure-exec/docs/platforms).
+Secure Exec requires Node.js 22 or newer on Linux (glibc) or macOS.
 
 </Step>
 
@@ -31,11 +30,13 @@ Secure Exec requires Node.js 22 or newer on Linux or macOS. See
 
 </Step>
 
-<Step title="Run a module">
+<Step title="Call host functions">
 
-`execute` runs a whole ES module for its side effects.
+Host functions run in your process, with your credentials. Each collection is a
+global inside the VM whose methods are async, so the guest calls them like
+ordinary functions. Nothing else about your process crosses into the VM.
 
-<CodeSnippet file="secure-exec/examples/quickstart/src/index.ts" region="execute" />
+<CodeSnippet file="secure-exec/examples/host-functions/src/index.ts" region="quickstart" />
 
 </Step>
 
@@ -52,6 +53,7 @@ process.
 
 ## Next steps
 
+- [Host Functions](/secure-exec/docs/host-functions) covers schemas, errors, and Code Mode.
 - [VMs](/secure-exec/docs/vms) keep files, packages, and processes across calls.
 - [Execute & Evaluate](/secure-exec/docs/execute-and-evaluate) explains results and options in detail.
 - [Permissions](/secure-exec/docs/permissions) shows how to grant the network.

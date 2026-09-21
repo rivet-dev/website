@@ -15,8 +15,8 @@ that outlives the call.
 
 - Installing needs the network, which is denied until you allow it.
 - Packages install into the working directory, `/workspace`. Run your code from a
-  file there so it finds them. Inline code has a
-  [limitation](/secure-exec/docs/limitations) here.
+  file there so it finds them, or set `filePath` to a path inside `/workspace`
+  when inline code imports an installed package.
 - `vm.npm.install()` with no package list installs the dependencies of the
   `package.json` in the working directory.
 - `vm.npm.runScript` and `vm.npm.runPackage` work like `npm run` and `npx`.

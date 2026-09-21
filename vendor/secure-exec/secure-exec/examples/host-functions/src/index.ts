@@ -1,6 +1,7 @@
 import { evaluate } from "secure-exec";
 import { z } from "zod";
 
+// docs:start quickstart
 // docs:start call
 // Inside the VM each collection is a global, and each function is async. This
 // is the code a model would write.
@@ -34,3 +35,4 @@ const total = await evaluate<number>(generated, {
 });
 console.log(total.outcome === "succeeded" ? total.value : total.stderr); // 42
 // docs:end define
+// docs:end quickstart

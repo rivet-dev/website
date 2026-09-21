@@ -20,8 +20,8 @@ Forward requests from your own route to the guest, and return what it answers.
 
 - **No host port.** The server listens on the VM's virtual network. Only your
   process can reach it, through `vm.network.httpRequest`.
-- **One VM per preview.** Each tenant's server gets its own VM, filesystem,
-  and [limits](/secure-exec/docs/resource-limits).
+- **One VM per preview.** Each preview gets its own filesystem and
+  [limits](/secure-exec/docs/resource-limits).
 - **Bring a project.** Write files with `vm.filesystem`, install
   dependencies with [npm](/secure-exec/docs/npm), then spawn the entry point.
 
@@ -29,4 +29,4 @@ Forward requests from your own route to the guest, and return what it answers.
 
 <CodeSnippet file="secure-exec/examples/dev-server/src/index.ts" region="stop" />
 
-Read more in [Long-Running Code](/secure-exec/docs/long-running-code).
+Read more in [Long-Running Processes](/secure-exec/docs/long-running-code).

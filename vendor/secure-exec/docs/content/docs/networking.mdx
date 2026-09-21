@@ -11,10 +11,8 @@ network stack inside the VM. No guest code ever holds a real host socket.
   published as host ports.
 - External network access is **denied by default**. Grant it, or specific hosts,
   with [permissions](/secure-exec/docs/permissions).
-- Read or cancel response bodies you request. See
-  [limitations](/secure-exec/docs/limitations).
 - To call a server running in the guest, use `vm.network.httpRequest`. See
-  [Long-Running Code](/secure-exec/docs/long-running-code).
+  [Long-Running Processes](/secure-exec/docs/long-running-code).
 
 Read the [agentOS networking docs](/agentos/docs/networking) for how the stack
 works and what it supports.

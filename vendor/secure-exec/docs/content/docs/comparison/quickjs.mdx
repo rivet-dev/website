@@ -72,7 +72,7 @@ event loop.
 
 It has no native binary, so it runs in browsers, Deno, Bun, and edge runtimes,
 where Secure Exec cannot. It is small and starts almost instantly. The
-WebAssembly layer contains memory-safety bugs in the engine, which keep being
+WebAssembly layer confines memory-safety bugs in the engine, which keep being
 found, so an engine bug cannot inject code into your host. Its core language
 conformance is excellent.
 
