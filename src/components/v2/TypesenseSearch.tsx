@@ -2,6 +2,7 @@
 
 import Typesense from "typesense";
 import { Button, Dialog, DialogPortal, Kbd, cn } from "@rivet-gg/components";
+import { Icon, faMagnifyingGlass } from "@rivet-gg/icons";
 import { useCallback, useEffect, useState } from "react";
 
 const TYPESENSE_HOST =
@@ -201,8 +202,9 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 			<Button
 				onClick={() => setIsOpen(true)}
 				variant="outline"
+				aria-label="Search documentation"
 				className={cn(
-					"relative h-8 w-full justify-start rounded-md text-sm font-normal shadow-none hidden md:flex md:w-24 lg:w-40",
+					"relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-sm font-normal shadow-none md:w-24 md:justify-start lg:w-40",
 					light
 						? "border-ink/15 bg-white/55 text-ink-faint hover:border-ink/30 hover:bg-white hover:text-ink"
 						: // Dark header (the Secure Exec overview). Matches the GitHub
@@ -210,11 +212,15 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 							"border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:bg-white/10 hover:text-white",
 				)}
 			>
-				<span className="hidden lg:inline-flex">Search...</span>
-				<span className="inline-flex lg:hidden">Search...</span>
+				<Icon
+					icon={faMagnifyingGlass}
+					aria-hidden="true"
+					className={cn("h-4 w-4 md:hidden", light ? "text-ink" : "text-white")}
+				/>
+				<span className="hidden md:inline-flex">Search...</span>
 				<Kbd
 					className={cn(
-						"absolute right-1.5 top-1/2 -translate-y-1/2 hidden sm:flex",
+						"absolute right-1.5 top-1/2 -translate-y-1/2 hidden md:flex",
 						light
 							? "!border-ink/20 !bg-ink/[0.06] !text-ink-soft"
 							: "!border-white/15 !bg-white/10 !text-white/70",
@@ -233,7 +239,7 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 							role="dialog"
 							aria-modal="true"
 							aria-label="Search documentation"
-							className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-ink/10 bg-paper text-ink shadow-lg"
+							className="fixed left-[50%] top-[50%] z-50 w-[calc(100vw-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-ink/10 bg-paper text-ink shadow-lg"
 							onClick={(e) => e.stopPropagation()}
 						>
 							<div className="flex items-center border-b border-ink/10 px-3">
