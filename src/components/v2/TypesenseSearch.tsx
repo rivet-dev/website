@@ -245,7 +245,8 @@ export function TypesenseSearch({ light = false }: { light?: boolean }) {
 									onChange={(e) => setQuery(e.target.value)}
 									onFocus={() => setInputFocused(true)}
 									onBlur={() => setInputFocused(false)}
-									className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm text-ink outline-none placeholder:text-ink-faint"
+									// iOS Safari zooms on focus below 16px
+									className="flex h-11 w-full rounded-md bg-transparent py-3 text-base text-ink md:text-sm outline-none placeholder:text-ink-faint"
 									placeholder="Search documentation..."
 									autoFocus
 								/>
