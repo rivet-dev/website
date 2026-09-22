@@ -8,10 +8,9 @@ import logoTextBlackUrl from "@/images/rivet-logos/icon-text-black.svg";
 import logoIconUrl from "@/images/rivet-logos/icon-white.svg";
 import { cn } from "@rivet-gg/components";
 import { Header as RivetHeader } from "@rivet-gg/components/header";
-import { Icon } from "@rivet-gg/icons";
+import { Icon, type IconProp } from "@rivet-gg/icons";
 import {
 	EYEBROW_CLASS,
-	EYEBROW_ON_INK_CLASS,
 	HEADER_PRIMARY_INK_BUTTON_CLASS,
 	HEADER_SECONDARY_BUTTON_CLASS,
 } from "@/components/marketing/typography";
@@ -31,9 +30,10 @@ import { LogoContextMenu } from "./LogoContextMenu";
 import { ProductBar, ProductBadge } from "@/components/ProductBar";
 import { productAccent } from "@/lib/product-accent";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
+import { DOCS_MENU, SOLUTIONS_MENU } from "@/data/nav-menus";
 import {
 	findProductForPath,
-	switcherProducts,
+	getProduct,
 	visibleProducts as productVerticals,
 	visibleTabs,
 } from "@/sitemap/products";
@@ -69,14 +69,25 @@ function TextNavItem({
 	);
 }
 
-function ProductsDropdown({
+/**
+ * The shared header menu shell: hover-to-open with a close delay, click to pin,
+ * Escape to dismiss, and an invisible bridge across the gap down to the panel.
+ *
+ * Extracted from the Products menu so Solutions and Documentation behave
+ * identically rather than each growing their own timing.
+ */
+function NavDropdown({
+	label,
 	active,
 	lightTheme = false,
 	align = "center",
+	children,
 }: {
+	label: string;
 	active?: boolean;
 	lightTheme?: boolean;
 	align?: "center" | "start";
+	children: ReactNode;
 }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,17 +96,6 @@ function ProductsDropdown({
 	const focusFromPointerRef = useRef(false);
 	const pinnedOpenRef = useRef(false);
 	const lightDropdownId = useId();
-
-	// The product verticals, in registry order. Each item opens the product's
-	// overview; its product bar then exposes the documentation and other sections.
-	const products = switcherProducts.map((product) => ({
-		id: product.id,
-		label: product.name,
-		href: product.href,
-		description: product.description,
-		accent: productAccent(product.id),
-		product,
-	}));
 
 	const cancelClose = () => {
 		if (closeTimeoutRef.current) {
@@ -229,7 +229,7 @@ function ProductsDropdown({
 						setIsOpen(pinnedOpenRef.current);
 					}}
 				>
-					Products
+					{label}
 					<Icon
 						aria-hidden="true"
 						icon={faChevronDown}
@@ -262,49 +262,169 @@ function ProductsDropdown({
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
-				{/* Verb-led premise grid: Orchestrate / Operate on the runtime row,
-				    Automate / Deploy on the outcome row. Order comes from the
-				    registry, which is kept in this lifecycle order. */}
-				<div className="grid gap-1 sm:grid-cols-2">
-					{products.map((product) => (
-						<div key={product.href} className="flex flex-col">
-							{/* The verb sits outside the link so the hover tint colors
-							    only the product lockup, not the category label. */}
-							{product.product.verb && (
-								<div className={cn(EYEBROW_CLASS, "px-3 pt-3 pb-1", !lightTheme && "!text-zinc-500")}>
-									{product.product.verb}
-								</div>
-							)}
-							<a
-								href={canonicalizeInternalHref(product.href)}
-								className={cn(
-									"flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
-									lightTheme
-										? cn("text-ink focus-visible:ring-pine", product.accent?.tintHover ?? "hover:bg-ink/[0.07]")
-										: "text-white focus-visible:ring-white/60 hover:bg-white/5",
-								)}
-							>
-								{/* The product color is the tile, not the mark. */}
-								<ProductBadge product={product.product} className="size-8" />
-								<div className="min-w-0 flex-1">
-									<div className={cn("flex items-center gap-2 text-sm font-medium leading-tight", lightTheme ? "text-ink" : "text-white")}>
-										{product.label}
-										{product.product.badge && (
-											<span className={cn("shrink-0 rounded-sm border px-1.5 py-px text-[10px] font-medium leading-[1.4] whitespace-nowrap", lightTheme ? "border-ink/10 bg-ink/[0.06] text-ink-soft" : "border-white/15 bg-white/10 text-zinc-300")}>
-												{product.product.badge}
-											</span>
-										)}
-									</div>
-									<div className={cn("mt-0.5 text-pretty text-xs leading-snug", lightTheme ? "text-ink-soft" : "text-zinc-400")}>
-										{product.product.premise ?? product.description}
-									</div>
-								</div>
-							</a>
-						</div>
-					))}
-				</div>
+				{children}
 			</div>
 		</div>
+	);
+}
+
+/** One row in either header menu: mark, label, and a line of premise. */
+function MenuRow({
+	icon,
+	label,
+	description,
+	badge,
+	accent,
+	lightTheme,
+}: {
+	icon: IconProp;
+	label: string;
+	description: string;
+	badge?: string;
+	accent?: ReturnType<typeof productAccent>;
+	lightTheme: boolean;
+}) {
+	return (
+		<>
+			{/* The accent is the tile, never the mark — same rule as ProductBadge. */}
+			<span
+				className={cn(
+					"flex size-8 shrink-0 items-center justify-center rounded-[34.375%]",
+					accent?.fill ?? (lightTheme ? "bg-ink" : "bg-white/10"),
+				)}
+			>
+				<Icon icon={icon} aria-hidden="true" className="h-4 w-4 text-white" />
+			</span>
+			<span className="min-w-0 flex-1">
+				<span
+					className={cn(
+						"flex items-center gap-2 text-sm font-medium leading-tight",
+						lightTheme ? "text-ink" : "text-white",
+					)}
+				>
+					{label}
+					{badge && (
+						<span
+							className={cn(
+								"shrink-0 rounded-sm border px-1.5 py-px text-[10px] font-medium leading-[1.4] whitespace-nowrap",
+								lightTheme
+									? "border-ink/10 bg-ink/[0.06] text-ink-soft"
+									: "border-white/15 bg-white/10 text-zinc-300",
+							)}
+						>
+							{badge}
+						</span>
+					)}
+				</span>
+				<span
+					className={cn(
+						"mt-0.5 block text-pretty text-xs leading-snug",
+						lightTheme ? "text-ink-soft" : "text-zinc-400",
+					)}
+				>
+					{description}
+				</span>
+			</span>
+		</>
+	);
+}
+
+/**
+ * Solutions: the audiences from the landing page's "Built for every kind of
+ * agent" section. The rows do not navigate — the pages behind them do not exist
+ * yet — so they render as plain list items rather than as links that 404.
+ */
+function SolutionsDropdown({ lightTheme = false }: { lightTheme?: boolean }) {
+	return (
+		<NavDropdown label="Solutions" lightTheme={lightTheme} align="start">
+			<ul className="grid gap-1 sm:grid-cols-2">
+				{SOLUTIONS_MENU.map((item) => (
+					<li
+						key={item.id}
+						className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+					>
+						<MenuRow
+							icon={item.icon}
+							label={item.label}
+							description={item.description}
+							lightTheme={lightTheme}
+						/>
+					</li>
+				))}
+			</ul>
+		</NavDropdown>
+	);
+}
+
+/**
+ * Documentation, in two columns: Orchestration (what runs the workloads) and
+ * Actors (the workloads themselves).
+ *
+ * Keeps the Products menu's panel geometry and its `ProductBadge` tiles, with a
+ * quiet column label in place of the per-row verb eyebrow.
+ */
+function DocsDropdown({
+	active,
+	lightTheme = false,
+}: {
+	active?: boolean;
+	lightTheme?: boolean;
+}) {
+	return (
+		<NavDropdown
+			label="Documentation"
+			active={active}
+			lightTheme={lightTheme}
+			align="start"
+		>
+			<div className="grid gap-x-1 gap-y-2 sm:grid-cols-2">
+				{DOCS_MENU.map((column) => (
+					<div key={column.label} className="flex flex-col">
+						<div
+							className={cn(
+								EYEBROW_CLASS,
+								"px-3 pt-3 pb-1",
+								!lightTheme && "!text-zinc-500",
+							)}
+						>
+							{column.label}
+						</div>
+						{column.links.map((link) => {
+							const product = link.productId
+								? getProduct(link.productId)
+								: undefined;
+							const accent = link.productId
+								? productAccent(link.productId)
+								: undefined;
+							return (
+								<a
+									key={link.href}
+									href={canonicalizeInternalHref(link.href)}
+									className={cn(
+										"flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
+										lightTheme
+											? cn(
+													"text-ink focus-visible:ring-pine",
+													accent?.tintHover ?? "hover:bg-ink/[0.07]",
+												)
+											: "text-white focus-visible:ring-white/60 hover:bg-white/5",
+									)}
+								>
+									{/* The product color is the tile, not the mark. Rows with no
+									    product keep the row rhythm with an empty gutter. */}
+									{product ? (
+										<ProductBadge product={product} className="size-7" />
+									) : (
+										<span aria-hidden="true" className="size-7 shrink-0" />
+									)}
+									<span className="min-w-0 flex-1 truncate">{link.label}</span>
+								</a>
+							);
+						})}
+					</div>
+				))}
+			</div>
+		</NavDropdown>
 	);
 }
 
@@ -474,12 +594,10 @@ export function Header({
 								{/* Same anchored panel the other pages use. The floating header
 								    used to get a full-width centered sheet, which read as a
 								    different component. */}
-								<ProductsDropdown active={active === "product"} lightTheme align="start" />
-								<TextNavItem
-									href="/docs"
-									ariaCurrent={active === "docs" ? "page" : undefined}
-								>
-									Documentation
+								<SolutionsDropdown lightTheme />
+								<DocsDropdown active={active === "docs"} lightTheme />
+								<TextNavItem href="/registry">
+									Registry
 								</TextNavItem>
 								<TextNavItem href="/enterprise">
 									Enterprise
@@ -567,18 +685,16 @@ export function Header({
 					"flex items-center font-v2 subpixel-antialiased",
 					isLightTheme && "[&_a]:!text-ink-soft [&_a:hover]:!text-ink [&_a[aria-current=page]]:!text-ink [&_button]:!text-ink-soft",
 				)}>
-					<ProductsDropdown active={active === "product"} lightTheme={isLightTheme} align="start" />
+					<SolutionsDropdown lightTheme={isLightTheme} />
 					{/* Inside a product the second row carries that product's own
 					    Documentation tab, so the global one is dropped rather than
 					    repeated one line apart with a different destination. */}
 					{!showProductBar && (
-						<TextNavItem
-							href="/docs"
-							ariaCurrent={active === "docs" ? "page" : undefined}
-						>
-							Documentation
-						</TextNavItem>
+						<DocsDropdown active={active === "docs"} lightTheme={isLightTheme} />
 					)}
+					<TextNavItem href="/registry">
+						Registry
+					</TextNavItem>
 					<TextNavItem href="/enterprise">
 						Enterprise
 					</TextNavItem>
@@ -638,17 +754,10 @@ function DocsMobileNavigation({
 			: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
 
 	const mainLinks = [
-		{ href: "/docs", label: "Documentation" },
+		{ href: "/registry", label: "Registry" },
 		{ href: "/enterprise", label: "Enterprise" },
 		{ href: "/cloud", label: "Pricing" },
 	];
-
-	const products = switcherProducts.map((product) => ({
-		id: product.id,
-		label: product.name,
-		href: product.href,
-		product,
-	}));
 
 	const currentSection = current
 		? sections.find((section) => section.id === current.tab.id)
@@ -668,26 +777,32 @@ function DocsMobileNavigation({
 					/>
 				</a>
 
-				{/* Products section */}
-				<div className="text-ink-faint py-2 px-2 text-xs uppercase tracking-wide">
-					Products
-				</div>
-				{products.map((product) => (
-					<a
-						key={product.href}
-						href={canonicalizeInternalHref(product.href)}
-						target={product.external ? "_blank" : undefined}
-						rel={product.external ? "noopener noreferrer" : undefined}
-						className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
-					>
-						<ProductBadge product={product.product} className="size-6" />
-						{product.label}
-						{product.product.verb && (
-							<span className={`${EYEBROW_CLASS} ml-auto`}>
-								{product.product.verb}
-							</span>
-						)}
-					</a>
+				{/* Documentation, flattened from the desktop menu's two columns. */}
+				{DOCS_MENU.map((column) => (
+					<div key={column.label}>
+						<div className="text-ink-faint py-2 px-2 text-xs uppercase tracking-wide">
+							{column.label}
+						</div>
+						{column.links.map((link) => {
+							const product = link.productId
+								? getProduct(link.productId)
+								: undefined;
+							return (
+								<a
+									key={link.href}
+									href={canonicalizeInternalHref(link.href)}
+									className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
+								>
+									{product ? (
+										<ProductBadge product={product} className="size-6" />
+									) : (
+										<span aria-hidden="true" className="size-6 shrink-0" />
+									)}
+									{link.label}
+								</a>
+							);
+						})}
+					</div>
 				))}
 
 				{/* Main navigation links */}
@@ -773,26 +888,32 @@ function DocsMobileNavigation({
 				/>
 			</a>
 
-			{/* Products section */}
-			<div className="text-zinc-500 py-2 px-2 text-xs uppercase tracking-wide">
-				Products
-			</div>
-			{products.map((product) => (
-				<a
-					key={product.href}
-					href={canonicalizeInternalHref(product.href)}
-					target={product.external ? "_blank" : undefined}
-					rel={product.external ? "noopener noreferrer" : undefined}
-					className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
-				>
-					<ProductBadge product={product.product} className="size-6" />
-					{product.label}
-					{product.product.verb && (
-						<span className={`${EYEBROW_ON_INK_CLASS} ml-auto`}>
-							{product.product.verb}
-						</span>
-					)}
-				</a>
+			{/* Documentation, mirroring the light-theme sheet above. */}
+			{DOCS_MENU.map((column) => (
+				<div key={column.label}>
+					<div className="text-zinc-500 py-2 px-2 text-xs uppercase tracking-wide">
+						{column.label}
+					</div>
+					{column.links.map((link) => {
+						const product = link.productId
+							? getProduct(link.productId)
+							: undefined;
+						return (
+							<a
+								key={link.href}
+								href={canonicalizeInternalHref(link.href)}
+								className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
+							>
+								{product ? (
+									<ProductBadge product={product} className="size-6" />
+								) : (
+									<span aria-hidden="true" className="size-6 shrink-0" />
+								)}
+								{link.label}
+							</a>
+						);
+					})}
+				</div>
 			))}
 
 			{/* Main navigation links */}

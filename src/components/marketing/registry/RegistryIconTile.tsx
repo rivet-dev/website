@@ -1,3 +1,6 @@
+import { cn } from "@rivet-gg/components";
+import { ProductBadge } from "@/components/ProductBar";
+import { getProduct } from "@/sitemap/products";
 import type { RegistryIconName } from "../../../data/registry-icons";
 import { REGISTRY_ICONS } from "../../../data/registry-icons";
 
@@ -50,6 +53,12 @@ interface RegistryIconTileProps {
 	title: string;
 	image?: string;
 	icon?: RegistryIconName;
+	/**
+	 * Product whose accent tile and wordmark this entry wears. Takes precedence
+	 * over `image` and `icon`, so an actor type looks the same in the catalog as
+	 * it does on the landing page.
+	 */
+	productId?: string;
 	size: number;
 	className?: string;
 }
@@ -58,6 +67,7 @@ export function RegistryIconTile({
 	title,
 	image,
 	icon,
+	productId,
 	size,
 	className,
 }: RegistryIconTileProps) {
@@ -66,6 +76,19 @@ export function RegistryIconTile({
 		height: size,
 		borderRadius: Math.round(size * 0.24),
 	};
+
+	// The product color is the tile, never the mark — same rule ProductBadge
+	// enforces everywhere else products are listed.
+	const product = productId ? getProduct(productId) : undefined;
+	if (product) {
+		return (
+			<ProductBadge
+				product={product}
+				className={cn("shrink-0", className)}
+				style={{ width: size, height: size }}
+			/>
+		);
+	}
 
 	if (image) {
 		if (BLEED_IMAGES.has(image)) {

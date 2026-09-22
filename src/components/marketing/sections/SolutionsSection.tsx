@@ -576,7 +576,7 @@ export const SolutionsSection = () => (
     <div className={SITE_STANDARD_RAIL_CLASS}>
       <div className="max-w-3xl" data-site-reveal="">
         <h2 id="landing-solutions-title" className={SECTION_H2_CLASS}>
-          Built for every kind of agent.
+          Built for everything agents need.
         </h2>
       </div>
 

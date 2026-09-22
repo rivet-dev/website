@@ -72,11 +72,13 @@ export function ProductMark({
 export function ProductBadge({
 	product,
 	className,
-}: { product: Product; className?: string }) {
+	style,
+}: { product: Product; className?: string; style?: React.CSSProperties }) {
 	const accent = productAccent(product.id);
 	return (
 		<span
 			aria-hidden="true"
+			style={style}
 			className={cn(
 				"flex shrink-0 items-center justify-center rounded-[34.375%]",
 				accent?.fill ?? "bg-ink",

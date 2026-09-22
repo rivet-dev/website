@@ -1,4 +1,5 @@
 import { DeploymentBoundaryDiagram } from "../diagrams/DeploymentBoundaryDiagram";
+import { CloudStrip } from "../orchestration/CloudStrip";
 import { CatalogCard } from "../editorial/CatalogCard";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import {
@@ -77,6 +78,8 @@ export const OnPremSection = () => (
           Explore Enterprise
         </a>
       </div>
+
+      <CloudStrip />
     </div>
   </section>
 );

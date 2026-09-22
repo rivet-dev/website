@@ -118,7 +118,6 @@ const explicitRedirects = {
 	'/agent-os/pricing': '/cloud/',
 	'/agent-os/use-cases': '/agentos/use-cases/',
 	'/agent-os/registry': '/agentos/registry/',
-	'/registry': '/agentos/registry/',
 	// The integrations pages live under the Actors vertical now. These two are
 	// not covered by legacyDocsRedirects because they moved tab, not just prefix.
 	'/docs/integrations': '/actors/integrations/',
@@ -265,11 +264,10 @@ export const EXTERNAL_REDIRECT_HOSTS = ['agentos-sdk.dev', 'discord.gg'];
 // to `to`.
 //
 // When `to` ends with `from`, the rule is a pure re-parenting and the request's
-// suffix is carried through: `/registry/pi` -> `/agentos/registry/pi`. Otherwise
+// suffix is carried through: `/agent-os/docs` -> `/agentos/docs`. Otherwise
 // the suffix is dropped and every sub-path collapses onto `to`, which is what
 // the old marketing paths need since they have no 1:1 mapping.
 export const wildcardRedirects = [
-	{ from: '/registry', to: '/agentos/registry' },
 	// Deep TypeDoc URLs are heavily linked from old docs and search results.
 	{ from: '/typedoc', to: '/actors/docs' },
 	{ from: '/learn', to: '/actors/learn' },

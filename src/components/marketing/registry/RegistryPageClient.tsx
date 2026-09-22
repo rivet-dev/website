@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import type { RegistryEntryBase } from "../../../data/registry";
 import type { RegistryIconName } from "../../../data/registry-icons";
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
@@ -23,21 +22,29 @@ export interface RegistryCardEntry {
 	slug: string;
 	title: string;
 	description: string;
-	types: RegistryEntryBase["types"];
+	// Widened from the agentOS union so a second catalog can bring its own
+	// taxonomy; agentOS still passes values from `RegistryEntryBase["types"]`.
+	types: readonly string[];
 	status: "available" | "coming-soon" | "docs" | "config" | "external";
 	featured?: boolean;
 	beta?: boolean;
 	icon?: RegistryIconName;
 	image?: string;
+	/** Product whose accent tile and mark this entry wears. */
+	productId?: string;
 	// Only set for external entries; the row links straight to it.
 	href?: string;
 }
 
-const CATEGORY_ORDER: {
-	type: RegistryCardEntry["types"][number];
+export interface RegistryCategory {
+	/** Matched against each entry's `types`. */
+	type: string;
 	label: string;
 	description: string;
-}[] = [
+}
+
+/** The agentOS taxonomy, and the default when a page supplies none. */
+const CATEGORY_ORDER: RegistryCategory[] = [
 	{
 		type: "agent",
 		label: "Agents",
@@ -145,6 +152,7 @@ function AppRow({
 			className="group flex items-center gap-4 rounded-md py-3.5 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 		>
 			<RegistryIconTile
+				productId={entry.productId}
 				title={entry.title}
 				image={entry.image}
 				icon={entry.icon}
@@ -375,6 +383,7 @@ function FeaturedBanner({
 							</span>
 						</div>
 						<RegistryIconTile
+				productId={entry.productId}
 							title={entry.title}
 							image={entry.image}
 							icon={entry.icon}
@@ -467,13 +476,19 @@ function FooterCta() {
 export default function RegistryPageClient({
 	entries,
 	hrefBase = "/registry",
+	categoryOrder = CATEGORY_ORDER,
+	footerCta = true,
 }: {
 	entries: RegistryCardEntry[];
 	hrefBase?: string;
+	/** Shelves, in order. Defaults to the agentOS taxonomy. */
+	categoryOrder?: RegistryCategory[];
+	/** The agentOS-specific closing panel. Off for other catalogs. */
+	footerCta?: boolean;
 }) {
 	const featured = entries.filter((entry) => entry.featured);
 
-	const categories = CATEGORY_ORDER.map(({ type, label, description }) => ({
+	const categories = categoryOrder.map(({ type, label, description }) => ({
 		label,
 		description,
 		entries: entries.filter((entry) => entry.types.includes(type)),
@@ -495,7 +510,7 @@ export default function RegistryPageClient({
 				/>
 			))}
 
-			<FooterCta />
+			{footerCta && <FooterCta />}
 		</>
 	);
 }

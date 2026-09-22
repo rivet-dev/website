@@ -1,7 +1,5 @@
 "use client";
 
-import { productAccent } from "@/lib/product-accent";
-import { canonicalizeInternalHref } from "@/lib/internalHref";
 import { useEffect, useState } from "react";
 import { Terminal, Check } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -11,6 +9,7 @@ import {
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
 } from "../typography";
 import { SITE_STANDARD_RAIL_CLASS, SITE_UTILITY_HERO_CLASS } from "../layout";
+import { HERO_STATS } from "../orchestration/benchmarks";
 
 interface ThinkingImage {
   src: string;
@@ -267,27 +266,29 @@ const settledHeroReveal = (delay: number) => ({
 });
 
 /**
- * A verb in the tagline that links to the product it names. Rendered as plain
- * emphasized text at rest — no underline — so the four verbs read as copy
- * rather than decoration; the product accent color appears only on hover.
+ * The three proof figures under the subtitle. Each one links down to the
+ * section that argues it, so a number the hero claims is never more than a
+ * click from the diagram that backs it.
  */
-function ProductVerb({
-  href,
-  accent,
-  children,
-}: {
-  href: string;
-  accent: string;
-  children: React.ReactNode;
-}) {
-  const a = productAccent(accent);
+function HeroStats() {
   return (
-    <a
-      href={canonicalizeInternalHref(href)}
-      className={`rounded-sm font-medium text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper ${a?.textHover ?? "hover:text-ink"} ${a?.focusRing ?? "focus-visible:ring-pine"}`}
-    >
-      {children}
-    </a>
+    <div className="mb-8 flex flex-wrap items-start gap-x-8 gap-y-3">
+      {HERO_STATS.map((stat) => (
+        <a
+          key={stat.label}
+          href={stat.href}
+          aria-label={stat.aria}
+          className="group inline-flex items-baseline gap-1.5"
+        >
+          <span className="text-xl font-medium text-pine md:text-2xl">
+            {stat.value}
+          </span>
+          <span className="text-sm text-ink-soft transition-colors group-hover:text-ink md:text-base">
+            {stat.label}
+          </span>
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -305,31 +306,21 @@ export const RedesignedHero = ({
           <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
             <div className="max-w-2xl">
               <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
-                Infrastructure for the <br />
-                agentic era.
+                Orchestrator for <br />
+                agentic workloads.
               </h1>
 
               <p
                 {...settledHeroReveal(40)}
-                className="mb-8 max-w-xl text-[17px] leading-relaxed text-ink-soft"
+                className="mb-7 max-w-xl text-[17px] leading-relaxed text-ink-soft"
               >
-                <ProductVerb href="/actors" accent="actors">
-                  Orchestrate
-                </ProductVerb>{" "}
-                agents.{" "}
-                <ProductVerb href="/agentos" accent="agentos">
-                  Operate
-                </ProductVerb>{" "}
-                their environment.{" "}
-                <ProductVerb href="/workflows" accent="workflows">
-                  Automate
-                </ProductVerb>{" "}
-                their work.{" "}
-                <ProductVerb href="/dynamic-apps" accent="dynamic-apps">
-                  Deploy
-                </ProductVerb>{" "}
-                what they build.
+                A fast, high-density and scalable orchestrator for every
+                workload an agent needs.
               </p>
+
+              <div {...settledHeroReveal(60)}>
+                <HeroStats />
+              </div>
 
               <div
                 {...settledHeroReveal(80)}

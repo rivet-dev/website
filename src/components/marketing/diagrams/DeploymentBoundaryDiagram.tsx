@@ -1,25 +1,27 @@
-import { ProductBadge } from "@/components/ProductBar";
 import { wordmarkMaskStyle } from "@/lib/product-accent";
-import { visibleProducts } from "@/sitemap/products";
-import foundationDbLogo from "../images/platforms/foundationdb.svg";
-import postgresLogo from "../images/platforms/postgres.svg";
 import rivetLogo from "../images/platforms/rivet-white.svg";
 
+/**
+ * What sits inside the customer's boundary: a worker running their code, the
+ * control plane scheduling it, and the storage underneath.
+ *
+ * Three layers and nothing else. It used to enumerate the product family in the
+ * top layer and the three storage engines in the bottom one, which made the
+ * dashed boundary — the actual point — the least prominent thing in the frame.
+ */
 const StackLayer = ({
   title,
   detail,
   highlight = false,
   icon,
-  children,
 }: {
   title: string;
   detail?: string;
   highlight?: boolean;
   icon?: React.ReactNode;
-  children?: React.ReactNode;
 }) => (
   <div
-    className={`rounded-lg border px-4 py-3.5 ${
+    className={`rounded-lg border px-4 py-4 ${
       highlight ? "border-pine/35 bg-pine/[0.08]" : "border-ink/10 bg-white/70"
     }`}
   >
@@ -30,39 +32,18 @@ const StackLayer = ({
     {detail ? (
       <p className="mt-1 text-xs leading-relaxed text-ink-soft">{detail}</p>
     ) : null}
-    {children}
   </div>
 );
 
 const StackConnector = () => (
   <span
     aria-hidden="true"
-    className="mx-auto w-px flex-1 bg-pine/40 min-h-[1.25rem]"
+    className="mx-auto w-px flex-1 bg-pine/40 min-h-[1.5rem]"
   />
 );
 
-const StorageBadge = ({
-  label,
-  imageSrc,
-  imageClassName = "h-4 w-4",
-}: {
-  label: string;
-  imageSrc: string;
-  imageClassName?: string;
-}) => (
-  <div className="flex min-w-0 items-center gap-2 rounded-md border border-ink/10 bg-white/75 px-2.5 py-2.5">
-    <img
-      src={imageSrc}
-      alt=""
-      aria-hidden="true"
-      className={`shrink-0 object-contain ${imageClassName}`}
-    />
-    <p className="min-w-0 text-xs font-medium leading-snug text-ink">{label}</p>
-  </div>
-);
-
 const DEPLOYMENT_BOUNDARY_DESCRIPTION =
-  "In your VPC, on-prem, air-gapped, or embedded, Rivet products run in your existing backend; the Rivet control plane handles scheduling, routing, and observability; storage uses Postgres or FoundationDB for persistence and tiered storage to S3.";
+  "In your VPC, on-prem, air-gapped, or embedded: a worker running your code, the Rivet control plane scheduling it, and durable storage underneath.";
 
 export const DeploymentBoundaryDiagram = ({
   className,
@@ -81,20 +62,8 @@ export const DeploymentBoundaryDiagram = ({
       In your VPC, on-prem, air-gapped, or embedded.
     </p>
 
-    <div className="mt-5 flex flex-1 flex-col">
-      <StackLayer title="Runs in your existing backend">
-        <div className="mt-3 flex flex-wrap gap-2">
-          {visibleProducts.map((product) => (
-            <span
-              key={product.id}
-              className="inline-flex items-center gap-2 rounded-md border border-ink/10 bg-white/75 px-2 py-1.5 text-xs font-medium text-ink-soft"
-            >
-              <ProductBadge product={product} className="size-5" />
-              {product.name}
-            </span>
-          ))}
-        </div>
-      </StackLayer>
+    <div className="mt-6 flex flex-1 flex-col justify-center">
+      <StackLayer title="Worker" detail="Your code, using the Rivet SDK" />
 
       <StackConnector />
 
@@ -118,19 +87,9 @@ export const DeploymentBoundaryDiagram = ({
       <StackConnector />
 
       <StackLayer
-        title="Your storage"
-        detail="Postgres or FoundationDB for persistence and tiered storage to S3."
-      >
-        <div className="mt-3 grid grid-cols-1 gap-2 min-[480px]:grid-cols-3">
-          <StorageBadge label="Postgres" imageSrc={postgresLogo.src} />
-          <StorageBadge
-            label="FoundationDB"
-            imageSrc={foundationDbLogo.src}
-            imageClassName="h-4 w-6"
-          />
-          <StorageBadge label="S3" imageSrc="/images/registry/s3.svg" />
-        </div>
-      </StackLayer>
+        title="Durable storage"
+        detail="Postgres or FoundationDB, tiered to S3"
+      />
     </div>
   </div>
 );
