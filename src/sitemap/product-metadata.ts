@@ -258,8 +258,11 @@ export const PRODUCTS: ProductMetadata[] = [
 		tagline: "Secure Node.js execution without a sandbox",
 		repo: "agentos",
 		bundlePath: "secure-exec/docs",
-		color: "#565A66",
-		contrast: 5.99,
+		// Ink rather than a hue: the black-and-white gothic wordmark is the
+		// brand, ported from secureexec.dev's dark design. Lightened on the dark
+		// theme like every other product color.
+		color: "#1B1916",
+		contrast: 15.25,
 		optionalTabs: [],
 		tabs: ["overview", "docs"],
 		hiddenFromSwitcher: true,
