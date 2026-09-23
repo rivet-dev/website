@@ -306,7 +306,7 @@ export const RedesignedHero = ({
           <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
             <div className="max-w-2xl">
               <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
-                Orchestrator for <br />
+                The orchestrator for <br />
                 agentic workloads.
               </h1>
 
@@ -316,6 +316,9 @@ export const RedesignedHero = ({
               >
                 A fast, high-density and scalable orchestrator for every
                 workload an agent needs.
+                <span className="mt-1.5 block text-base text-ink-faint">
+                  Open-source and self-hostable.
+                </span>
               </p>
 
               <div {...settledHeroReveal(60)}>

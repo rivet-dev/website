@@ -37,21 +37,21 @@ const features: Feature[] = [
 		icon: faArrowRotateLeft,
 		title: "Fault tolerance by design",
 		description:
-			"A worker going down reschedules its actors elsewhere with their state intact. No replay harness or checkpointing of your own.",
+			"A worker going down reschedules its Actors elsewhere with their state intact. No replay harness or checkpointing of your own.",
 		href: "/actors/docs/",
 	},
 	{
 		icon: faEarthAmericas,
 		title: "Multi-region",
 		description:
-			"Place actors near the users and data they serve, and route requests to wherever each one currently lives.",
+			"Place Actors near the users and data they serve, and route requests to wherever each one currently lives.",
 		href: "/actors/docs/general/edge",
 	},
 	{
 		icon: faNetworkWired,
 		title: "HTTP & WebSocket networking",
 		description:
-			"Address an actor directly over HTTP or hold a live WebSocket to it. No queue or broker in between.",
+			"Address an Actor directly over HTTP or hold a live WebSocket to it. No queue or broker in between.",
 		href: "/actors/docs/",
 	},
 	{
@@ -65,7 +65,7 @@ const features: Feature[] = [
 		icon: faReact,
 		title: "React SDK",
 		description:
-			"First-party hooks that subscribe a component to an actor's state and keep it live as the actor updates.",
+			"First-party hooks that subscribe a component to an Actor's state and keep it live as the Actor updates.",
 		href: "/actors/docs/",
 	},
 	{
@@ -80,20 +80,20 @@ const features: Feature[] = [
 		title: "Single Rust binary",
 		description:
 			"The control plane ships as one static binary with no external dependencies to stand up first.",
-		href: "/orchestration/deploy/",
+		href: "/docs/deploy/self-host/control-plane/",
 	},
 	{
 		icon: faClockRotateLeft,
 		title: "Cron & scheduling",
 		description:
-			"Wake an actor on a schedule or at a timestamp it sets for itself, without a separate scheduler.",
+			"Wake an Actor on a schedule or at a timestamp it sets for itself, without a separate scheduler.",
 		href: "/actors/docs/",
 	},
 	{
 		icon: faRobot,
 		title: "Sleeps when idle",
 		description:
-			"Idle actors release their resources and wake with durable state intact when the next request arrives.",
+			"Idle Actors release their resources and wake with durable state intact when the next request arrives.",
 		href: "/actors/docs/",
 	},
 	{
@@ -108,7 +108,7 @@ const features: Feature[] = [
 		title: "No Kubernetes operator",
 		description:
 			"One control plane behind a load balancer, speaking plain HTTP inside your VPC. No CRDs, no operator, no service mesh to keep alive.",
-		href: "/orchestration/deploy/",
+		href: "/docs/deploy/self-host/control-plane/",
 	},
 	{
 		icon: faLayerGroup,
@@ -128,9 +128,7 @@ export const OrchestratorFeaturesSection = () => (
 						Other powerful features of the Rivet Orchestrator.
 					</h2>
 					<p className={SECTION_LEDE_CENTERED_CLASS}>
-						Everything else you would otherwise assemble yourself — routing,
-						scheduling, typing, telemetry — in a system that stays simple
-						enough to run yourself.
+						Routing, scheduling, types, and telemetry, built in.
 					</p>
 				</div>
 			</Reveal>

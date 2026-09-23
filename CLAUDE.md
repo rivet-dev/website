@@ -4,20 +4,25 @@
 
 Applies to all user-facing writing on the website (docs, marketing, blog). Internal code names are unaffected.
 
-- The service that routes, schedules, and persists actors is the **control plane**. Never "engine", "server", or "orchestrator".
+- The service that routes, schedules, and persists Actors is the **control plane**. Never "engine", "server", or "orchestrator".
 - A process running the user's code with the Rivet SDK is a **worker**. Never "envoy", "runner", "node", "compute", or "data plane".
+- **"Actor" is always capitalized in prose**: "Rivet Actor", "Actors", "an Actor's state", "per-Actor SQLite". Never "actor" or "actors" in user-facing copy, headings, alt text, or captions. Code identifiers, paths (`/actors/docs/`), product IDs (`"actors"`), and CSS classes stay lowercase. Vendored product docs under `vendor/*` are synced from their own repos, so fix capitalization there upstream, not in the vendored copy.
 - **Never use "agent" as a deployment noun.** Rivet ships agentOS and Actors is "where agents live"; the collision is unrecoverable.
 - **"envoy" never appears on the website.** Envoy Proxy is a top-tier CNCF project. Internal code keeps `pegboard-envoy` / `envoy-client`.
-- **Rivet Compute is a live Rivet Cloud feature**, documented at `/cloud/docs/compute/`. Where prose must name the managed offering, it is **Rivet Cloud**. When describing what Rivet Cloud runs for the customer, say "your backend", never "your workers".
-- **Rivet Cloud docs live at `/cloud/docs/`.** Dashboard links point at `https://dashboard.rivet.dev`.
+- **Rivet Compute is a live Rivet Cloud feature**, documented at `/docs/deploy/cloud/compute/`. Where prose must name the managed offering, it is **Rivet Cloud**. When describing what Rivet Cloud runs for the customer, say "your backend", never "your workers".
+- **Rivet Cloud docs live in the Deploy section at `/docs/deploy/cloud/`, BYOC at `/docs/deploy/byoc/`; the pricing page is `/pricing/`.** Dashboard links point at `https://dashboard.rivet.dev`.
 - **Positioning canon:** the tagline is "Infrastructure for the agentic era." with the supporting line "Orchestrate agents. Operate their environment. Automate their work. Deploy what they build." The phrase "infrastructure for long-lived software" is retired.
 - **"Self-Host" names the section; "control plane" names the thing.** Pages inside it say "deploy the control plane on Kubernetes".
 - **Do not rewrite blog or changelog posts** to apply this terminology. They are dated records; dead links are handled by redirects.
 
+## Docs Routing
+
+- The site-wide docs overview is `/docs/`; the Guides tab is `/guides/` (the Actors bundle's `learn` section plus website-owned guides in `src/content/guides/`); the Deploy tab is `/docs/deploy/{self-host,byoc,cloud}/`. Product documentation stays at `/{product}/docs/` and `/{product}/integrations/`.
+- The route prefixes live in `src/sitemap/deploy.ts` and `src/sitemap/guides.ts`. Derive hrefs from them; never hand-write `/orchestrate/`, `/{product}/self-host/`, or `/actors/learn/`, which are redirects.
+
 ## Self-Host Guides
 
-- Guides are generated per product from one source. Never hand-edit a generated per-product copy; product variation enters only through the named slots (`requirements`, `env`, `snippet`, `caveats`, `verify`).
-- If a guide needs a sixth slot, it genuinely forks. Do not widen the template further.
+- There is one shared copy of every guide at `/docs/deploy/self-host/`, authored in `src/content/self-host/`. Guides are product-agnostic; do not fork a guide per product or reintroduce per-product slots.
 - Prerequisites go in a `## Requirements` block above `## Steps`, never as Step 1.
 - `## Steps` is an H2 wrapping `<Steps>`. Four to six steps maximum, each titled with an imperative verb.
 - Every command shows its expected output. This replaces a prose verification step.
@@ -27,9 +32,9 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 - Pin versions in every snippet. No `:latest`.
 - `## Next steps` carries at most three links.
 - The control plane is stateful, so serverless platforms are worker-only. Adding a platform means updating `deployMatrix.ts`, which feeds both the sidebar and `getStaticPaths`.
-- **Platform support is uniform across all four products, including agentOS.** agentOS runs inside actors and the actor supplies persistence, so it needs nothing extra from the host platform. Do not exclude it from serverless platforms.
+- **Platform support is uniform across every product, including agentOS.** agentOS runs inside Actors and the Actor supplies persistence, so it needs nothing extra from the host platform. Do not exclude it from serverless platforms.
 - Worker guides inherit one shared architecture diagram from the template. Do not add a per-guide diagram; platform detail belongs in the steps.
-- Diagrams are hand-authored inline SVG via the `creating-docs-diagrams` skill, drawn in `pine` (`sage` inside ink panels). Not Mermaid.
+- Diagrams are hand-authored inline SVG via the `creating-docs-diagrams` skill, drawn in the figure accent (`highlight`, see Theme). Not Mermaid.
 
 ## Icons
 
@@ -116,8 +121,10 @@ Import from `@rivet-gg/icons`. The full Font Awesome Pro library is available. C
 ## Theme
 
 - Marketing pages and docs are light: cool porcelain (`paper`, `#EFEFEF`) with a `paper-deep` radial pooling bottom-left (`.depth-wash`) and a fine grain (`.paper-grain`). Warmth comes from warm-black `ink` text, classical imagery, and oil-paint textures, never from synthetic color gradients. Do not use the cream `mat` token as a surface/background design element on light surfaces (panels, dropdowns, badges, plate frames); use `paper`/`paper-mid`/`white` or `ink`-tint neutrals instead. `cream` stays valid only as the off-white text/fill inside dark `ink` panels, and never on a product mark — those are white (see Product Marks). Docs paint the same porcelain field, render prose via `Prose surface="paper"`, and use `pine` for the active sidebar/TOC selected state; only the Learn section keeps a dark shell, and no other page may introduce a dark base. The one sanctioned exception is the Secure Exec overview (`/secure-exec`), ported from secureexec.dev with its own dark design: its body is scoped under `.secure-exec-page`, and it forces the shared header and footer dark with `light={false}` on `Header` plus `darkChrome` on `BaseLayout`. Its docs tab is normal light docs. Do not reuse `darkChrome` elsewhere.
+- **Every page must look right in both light and dark theme.** Dark mode is `html[data-theme="dark"]` (`src/components/ThemeScript.astro`, `src/styles/theme.css`, CSS-variable tokens in `tailwind.config.ts`; the toggle stores `rivet-theme` in localStorage). Before finishing any change that affects rendered UI, render the affected states in both themes and inspect them — do not sign off on a light-only screenshot. Use the tokens (`paper`, `ink`, `ink-soft`, `pine`, …) rather than hardcoded hex or `white`/`black` so the retint is automatic; hand-drawn SVG diagrams, animations, hardcoded fills, `invert`/`brightness-0` filters, and imagery are the usual dark-mode failures. Assets that cannot retint through tokens are tracked in `DARK_MODE_ASSETS.md`; add any new one there with how it is handled. `node scripts/check-theme.mjs` against a dev server checks the CSS-handled cases.
 - Dark `ink` panels (`editorial/InkPanel`) are reserved for code, terminal, screenshot, and data moments. Code and data plates stay flat ink; the oil-texture backdrop (`textureSrc`) is for editorial moments only (CTA colophon, 404).
-- Orange is the spark: at most one `accent`/ember CTA per page. White text sits only on `accent-deep` (`#D63E00`) or `ink` fills, never on `accent`. Pine (`#2E4034`) is the structural color for links, eyebrows, diagrams, and selected states; sage (`#93A286`) replaces it inside ink panels.
+- **The brand accent is `accent-deep` (`#AB451F`)**, the rust of the primary CTA — a fill color, chosen to carry white text. **Diagrams and figures draw in `highlight`**, not `accent-deep`: the same hue and chroma with luminance lifted for foreground marks, `#B74B23` on light (AA on paper and card for 12px figure labels) and `#D36945` on dark (where `accent-deep` drops to ~3.3:1). It is the `--runtime-highlight` token in `theme.css` (`183 75 35` / `211 105 69`), exposed to Tailwind as `highlight` (`bg-highlight`, `text-highlight/60`, …); canvas figures read the variable from computed style and re-read it on `theme-change`. Use it for every dot, stroke, chip, and figure label on marketing pages. Do not draw diagrams in pine, sage, or `accent-deep`.
+- Orange stays the spark: at most one `accent`/ember CTA per page. White text sits only on `accent-deep` or `ink` fills, never on `accent`. Pine (`#2E4034`) is the structural color for links, eyebrows, and selected states; sage (`#93A286`) replaces it inside ink panels.
 - No drop shadows on marketing cards or imagery; depth comes from `border-ink/10..25` hairlines, `bg-white/55` card fills, and `paper-mid`/`paper-deep` layering (inside ink panels: `border-cream/10..15`). Shadows stay acceptable on functional overlays (dropdowns, tooltips, modals) and the header's glass inset highlight.
 - Buttons use the constants in `src/components/marketing/typography.tsx` — metric `rounded-md px-4 py-2 text-sm font-medium` for all. Primary accent = `PRODUCT_HERO_PRIMARY_BUTTON_CLASS` (`accent-deep`, the page's one ember); primary ink = `PRIMARY_INK_BUTTON_CLASS`; the only secondary = `PRODUCT_HERO_SECONDARY_BUTTON_CLASS` (`border-ink/15 bg-white/55`, filled — the borderless `border-ink/20` ghost is retired); light-on-ink primary = `bg-white text-ink hover:bg-white/90`. Do not hand-write button class strings.
 - `ink-faint` text is for captions and metadata at 12px+; body copy uses `ink-soft` or `ink`.

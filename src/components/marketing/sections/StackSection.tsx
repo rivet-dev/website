@@ -7,7 +7,11 @@ import {
   CARD_TITLE_BASE_CLASS,
   SectionHeading,
 } from "../typography";
-import { ProductMotif, type ProductMotifId } from "../ProductMotif";
+import {
+  ProductMotif,
+  productMotifCardClass,
+  type ProductMotifId,
+} from "../ProductMotif";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 
@@ -69,7 +73,7 @@ export const StackSection = () => (
             key={product.id}
             href={canonicalizeInternalHref(product.href)}
             data-site-reveal-child=""
-            className={`group flex min-w-0 flex-col ${product.id === "workflows" ? "workflow-card focus-visible:outline-none" : product.id === "dynamic-apps" ? "dynamic-apps-card focus-visible:outline-none" : product.id === "agentos" ? "agentos-card focus-visible:outline-none" : product.id === "actors" ? "actors-card" : ""}`}
+            className={`group flex min-w-0 flex-col ${hasProductMotif(product.id) ? productMotifCardClass[product.id] : ""} ${product.id === "workflows" || product.id === "dynamic-apps" || product.id === "agentos" ? "focus-visible:outline-none" : ""}`}
           >
             {/* Accent plate: verb, mark, name, and the premise live on the
                 product color. Each product uses its own quiet background

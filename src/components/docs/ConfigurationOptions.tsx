@@ -5,13 +5,13 @@ export function ConfigurationOptions() {
 				<a href="/actors/docs/general/http-server/">Server Setup</a>: Different ways to run your server with serve(), handler(), or framework adapters.
 			</li>
 			<li>
-				<a href="/actors/docs/clients/">Clients</a>: Connect to actors from JavaScript, React, or other platforms.
+				<a href="/actors/docs/clients/">Clients</a>: Connect to Actors from JavaScript, React, or other platforms.
 			</li>
 			<li>
-				<a href="/actors/docs/authentication/">Authentication</a>: Secure actor connections with custom authentication logic.
+				<a href="/actors/docs/authentication/">Authentication</a>: Secure Actor connections with custom authentication logic.
 			</li>
 			<li>
-				<a href="/actors/docs/general/cors/">CORS</a>: Configure origin restrictions to secure your actors from unauthorized access.
+				<a href="/actors/docs/general/cors/">CORS</a>: Configure origin restrictions to secure your Actors from unauthorized access.
 			</li>
 			<li>
 				<a href="/actors/docs/general/logging/">Logging</a>: Configure logging output for debugging and monitoring.

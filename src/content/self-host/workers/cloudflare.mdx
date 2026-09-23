@@ -11,10 +11,6 @@ Cloudflare Workers is a **serverless** platform: there is no long-lived process,
 - [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) configured for your account
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -36,8 +32,6 @@ RIVET_PUBLIC_ENDPOINT = "https://your-namespace@api.rivet.dev"
 
 Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>. For a production deployment, set `RIVET_ENDPOINT` with `wrangler secret put` rather than committing it in `[vars]`.
 
-<ProductSlot name="snippet" />
-
 </Step>
 
 <Step title="Deploy">
@@ -55,10 +49,6 @@ Set the Worker URL with the `/api/rivet` path as the serverless runner URL in th
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling
 

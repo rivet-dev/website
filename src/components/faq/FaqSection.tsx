@@ -62,13 +62,15 @@ export function FaqList({ items, theme = 'dark' }: FaqListProps) {
 				const open = openIndex === index;
 				const answerId = `faq-answer-${index}`;
 				return (
-					<div key={item.question} className="py-5">
+					<div key={item.question} className="pb-2">
+						{/* The row's vertical padding sits on the button, not the wrapper,
+						    so the whole row is a hit target rather than just the text line. */}
 						<button
 							type="button"
 							onClick={() => setOpenIndex(open ? null : index)}
 							aria-expanded={open}
 							aria-controls={answerId}
-							className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-md text-left text-base font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 ${styles.focus} ${styles.question}`}
+							className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-md pt-5 pb-3 text-left text-base font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${styles.focus} ${styles.question}`}
 						>
 							{item.question}
 							<svg
@@ -95,7 +97,7 @@ export function FaqList({ items, theme = 'dark' }: FaqListProps) {
 						>
 							{/* Answers are first-party static strings from src/data/faqs, so rendering them as HTML is safe. */}
 							<div
-								className={`pt-3 text-sm leading-relaxed ${styles.answer} ${styles.answerLinks}`}
+								className={`pb-3 text-sm leading-relaxed ${styles.answer} ${styles.answerLinks}`}
 								dangerouslySetInnerHTML={{ __html: item.answerHtml }}
 							/>
 						</motion.div>

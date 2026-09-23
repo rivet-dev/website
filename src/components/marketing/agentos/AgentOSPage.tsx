@@ -84,7 +84,7 @@ interface AgentOSPageProps {
 // --- Animated agentOS Logo ---
 interface AnimatedAgentOSLogoProps {
 	className?: string;
-	displayedAgent?: { src: string; name: string } | null;
+	displayedAgent?: { src: string; name: string; monochrome?: boolean } | null;
 	// Seconds for the main stroke-draw. Defaults to 3; pass a smaller value for
 	// a faster intro (e.g. the v0.2 announcement card).
 	drawDurationSec?: number;
@@ -104,7 +104,12 @@ export const AnimatedAgentOSLogo = ({ className, displayedAgent, drawDurationSec
 		fetch('/images/agent-os/agentos-hero-logo-animated.svg')
 			.then((res) => res.text())
 			.then((svgText) => {
-				container.innerHTML = svgText;
+				// The source file hardcodes black strokes (and default black
+				// fills). Route both through currentColor so the container's
+				// `text-ink` paints the mark on either theme. The animation's
+				// mask strokes below stay literal white/black: those are
+				// luminance values, not colors.
+				container.innerHTML = svgText.replace(/stroke:black/g, 'stroke:currentColor');
 
 				const svg = container.querySelector('svg');
 				if (!svg) return;
@@ -114,6 +119,7 @@ export const AnimatedAgentOSLogo = ({ className, displayedAgent, drawDurationSec
 				svg.style.height = '100%';
 				svg.style.width = 'auto';
 				svg.style.display = 'block';
+				svg.style.fill = 'currentColor';
 
 				const ns = 'http://www.w3.org/2000/svg';
 				const textLayer = svg.querySelector('#text-layer');
@@ -271,6 +277,8 @@ export const AnimatedAgentOSLogo = ({ className, displayedAgent, drawDurationSec
 				(osLayer as HTMLElement).style.opacity = '0';
 				agentImg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', displayedAgent.src);
 				agentImg.setAttribute('href', displayedAgent.src);
+				// Ink-on-transparent marks flip to white in dark mode; brand-colored ones stay as drawn.
+				agentImg.classList.toggle('theme-monochrome-logo', Boolean(displayedAgent.monochrome));
 				agentImg.style.opacity = '1';
 			} else {
 				// Show OS layer, hide agent logo
@@ -471,6 +479,7 @@ interface SupportedAgent {
 	src: string;
 	name: string;
 	href: string;
+	monochrome?: boolean;
 	wordmark?: boolean;
 	comingSoon?: boolean;
 }
@@ -479,6 +488,7 @@ const agents: SupportedAgent[] = [
 	{
 		src: '/images/agent-logos/pi.svg',
 		name: 'Pi',
+		monochrome: true,
 		href: '/agentos/docs/agents/pi',
 	},
 	{
@@ -494,6 +504,7 @@ const agents: SupportedAgent[] = [
 	{
 		src: '/images/agent-logos/opencode.svg',
 		name: 'OpenCode',
+		monochrome: true,
 		href: '/agentos/docs/agents/opencode',
 	},
 ];
@@ -504,6 +515,7 @@ const frameworks: SupportedAgent[] = [
 	{
 		src: '/images/frameworks/eve.svg',
 		name: 'Eve',
+		monochrome: true,
 		wordmark: true,
 		href: '/agentos/integrations/vercel-eve',
 	},
@@ -589,10 +601,7 @@ const HERO_COPY = {
 const HERO_INTRO_STAGGER = 0.04;
 
 const Hero = () => {
-	const [autoPlayAgent, setAutoPlayAgent] = useState<{
-		src: string;
-		name: string;
-	} | null>(null);
+	const [autoPlayAgent, setAutoPlayAgent] = useState<SupportedAgent | null>(null);
 	const reduceMotion = useReducedMotion() ?? false;
 	const introMotion = (step: number) =>
 		reduceMotion
@@ -686,7 +695,7 @@ const Hero = () => {
 						{...introMotion(1)}
 						className='mb-7 flex'
 					>
-						<AnimatedAgentOSLogo className='h-11 w-auto md:h-12' displayedAgent={autoPlayAgent} />
+						<AnimatedAgentOSLogo className='h-11 w-auto text-ink md:h-12' displayedAgent={autoPlayAgent} />
 					</motion.div>
 
 					{/* Headline */}
@@ -1032,7 +1041,7 @@ const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
 						<h2 className={SECTION_H2_CLASS}>Coordinate agents. Automate durable work.</h2>
 						<p className={SECTION_LEDE_CLASS}>
 							agentOS owns the agent&apos;s computer: its files, processes, shell, and network. Connect agents and share live sessions here; use{' '}
-							<a href='/workflows/' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
+							<a href='/workflows/docs/' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
 								<ProductMiniMark logoSrc={workflowsLogoUrl.src} className='mr-1 size-4 align-[-3px]' />
 								Workflows
 							</a>{' '}
@@ -1057,7 +1066,7 @@ const ActorsAttribution = () => (
 				<p className='text-xs font-medium text-ink'>Powered by Rivet Actors</p>
 				<p className='mt-1.5 max-w-sm text-xs leading-relaxed text-ink-soft'>Each agent lives in an Actor with durable identity, state, queues, storage, and realtime connections.</p>
 				<a
-					href='/actors/'
+					href='/actors/docs/'
 					className='mt-2 inline-flex items-center gap-1 text-xs font-medium text-ink-soft underline decoration-ink/20 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/50'
 				>
 					Learn more
@@ -1664,7 +1673,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 												},
 											},
 								}}
-								className='flex flex-col items-center justify-center rounded-xl bg-ink/[0.035] opacity-65 grayscale ring-1 ring-ink/[0.08] transition-[filter,opacity,background-color,--tw-ring-color] duration-300 group-hover:bg-white group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 motion-reduce:transition-none'
+								className='foundation-bubble flex flex-col items-center justify-center rounded-xl bg-[rgb(var(--site-ink,27_25_22)/0.035)] opacity-65 grayscale ring-1 ring-ink/[0.08] transition-[filter,opacity,background-color,--tw-ring-color] duration-300 group-hover:bg-white group-hover:opacity-100 group-hover:grayscale-0 group-hover:ring-ink/10 motion-reduce:transition-none'
 								style={{
 									width: bubble.size,
 									height: bubble.size,
@@ -1684,7 +1693,7 @@ const FloatingFoundationCard = ({ card, delay }: { card: FoundationCardData; del
 					);
 				})}
 			</div>
-			<div className='pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/95 to-transparent' />
+			<div className='pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[rgb(var(--site-surface,255_255_255))] via-[rgb(var(--site-surface,255_255_255)/0.95)] to-transparent' />
 			<div className='absolute inset-x-0 bottom-0 p-6 md:p-8'>
 				<h3 className={CARD_TITLE_CLASS}>{card.title}</h3>
 				<p className='mt-2 text-[15px] leading-relaxed text-ink-soft'>{card.description}</p>
@@ -1704,7 +1713,7 @@ const FloatingFoundation = () => {
 				))}
 			</div>
 			<motion.a
-				href='/dynamic-apps/'
+				href='/dynamic-apps/docs/'
 				initial={reduceMotion ? false : { opacity: 0, y: 20 }}
 				whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
 				viewport={{ once: true }}
@@ -1760,7 +1769,7 @@ const AgentCompatibilitySection = () => {
 										style={{ zIndex: i }}
 										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl border border-ink/10 bg-white md:h-16 md:w-16'
 									>
-										<img src={agent.src} alt='' aria-hidden='true' className='h-8 w-8 object-contain md:h-9 md:w-9' />
+										<img src={agent.src} alt='' aria-hidden='true' className={`h-8 w-8 object-contain md:h-9 md:w-9 ${agent.monochrome ? 'theme-monochrome-logo' : ''}`} />
 										<span className='pointer-events-none absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-soft opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'>
 											{agent.name}
 										</span>
@@ -1797,9 +1806,9 @@ const AgentCompatibilitySection = () => {
 											alt=''
 											aria-hidden='true'
 											className={
-												framework.wordmark
+												`${framework.monochrome ? 'theme-monochrome-logo' : ''} ` + (framework.wordmark
 													? 'w-9 object-contain opacity-90 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:w-10'
-													: 'h-8 w-8 object-contain opacity-90 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:h-9 md:w-9'
+													: 'h-8 w-8 object-contain opacity-90 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 md:h-9 md:w-9')
 											}
 										/>
 										{framework.comingSoon && (
@@ -2027,13 +2036,13 @@ function RuntimeCostMeter() {
 }
 
 const RuntimeArgumentSection = () => (
-	<section className={`text-ink ${SITE_SECTION_CLASS}`}>
+	<section className={`runtime-benchmarks text-ink ${SITE_SECTION_CLASS}`}>
 		<style>{`
 			.runtime-benchmark-dot {
 				width: 6px;
 				height: 6px;
 				border-radius: 9999px;
-				background: rgba(27, 25, 22, 0.12);
+				background: rgb(var(--site-ink, 27 25 22) / 0.12);
 				animation-timing-function: steps(1, end);
 				animation-iteration-count: infinite;
 			}
@@ -2047,18 +2056,18 @@ const RuntimeArgumentSection = () => (
 				animation-duration: 35640ms;
 			}
 			@keyframes runtime-benchmark-dot-fast {
-				0%, 3% { background: rgba(27, 25, 22, 0.12); box-shadow: none; transform: scale(0.92); }
-				8% { background: #305b46; box-shadow: 0 0 7px rgba(48, 91, 70, 0.3); transform: scale(1.22); }
-				20% { background: rgba(48, 91, 70, 0.4); box-shadow: none; transform: scale(1); }
-				34%, 100% { background: rgba(27, 25, 22, 0.12); box-shadow: none; transform: scale(0.92); }
+				0%, 3% { background: rgb(var(--site-ink, 27 25 22) / 0.12); box-shadow: none; transform: scale(0.92); }
+				8% { background: rgb(var(--runtime-highlight, 48 91 70)); box-shadow: 0 0 7px rgb(var(--runtime-highlight, 48 91 70) / 0.3); transform: scale(1.22); }
+				20% { background: rgb(var(--runtime-highlight, 48 91 70) / 0.4); box-shadow: none; transform: scale(1); }
+				34%, 100% { background: rgb(var(--site-ink, 27 25 22) / 0.12); box-shadow: none; transform: scale(0.92); }
 			}
 			@keyframes runtime-benchmark-dot-slow {
-				0%, 1.235% { background: rgba(27, 25, 22, 0.7); transform: scale(1.18); }
-				1.236%, 100% { background: rgba(27, 25, 22, 0.12); transform: scale(1); }
+				0%, 1.235% { background: rgb(var(--site-ink, 27 25 22) / 0.7); transform: scale(1.18); }
+				1.236%, 100% { background: rgb(var(--site-ink, 27 25 22) / 0.12); transform: scale(1); }
 			}
 			@media (prefers-reduced-motion: reduce) {
 				.runtime-benchmark-dot { animation: none; }
-				.runtime-benchmark-dot--fast { background: rgba(48, 91, 70, 0.65); }
+				.runtime-benchmark-dot--fast { background: rgb(var(--runtime-highlight, 48 91 70) / 0.65); }
 			}
 		`}</style>
 		<div className={SITE_STANDARD_RAIL_CLASS}>
@@ -2164,7 +2173,7 @@ const RuntimeArgumentSection = () => (
 						<div className='mt-auto flex h-40 items-end justify-center gap-12 pt-8' aria-label={`agentOS uses ${runtimeMemory.agentOS}; a sandbox uses ${runtimeMemory.sandbox}`}>
 							<div className='flex flex-col items-center gap-3'>
 								<div className='flex h-24 w-24 items-end justify-center'>
-									<span className='h-4 w-4 bg-pine/75' />
+									<span className='h-4 w-4 bg-[rgb(var(--runtime-highlight,46_64_52)/0.75)]' />
 								</div>
 								<p className='text-center text-xs font-medium text-pine'>
 									agentOS
@@ -2173,7 +2182,7 @@ const RuntimeArgumentSection = () => (
 								</p>
 							</div>
 							<div className='flex flex-col items-center gap-3'>
-								<div className='h-24 w-24 border border-ink/15 bg-ink/10' />
+								<div className='h-24 w-24 border border-ink/15 bg-current text-ink/10' />
 								<p className='text-center text-xs text-ink-faint'>
 									Sandbox
 									<br />
@@ -2355,7 +2364,7 @@ const DeploymentSection = () => {
 				</div>
 
 				<motion.div {...revealMotion()}>
-					<DeploymentOptions productName='agentOS' quickstartHref='/agentos/docs/quickstart' selfHostHref='/agentos/self-host/control-plane' installCommand='npm install @rivet-dev/agentos' />
+					<DeploymentOptions productName='agentOS' quickstartHref='/agentos/docs/quickstart' selfHostHref='/docs/deploy/self-host/control-plane' installCommand='npm install @rivet-dev/agentos' />
 				</motion.div>
 			</div>
 		</section>

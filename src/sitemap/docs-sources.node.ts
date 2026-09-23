@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 import {
 	DOCS_SOURCES,
 	SHARED_CONTENT_PRODUCT,
-	SITE_DOCS_NAMESPACE,
+	SITE_DOCS_NAMESPACES,
 	productFromPath,
 } from "./docs-sources";
 
@@ -148,8 +148,8 @@ export function snippetRootForContentPath(
 		// roots: the website root contains unrelated content that must keep falling
 		// back to the Actors examples.
 		const namespacedSource = productFromPath(contentPath);
-		if (namespacedSource === SITE_DOCS_NAMESPACE) {
-			return snippetRoot(SITE_DOCS_NAMESPACE);
+		if (namespacedSource && SITE_DOCS_NAMESPACES.has(namespacedSource)) {
+			return snippetRoot(namespacedSource);
 		}
 
 		// Product docs are symlinked in, and Vite reports the resolved realpath
@@ -157,11 +157,23 @@ export function snippetRootForContentPath(
 		// shape is usually gone by the time we see it. Match on the repo root
 		// first and fall back to the path shape.
 		const normalized = path.resolve(contentPath);
-		if (normalized.startsWith(`${path.resolve(REPO_ROOT, "src/content/self-host")}${path.sep}`)) {
+		if (
+			normalized.startsWith(
+				`${path.resolve(REPO_ROOT, "src/content/self-host")}${path.sep}`,
+			)
+		) {
 			return REPO_ROOT;
 		}
+		// Product overviews are website-owned but embed the product's own
+		// examples, so they resolve against that product's repo.
+		const overviewsDir = `${path.resolve(REPO_ROOT, "src/content/overviews")}${path.sep}`;
+		if (normalized.startsWith(overviewsDir)) {
+			const productId = path.basename(normalized, path.extname(normalized));
+			const root = snippetRoot(productId);
+			if (root) return root;
+		}
 		for (const productId of Object.keys(DOCS_SOURCES)) {
-			if (productId === SITE_DOCS_NAMESPACE) continue;
+			if (SITE_DOCS_NAMESPACES.has(productId)) continue;
 			const root = docsRoot(productId);
 			if (root && normalized.startsWith(`${path.resolve(root)}${path.sep}`)) {
 				return snippetRoot(productId) ?? root;

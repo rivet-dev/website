@@ -1,0 +1,67 @@
+---
+title: "Dynamic Apps"
+description: "Deploy AI-generated apps for your users. 22 MB of memory while serving, zero while idle, on any cloud."
+seoTitle: "Dynamic Apps: deploy AI-generated apps"
+---
+
+Deploy AI-generated apps for your users. Each app takes 22 MB of memory while serving and none while idle, runs on any cloud, and supports frontends, REST APIs, multiplayer, SQLite, workflows, and more. Dynamic Apps is a library, not a platform: it serves the apps your users generate alongside the rest of your API, so you keep full control over routing, auth, and data.
+
+<CardGroup>
+  <Card title="Quickstart" href="/dynamic-apps/docs/quickstart">
+    Deploy your first generated app.
+  </Card>
+  <Card title="Deploy" href="/dynamic-apps/docs/deploy">
+    Publish releases, handle failed builds, and roll back.
+  </Card>
+  <Card title="Architecture" href="/dynamic-apps/docs/architecture">
+    How apps, Actors, and agentOS VMs fit together.
+  </Card>
+</CardGroup>
+
+## Runs in your backend, not another SaaS
+
+Mount the apps router in the Node.js server you already run. Requests reach your backend first, so your routing, middleware, and auth apply; the router then hands each request to the agentOS VM running that app, in the same process. No extra hop.
+
+<CodeSnippet file="examples/apps-hello-world/src/server.ts" title="src/server.ts" />
+
+Read about [routing](/dynamic-apps/docs/routing), [authentication](/dynamic-apps/docs/authentication), and [deploying apps](/dynamic-apps/docs/deploy).
+
+## An app per user
+
+- **Addressed by ID.** Every user, tenant, or session gets a deployment of its own.
+- **Isolated by default.** Each app runs in its own agentOS VM. Tenants share no filesystem, memory, or crashes.
+- **Scales to zero.** A running app takes 22 MB of memory. An idle one takes none.
+- **Full Node.js.** Powered by agentOS with a secure Node.js runtime, so generated apps can use any npm package.
+
+## Comes with the infrastructure real apps need
+
+Every generated app gets durable SQLite, background jobs, cron, and realtime out of the box. Nothing extra for you to provision.
+
+- [**Backends and REST APIs**](/dynamic-apps/docs/backends): serve HTTP APIs from a generated app with any Node.js framework.
+- [**Frontends and static sites**](/dynamic-apps/docs/static-websites): serve generated interfaces and directories with an `index.html` directly.
+- [**SQLite**](/dynamic-apps/docs/sqlite): store durable relational data in an Actor-owned SQLite database.
+- [**Workflows and queues**](/dynamic-apps/docs/workflows): run durable jobs that sleep, retry, and resume, plus ordered queue processing.
+- **Crons and schedules**: schedule recurring work that runs even while the app is idle.
+- [**Multiplayer**](/dynamic-apps/docs/multiplayer): share realtime state between every user connected to an app.
+
+## Broken builds never ship
+
+A failed build returns TypeScript diagnostics the agent uses to repair the files and deploy again. The active release keeps serving the whole time. Read about [deploying apps](/dynamic-apps/docs/deploy).
+
+## Full isolation, powered by V8 and WebAssembly
+
+Every app builds and serves inside its own [agentOS](/agentos/docs) sandbox: a V8 isolate for the JavaScript, WebAssembly for the Linux-like environment around it. The same boundary applies while a build runs and while requests are served. Read the [agentOS security model](/agentos/docs/security-model) and [resource limits](/agentos/docs/resource-limits).
+
+## See inside every app
+
+The app inspector in the Rivet dashboard shows an app's active release, publish history, runtime state, SQLite data, background jobs, and events in one place. With [Rivet MCP](/docs/mcp), your AI client can inspect the app's Actor and call actions while it diagnoses runtime issues.
+
+## One stack under every app
+
+- [**Actors**](/actors/docs): every deployed app runs as Rivet Actors, which provide identity, durable state, queues, and scale to zero.
+- [**agentOS**](/agentos/docs): builds and serves each app in an agentOS VM with files, processes, and networking.
+- [**Workflows**](/workflows/docs): adds recorded steps, retries, and replay when a generated app runs multi-step work.
+
+## Develop locally, deploy your way
+
+Run `npm install @rivet-dev/dynamic-apps` and follow the [quickstart](/dynamic-apps/docs/quickstart). Deploy the control plane yourself with the [self-host guides](/docs/deploy/self-host/control-plane), or use [Rivet Cloud](/docs/deploy/cloud).

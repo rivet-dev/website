@@ -10,10 +10,6 @@ Workers run in **runner** mode here: the process opens a connection out to the c
 - A Linux host with SSH access and Node.js installed. Hetzner, DigitalOcean, Linode, EC2, and bare metal all work the same way.
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -25,8 +21,6 @@ Build locally, then copy the output somewhere readable by the service user:
 ```bash
 scp -r ./dist user@server:/opt/rivet-worker
 ```
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -76,10 +70,6 @@ Expect `active`. The worker then appears under **Runners** in the dashboard.
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling
 

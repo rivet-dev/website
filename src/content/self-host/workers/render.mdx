@@ -11,10 +11,6 @@ Workers run in **runner** mode here: the service opens a connection out to the c
 - A GitHub repository containing your app
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -39,8 +35,6 @@ services:
 
 `sync: false` keeps both values out of the blueprint so you set them as secrets in the dashboard.
 
-<ProductSlot name="snippet" />
-
 </Step>
 
 <Step title="Set the endpoints">
@@ -62,10 +56,6 @@ The service log should show the worker connecting. Open the dashboard and confir
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling
 

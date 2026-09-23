@@ -3,9 +3,8 @@
  *
  * Two sources feed it. Product docs come from `listDocPages()` (the same walk
  * that produces the Markdown mirror and the AI skills), and the shared
- * self-host guides come straight off `src/content/self-host/`. The guides are
- * fanned out per product by the route, so the index points every one at the
- * canonical Actors copy, matching the `<link rel="canonical">` the route emits.
+ * self-host guides come straight off `src/content/self-host/`, filed under
+ * their `/docs/deploy/` route (the overview at the root, guides below it).
  *
  * Content is lightly de-Markdowned so the snippet the dialog shows reads as
  * prose rather than `##` and `**`. Code stays in, since identifiers such as
@@ -24,11 +23,9 @@ import {
 } from "./docs-index";
 import { mdxToMarkdown } from "./mdx-to-markdown";
 import { normalizeSlug, PROJECT_ROOT } from "./shared";
+import { selfHostHref } from "../sitemap/deploy";
 
 const SELF_HOST_BASE = path.join(PROJECT_ROOT, "src/content/self-host");
-
-/** Mirrors `CANONICAL_PRODUCT` in `src/pages/[product]/self-host/[...slug].astro`. */
-const SELF_HOST_CANONICAL_PRODUCT = "actors";
 
 export interface SearchDocument {
 	/** Stable across runs so an unchanged page keeps its id: the path with `/` as `__`. */
@@ -44,7 +41,7 @@ export interface SearchDocument {
 	/** H2/H3 text, queried ahead of the body so a section match outranks a passing mention. */
 	headings: string[];
 	content: string;
-	/** Site path with a leading slash, e.g. `/cloud/byoc`. Relative so any host can navigate to it. */
+	/** Site path with a leading slash, e.g. `/actors/docs/state`. Relative so any host can navigate to it. */
 	path: string;
 	/** Where the page lives, as the dialog labels it: `Rivet Cloud` › `BYOC`. */
 	product: string;
@@ -94,7 +91,7 @@ function selfHostDocuments(): SearchDocument[] {
 		const slug = normalizeSlug(file.replace(/\.mdx$/, ""));
 		const [role] = slug.split("/");
 		return buildDocument({
-			path: `/${SELF_HOST_CANONICAL_PRODUCT}/self-host${slug ? `/${slug}` : ""}`,
+			path: selfHostHref(slug).replace(/\/$/, ""),
 			title,
 			description: frontmatterValue(frontmatter, "description") ?? "",
 			// Guide snippets live in this repo (`examples/docs/self-host/...`),

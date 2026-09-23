@@ -13,7 +13,7 @@ Use the ACL API to define permissions and issue tokens for a namespace. Keep you
 ## Setup
 
 - **API endpoint**: Your control-plane endpoint, such as `https://rivet.mycompany.com`
-- **Admin token**: Configured as `RIVET__AUTH__ADMIN_TOKEN`. For BYOC, see [Credentials & dashboard](/cloud/byoc/credentials). Use it to bootstrap ACL.
+- **Admin token**: Configured as `RIVET__AUTH__ADMIN_TOKEN`. For BYOC, see [Credentials & dashboard](/docs/deploy/byoc/credentials). Use it to bootstrap ACL.
 - **Auth header**: `Authorization: Bearer <token>` for `/acl/*` calls. The admin token has `acl:create` + `token:create` by default.
 
 ## Model

@@ -1,0 +1,58 @@
+---
+title: "Workflows"
+description: "Durable TypeScript workflows built on Rivet Actors: recorded steps, retries, human approvals, and runs that resume after restarts and deploys."
+seoTitle: "Rivet Workflows: durable agent automation"
+---
+
+Automate agent work that outlives a process. Steps record their results, wait for people or systems, and resume after crashes and deploys. Every workflow is a Rivet Actor run handler, so each run gets the Actor's identity, state, queue, and scheduling for free.
+
+<CardGroup>
+  <Card title="Quickstart" href="/workflows/docs/quickstart">
+    Write, run, and restart your first durable workflow.
+  </Card>
+  <Card title="Steps" href="/workflows/docs/steps">
+    How step results are recorded and replayed.
+  </Card>
+  <Card title="Failure and recovery" href="/workflows/docs/failure-and-recovery">
+    Retries, timeouts, and what happens after a crash.
+  </Card>
+</CardGroup>
+
+## Regular TypeScript, durable progress
+
+A workflow is an async function. Each `step` records its result the first time it runs; on replay, recorded steps return instantly and the run picks up at the first step that never completed.
+
+<CodeSnippet file="examples/docs/actors-workflows/simple-workflow/index.ts" title="index.ts" />
+
+## What every run inherits from its Actor
+
+- **A run per user, session, or agent.** Address each workflow by key; every run keeps its own state, queue, and history.
+- **State beside the steps.** Steps read and write the run's durable state in-process.
+- **Waiting costs nothing.** A run blocked on a [queue wait](/workflows/docs/queues) or [timer](/workflows/docs/timers-and-concurrency) sleeps until the message or deadline arrives.
+- **Progress in realtime.** Broadcast step progress to connected clients as it happens.
+
+## Wait, branch, and recover
+
+Pause for approval, fan out, retry. A step can wait on a queue for a person or another system, fan into parallel branches, and join again; a failed branch retries on its own schedule while the rest continue. Every step is recorded, so a crash anywhere in the run resumes from the last completed step. Read about [queue waits](/workflows/docs/queues), [timers and concurrency](/workflows/docs/timers-and-concurrency), and [failure and recovery](/workflows/docs/failure-and-recovery).
+
+## Automate agent work
+
+Give an agent a computer with [agentOS](/agentos/docs) and drive it from a workflow. Each tool call, file edit, and test run is a recorded step, so the agent's work survives restarts and is readable afterward. See [agent patterns](/workflows/docs/patterns).
+
+## Evolve running work
+
+Deploy new code mid-run. Old runs keep their version; new runs take the latest. Read about [versioning](/workflows/docs/versioning).
+
+## See the history behind every run
+
+The run inspector in the Rivet dashboard traces every step's status, timing, attempts, inputs, outputs, and errors, and can replay eligible steps after a fix. With [Rivet MCP](/docs/mcp), your AI client can inspect the Actor behind a run and diagnose failures from its workflow history.
+
+## One foundation, composable with the rest of Rivet
+
+- [**Actors**](/actors/docs): every workflow is an Actor run handler. Actors provide identity, state, queues, and scheduling.
+- [**agentOS**](/agentos/docs): adds files, processes, a shell, and networking when a workflow drives an agent using real tools.
+- [**Dynamic Apps**](/dynamic-apps/docs): adds a generated backend when the workflow should ship an application to users.
+
+## Develop locally, deploy your way
+
+Run `npm install @rivet-dev/workflows` and follow the [quickstart](/workflows/docs/quickstart). Deploy the control plane yourself with the [self-host guides](/docs/deploy/self-host/control-plane), or use [Rivet Cloud](/docs/deploy/cloud).

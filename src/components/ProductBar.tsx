@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { usePathname } from "@/hooks/usePathname";
 import { Icon } from "@rivet-gg/icons";
 import {
 	findProductForPath,
+	getProduct,
 	products,
 	visibleTabs,
 	type Product,
 } from "@/sitemap/products";
+import { DOCS_TABS, activeDocsTab } from "@/sitemap/docsTabs";
 import { productLogos } from "@/sitemap/productLogos";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
@@ -87,6 +89,64 @@ export function ProductBadge({
 		>
 			<ProductMark product={product} tone="white" className="h-full w-full" />
 		</span>
+	);
+}
+
+/**
+ * Second header row on every docs page: the same eight tabs everywhere, with
+ * the one that owns the current path marked current.
+ */
+export function DocsTabs({
+	initialPathname = "",
+	dark = false,
+}: {
+	initialPathname?: string;
+	/** Light-on-dark text, for when the header above it is forced dark. */
+	dark?: boolean;
+}) {
+	// usePathname is empty during SSR and the first client render, so seed it
+	// from the Astro-provided pathname.
+	const pathname = usePathname() || initialPathname;
+	const active = activeDocsTab(pathname);
+
+	return (
+		// Quiet Linear-style tab strip sitting directly on the header glass: no
+		// band fill, no underline — the active tab is ink, the rest ink-faint.
+		<nav
+			aria-label="Documentation sections"
+			className="hidden h-12 items-center gap-5 overflow-x-auto [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden"
+		>
+			{DOCS_TABS.map((tab, index) => {
+				const product = tab.productId ? getProduct(tab.productId) : undefined;
+				const startsGroup = index > 0 && DOCS_TABS[index - 1].group !== tab.group;
+				return (
+					<Fragment key={tab.id}>
+						{startsGroup && (
+							<span
+								aria-hidden="true"
+								// A border, not `bg-ink`: `bg-ink` is the ink-panel fill and stays
+								// near-black in dark mode, so a hairline drawn with it disappears.
+								className={cn("h-4 w-0 shrink-0 border-l", dark ? "border-white/15" : "border-ink/15")}
+							/>
+						)}
+						<a
+							href={canonicalizeInternalHref(tab.href)}
+							aria-current={tab.id === active ? "page" : undefined}
+							className={cn(
+								"flex h-full shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm text-sm font-medium transition-colors",
+								"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+								dark
+									? "text-zinc-400 hover:text-white aria-current-page:text-white focus-visible:ring-white/60 focus-visible:ring-offset-neutral-950"
+									: "text-ink-faint hover:text-ink aria-current-page:text-ink focus-visible:ring-pine focus-visible:ring-offset-paper",
+							)}
+						>
+							{product && <ProductBadge product={product} className="size-5" />}
+							{tab.title}
+						</a>
+					</Fragment>
+				);
+			})}
+		</nav>
 	);
 }
 

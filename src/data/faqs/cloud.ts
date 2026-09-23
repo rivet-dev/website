@@ -7,7 +7,7 @@ export const cloudFaqs: FaqItem[] = [
 	{
 		question: 'What is an Awake Actor Hour?',
 		answerHtml:
-			'An Awake Actor Hour is one Rivet Actor running for one hour. Actors automatically <a href="https://rivet.dev/actors/docs/lifecycle/">sleep when idle</a> and wake on demand, so you are only billed for the time your actors are actually awake. Usage is billed by the second and rounded up to the nearest second.',
+			'An Awake Actor Hour is one Rivet Actor running for one hour. Actors automatically <a href="https://rivet.dev/actors/docs/lifecycle/">sleep when idle</a> and wake on demand, so you are only billed for the time your Actors are actually awake. Usage is billed by the second and rounded up to the nearest second.',
 	},
 	{
 		question: 'What does the free plan include?',
@@ -17,17 +17,17 @@ export const cloudFaqs: FaqItem[] = [
 	{
 		question: 'How does usage pricing work beyond plan limits?',
 		answerHtml:
-			'Paid plans include a usage allowance, and metered pricing applies beyond it: $0.05 per 1,000 Awake Actor Hours, $0.40 per GB-month of state storage, $0.20 per million reads, $1 per million writes, and $0.15 per GB of egress. Reads and writes refer to persisted actor state, not in-memory operations within an actor. The free plan has fixed monthly limits; upgrade to Hobby to scale with usage pricing.',
+			'Paid plans include a usage allowance, and metered pricing applies beyond it: $0.05 per 1,000 Awake Actor Hours, $0.40 per GB-month of state storage, $0.20 per million reads, $1 per million writes, and $0.15 per GB of egress. Reads and writes refer to persisted Actor state, not in-memory operations within an Actor. The free plan has fixed monthly limits; upgrade to Hobby to scale with usage pricing.',
 	},
 	{
-		question: 'Do sleeping actors cost money?',
+		question: 'Do sleeping Actors cost money?',
 		answerHtml:
 			'No. Sleeping Actors consume no Awake Actor Hours. While an Actor sleeps, persisted state storage can still be billed, but active execution is not. The Actor wakes when a request, message, or scheduled alarm arrives.',
 	},
 	{
 		question: 'Is Rivet free to self-host?',
 		answerHtml:
-			'Yes. Rivet is open source under the Apache 2.0 license and free to run on your own infrastructure with no usage limits. It ships as a single Rust binary or Docker image. See the <a href="https://rivet.dev/actors/self-host/">self-hosting docs</a> to get started, or use Rivet Cloud if you prefer managed infrastructure.',
+			'Yes. Rivet is open source under the Apache 2.0 license and free to run on your own infrastructure with no usage limits. It ships as a single Rust binary or Docker image. See the <a href="https://rivet.dev/docs/deploy/self-host/control-plane/">self-hosting docs</a> to get started, or use Rivet Cloud if you prefer managed infrastructure.',
 	},
 	{
 		question: 'Can Rivet run in my VPC, on-prem, or air-gapped?',

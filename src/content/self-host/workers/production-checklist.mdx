@@ -39,10 +39,6 @@ Split by runtime mode, because the two halves barely overlap. A reader on a serv
 
 - **Set a graceful shutdown period of at least 35 minutes.** Runners need up to 30 minutes to drain actors during upgrades, plus buffer for shutdown overhead. In Kubernetes, set `terminationGracePeriodSeconds: 2100` on the pod spec.
 
-<ProductSlot name="env" />
-
-<ProductSlot name="caveats" />
-
 ## Next steps
 
 Application design guidance (actor sizing, state growth, queue limits, CORS) stays in the product documentation. It is advice you need before writing the actor, not before shipping it.

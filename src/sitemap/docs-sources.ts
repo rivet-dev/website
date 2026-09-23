@@ -37,7 +37,8 @@ export interface DocsSource {
 }
 
 const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
-	PRODUCTS.map((product) => [
+	// Shared sections (Integrations) own no content bundle.
+	PRODUCTS.filter((product) => !product.section).map((product) => [
 		product.id,
 		{
 			repo: product.repo,
@@ -47,15 +48,25 @@ const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 	]),
 );
 
-/** Website-owned documentation that sits beside, rather than inside, a product vertical. */
+/**
+ * Website-owned documentation that sits beside, rather than inside, a product
+ * vertical: the docs overview at `/docs/` and the pages under it.
+ */
 export const SITE_DOCS_NAMESPACE = "docs";
+
+const SITE_DOCS_SOURCE: DocsSource = {
+	repo: "rivet-website",
+	localBundle: ".",
+};
+
+/** Namespaces whose content lives in this repository rather than a product bundle. */
+export const SITE_DOCS_NAMESPACES: ReadonlySet<string> = new Set([
+	SITE_DOCS_NAMESPACE,
+]);
 
 export const DOCS_SOURCES: Record<string, DocsSource> = {
 	...PRODUCT_DOCS_SOURCES,
-	[SITE_DOCS_NAMESPACE]: {
-		repo: "rivet-website",
-		localBundle: ".",
-	},
+	[SITE_DOCS_NAMESPACE]: SITE_DOCS_SOURCE,
 };
 
 export const DOCS_PRODUCT_IDS = Object.keys(DOCS_SOURCES);

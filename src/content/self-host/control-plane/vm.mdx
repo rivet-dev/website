@@ -10,10 +10,6 @@ description: "Run the Rivet control plane on a Linux host with Docker."
 
 This guide covers any Linux host: Hetzner, DigitalOcean, Linode, EC2, or hardware you own.
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -71,7 +67,6 @@ Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner confi
 
 </Step>
 
-
 <Step title="Put TLS in front">
 
 Port `6420` should not be exposed directly to the internet. Terminate TLS at NGINX or Caddy and raise the idle timeout to `3600` seconds, or long-lived WebSockets will be cut. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
@@ -91,10 +86,6 @@ From a container on the same host, use `host.docker.internal` instead of the hos
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Using PostgreSQL
 

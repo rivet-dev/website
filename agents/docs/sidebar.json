@@ -1,0 +1,10 @@
+{
+	"docs": [
+		{
+			"title": "General",
+			"pages": [
+				{ "title": "Overview", "href": "/agents/docs", "icon": "faSquareInfo" }
+			]
+		}
+	]
+}

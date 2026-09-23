@@ -1,6 +1,7 @@
 import { Card, CardGroup } from "@/components/Card";
 import { deployOptionsForRole } from "@rivetkit/shared-data";
 import { faCloudArrowUp, faServer, faShareNodes } from "@rivet-gg/icons";
+import { SELF_HOST_ROUTE_PREFIX } from "@/sitemap/deploy";
 
 /**
  * The quickstart's deployment section, and the highest-traffic surface in the
@@ -11,8 +12,8 @@ import { faCloudArrowUp, faServer, faShareNodes } from "@rivet-gg/icons";
  * `deployMatrix` reads, so the two cannot disagree about which platform hosts
  * what.
  */
-export function Hosting({ product = "actors" }: { product?: string }) {
-	const base = `/${product}/self-host`;
+export function Hosting() {
+	const base = SELF_HOST_ROUTE_PREFIX;
 
 	const models = [
 		{
@@ -41,7 +42,7 @@ export function Hosting({ product = "actors" }: { product?: string }) {
 	return (
 		<>
 			<p>
-				By default, Rivet stores actor state on the local file system.
+				By default, Rivet stores Actor state on the local file system.
 			</p>
 
 			<p>

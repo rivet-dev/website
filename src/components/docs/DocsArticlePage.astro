@@ -8,9 +8,8 @@ import { DocsNavigation } from '@/components/DocsNavigation';
 import { DocsTableOfContents } from '@/components/DocsTableOfContents';
 import { DocsPageDropdown } from '@/components/DocsPageDropdown';
 import { Prose } from '@/components/Prose';
-import { DocsLanding } from '@/components/docs/DocsLanding';
 import IntegrationResourceBar from '@/components/docs/IntegrationResourceBar.astro';
-import { docsLandings } from '@/components/docs/docsLandings';
+import RerootLinks from '@/components/docs/RerootLinks.astro';
 import { Icon, faPencil } from '@rivet-gg/icons';
 import { sitemap } from '@/sitemap/mod';
 import { withAiSidebarSection } from '@/sitemap/ai';
@@ -19,6 +18,11 @@ import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
 import { integrationFor } from '@/data/integrations';
+import {
+	INTEGRATIONS_ROUTE_PREFIX,
+	SITE_INTEGRATIONS_CONTENT_PREFIX,
+	SITE_INTEGRATIONS_PRODUCT,
+} from '@/sitemap/integrations';
 import * as mdxComponents from '@/components/mdx';
 import { jsonLdString } from '@/lib/jsonLd';
 import {
@@ -83,7 +87,6 @@ const seo = resolveSeoMetadata({
 		`Explore ${title} in ${seoContextLabel} with practical guidance, configuration details, and production-ready examples.`,
 	),
 });
-const entrySlugPath = getContentSlugPath(entry.id);
 // A section's own overview page has the section root as its id (the glob loader
 // collapses `<dir>/index.mdx`), so it resolves to an empty slug rather than
 // repeating the prefix.
@@ -93,11 +96,6 @@ const routeEntryId = entryIdPrefix && entry.id.startsWith(entryIdPrefix)
 		? ''
 		: entry.id;
 const slugPath = routeSlugOverride ?? getContentSlugPath(routeEntryId);
-// Section overviews render as a custom icon-grid landing instead of the
-// standard prose article. The markdown chrome (edit button, breadcrumb, TOC,
-// page dropdown) is suppressed for these.
-const landing = docsLandings[entrySlugPath ?? ''];
-const isLanding = Boolean(landing);
 const fullPath = slugPath ? `${routePrefix}/${slugPath}/` : `${routePrefix}/`;
 const integration = productId && tabId === 'integrations' && slugPath
 	? integrationFor(productId, slugPath)
@@ -108,9 +106,10 @@ const routeOwnedTab = productId && tabId
 	: undefined;
 const activeTab = routeOwnedTab ?? discovered?.tab;
 const sourceSidebar = activeTab?.sidebar ?? [];
-const sidebar = tabId === 'docs' || fullPath.startsWith('/docs/')
-	? withAiSidebarSection(sourceSidebar, productId)
-	: sourceSidebar;
+// Product Documentation tabs (and `/docs/mcp/`, which renders in the Actors
+// shell) carry the site-wide AI Tools group. The overview at `/docs/` and the
+// Deploy section do not.
+const sidebar = tabId === 'docs' ? withAiSidebarSection(sourceSidebar, productId) : sourceSidebar;
 const activePage = activeTab
 	? findPageForHref(fullPath, { ...activeTab, sidebar })
 	: discovered?.page;
@@ -134,7 +133,7 @@ const canonicalUrl = canonicalUrlOverride ?? `https://rivet.dev${fullPath}`;
 // pine. Set as a CSS variable rather than a class because the typography plugin
 // reads the link color from `--tw-prose-links`, and because the hue is data.
 const accent = productAccent(productId);
-const proseStyle = accent ? { '--tw-prose-links': accent.hex } : undefined;
+const proseStyle = accent ? { '--tw-prose-links': `color-mix(in srgb, ${accent.hex}, white var(--site-product-lighten, 0%))` } : undefined;
 
 // The Markdown mirror written by `pnpm gen:markdown` sits at the page's own
 // site path plus `.md`, so the dropdown's link is just this route unslashed.
@@ -145,8 +144,8 @@ const componentSourcePath = entry.filePath
 
 // Product documentation is authored in each product's repository and linked
 // into this site's content collection at build time. Keep edit links pointed at
-// that source of truth; website-owned collections (including generated
-// Self-Host variants) continue to point at this repository.
+// that source of truth; website-owned collections continue to point at this
+// repository.
 const normalizedFilePath = entry.filePath?.replaceAll('\\', '/');
 const product = productId ? getProductMetadata(productId) : undefined;
 const productContentMarker = productId ? `src/content/docs/${productId}/` : undefined;
@@ -155,7 +154,16 @@ const productContentPath = normalizedFilePath?.includes('/docs/content/')
 	: productContentMarker && normalizedFilePath?.includes(productContentMarker)
 		? normalizedFilePath.slice(normalizedFilePath.indexOf(productContentMarker) + productContentMarker.length)
 		: `${tabId}/${routeEntryId ? `${routeEntryId}.mdx` : 'index.mdx'}`;
-const editUrl = editUrlOverride ?? (product && tabId !== 'self-host'
+// A shared bundle (`bundleOf`, planned for Sandboxes -> agentOS) is authored against its
+// source product's routes; its links are re-parented onto this product's.
+// The site Integrations section is likewise authored against the Actors
+// bundle's `/actors/integrations/` routes and served at `/integrations/`.
+const rerootLinks = product?.bundleOf && tabId === 'docs'
+	? { from: `/${product.bundleOf}/docs`, to: `/${product.id}/docs` }
+	: productId === SITE_INTEGRATIONS_PRODUCT && tabId === 'integrations'
+		? { from: `/${SITE_INTEGRATIONS_CONTENT_PREFIX}`, to: INTEGRATIONS_ROUTE_PREFIX }
+		: undefined;
+const editUrl = editUrlOverride ?? (product
 	? product.localBundle
 		? `https://github.com/rivet-dev/website/edit/main/${product.localBundle}/docs/content/${productContentPath}`
 		: `https://github.com/rivet-dev/${product.repo}/edit/main/${product.bundlePath ?? 'docs'}/content/${productContentPath}`
@@ -203,12 +211,8 @@ const breadcrumbSchema = {
 		</aside>
 	)}
 	<div class="flex justify-center w-full min-w-0">
-		<div class:list={["flex gap-8 w-full min-w-0", isLanding ? "max-w-6xl" : "max-w-[86rem]"]}>
-			<main id="main-content" tabindex="-1" class:list={["w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0", landing ? "" : "py-8 max-w-prose-docs"]}>
-				{landing ? (
-					<DocsLanding {...landing} />
-				) : (
-					<Fragment>
+		<div class="flex gap-8 w-full min-w-0 max-w-[86rem]">
+			<main id="main-content" tabindex="-1" class="w-full px-8 lg:mx-0 mx-auto lg:max-w-none min-w-0 py-8 max-w-prose-docs">
 						<div class="relative flex justify-end">
 							<div class:list={["flex items-end", !entry.data.badge && `md:absolute md:right-0 ${parentPage ? 'md:top-5' : 'md:top-0'}`]}>
 								<DocsPageDropdown
@@ -233,7 +237,9 @@ const breadcrumbSchema = {
 							</h1>
 							{description && <p>{description}</p>}
 							{integration && <IntegrationResourceBar integration={integration} />}
-							<Content components={{ ...mdxComponents, ...extraComponents }} />
+							<RerootLinks from={rerootLinks?.from} to={rerootLinks?.to}>
+								<Content components={{ ...mdxComponents, ...extraComponents }} />
+							</RerootLinks>
 						</Prose>
 						<div class="border-t border-ink/10 mt-12 pt-6 flex flex-wrap items-center justify-between gap-4">
 							<a
@@ -251,10 +257,8 @@ const breadcrumbSchema = {
 								</span>
 							)}
 						</div>
-					</Fragment>
-				)}
 			</main>
-			{!isLanding && tableOfContents.length > 0 && (
+			{tableOfContents.length > 0 && (
 				<aside class="hidden xl:block w-64 min-w-0 flex-shrink-0 pb-4">
 					<DocsTableOfContents className="lg:max-h-content" tableOfContents={tableOfContents} productId={productId} client:load />
 				</aside>

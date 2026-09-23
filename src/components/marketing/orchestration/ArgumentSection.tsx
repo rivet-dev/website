@@ -5,6 +5,7 @@ import { Reveal } from "../motion";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { CAPTION_CLASS, SECTION_H2_CLASS } from "../typography";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
+import { MethodTooltip } from "./MethodTooltip";
 
 /**
  * The shell every orchestrator argument shares: a claim on one side, the
@@ -20,13 +21,23 @@ interface ArgumentSectionProps {
 	id?: string;
 	heading: ReactNode;
 	lede: ReactNode;
-	/** Headline figure beside the claim, e.g. "5 ms". Optional. */
-	stat?: { value: string; unit?: string; note?: string };
+	/**
+	 * Headline figure beside the claim, e.g. "49.5 ms". Optional. `method`
+	 * renders as an info dot whose tooltip says how the figure was measured.
+	 */
+	stat?: { value: string; unit?: string; note?: string; method?: ReactNode };
+	/** Supporting content under the lede (or stat), above the links. */
+	aside?: ReactNode;
 	/** Quiet reading links under the lede, for the depth this section skips. */
 	links?: { label: string; href: string }[];
 	figure: ReactNode;
 	/** Caption under the figure. Sentence case, no figure numbering. */
 	caption?: ReactNode;
+	/**
+	 * Prose description of the figure for screen readers only, when the figure
+	 * is a diagram with no visible caption.
+	 */
+	srCaption?: string;
 	/** Puts the figure on the left at desktop widths. */
 	figureFirst?: boolean;
 }
@@ -36,9 +47,11 @@ export const ArgumentSection = ({
 	heading,
 	lede,
 	stat,
+	aside,
 	links,
 	figure,
 	caption,
+	srCaption,
 	figureFirst = false,
 }: ArgumentSectionProps) => (
 	<section
@@ -57,9 +70,12 @@ export const ArgumentSection = ({
 							<span className="text-[2.75rem] font-medium leading-none tracking-[-0.02em] tabular-nums text-ink md:text-5xl">
 								{stat.value}
 							</span>
-							{stat.unit ? (
-								<span className="text-lg font-medium text-ink-faint md:text-xl">
+							{stat.unit || stat.method ? (
+								<span className="inline-flex items-center gap-1 text-lg font-medium text-ink-faint md:text-xl">
 									{stat.unit}
+									{stat.method ? (
+										<MethodTooltip>{stat.method}</MethodTooltip>
+									) : null}
 								</span>
 							) : null}
 						</div>
@@ -67,6 +83,7 @@ export const ArgumentSection = ({
 					{stat?.note ? (
 						<p className={`mt-3 ${CAPTION_CLASS}`}>{stat.note}</p>
 					) : null}
+					{aside ? <div className="mt-8">{aside}</div> : null}
 					{links?.length ? (
 						<ul className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
 							{links.map((link) => (
@@ -99,6 +116,8 @@ export const ArgumentSection = ({
 							<figcaption className={`mt-6 ${CAPTION_CLASS}`}>
 								{caption}
 							</figcaption>
+						) : srCaption ? (
+							<figcaption className="sr-only">{srCaption}</figcaption>
 						) : null}
 					</figure>
 				</Reveal>

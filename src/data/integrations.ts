@@ -1,6 +1,7 @@
 import { faSquareInfo } from "@rivet-gg/icons";
 import type { SidebarItem } from "@/lib/sitemap";
 import type { SeoOverrides } from "@/lib/seo";
+import { integrationsHref } from "@/sitemap/integrations";
 
 /**
  * Integrations, per product.
@@ -15,7 +16,7 @@ import type { SeoOverrides } from "@/lib/seo";
 export interface Integration extends SeoOverrides {
 	title: string;
 	description: string;
-	/** Slug under `/{product}/integrations/`. */
+	/** Slug under the product's integrations route (see `integrationsHref`). */
 	slug: string;
 	category: string;
 	icon: { src: string };
@@ -123,18 +124,33 @@ export function integrationFor(
 	);
 }
 
+export interface IntegrationGroup {
+	title: string;
+	items: Integration[];
+}
+
+/**
+ * A product's integrations grouped by category, in first-seen order. Both the
+ * Integrations sidebar and the overview page render from this, so they always
+ * show the same sections in the same order.
+ */
+export function integrationGroups(productId: string): IntegrationGroup[] {
+	const groups: IntegrationGroup[] = [];
+	for (const item of integrationsFor(productId)) {
+		const group = groups.find((g) => g.title === item.category);
+		if (group) group.items.push(item);
+		else groups.push({ title: item.category, items: [item] });
+	}
+	return groups;
+}
+
 /**
  * Integrations sidebar for a product: an Overview entry, then one section per
  * category in first-seen order.
  */
 export function integrationSidebar(productId: string): SidebarItem[] {
-	const items = integrationsFor(productId);
-	if (items.length === 0) return [];
-
-	const categories: string[] = [];
-	for (const item of items) {
-		if (!categories.includes(item.category)) categories.push(item.category);
-	}
+	const groups = integrationGroups(productId);
+	if (groups.length === 0) return [];
 
 	return [
 		{
@@ -142,21 +158,19 @@ export function integrationSidebar(productId: string): SidebarItem[] {
 			pages: [
 				{
 					title: "Overview",
-					href: `/${productId}/integrations/`,
+					href: integrationsHref(productId),
 					icon: faSquareInfo,
 				},
 			],
 		},
-		...categories.map((title) => ({
-			title,
-			pages: items
-				.filter((item) => item.category === title)
-				.map(({ title, slug, icon, badge }) => ({
-					title,
-					href: `/${productId}/integrations/${slug}/`,
-					icon,
-					badge,
-				})),
+		...groups.map((group) => ({
+			title: group.title,
+			pages: group.items.map(({ title, slug, icon, badge }) => ({
+				title,
+				href: integrationsHref(productId, slug),
+				icon,
+				badge,
+			})),
 		})),
 	] satisfies SidebarItem[];
 }

@@ -157,7 +157,7 @@ function looksLikeMermaid(code: string): boolean {
 function rehypeShiki() {
 	return async (tree) => {
 		highlighter ??= await shiki.getSingletonHighlighter({
-			themes: [theme],
+			themes: [theme, 'github-dark'],
 			langs: [
 				"bash",
 				"batch",
@@ -215,7 +215,7 @@ function rehypeShiki() {
 				try {
 					const result = highlighter.codeToHtml(textNode.value, {
 						lang,
-						theme: theme.name,
+						themes: { light: theme.name, dark: 'github-dark' },
 						transformers: [transformerNotationFocus()],
 					});
 					// Store the highlighted HTML in a property instead of the text node

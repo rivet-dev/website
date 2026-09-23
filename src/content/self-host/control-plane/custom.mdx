@@ -15,10 +15,6 @@ Your platform must provide:
 - **Long-lived connections.** Platforms that cap request duration or idle time below an hour will sever WebSockets. This rules out serverless platforms entirely.
 - **`SIGTERM` plus a grace period**, so the control plane can drain and flush state before it is killed.
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -88,7 +84,6 @@ Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner confi
 
 </Step>
 
-
 <Step title="Connect a worker">
 
 Point a worker at the control plane and confirm it appears under **Runners**:
@@ -100,10 +95,6 @@ RIVET_ENDPOINT="https://default:<admin-token>@your-control-plane.example.com"
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Troubleshooting
 

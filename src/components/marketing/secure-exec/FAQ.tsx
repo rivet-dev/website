@@ -66,7 +66,7 @@ const faqs: { question: string; answer: React.ReactNode }[] = [
       <>
         Yes. Secure Exec bridges Node.js APIs including http, net, and child_process, so frameworks like Express, Hono,
         and Next.js work out of the box. For production deployments, pair Secure Exec with{" "}
-        <a href="https://rivet.dev/docs/actors" className="text-white underline underline-offset-2 hover:text-zinc-300">
+        <a href="/actors/docs/" className="text-white underline underline-offset-2 hover:text-zinc-300">
           Rivet Actors
         </a>
         {" "}to get built-in routing, scaling, and lifecycle management for each server instance.
@@ -78,7 +78,7 @@ const faqs: { question: string; answer: React.ReactNode }[] = [
     answer: (
       <>
         Yes. For orchestrating stateful, long-running tasks, we recommend pairing Secure Exec with{" "}
-        <a href="https://rivet.dev/docs/actors" className="text-white underline underline-offset-2 hover:text-zinc-300">
+        <a href="/actors/docs/" className="text-white underline underline-offset-2 hover:text-zinc-300">
           Rivet Actors
         </a>
         . Rivet Actors provide durable state, automatic persistence, and fault-tolerant orchestration — so each

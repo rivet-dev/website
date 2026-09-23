@@ -15,7 +15,7 @@ export const HostingSection = () => (
         <DeploymentOptions
           productName="Actors"
           quickstartHref="/actors/docs"
-          selfHostHref="/actors/self-host/control-plane"
+          selfHostHref="/docs/deploy/self-host/control-plane"
           className="mt-12"
         />
       </div>

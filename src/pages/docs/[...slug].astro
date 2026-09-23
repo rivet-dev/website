@@ -1,6 +1,11 @@
 ---
-// Website-owned documentation: /docs/{...slug}. Product documentation keeps
-// its own /{product}/{tab}/{...slug} route.
+// Website-owned documentation: /docs/{...slug}.
+//
+//   src/content/docs/docs/index.mdx  ->  /docs/       the docs overview
+//   src/content/docs/docs/mcp.mdx    ->  /docs/mcp/   rendered inside the Actors docs shell
+//
+// Product documentation keeps its own /{product}/{tab}/{...slug} route, and
+// the Deploy section has its own routes under /docs/deploy/.
 import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { getContentParamSlug } from '@/lib/content-path';
@@ -12,10 +17,14 @@ export async function getStaticPaths() {
 	const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
 
 	return entries
-		.filter((entry) => entry.id.startsWith(entryPrefix))
+		.filter((entry) => entry.id === SITE_DOCS_NAMESPACE || entry.id.startsWith(entryPrefix))
 		.map((entry) => ({
 			params: {
-				slug: getContentParamSlug(entry.id.slice(entryPrefix.length)),
+				// The glob loader collapses `docs/index.mdx` to the id `docs`.
+				slug:
+					entry.id === SITE_DOCS_NAMESPACE
+						? undefined
+						: getContentParamSlug(entry.id.slice(entryPrefix.length)),
 			},
 			props: { entry },
 		}));
@@ -25,6 +34,7 @@ const { entry } = Astro.props;
 const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 const isMcp = entry.id === 'docs/mcp';
+const isOverview = entry.id === SITE_DOCS_NAMESPACE;
 ---
 
 <DocsArticlePage
@@ -36,8 +46,14 @@ const isMcp = entry.id === 'docs/mcp';
 	tabId={isMcp ? 'docs' : undefined}
 	sectionLabel={isMcp ? undefined : 'Documentation'}
 	seoContextLabel="Rivet documentation"
-	canonicalUrl={isMcp ? 'https://rivet.dev/docs/mcp/' : undefined}
-	editUrlOverride={isMcp ? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx' : undefined}
-	exactTitle={isMcp}
+	canonicalUrl={isMcp ? 'https://rivet.dev/docs/mcp/' : isOverview ? 'https://rivet.dev/docs/' : undefined}
+	editUrlOverride={
+		isMcp
+			? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx'
+			: isOverview
+				? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/index.mdx'
+				: undefined
+	}
+	exactTitle={isMcp || isOverview}
 	robots={robots}
 />

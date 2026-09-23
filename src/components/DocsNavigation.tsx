@@ -108,9 +108,11 @@ function TreeItem({ index, item, level = 0, parentPath = "" }: TreeItemProps) {
 				{item.icon && "prefix" in item.icon ? (
 					<Icon icon={item.icon} className="size-3.5 flex-shrink-0" />
 				) : item.icon ? (
+					// Vendor marks from `src/data/integrations.ts`: ink-on-transparent
+					// SVGs, so they invert to white on the dark theme.
 					<img
-						{...(item.icon as Record<string, string>)}
-						className="h-3.5 w-auto max-w-8 flex-shrink-0"
+						src={(item.icon as { src: string }).src}
+						className="theme-monochrome-logo h-3.5 w-auto max-w-8 flex-shrink-0"
 						alt=""
 					/>
 				) : null}

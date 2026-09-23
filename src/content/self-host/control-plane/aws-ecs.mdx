@@ -14,10 +14,6 @@ description: "Run the Rivet control plane on AWS ECS with Fargate."
 A published Terraform module for the control plane does not exist yet. The [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs) covers workers, not the control plane. The steps below are the generic container requirements mapped onto ECS.
 </Note>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -134,12 +130,7 @@ Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner confi
 
 </Step>
 
-
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling past one task
 

@@ -1,0 +1,39 @@
+<!-- Apply before paint, including Astro's incoming document. Keep the legacy
+     .dark class for the component library; data-theme owns the site palette. -->
+<script is:inline>
+	(() => {
+		const media = window.matchMedia('(prefers-color-scheme: dark)');
+		const normalize = (value) => value === 'light' || value === 'dark' ? value : 'system';
+		let preference = 'system';
+		try { preference = normalize(localStorage.getItem('rivet-theme')); } catch {}
+		const apply = (doc = document) => {
+			const root = doc.documentElement;
+			const theme = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+			root.dataset.theme = theme;
+			root.dataset.themePreference = preference;
+			const dark = root.dataset.fixedTheme === 'dark' || theme === 'dark';
+			root.style.colorScheme = dark ? 'dark' : 'light';
+			const meta = doc.querySelector('meta[name="theme-color"]');
+			if (meta) meta.content = dark ? '#0A0A0B' : '#EFEFEF';
+		};
+		const update = () => {
+			apply();
+			window.dispatchEvent(new Event('theme-change'));
+		};
+		apply();
+		media.addEventListener('change', update);
+		window.addEventListener('theme-preference', (event) => {
+			preference = normalize(event.detail);
+			try { localStorage.setItem('rivet-theme', preference); } catch {}
+			update();
+		});
+		window.addEventListener('storage', (event) => {
+			if (event.key === 'rivet-theme' || event.key === null) {
+				preference = normalize(event.newValue);
+				update();
+			}
+		});
+		document.addEventListener('astro:before-swap', (event) => apply(event.newDocument));
+		document.addEventListener('astro:after-swap', update);
+	})();
+</script>

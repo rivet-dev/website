@@ -1,4 +1,4 @@
-import { productColorTokens } from './src/sitemap/product-metadata';
+import { PRODUCTS, productColorTokens } from './src/sitemap/product-metadata';
 import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
@@ -37,18 +37,20 @@ export default {
 				// Porcelain editorial palette. Marketing pages are light: a cool
 				// porcelain field with warm ink, warm mats, and forest green
 				// structure. Orange remains the single CTA spark per page.
-				'paper': '#EFEFEF',
-				'paper-deep': '#DCDCDE',
-				'paper-mid': '#E3E3E5',
+				'paper': 'rgb(var(--site-paper, 239 239 239) / <alpha-value>)',
+				'paper-deep': 'rgb(var(--site-paper-deep, 220 220 222) / <alpha-value>)',
+				'paper-mid': 'rgb(var(--site-paper-mid, 227 227 229) / <alpha-value>)',
 				'mat': '#EFE9DC',
-				'ink': '#1B1916',
-				'ink-soft': '#56524A',
-				'ink-faint': '#8A8478',
+				'ink': 'rgb(var(--site-ink, 27 25 22) / <alpha-value>)',
+				'ink-soft': 'rgb(var(--site-ink-soft, 86 82 74) / <alpha-value>)',
+				'ink-faint': 'rgb(var(--site-ink-faint, 138 132 120) / <alpha-value>)',
 				'cream': '#F4F1E7',
-				'pine': '#2E4034',
+				'pine': 'rgb(var(--site-pine, 46 64 52) / <alpha-value>)',
 				'olive': '#5C6B4F',
 				'sage': '#93A286',
 				'accent-deep': '#AB451F',
+				// The diagram accent for marketing figures, per theme; see theme.css.
+				'highlight': 'rgb(var(--runtime-highlight, 183 75 35) / <alpha-value>)',
 				'code-keyword': '#c084fc',
 				'code-function': '#60a5fa',
 				'code-string': '#4ade80',
@@ -56,6 +58,16 @@ export default {
 				// Per-product accents. Defined once in src/lib/product-colors.mjs.
 				...productColorTokens(),
 			},
+			backgroundColor: {
+				// Ink panels use the dark card surface; brand pine stays fixed.
+				ink: 'rgb(var(--site-solid, 27 25 22) / <alpha-value>)',
+				pine: '#2E4034',
+				white: 'rgb(var(--site-surface, 255 255 255) / <alpha-value>)',
+			},
+			textColor: Object.fromEntries(PRODUCTS.map(({ id, color }) => [
+				`product-${id}`,
+				`color-mix(in srgb, ${color}, white var(--site-product-lighten, 0%))`,
+			])),
 			fontFamily: {
 				sans: ["Manrope", ...defaultTheme.fontFamily.sans],
 				'heading': ['Manrope', 'sans-serif'],

@@ -11,10 +11,6 @@ Workers run in **runner** mode here: the task opens a connection out to the cont
 - A container registry, typically ECR
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 A reference deployment is published as the [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs), with two paths:
@@ -22,14 +18,10 @@ A reference deployment is published as the [AWS ECS template](https://github.com
 - [Deploy with Terraform](https://github.com/rivet-dev/template-aws-ecs#option-a-deploy-with-terraform)
 - [Deploy with the AWS CLI](https://github.com/rivet-dev/template-aws-ecs#option-b-deploy-with-aws-cli)
 
-<ProductSlot name="snippet" />
-
 Whichever path you take, two things in the task definition are specific to Rivet:
 
 - **`stopTimeout`.** Actors drain for up to 30 minutes. Fargate caps `stopTimeout` at 120 seconds, so a worker cannot fully drain within a single task stop. Plan rollouts so old tasks overlap new ones, and keep `minimumHealthyPercent` at 100 so capacity is added before it is removed.
 - **The endpoint variables.** Set `RIVET_ENDPOINT` and `RIVET_PUBLIC_ENDPOINT` through the `secrets` block, backed by Secrets Manager, rather than plain `environment` entries. Both values are described in <SelfHostLink to="workers">Workers</SelfHostLink>.
-
-<ProductSlot name="env" />
 
 ## Verify
 
@@ -39,8 +31,6 @@ aws ecs describe-services --cluster <cluster> --services <service> \
 ```
 
 Once tasks are running they appear under **Runners** in the dashboard. Nothing needs registering.
-
-<ProductSlot name="verify" />
 
 ## Autoscaling
 

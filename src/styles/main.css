@@ -1,5 +1,6 @@
 @import '@rivet-gg/components/theme.css';
 @import './fonts.css';
+@import './theme.css';
 
 @tailwind base;
 @tailwind components;
@@ -830,16 +831,15 @@
 	opacity: var(--actors-logo-opacity);
 }
 
-/* The card uses the complete product mark; this accent-token cover removes
-   the inner glyphs while preserving the exact outer-logo silhouette. */
-.actors-logo-center-cover {
-	position: absolute;
-	inset: 12%;
-	border-radius: 30%;
-}
-
 .actors-logo-outline-path {
 	fill: none;
+}
+
+/* The card draws the mark's own white ring at the mark's stroke weight (8.5 of
+   a 128 viewBox), so it reads as the product mark on any plate color. */
+.product-motif--card .actors-logo-outline-path {
+	stroke: #fff;
+	stroke-width: 8.5;
 }
 
 .product-motif--hero .actors-logo--outline {

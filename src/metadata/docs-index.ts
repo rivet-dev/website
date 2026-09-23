@@ -17,10 +17,18 @@ import { DOCS_SOURCES } from "../sitemap/docs-sources";
 // (plain tsx, no bundler) cannot find this module without it.
 import { docsRoot } from "../sitemap/docs-sources.node.ts";
 import { getProductMetadata } from "../sitemap/product-metadata";
+import { deploySlugForContentId } from "../sitemap/deploy";
+import { GUIDES_ROUTE_PREFIX, guidesSlugForContentId, SITE_GUIDES } from "../sitemap/guides";
 import { listSnippetFiles, mdxToMarkdown } from "./mdx-to-markdown";
-import { normalizeSlug, PROJECT_ROOT } from "./shared";
+import { isRoutedDocsContentId, normalizeSlug, PROJECT_ROOT } from "./shared";
 
 const CONTENT_BASE = path.join(PROJECT_ROOT, "src/content/docs");
+// Website-owned product overviews, which shadow each bundle's docs root on the
+// site (see src/pages/[product]/[tab]/[...slug].astro).
+const OVERVIEWS_BASE = path.join(PROJECT_ROOT, "src/content/overviews");
+// Website-owned solution guides, routed onto the Guides tab (see
+// src/pages/guides/[...slug].astro).
+const GUIDES_BASE = path.join(PROJECT_ROOT, "src/content/guides");
 
 export interface DocPage {
 	/** Product id, i.e. the first slug segment. */
@@ -65,9 +73,16 @@ export function listDocPages(): DocPage[] {
 			throw new Error(`src/content/docs/${file} has no frontmatter title`);
 		}
 
+		// Most bundles are served at their content id; the Rivet Cloud bundle
+		// renders inside the Deploy section and the Actors `learn` section as
+		// the Guides tab instead.
+		const contentId = normalizeSlug(file.replace(/\.mdx$/, ""));
+		// Shared bundles (agentOS -> Sandboxes) are walked twice; only the
+		// product that routes them gets a Markdown mirror and search entries.
+		if (!isRoutedDocsContentId(contentId)) continue;
 		pages.push({
 			product,
-			slug: normalizeSlug(file.replace(/\.mdx$/, "")),
+			slug: deploySlugForContentId(contentId) ?? guidesSlugForContentId(contentId) ?? contentId,
 			title,
 			description: description ?? "",
 			sourcePath,
@@ -81,6 +96,45 @@ export function listDocPages(): DocPage[] {
 			`No .mdx found under ${CONTENT_BASE}. Run \`pnpm assemble\` to link ` +
 				`each product's docs in.`,
 		);
+	}
+
+	for (const file of fg.sync("*.mdx", { cwd: OVERVIEWS_BASE }).sort()) {
+		const product = file.replace(/\.mdx$/, "");
+		const sourcePath = path.join(OVERVIEWS_BASE, file);
+		const raw = readFileSync(sourcePath, "utf-8");
+		const { frontmatter, body } = splitFrontmatter(raw);
+		const title = frontmatterValue(frontmatter, "title");
+		if (!title) {
+			throw new Error(`src/content/overviews/${file} has no frontmatter title`);
+		}
+		const slug = `${product}/docs`;
+		const page: DocPage = {
+			product,
+			slug,
+			title,
+			description: frontmatterValue(frontmatter, "description") ?? "",
+			sourcePath,
+			body,
+			snippetFiles: listSnippetFiles(body),
+		};
+		const index = pages.findIndex((candidate) => candidate.slug === slug);
+		if (index === -1) pages.push(page);
+		else pages[index] = page;
+	}
+
+	for (const guide of SITE_GUIDES) {
+		const sourcePath = path.join(GUIDES_BASE, `${guide.slug}.mdx`);
+		const raw = readFileSync(sourcePath, "utf-8");
+		const { frontmatter, body } = splitFrontmatter(raw);
+		pages.push({
+			product: "actors",
+			slug: normalizeSlug(`${GUIDES_ROUTE_PREFIX.slice(1)}/${guide.slug}`),
+			title: frontmatterValue(frontmatter, "title") ?? guide.title,
+			description: frontmatterValue(frontmatter, "description") ?? "",
+			sourcePath,
+			body,
+			snippetFiles: listSnippetFiles(body),
+		});
 	}
 
 	cache = pages;

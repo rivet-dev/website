@@ -10,7 +10,7 @@ import { useRef } from 'react';
 // and the dashed arrow is the BYOC operator dialling out across the network
 // boundary. Pine only — no ember; the page's one accent CTA lives elsewhere.
 // Restated from the self-host docs (src/content/self-host/index.mdx) and the
-// BYOC docs (/cloud/byoc/).
+// BYOC docs (/docs/deploy/byoc/).
 // ---------------------------------------------------------------------------
 
 export type DeploymentDiagramVariant = 'managed' | 'byoc' | 'self-hosted';
@@ -111,7 +111,7 @@ const CrossConnector = ({ show, at }: { show: Show; at: number }) => (
 
 const Backend = () => <Node title='Your backend' sub='application code' />;
 const ControlPlane = () => <Node title='Control plane' sub='scheduling · routing' ink />;
-const Storage = () => <Node title='Storage' sub='actor state' />;
+const Storage = () => <Node title='Storage' sub='Actor state' />;
 const Management = () => <Node title='Managed by Rivet' sub='updates · maintenance' />;
 
 export const DeploymentDiagram = ({ variant }: { variant: DeploymentDiagramVariant }) => {

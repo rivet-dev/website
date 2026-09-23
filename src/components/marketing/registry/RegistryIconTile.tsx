@@ -43,6 +43,11 @@ const TILE_SURFACE =
 	"relative flex shrink-0 items-center justify-center overflow-hidden " +
 	"ring-1 ring-ink/[0.08]";
 
+// Vendor logos are drawn for a white plate, so in dark mode the plate stays
+// white and the tile forces a light color-scheme (theme.css); that keeps
+// currentColor SVGs loaded via <img> resolving to black.
+const LOGO_PLATE = `registry-logo-plate ${TILE_SURFACE} bg-white`;
+
 function monogramTint(title: string) {
 	let hash = 0;
 	for (const char of title) hash = (hash + char.charCodeAt(0)) % 997;
@@ -105,10 +110,7 @@ export function RegistryIconTile({
 			);
 		}
 		return (
-			<div
-				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
-				style={frame}
-			>
+			<div className={`${LOGO_PLATE} ${className ?? ""}`} style={frame}>
 				<img
 					src={image}
 					alt=""
@@ -126,10 +128,7 @@ export function RegistryIconTile({
 	if (icon) {
 		const IconComponent = REGISTRY_ICONS[icon];
 		return (
-			<div
-				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
-				style={frame}
-			>
+			<div className={`${LOGO_PLATE} ${className ?? ""}`} style={frame}>
 				<IconComponent
 					className="text-ink-soft"
 					style={{ width: size * 0.5, height: size * 0.5 }}

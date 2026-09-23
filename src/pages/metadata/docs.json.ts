@@ -6,6 +6,7 @@ import path from "node:path";
 
 import {
 	getDocsPath,
+	isRoutedDocsContentId,
 	normalizeSlug,
 	PROJECT_ROOT,
 	SITE_BASE_URL,
@@ -36,7 +37,7 @@ export const GET: APIRoute = async () => {
 };
 
 async function buildMetadata(): Promise<MetadataPayload> {
-	const docs = await getCollection("docs");
+	const docs = (await getCollection("docs")).filter((entry) => isRoutedDocsContentId(entry.id));
 	const pages: PageRecord[] = [];
 	const sections: SectionRecord[] = [];
 

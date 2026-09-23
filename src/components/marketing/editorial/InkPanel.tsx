@@ -38,7 +38,7 @@ export const InkPanel = ({
 	overflow = 'hidden',
 }: InkPanelProps) => (
 	<div
-		className={`selection-paper relative ${
+		className={`ink-panel selection-paper relative ${
 			overflow === 'visible' ? 'overflow-visible' : 'overflow-hidden'
 		} bg-ink text-cream ${bleed ? '' : 'rounded-xl border border-ink/20'} ${className ?? ''}`}
 	>
@@ -85,7 +85,7 @@ export const InkChip = ({ command, variant = 'ink', className }: InkChipProps) =
 	<div
 		className={`flex items-center gap-2.5 overflow-x-auto rounded-md font-mono text-[13px] ${
 			variant === 'ink'
-				? 'selection-paper border border-ink/20 bg-ink px-4 py-3 text-cream/85'
+				? 'ink-panel selection-paper border border-ink/20 bg-ink px-4 py-3 text-cream/85'
 				: 'border border-ink/15 bg-white/55 px-3.5 py-2.5 text-ink-soft'
 		} ${className ?? ''}`}
 	>

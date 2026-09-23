@@ -11,12 +11,14 @@ import { SECTION_H2_CLASS, SECTION_LEDE_CENTERED_CLASS } from "../typography";
  * this run", this one answers "what do I write it in". Conflating the two put
  * Kubernetes next to React, which told the reader neither thing.
  */
+// `monochrome` marks black-on-transparent logos; theme.css inverts them in
+// dark mode. Colored brand marks are left alone.
 const tools = [
 	{ label: "TypeScript", src: "/images/tools/typescript.svg" },
 	{ label: "Node.js", src: "/images/tools/nodejs.svg" },
-	{ label: "Rust", src: "/images/tools/rust.svg" },
+	{ label: "Rust", src: "/images/tools/rust.svg", monochrome: true },
 	{ label: "React", src: "/images/tools/react.svg" },
-	{ label: "Effect", src: "/images/tools/effect.svg" },
+	{ label: "Effect", src: "/images/tools/effect.svg", monochrome: true },
 ];
 
 export const ToolsSection = () => (
@@ -28,8 +30,7 @@ export const ToolsSection = () => (
 						Works with the tools you already use.
 					</h2>
 					<p className={SECTION_LEDE_CENTERED_CLASS}>
-						Typed SDKs for the languages you write backends in, and
-						first-party React hooks for the interfaces on top of them.
+						Typed SDKs for your backend and React hooks for your frontend.
 					</p>
 				</div>
 			</Reveal>
@@ -46,7 +47,7 @@ export const ToolsSection = () => (
 								alt=""
 								aria-hidden="true"
 								loading="lazy"
-								className="h-5 w-5 object-contain"
+								className={`h-5 w-5 object-contain ${tool.monochrome ? "theme-monochrome-logo" : ""}`}
 							/>
 							<span className="text-sm font-medium text-ink">{tool.label}</span>
 						</li>

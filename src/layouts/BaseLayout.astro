@@ -13,6 +13,7 @@ import MermaidScript from '@/components/MermaidScript.astro';
 import { ScrollObserver } from '@/components/ScrollObserver';
 import { jsonLdString } from '@/lib/jsonLd';
 import { stripSeoMarkup } from '@/lib/seo';
+import ThemeScript from '@/components/ThemeScript.astro';
 
 interface Props {
 	title: string;
@@ -107,7 +108,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="dark" data-page-family={pageFamily}>
+<html lang="en" class="dark" data-page-family={pageFamily} data-fixed-theme={darkChrome || currentPath === '/learn' || currentPath.startsWith('/learn/') ? 'dark' : undefined}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -194,6 +195,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<link rel="mask-icon" href="/icons/safari-pinned-tab.svg?20240925" color="#1B1916" />
 		<meta name="msapplication-TileColor" content={themeColor} />
 		<meta name="theme-color" content={themeColor} />
+		<ThemeScript />
 		<script is:inline>
 			(() => {
 				const syncSiteMotionClass = (root) => {

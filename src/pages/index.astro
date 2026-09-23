@@ -8,13 +8,18 @@ import { SolutionsSection } from '@/components/marketing/sections/SolutionsSecti
 import { DensitySection } from '@/components/marketing/orchestration/DensitySection';
 import { ColdStartSection } from '@/components/marketing/orchestration/ColdStartSection';
 import { ScaleSection } from '@/components/marketing/orchestration/ScaleSection';
+import { HibernationSection } from '@/components/marketing/orchestration/HibernationSection';
 import { DurableStateSection } from '@/components/marketing/orchestration/DurableStateSection';
+import { GeneratedCodeSection } from '@/components/marketing/orchestration/GeneratedCodeSection';
 import { ToolsSection } from '@/components/marketing/orchestration/ToolsSection';
 import { OrchestratorFeaturesSection } from '@/components/marketing/orchestration/OrchestratorFeaturesSection';
 import { ActorTypesSection } from '@/components/marketing/orchestration/ActorTypesSection';
 import { HostingSection } from '@/components/marketing/sections/HostingSection';
 import { OnPremSection } from '@/components/marketing/sections/OnPremSection';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqSection } from '@/components/faq/FaqSection';
+import { homeFaqs } from '@/data/faqs/home';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
@@ -118,12 +123,14 @@ const latestPost = latestEntry
 ---
 
 <MarketingLayout
-	title="Rivet - Orchestrator for Agentic Workloads"
-	description="A fast, high-density and scalable orchestrator for every workload an agent needs. Run agents, workflows, and sandboxes as durable actors."
+	title="Rivet - The Orchestrator for Agentic Workloads"
+	description="A fast, high-density and scalable orchestrator for every workload an agent needs. Run agents, workflows, and sandboxes as durable Actors."
 	canonicalUrl="https://rivet.dev/"
 >
 	<main id="main-content" tabindex="-1">
 		<RedesignedHero latestPost={latestPost} thinkingImages={thinkingImages} client:load />
+		<SectionRule />
+		<ActorTypesSection />
 		<SectionRule />
 		<SolutionsSection />
 		<SectionRule />
@@ -133,21 +140,30 @@ const latestPost = latestEntry
 		<SectionRule />
 		<ScaleSection client:visible />
 		<SectionRule />
+		<HibernationSection client:visible />
+		<SectionRule />
 		<DurableStateSection client:visible />
+		<SectionRule />
+		<GeneratedCodeSection client:visible />
 		<SectionRule />
 		<ToolsSection client:visible />
 		<SectionRule />
 		<OrchestratorFeaturesSection client:visible />
 		<SectionRule />
-		<ActorTypesSection />
-		<SectionRule />
 		<OnPremSection />
 		<SectionRule />
 		<HostingSection />
 		<SectionRule />
+		{/* Hydrated on scroll so the accordion animates; content is still SSR'd
+		    into the HTML for crawlers. */}
+		<div data-site-reveal>
+			<FaqSection items={homeFaqs} theme="light" client:visible />
+		</div>
+		<FaqJsonLd items={homeFaqs} />
+		<SectionRule />
 		<ClosingCtaPanel
 			title="Orchestration for agentic workloads."
-			description="Run agents, workflows, and sandboxes as durable actors — on your infrastructure or ours."
+			description="Run agents, workflows, and sandboxes as durable Actors — on your infrastructure or ours."
 		>
 			<a href="/docs/" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Start Building</a>
 			<a href="/talk-to-an-engineer/" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an Engineer</a>

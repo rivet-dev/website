@@ -1,42 +1,25 @@
-import {
-	Icon,
-	faRobot,
-	faDiagramNext,
-	faTerminal,
-	faSparkles,
-} from "@rivet-gg/icons";
 import { ArrowUpRight } from "lucide-react";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { productAccent } from "@/lib/product-accent";
+import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
+import { productLogos } from "@/sitemap/productLogos";
+import { ACTOR_WAYFINDERS, HOMEPAGE_ACTOR_PLATES } from "@/data/actor-types";
 import {
 	BODY_CLASS,
 	CARD_TITLE_BASE_CLASS,
 	SectionHeading,
 } from "../typography";
-import { ProductMotif, type ProductMotifId } from "../ProductMotif";
+import { ProductMotif, productMotifCardClass } from "../ProductMotif";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * The starting points the orchestrator is used through, three across and two
- * down.
+ * down: the four actor types from `src/data/actor-types.ts` (shared with the
+ * Documentation menu), then the two wayfinders past the list.
  *
- * These are actor types, not products: Actors is the primitive being
- * orchestrated, so it gets no plate of its own. Each type borrows the accent
- * and motif of the product that owns it. The last two cells of the grid are
- * wayfinders rather than plates — see `wayfinders` below.
+ * Each plate is filled with its product's accent and carries the product's
+ * wordmark painted white straight on that field — the plate is the tile, so
+ * this is the sanctioned tile-less case (see Product Marks in CLAUDE.md).
  */
-interface ActorPlate {
-	/** Accent and motif to borrow. */
-	motifId: ProductMotifId;
-	/** Pill above the name. */
-	kind: string;
-	name: string;
-	premise: string;
-	href: string;
-	icon: IconDefinition;
-	badge?: string;
-}
 
 /** Vendor marks on the registry plate, as evidence it is populated. */
 const registryMarks = [
@@ -46,50 +29,14 @@ const registryMarks = [
 	{ src: "/images/vendors/flue.svg", label: "Flue" },
 ];
 
-const plates: ActorPlate[] = [
-	{
-		motifId: "actors",
-		kind: "Actor",
-		name: "Agents",
-		premise: "A durable process per agent, with memory that survives restarts",
-		href: "/registry/agent-actor/",
-		icon: faRobot,
-	},
-	{
-		motifId: "workflows",
-		kind: "Actor",
-		name: "Workflows",
-		premise: "Multi-step operations that replay instead of starting over",
-		href: "/workflows/",
-		icon: faDiagramNext,
-	},
-	{
-		motifId: "agentos",
-		kind: "Actor",
-		name: "Sandboxes",
-		premise: "A filesystem, shell, and network for code you did not write",
-		href: "/agentos/",
-		icon: faTerminal,
-	},
-	{
-		motifId: "dynamic-apps",
-		kind: "Actor",
-		name: "Dynamic apps",
-		premise: "A backend per user, deployed the moment it is generated",
-		href: "/dynamic-apps/",
-		icon: faSparkles,
-		badge: "Preview",
-	},
-];
-
 /**
- * The two ways past the list. Deliberately not actor plates: no accent, no
- * kind pill, no mark — a quiet paper tile with centered text and an arrow, so
- * the four real actor types stay the only colored things in the grid.
+ * Deliberately not actor plates: no accent, no badge, no mark — a quiet paper
+ * tile with centered text and an arrow, so the four real actor types stay the
+ * only colored things in the grid.
  */
 const wayfinders = [
-	{ label: "Explore more actors", href: "/registry/", marks: true },
-	{ label: "Build your own actor", href: "/actors/docs/", marks: false },
+	{ ...ACTOR_WAYFINDERS.explore, marks: true },
+	{ ...ACTOR_WAYFINDERS.build, marks: false },
 ];
 
 export const ActorTypesSection = () => (
@@ -97,8 +44,7 @@ export const ActorTypesSection = () => (
 		<div className={SITE_STANDARD_RAIL_CLASS}>
 			<div data-site-reveal="">
 				<SectionHeading
-					title="Whatever the workload, there&rsquo;s an actor for it."
-					subtitle="Four are maintained by Rivet. The registry holds the rest."
+					title="Whatever the workload, there&rsquo;s an Actor for it."
 					className="max-w-2xl"
 				/>
 			</div>
@@ -107,14 +53,15 @@ export const ActorTypesSection = () => (
 				data-site-reveal-group=""
 				className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3"
 			>
-				{plates.map((plate) => {
-					const accent = productAccent(plate.motifId);
+				{HOMEPAGE_ACTOR_PLATES.map((plate) => {
+					const accent = productAccent(plate.accentId ?? plate.id);
+					const logo = productLogos[plate.id];
 					return (
 						<a
-							key={plate.name}
+							key={plate.id}
 							href={canonicalizeInternalHref(plate.href)}
 							data-site-reveal-child=""
-							className="group flex min-w-0 flex-col focus-visible:outline-none"
+							className={`group flex min-w-0 flex-col focus-visible:outline-none ${productMotifCardClass[plate.motifId]}`}
 						>
 							<div
 								className={`relative flex min-h-[168px] flex-col justify-between gap-6 overflow-hidden rounded-xl p-5 transition-shadow duration-200 group-focus-visible:ring-2 group-focus-visible:ring-cream/80 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-paper motion-reduce:transition-none sm:aspect-[16/10] sm:min-h-0 sm:gap-0 ${accent?.fill ?? "bg-ink"}`}
@@ -124,22 +71,21 @@ export const ActorTypesSection = () => (
 									aria-hidden="true"
 									className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.09] via-transparent to-black/[0.12]"
 								/>
+								{/* Top row: empty unless a status badge applies, so the name
+								    stays anchored to the bottom of the plate. */}
 								<span className="relative flex items-center gap-2">
-									<span className="rounded-full border border-cream/20 bg-cream/10 px-2.5 py-0.5 text-xs font-medium text-cream/90 backdrop-blur-md backdrop-saturate-[1.3] transition-colors duration-300 [transition-timing-function:cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none group-hover:border-cream/35 group-hover:bg-cream/25 group-hover:text-cream">
-										{plate.kind}
-									</span>
 									{plate.badge && (
-										<span className="whitespace-nowrap rounded-full border border-cream/20 px-2 py-0.5 text-xs font-medium text-cream/70">
+										<span className="whitespace-nowrap rounded border border-cream/20 px-1.5 py-px text-[11px] font-medium leading-4 text-cream/70">
 											{plate.badge}
 										</span>
 									)}
 								</span>
 								<div className="relative">
 									<div className="flex items-center gap-2.5">
-										<Icon
-											icon={plate.icon}
+										<span
 											aria-hidden="true"
-											className="h-5 w-5 shrink-0 text-white"
+											style={wordmarkMaskStyle(logo.src)}
+											className="inline-block h-6 w-6 shrink-0 bg-white"
 										/>
 										<div className={`${CARD_TITLE_BASE_CLASS} text-cream`}>
 											{plate.name}
@@ -178,7 +124,7 @@ export const ActorTypesSection = () => (
 											alt={mark.label}
 											title={mark.label}
 											loading="lazy"
-											className="size-7 rounded-full border border-ink/10 bg-white object-contain p-1.5"
+											className="registry-logo-plate size-7 rounded-full border border-ink/10 bg-white object-contain p-1.5"
 										/>
 									</li>
 								))}

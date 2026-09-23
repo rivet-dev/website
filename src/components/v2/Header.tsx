@@ -23,20 +23,32 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@rivet-gg/components";
-import { faChevronDown } from "@rivet-gg/icons";
+import { faArrowRight, faChevronDown } from "@rivet-gg/icons";
 import { GitHubDropdown } from "./GitHubDropdown";
 import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";
-import { ProductBar, ProductBadge } from "@/components/ProductBar";
-import { productAccent } from "@/lib/product-accent";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { DocsTabs, ProductBar, ProductBadge } from "@/components/ProductBar";
+import { DOCS_TABS, activeDocsTab } from "@/sitemap/docsTabs";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
-import { DOCS_MENU, SOLUTIONS_MENU } from "@/data/nav-menus";
 import {
-	findProductForPath,
-	getProduct,
-	visibleProducts as productVerticals,
-	visibleTabs,
-} from "@/sitemap/products";
+	DOCS_MENU,
+	SOLUTIONS_MENU,
+	SOLUTIONS_MENU_FOOTER,
+} from "@/data/nav-menus";
+import { findStandaloneProduct, getProduct, visibleTabs } from "@/sitemap/products";
+import { wordmarkMaskStyle } from "@/lib/product-accent";
+
+// Both assets carry the same black badge; only the word color differs.
+// CSS selects the asset before hydration, without inverting the badge.
+function RivetLogo({ className }: { className?: string }) {
+	return (
+		<span className={cn("block w-20 shrink-0", className)}>
+			<img className="rivet-logo-light" src={logoTextBlackUrl.src} width={80} height={27} alt="Rivet logo" />
+			<img className="rivet-logo-dark" src={logoUrl.src} width={80} height={27} alt="Rivet logo" />
+		</span>
+	);
+}
 
 interface TextNavItemProps {
 	href: string;
@@ -268,100 +280,152 @@ function NavDropdown({
 	);
 }
 
-/** One row in either header menu: mark, label, and a line of premise. */
-function MenuRow({
-	icon,
+/**
+ * The tile at the head of a menu row. Product rows take the product's accent
+ * tile via `ProductBadge`; the rest take a glyph in a quiet outlined tile of
+ * the same size, so both columns of a menu share one rhythm. Drawn with
+ * tokens only so it holds in both themes.
+ */
+/**
+ * The quiet outlined tile at the head of a non-product menu row, sized to the
+ * product tiles beside it so both columns share one rhythm. Drawn with tokens
+ * only so it holds in both themes. Takes either a Font Awesome glyph or a
+ * white-on-transparent mark, which is masked and painted in the tile's text
+ * color.
+ */
+function GlyphTile({
+	lightTheme,
+	className,
+	children,
+}: { lightTheme: boolean; className?: string; children: React.ReactNode }) {
+	return (
+		<span
+			className={cn(
+				"flex shrink-0 items-center justify-center rounded-[34.375%] border",
+				lightTheme
+					? "border-ink/10 bg-paper text-ink-soft group-hover:border-ink/20 group-hover:text-ink"
+					: "border-white/10 bg-white/5 text-zinc-300 group-hover:text-white",
+				className ?? "size-8",
+			)}
+		>
+			{children}
+		</span>
+	);
+}
+
+function MenuGlyph({ icon, lightTheme }: { icon: IconProp; lightTheme: boolean }) {
+	return (
+		<GlyphTile lightTheme={lightTheme}>
+			<Icon icon={icon} aria-hidden="true" className="h-3.5 w-3.5" />
+		</GlyphTile>
+	);
+}
+
+function MenuMark({
+	src,
+	lightTheme,
+	className,
+	markClassName = "size-4",
+}: { src: string; lightTheme: boolean; className?: string; markClassName?: string }) {
+	return (
+		<GlyphTile lightTheme={lightTheme} className={className}>
+			<span
+				aria-hidden="true"
+				style={wordmarkMaskStyle(src)}
+				className={cn("inline-block bg-current", markClassName)}
+			/>
+		</GlyphTile>
+	);
+}
+
+/** Shared row chrome for both menus: full-width link, quiet hover fill. */
+function menuRowClass(lightTheme: boolean) {
+	return cn(
+		"group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
+		lightTheme
+			? "text-ink hover:bg-paper-mid focus-visible:ring-pine"
+			: "text-white hover:bg-white/5 focus-visible:ring-white/60",
+	);
+}
+
+/** The strip along the bottom of a menu: one quiet, arrowed link. */
+function MenuFooter({
+	href,
 	label,
-	description,
-	badge,
-	accent,
 	lightTheme,
 }: {
-	icon: IconProp;
+	href: string;
 	label: string;
-	description: string;
-	badge?: string;
-	accent?: ReturnType<typeof productAccent>;
 	lightTheme: boolean;
 }) {
 	return (
-		<>
-			{/* The accent is the tile, never the mark — same rule as ProductBadge. */}
-			<span
+		<div
+			className={cn(
+				"-mx-1.5 -mb-1.5 mt-1.5 border-t px-4 py-2.5",
+				lightTheme ? "border-ink/10 bg-paper" : "border-white/10 bg-white/[0.03]",
+			)}
+		>
+			<a
+				href={canonicalizeInternalHref(href)}
 				className={cn(
-					"flex size-8 shrink-0 items-center justify-center rounded-[34.375%]",
-					accent?.fill ?? (lightTheme ? "bg-ink" : "bg-white/10"),
+					"group inline-flex items-center gap-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:underline",
+					lightTheme ? "text-ink-soft hover:text-ink" : "text-zinc-400 hover:text-white",
 				)}
 			>
-				<Icon icon={icon} aria-hidden="true" className="h-4 w-4 text-white" />
-			</span>
-			<span className="min-w-0 flex-1">
-				<span
-					className={cn(
-						"flex items-center gap-2 text-sm font-medium leading-tight",
-						lightTheme ? "text-ink" : "text-white",
-					)}
-				>
-					{label}
-					{badge && (
-						<span
-							className={cn(
-								"shrink-0 rounded-sm border px-1.5 py-px text-[10px] font-medium leading-[1.4] whitespace-nowrap",
-								lightTheme
-									? "border-ink/10 bg-ink/[0.06] text-ink-soft"
-									: "border-white/15 bg-white/10 text-zinc-300",
-							)}
-						>
-							{badge}
-						</span>
-					)}
-				</span>
-				<span
-					className={cn(
-						"mt-0.5 block text-pretty text-xs leading-snug",
-						lightTheme ? "text-ink-soft" : "text-zinc-400",
-					)}
-				>
-					{description}
-				</span>
-			</span>
-		</>
+				{label}
+				<Icon
+					icon={faArrowRight}
+					aria-hidden="true"
+					className="h-3 w-3 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+				/>
+			</a>
+		</div>
 	);
 }
 
 /**
  * Solutions: the audiences from the landing page's "Built for every kind of
- * agent" section. The rows do not navigate — the pages behind them do not exist
- * yet — so they render as plain list items rather than as links that 404.
+ * agent" section. Each row opens the guide for building that kind of agent.
  */
 function SolutionsDropdown({ lightTheme = false }: { lightTheme?: boolean }) {
 	return (
 		<NavDropdown label="Solutions" lightTheme={lightTheme} align="start">
-			<ul className="grid gap-1 sm:grid-cols-2">
+			<div className={cn(EYEBROW_CLASS, "px-3 pt-3 pb-1", !lightTheme && "!text-zinc-500")}>
+				Built for every kind of agent
+			</div>
+			<ul className="grid gap-x-1 sm:grid-cols-2">
 				{SOLUTIONS_MENU.map((item) => (
-					<li
-						key={item.id}
-						className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-					>
-						<MenuRow
-							icon={item.icon}
-							label={item.label}
-							description={item.description}
-							lightTheme={lightTheme}
-						/>
+					<li key={item.id}>
+						<a href={canonicalizeInternalHref(item.href)} className={menuRowClass(lightTheme)}>
+							<MenuGlyph icon={item.icon} lightTheme={lightTheme} />
+							<span className="min-w-0 flex-1">
+								<span className="block truncate font-medium leading-tight">{item.label}</span>
+								<span
+									className={cn(
+										"mt-0.5 block truncate text-xs leading-snug",
+										lightTheme ? "text-ink-faint" : "text-zinc-400",
+									)}
+								>
+									{item.description}
+								</span>
+							</span>
+						</a>
 					</li>
 				))}
 			</ul>
+			<MenuFooter
+				href={SOLUTIONS_MENU_FOOTER.href}
+				label={SOLUTIONS_MENU_FOOTER.label}
+				lightTheme={lightTheme}
+			/>
 		</NavDropdown>
 	);
 }
 
 /**
  * Documentation, in two columns: Orchestration (what runs the workloads) and
- * Actors (the workloads themselves).
- *
- * Keeps the Products menu's panel geometry and its `ProductBadge` tiles, with a
- * quiet column label in place of the per-row verb eyebrow.
+ * Actors (the workloads themselves), split by a hairline. Product rows carry
+ * their `ProductBadge`; orchestration rows carry a glyph tile of the same size.
  */
 function DocsDropdown({
 	active,
@@ -377,50 +441,53 @@ function DocsDropdown({
 			lightTheme={lightTheme}
 			align="start"
 		>
-			<div className="grid gap-x-1 gap-y-2 sm:grid-cols-2">
-				{DOCS_MENU.map((column) => (
-					<div key={column.label} className="flex flex-col">
-						<div
-							className={cn(
-								EYEBROW_CLASS,
-								"px-3 pt-3 pb-1",
-								!lightTheme && "!text-zinc-500",
-							)}
-						>
-							{column.label}
-						</div>
-						{column.links.map((link) => {
-							const product = link.productId
-								? getProduct(link.productId)
-								: undefined;
-							const accent = link.productId
-								? productAccent(link.productId)
-								: undefined;
-							return (
-								<a
-									key={link.href}
-									href={canonicalizeInternalHref(link.href)}
+			<div
+				className={cn(
+					"grid gap-y-2 sm:grid-cols-2 sm:divide-x",
+					lightTheme ? "divide-ink/10" : "divide-white/10",
+				)}
+			>
+				{DOCS_MENU.map((column, index) => (
+					<div
+						key={column[0].label}
+						className={cn("flex flex-col", index > 0 && "sm:pl-1.5")}
+					>
+						{column.map((group) => (
+							<div key={group.label} className="flex flex-col">
+								<div
 									className={cn(
-										"flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
-										lightTheme
-											? cn(
-													"text-ink focus-visible:ring-pine",
-													accent?.tintHover ?? "hover:bg-ink/[0.07]",
-												)
-											: "text-white focus-visible:ring-white/60 hover:bg-white/5",
+										EYEBROW_CLASS,
+										"px-3 pt-3 pb-1",
+										!lightTheme && "!text-zinc-500",
 									)}
 								>
-									{/* The product color is the tile, not the mark. Rows with no
-									    product keep the row rhythm with an empty gutter. */}
-									{product ? (
-										<ProductBadge product={product} className="size-7" />
-									) : (
-										<span aria-hidden="true" className="size-7 shrink-0" />
-									)}
-									<span className="min-w-0 flex-1 truncate">{link.label}</span>
-								</a>
-							);
-						})}
+									{group.label}
+								</div>
+								{group.links.map((link) => {
+									const product = link.productId
+										? getProduct(link.productId)
+										: undefined;
+									return (
+										<a
+											key={link.href}
+											href={canonicalizeInternalHref(link.href)}
+											className={cn(menuRowClass(lightTheme), "font-medium")}
+										>
+											{product ? (
+												<ProductBadge product={product} className="size-8" />
+											) : link.markSrc ? (
+												<MenuMark src={link.markSrc} lightTheme={lightTheme} />
+											) : link.icon ? (
+												<MenuGlyph icon={link.icon} lightTheme={lightTheme} />
+											) : (
+												<span aria-hidden="true" className="size-8 shrink-0" />
+											)}
+											<span className="min-w-0 flex-1 truncate">{link.label}</span>
+										</a>
+									);
+								})}
+							</div>
+						))}
 					</div>
 				))}
 			</div>
@@ -485,10 +552,17 @@ export function Header({
 	// stays dark for the Learn section.
 	const isLightTheme = variant === "floating" || light;
 
-	// Inside a product vertical the second header row is the product bar: which
-	// product you are in, a switcher, and that product's three docs tabs.
+	// On docs pages the second header row is the docs tab strip, identical on
+	// every docs page. Standalone subsites (agentOS, Secure Exec) keep their own
+	// product bar instead: the product lockup plus that product's tabs.
+	const standalone =
+		(productId ? getProduct(productId) : undefined) ?? findStandaloneProduct(pathname);
 	const effectiveSubnav = showProductBar ? (
-		<ProductBar initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} dark={!isLightTheme} />
+		standalone?.standalone ? (
+			<ProductBar initialPathname={pathname} productId={standalone.id} tabId={tabId} dark={!isLightTheme} />
+		) : (
+			<DocsTabs initialPathname={pathname} dark={!isLightTheme} />
+		)
 	) : (
 		subnav
 	);
@@ -532,7 +606,7 @@ export function Header({
 					{/* White glass pill: frosted fill with a soft top sheen. The pill's
 						outline is the ink/10 hairline on the parent's ::before, so this
 						layer carries no border of its own. */}
-					<div className="absolute inset-0 -z-[1] overflow-hidden rounded-2xl bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4]" />
+					<div className="site-header-glass absolute inset-0 -z-[1] overflow-hidden rounded-2xl bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4]" />
 					<RivetHeader
 						className={headerStyles}
 						logo={
@@ -540,26 +614,14 @@ export function Header({
 								{/* Mobile logo */}
 								<div className="md:hidden ml-1">
 									<a href="/">
-										<img
-											src={logoTextBlackUrl.src}
-											width={80}
-											height={27}
-											className="w-20 shrink-0"
-											alt="Rivet logo"
-										/>
+										<RivetLogo />
 									</a>
 								</div>
 								{/* Desktop logo */}
 								<div className="hidden md:block">
 									<LogoContextMenu>
 										<a href="/">
-											<img
-												src={logoTextBlackUrl.src}
-												width={80}
-												height={27}
-												className="ml-1 w-20 shrink-0"
-												alt="Rivet logo"
-											/>
+											<RivetLogo className="ml-1" />
 										</a>
 									</LogoContextMenu>
 								</div>
@@ -569,10 +631,11 @@ export function Header({
 						support={null}
 						links={
 							<div className="flex flex-row items-center gap-2">
+								<ThemeToggle />
 								<GitHubDropdown className={cn("hidden md:inline-flex", HEADER_SECONDARY_BUTTON_CLASS)} />
 								<a
 									href="https://dashboard.rivet.dev"
-									className={cn("font-v2 subpixel-antialiased", HEADER_PRIMARY_INK_BUTTON_CLASS)}
+									className={cn("site-header-action font-v2 subpixel-antialiased", HEADER_PRIMARY_INK_BUTTON_CLASS)}
 								>
 									Sign In
 								</a>
@@ -603,7 +666,7 @@ export function Header({
 									Enterprise
 								</TextNavItem>
 								<TextNavItem
-									href="/cloud"
+									href="/pricing"
 									ariaCurrent={active === "pricing" ? "page" : undefined}
 								>
 									Pricing
@@ -620,7 +683,7 @@ export function Header({
 	return (
 		<RivetHeader
 			className={cn(
-				"sticky top-0 z-50",
+				"site-header-glass sticky top-0 z-50",
 				// Same glass recipe as the floating pill so both headers read as one
 				// material: frosted white fill, soft top sheen, one closing hairline.
 				// bg-paper/90 is the fallback when backdrop-filter is unsupported.
@@ -639,15 +702,7 @@ export function Header({
 				<div className="hidden md:block">
 					<LogoContextMenu>
 						<a href="/">
-							<img
-								src={isLightTheme ? logoTextBlackUrl.src : logoUrl.src}
-								width={80}
-								height={27}
-								className="w-20 shrink-0"
-								alt="Rivet logo"
-								loading="eager"
-								decoding="async"
-							/>
+							<RivetLogo />
 						</a>
 					</LogoContextMenu>
 				</div>
@@ -656,6 +711,7 @@ export function Header({
 			support={<></>}
 			links={
 				<div className="flex flex-row items-center gap-2">
+					{isLightTheme && <ThemeToggle />}
 					{!learnMode && <HeaderSearch light={isLightTheme} />}
 					<GitHubDropdown
 						className={
@@ -667,7 +723,7 @@ export function Header({
 					<a
 						href="https://dashboard.rivet.dev"
 						className={cn(
-							"font-v2 subpixel-antialiased",
+							"site-header-action font-v2 subpixel-antialiased",
 							isLightTheme
 								? HEADER_PRIMARY_INK_BUTTON_CLASS
 								: "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md border border-white/10 bg-white/5 px-3 text-sm font-medium text-white transition-colors hover:border-white/20",
@@ -686,10 +742,12 @@ export function Header({
 					isLightTheme && "[&_a]:!text-ink-soft [&_a:hover]:!text-ink [&_a[aria-current=page]]:!text-ink [&_button]:!text-ink-soft",
 				)}>
 					<SolutionsDropdown lightTheme={isLightTheme} />
-					{/* Inside a product the second row carries that product's own
-					    Documentation tab, so the global one is dropped rather than
-					    repeated one line apart with a different destination. */}
-					{!showProductBar && (
+					{/* On the main docs pages the second row is the docs tab strip,
+					    which lists the same sections the menu does, so the menu is
+					    dropped rather than repeated one line apart. Standalone
+					    subsites (agentOS, Secure Exec) carry their own product bar
+					    and keep the menu as the way back into the main docs. */}
+					{(!showProductBar || standalone?.standalone) && (
 						<DocsDropdown active={active === "docs"} lightTheme={isLightTheme} />
 					)}
 					<TextNavItem href="/registry">
@@ -699,7 +757,7 @@ export function Header({
 						Enterprise
 					</TextNavItem>
 					<TextNavItem
-						href="/cloud"
+						href="/pricing"
 						ariaCurrent={active === "pricing" ? "page" : undefined}
 					>
 						Pricing
@@ -724,66 +782,55 @@ function DocsMobileNavigation({
 	tabId?: string;
 }) {
 	const pathname = usePathname() || "";
-	const pathCurrent = findProductForPath(pathname.replace(/\/$/, ""));
-	const explicitProduct = productId
-		? productVerticals.find((product) => product.id === productId)
+	const trimmedPath = pathname.replace(/\/$/, "");
+	const activeTab = activeDocsTab(trimmedPath);
+	// Standalone subsites collapse their own product bar into the sheet.
+	const standalone =
+		(productId ? getProduct(productId) : undefined) ?? findStandaloneProduct(trimmedPath);
+	const standaloneTab = standalone?.standalone
+		? (tabId ?? trimmedPath.split("/")[2] ?? "overview")
 		: undefined;
-	const explicitTab = explicitProduct && tabId
-		? explicitProduct.tabs.find((tab) => tab.id === tabId)
-		: undefined;
-	const current = explicitProduct && explicitTab
-		? { product: explicitProduct, tab: explicitTab }
-		: pathCurrent;
-	const isGlobalDocsPage =
-		pathname.startsWith("/docs/") && Boolean(sidebarData?.length);
+	// A docs page is anything that hands the header a sidebar, plus the shared
+	// integrations root, which has none until a product is chosen.
 	const isDocsPage =
-		Boolean(current) ||
-		pathname.startsWith("/integrations") ||
-		isGlobalDocsPage;
+		Boolean(activeTab) ||
+		Boolean(standaloneTab) ||
+		Boolean(sidebarData?.length) ||
+		pathname.startsWith("/integrations");
 
-	// On mobile the product bar collapses into this sheet. Product entries link
-	// to their overviews; the section dropdown lists the remaining tabs.
-	const sections = current
-		? visibleTabs(current.product).map((tab) => ({
-				id: tab.id,
-				label: tab.title,
-				href: tab.href,
-			}))
-		: isGlobalDocsPage
-			? [{ id: "docs", label: "Documentation", href: "/docs/" }]
-			: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
+	// On mobile the second header row collapses into this sheet's section
+	// dropdown: the docs tab strip, or a standalone product's own tabs.
+	const sections =
+		standalone?.standalone
+			? [
+					{ id: "overview", label: standalone.name, href: standalone.href },
+					...visibleTabs(standalone).map((tab) => ({ id: tab.id, label: tab.title, href: tab.href })),
+				]
+			: DOCS_TABS.map((tab) => ({ id: tab.id, label: tab.title, href: tab.href }));
 
 	const mainLinks = [
 		{ href: "/registry", label: "Registry" },
 		{ href: "/enterprise", label: "Enterprise" },
-		{ href: "/cloud", label: "Pricing" },
+		{ href: "/pricing", label: "Pricing" },
 	];
 
-	const currentSection = current
-		? sections.find((section) => section.id === current.tab.id)
-		: sections[0];
+	const currentSection = sections.find((section) => section.id === (standaloneTab ?? activeTab));
 
 	if (isLightTheme) {
 		return (
 			<div className="flex flex-col gap-2 font-v2 subpixel-antialiased text-sm">
 				{/* Home logo */}
 				<a href="/" className="py-3 px-2">
-					<img
-						src={logoTextBlackUrl.src}
-						alt="Rivet"
-						width={80}
-						height={27}
-						className="w-20"
-					/>
+					<RivetLogo />
 				</a>
 
 				{/* Documentation, flattened from the desktop menu's two columns. */}
-				{DOCS_MENU.map((column) => (
-					<div key={column.label}>
+				{DOCS_MENU.flat().map((group) => (
+					<div key={group.label}>
 						<div className="text-ink-faint py-2 px-2 text-xs uppercase tracking-wide">
-							{column.label}
+							{group.label}
 						</div>
-						{column.links.map((link) => {
+						{group.links.map((link) => {
 							const product = link.productId
 								? getProduct(link.productId)
 								: undefined;
@@ -795,6 +842,8 @@ function DocsMobileNavigation({
 								>
 									{product ? (
 										<ProductBadge product={product} className="size-6" />
+									) : link.markSrc ? (
+										<MenuMark src={link.markSrc} lightTheme className="size-6" markClassName="size-3.5" />
 									) : (
 										<span aria-hidden="true" className="size-6 shrink-0" />
 									)}
@@ -844,7 +893,7 @@ function DocsMobileNavigation({
 						{/* Tree/sidebar content */}
 						{tree && <div className="mt-1">{tree}</div>}
 						{!tree && sidebarData && (
-							<SidebarAccentProvider productId={current?.product.id}>
+							<SidebarAccentProvider productId={productId}>
 								<NavigationStateProvider>
 									<div className="mt-1">
 										<Tree pages={sidebarData} />
@@ -889,12 +938,12 @@ function DocsMobileNavigation({
 			</a>
 
 			{/* Documentation, mirroring the light-theme sheet above. */}
-			{DOCS_MENU.map((column) => (
-				<div key={column.label}>
+			{DOCS_MENU.flat().map((group) => (
+				<div key={group.label}>
 					<div className="text-zinc-500 py-2 px-2 text-xs uppercase tracking-wide">
-						{column.label}
+						{group.label}
 					</div>
-					{column.links.map((link) => {
+					{group.links.map((link) => {
 						const product = link.productId
 							? getProduct(link.productId)
 							: undefined;
@@ -906,6 +955,8 @@ function DocsMobileNavigation({
 							>
 								{product ? (
 									<ProductBadge product={product} className="size-6" />
+								) : link.markSrc ? (
+									<MenuMark src={link.markSrc} lightTheme={false} className="size-6" markClassName="size-3.5" />
 								) : (
 									<span aria-hidden="true" className="size-6 shrink-0" />
 								)}

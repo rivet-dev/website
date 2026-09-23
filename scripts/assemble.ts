@@ -30,7 +30,7 @@ import {
 	writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { PRODUCTS } from "../src/sitemap/product-metadata";
+import { PRODUCTS, ownsDocsBundle } from "../src/sitemap/product-metadata";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -39,14 +39,25 @@ const CONTENT_BASE = path.join(REPO_ROOT, "src/content/docs");
 // Runs under tsx so the product list comes from the one metadata file rather
 // than being duplicated here.
 const DOCS_SOURCES = Object.fromEntries(
-	PRODUCTS.map((product) => [
-		product.id,
-		{
-			repo: product.repo,
-			localBundle: product.localBundle,
-			bundlePath: product.bundlePath ?? "docs",
-		},
-	]),
+	PRODUCTS.filter(ownsDocsBundle).map((product) => {
+		// A product serving another's bundle (`bundleOf`) links to the
+		// same source; its routes differ, its content does not.
+		const source = product.bundleOf
+			? PRODUCTS.find((candidate) => candidate.id === product.bundleOf)
+			: product;
+		if (!source) {
+			throw new Error(`${product.id}: bundleOf "${product.bundleOf}" is not a product`);
+		}
+		return [
+			product.id,
+			{
+				sourceId: source.id,
+				repo: source.repo,
+				localBundle: source.localBundle,
+				bundlePath: source.bundlePath ?? "docs",
+			},
+		];
+	}),
 );
 
 const force = process.argv.includes("--force");
@@ -86,12 +97,12 @@ mkdirSync(CONTENT_BASE, { recursive: true });
 const rows = [];
 const problems = [];
 
-for (const [productId, { repo, localBundle, bundlePath }] of Object.entries(
+for (const [productId, { sourceId, repo, localBundle, bundlePath }] of Object.entries(
 	DOCS_SOURCES,
 )) {
 	const linkPath = path.join(CONTENT_BASE, productId);
 	const current = describe(linkPath);
-	const { target, via } = resolveTarget(productId, repo, localBundle, bundlePath);
+	const { target, via } = resolveTarget(sourceId, repo, localBundle, bundlePath);
 
 	// An in-repo bundle is always relinked: there is nothing to override it with,
 	// so a stale link here is a mistake rather than a choice.
@@ -123,7 +134,7 @@ for (const [productId, { repo, localBundle, bundlePath }] of Object.entries(
 		problems.push(
 			`${productId}: no docs source. Clone the ${repo} repo next to this one ` +
 				`(${path.resolve(REPO_ROOT, "..", repo, bundlePath ?? "docs")}) or add ` +
-					`vendor/${productId}/docs/content.`,
+					`vendor/${sourceId}/docs/content.`,
 		);
 		continue;
 	}

@@ -19,7 +19,6 @@ import imgA16z from '@/images/logos/a16z.svg';
 import { canonicalizeInternalHref } from '@/lib/internalHref';
 import {
   CARD_TITLE_CLASS,
-  EYEBROW_CLASS,
   EYEBROW_ON_INK_CLASS,
   PRODUCT_HERO_PRIMARY_BUTTON_CLASS,
   PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
@@ -65,7 +64,7 @@ const SelfHostingComparison = () => {
       cta: 'Get Started',
       href: 'https://dashboard.rivet.dev',
       primary: true,
-      secondaryLink: { label: 'Connect your own compute', href: '/actors/self-host/' },
+      secondaryLink: { label: 'Connect your own compute', href: '/docs/deploy/self-host/workers/' },
     },
     {
       title: 'Bring your own cloud',
@@ -74,7 +73,7 @@ const SelfHostingComparison = () => {
       icon: faCloudCheck,
       diagram: 'byoc',
       cta: 'Read the BYOC Docs',
-      href: '/cloud/byoc/',
+      href: '/docs/deploy/byoc/',
       primary: false,
     },
     {
@@ -256,7 +255,7 @@ const ComputeCalculator = () => {
         <div className="pt-16" data-site-reveal>
             <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate managed execution cost</h3>
             <p className="mb-8 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
-                Run your actors and applications on Rivet Cloud and pay only for the seconds they are active.
+                Run your Actors and applications on Rivet Cloud and pay only for the seconds they are active.
                 Costs scale with the CPU and memory you configure.
             </p>
 
@@ -387,12 +386,9 @@ interface Plan {
     prefix?: string;
     price: string;
     period: string;
-    desc: string;
     rows: PlanRow[];
     cta: string;
     highlight: boolean;
-    /** Quiet label shown opposite the badge (e.g. "On-Prem"). */
-    tag?: string;
 }
 
 const Pricing = () => {
@@ -402,7 +398,6 @@ const Pricing = () => {
             name: "Free",
             price: "$0",
             period: "/mo",
-            desc: "For prototyping and small projects.",
             rows: [
                 { label: "Awake Actor Hours", value: "100,000 /mo max" },
                 { label: "Compute", value: "$5 /mo max" },
@@ -422,7 +417,6 @@ const Pricing = () => {
             prefix: "From",
             price: "$20",
             period: "/mo + Usage",
-            desc: "For scaling applications.",
             rows: [
                 { label: "Awake Actor Hours", value: "400,000 /mo" },
                 { label: "Compute", value: "Usage-based" },
@@ -442,7 +436,6 @@ const Pricing = () => {
             prefix: "From",
             price: "$200",
             period: "/mo + Usage",
-            desc: "For growing teams and businesses.",
             rows: [
                 { label: "Awake Actor Hours", value: "400,000 /mo" },
                 { label: "Compute", value: "Usage-based" },
@@ -458,16 +451,14 @@ const Pricing = () => {
         }
     ];
 
-    // Enterprise Edition is the self-hosted, on-prem offering. It is the only
-    // enterprise tier, so it is shown on both toggle states: alongside the
-    // self-hosted plans, and appended to the cloud plans so it stays visible by
-    // default (it keeps its "On-Prem" tag in either view).
+    // Enterprise Edition is the self-hosted, BYOC offering. It is the only
+    // enterprise tier, so it is appended to the cloud plans and stays visible
+    // by default.
     const enterpriseEditionPlan: Plan = {
         key: "enterprise",
         name: "Enterprise Edition",
-        price: "Custom",
+        price: "BYOC",
         period: "",
-        desc: "Additional operational features for running Rivet in your own VPC, customer environments, or regulated networks.",
         rows: [
             { label: "Actor control plane" },
             { label: "FoundationDB persistence layer" },
@@ -486,8 +477,7 @@ const Pricing = () => {
             { label: "Hardening guidance for FedRAMP, HIPAA, regulated industries" },
         ],
         cta: "Contact Sales",
-        highlight: false,
-        tag: "On-Prem"
+        highlight: false
     };
 
     const plans = [...cloudPlans, enterpriseEditionPlan];
@@ -516,9 +506,8 @@ const Pricing = () => {
                                        }`}
                                     >
                                         <div className="flex flex-grow flex-col p-6 md:p-8">
-                                            <h3 className="mb-3 flex items-center justify-between gap-4">
+                                            <h3 className="mb-3 flex items-center gap-4">
                                                 <PlanBadge plan={plan.key} className="text-sm">{plan.name}</PlanBadge>
-                                                {plan.tag ? <span className={EYEBROW_CLASS}>{plan.tag}</span> : null}
                                             </h3>
 
                                             <div className="mb-6">
@@ -532,12 +521,6 @@ const Pricing = () => {
                                                     {plan.period && <span className="ml-1 text-xs text-ink-faint">{plan.period}</span>}
                                                 </div>
                                             </div>
-
-                                            <div className="mb-6 h-px bg-ink/10" />
-
-                                            {/* min-height is exactly two lines at 15px/1.625 so one-line descriptions
-                                                don't pull the spec rows out of line with neighboring cards. */}
-                                            {plan.desc && <p className="mb-6 min-h-[calc(2*15px*1.625)] text-[15px] leading-relaxed text-ink-soft">{plan.desc}</p>}
 
                                             {/* Spec table: hairline-divided label | value rows, so
                                                 the four cards scan like columns of one table. */}
@@ -579,7 +562,7 @@ const Pricing = () => {
                                                 </div>
                                                 <span>and</span>
                                                 <div className="flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft">
-                                                    <img src={imgA16z.src} alt="a16z" className="h-3 w-auto invert" />
+                                                    <img src={imgA16z.src} alt="a16z" className="theme-light-invert h-3 w-auto" />
                                                     <span>a16z Speedrun</span>
                                                 </div>
                                                 <span>companies</span>
@@ -612,7 +595,7 @@ const Pricing = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="mt-6 text-xs text-ink-faint">* Reads and writes to persisted actor state, not in-memory operations within an actor</p>
+                                        <p className="mt-6 text-xs text-ink-faint">* Reads and writes to persisted Actor state, not in-memory operations within an Actor</p>
                                         <p className="mt-2 text-xs text-ink-faint">Active execution on Rivet Cloud is billed per second. Supported deployment paths are also available for AWS, Vercel, Railway, and bare metal.</p>
                                     </div>
 

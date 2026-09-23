@@ -21,10 +21,10 @@ function escapeHtml(code: string): string {
 // blue function calls. Tuned to read on the light (`bg-zinc-50`) code block.
 const STYLES: Record<string, string> = {
 	comment: "color:#8b949e;font-style:italic",
-	keyword: "color:#8250df",
-	string: "color:#b45309",
-	number: "color:#0550ae",
-	fn: "color:#0550ae",
+	keyword: "color:var(--site-code-keyword,#8250df)",
+	string: "color:var(--site-code-string,#b45309)",
+	number: "color:var(--site-code-function,#0550ae)",
+	fn: "color:var(--site-code-function,#0550ae)",
 };
 
 const KEYWORDS = new Set([

@@ -94,7 +94,7 @@ export const DeploymentOptions = ({
         connection.
       </p>
       <div className="flex-1" />
-      <a href="/cloud/byoc/" className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
+      <a href="/docs/deploy/byoc/" className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
         Read the BYOC docs
       </a>
     </article>

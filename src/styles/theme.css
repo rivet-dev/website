@@ -1,0 +1,236 @@
+/* The site's .dark class belongs to the shared component library. Use an
+   independent attribute so existing ink panels do not change theme. */
+html[data-theme="dark"]:not([data-fixed-theme]) {
+  /* RGB equivalents of the Actors frontend's cool zinc tokens in
+     packages/components/public/theme.css: background, card, muted,
+     foreground and muted-foreground. Keep brand accents separate. */
+  --site-paper: 10 10 11;
+  --site-paper-deep: 9 9 11;
+  --site-paper-mid: 22 22 24;
+  --site-surface: 12 12 14;
+  --site-solid: 12 12 14;
+  --site-ink: 255 255 255;
+  --site-ink-soft: 212 212 216;
+  --site-ink-faint: 162 162 170;
+  --site-pine: 212 212 216;
+  --site-product-lighten: 55%;
+  --site-code-keyword: #c4a5f5;
+  --site-code-string: #f2c282;
+  --site-code-function: #9ecbff;
+}
+
+/* White artwork and local dark plates retain their original contrast. */
+:is(.bg-ink, .ink-grain) {
+  --site-surface: 255 255 255;
+  --site-ink: 27 25 22;
+}
+
+/* Editorial/code plates need a visible edge against the near-black page.
+   Keep their local light controls and brand tiles independent of this fill. */
+html[data-theme="dark"]:not([data-fixed-theme]) .ink-panel {
+  background-color: rgb(var(--site-paper-mid));
+  border-color: rgb(255 255 255 / 0.12);
+}
+
+/* Code surfaces. --site-surface (12 12 14) sits a hair above --site-paper
+   (10 10 11), so a code block painted with it vanishes into the page. Lift
+   code blocks and workspace panes to paper-mid and give them the same hairline
+   as ink panels. The outline (not a border) keeps the light-theme geometry. */
+html[data-theme="dark"]:not([data-fixed-theme])
+  :is([data-code-block], [data-code-group-content]) {
+  --site-surface: var(--site-paper-mid);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme])
+  :is(
+    [data-code-block]:not([data-code-group-content] [data-code-block]),
+    [data-code-group-content]
+  ) {
+  outline: 1px solid rgb(255 255 255 / 0.1);
+  outline-offset: -1px;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .theme-monochrome-logo {
+  filter: invert(1);
+}
+
+/* White-on-transparent marks (a16z) drawn for dark surfaces: invert them to
+   ink on the light theme and leave them white on any dark surface. */
+html:not([data-theme="dark"]):not([data-fixed-theme]) .theme-light-invert {
+  filter: invert(1);
+}
+
+/* Registry logo tiles and the brand kit's light-ground specimens keep their
+   white plate: the marks are drawn for it, and a light color-scheme makes
+   currentColor in <img> SVGs resolve to black rather than the dark scheme's
+   white CanvasText. */
+html[data-theme="dark"]:not([data-fixed-theme]) .registry-logo-plate {
+  --site-surface: 255 255 255;
+  --site-ink: 27 25 22;
+  --site-ink-soft: 86 82 74;
+  color-scheme: light;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .career-map-artwork {
+  filter: brightness(0) invert(1);
+  opacity: 0.4;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .career-product-card:is(:hover, :focus-visible) {
+  background-color: rgb(var(--site-paper-mid));
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .foundation-bubble {
+  opacity: 1;
+}
+
+/* Marketing diagrams and figures draw in `highlight`: the CTA rust
+   (accent-deep #AB451F) with the same hue and chroma but luminance lifted for
+   foreground marks — #B74B23 on light (AA on paper for 12px figure labels),
+   #D36945 on dark (accent-deep itself falls to ~3.3:1 there). Canvas figures
+   read this variable from computed style since they cannot resolve tokens. */
+:root {
+  --runtime-highlight: 183 75 35;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) {
+  --runtime-highlight: 211 105 69;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) body {
+  background-color: rgb(var(--site-paper));
+  color: rgb(var(--site-ink));
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.paper-grain, .depth-wash) {
+  background-color: rgb(var(--site-paper));
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .depth-wash {
+  background-image: radial-gradient(
+    115% 105% at 0% 100%,
+    rgb(var(--site-paper-deep)),
+    transparent 58%
+  );
+}
+
+.rivet-logo-dark {
+  display: none;
+}
+
+html:is([data-theme="dark"], [data-fixed-theme="dark"]) .rivet-logo-light {
+  display: none;
+}
+
+html:is([data-theme="dark"], [data-fixed-theme="dark"]) .rivet-logo-dark {
+  display: block;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .footer-invert {
+  filter: none;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) header {
+  opacity: 1;
+  box-shadow: none;
+}
+
+/* The same near-black chrome as Secure Exec and the Actors frontend.
+   Target the actual glass layer, including the floating header's backdrop. */
+html[data-theme="dark"]:not([data-fixed-theme]) .site-header-glass {
+  background-color: hsl(var(--background) / 0.95);
+  box-shadow: none;
+  border-color: hsl(var(--border));
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .site-header-action {
+  background-color: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  color: white;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .site-header-action:hover {
+  background-color: rgb(255 255 255 / 0.09);
+  border-color: rgb(255 255 255 / 0.2);
+}
+
+/* Page-level ink primaries (PRIMARY_INK_BUTTON_CLASS) read as light-on-ink,
+   the same as buttons inside ink panels; a bg-ink fill has no edge here. */
+html[data-theme="dark"]:not([data-fixed-theme]) .site-primary-ink {
+  background-color: white;
+  color: rgb(27 25 22);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .site-primary-ink:hover {
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) [data-mobile-menu-trigger] {
+  color: rgb(var(--site-ink));
+  border-color: rgb(var(--site-ink) / 0.2);
+  background-color: transparent;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .site-rule {
+  --rule-line: rgb(255 255 255 / 0.1);
+  --rule-mark: rgb(255 255 255 / 0.3);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .product-motif--hero {
+  --motif-line-soft: rgb(255 255 255 / 0.075);
+  --motif-line-strong: rgb(255 255 255 / 0.115);
+  --motif-node-stroke: rgb(255 255 255 / 0.095);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .prose:not(.prose-invert) {
+  --tw-prose-body: rgb(var(--site-ink-soft));
+  --tw-prose-headings: rgb(var(--site-ink));
+  --tw-prose-lead: rgb(var(--site-ink-soft));
+  --tw-prose-links: rgb(var(--site-pine));
+  --tw-prose-bold: rgb(var(--site-ink));
+  --tw-prose-counters: rgb(var(--site-ink-faint));
+  --tw-prose-bullets: rgb(var(--site-ink-faint));
+  --tw-prose-hr: rgb(var(--site-ink) / 0.15);
+  --tw-prose-quotes: rgb(var(--site-ink-soft));
+  --tw-prose-quote-borders: rgb(var(--site-pine));
+  --tw-prose-captions: rgb(var(--site-ink-faint));
+  --tw-prose-code: rgb(var(--site-ink));
+  --tw-prose-pre-code: rgb(var(--site-ink));
+  --tw-prose-pre-bg: rgb(var(--site-surface));
+  --tw-prose-th-borders: rgb(var(--site-ink) / 0.2);
+  --tw-prose-td-borders: rgb(var(--site-ink) / 0.1);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme])
+  :is(.blog-article, .docs-article)
+  [data-tab-trigger] {
+  color: rgb(var(--site-ink-soft));
+}
+
+html[data-theme="dark"]:not([data-fixed-theme])
+  :is(.blog-article, .docs-article)
+  [data-tab-trigger]:is(:hover, .is-tab-active) {
+  color: rgb(var(--site-ink));
+  border-bottom-color: currentColor;
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .mdx-callout {
+  background: rgb(var(--site-ink) / 0.04);
+  border-color: rgb(var(--site-ink) / 0.18);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .mdx-callout__icon {
+  color: rgb(var(--site-pine));
+}
+
+html[data-theme="dark"] .docs-article ::selection {
+  background-color: rgb(255 255 255 / 0.2);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) .shiki[style*="--shiki-dark"],
+html[data-theme="dark"]:not([data-fixed-theme])
+  .shiki[style*="--shiki-dark"]
+  span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+}

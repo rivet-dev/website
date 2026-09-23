@@ -59,6 +59,21 @@ const ALLOWED_EDGE_REDIRECT_LINKS = new Set(["/discord", "/discord/"]);
 // and are served by the legacy redirect map. Keep the exemption explicit: a
 // newly introduced redirect link in a post must be reviewed and added here.
 const ALLOWED_HISTORICAL_REDIRECT_LINKS = new Set([
+  // Product marketing pages, the Learn/Self-Host tabs, the Actors integrations
+  // section, the agentOS docs, and the Rivet Cloud docs all moved in the docs
+  // restructure; posts written before it keep their original links.
+  "/actors/",
+  "/actors/integrations/durable-streams/",
+  "/actors/integrations/flue/",
+  "/actors/learn/",
+  "/actors/self-host/",
+  "/agentos/docs/resource-limits/",
+  "/agentos/docs/security-model/",
+  "/cloud/byoc/",
+  "/cloud/byoc/architecture/",
+  "/cloud/byoc/quickstart/",
+  "/dynamic-apps/",
+  "/workflows/",
   "/docs/actors",
   "/docs/actors/",
   "/docs/actors/actions/",

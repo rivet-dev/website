@@ -16,7 +16,7 @@ import styles from "./SolutionsSection.module.css";
 
 type ProductId = "actors" | "agentos" | "workflows" | "dynamic-apps";
 
-interface Solution {
+export interface Solution {
   id: string;
   title: string;
   href: string;
@@ -28,7 +28,7 @@ interface Solution {
 
 const stagger = (index: number) => ({ "--i": index }) as CSSProperties;
 
-const productById = (id: ProductId): Product | undefined =>
+export const productById = (id: ProductId): Product | undefined =>
   products.find((product) => product.id === id);
 
 // Vignette frame on porcelain: white fill, hairline, clipped. Ink variants
@@ -36,7 +36,7 @@ const productById = (id: ProductId): Product | undefined =>
 const VIGNETTE_CLASS = `relative flex flex-1 flex-col overflow-hidden rounded-lg border border-ink/10 bg-white text-[12px] leading-snug text-ink-soft`;
 
 const MiniChromeBar = ({ children }: { children?: ReactNode }) => (
-  <div className="flex items-center gap-2 border-b border-ink/10 bg-paper px-3 py-2">
+  <div className="flex items-center gap-2 border-b border-ink/10 bg-ink/[0.05] px-3 py-2">
     <span aria-hidden="true" className="flex gap-1">
       <span className="h-1.5 w-1.5 rounded-full bg-ink/20" />
       <span className="h-1.5 w-1.5 rounded-full bg-ink/20" />
@@ -50,7 +50,7 @@ const MiniChromeBar = ({ children }: { children?: ReactNode }) => (
 // pass, open the PR. Flat ink, per the code-and-terminal rule.
 const CodingAgentVignette = () => (
   <div
-    className={`selection-paper relative flex flex-1 flex-col overflow-hidden rounded-lg border border-ink/20 bg-ink font-mono text-[12px] leading-[1.7] text-cream/85`}
+    className={`ink-panel selection-paper relative flex flex-1 flex-col overflow-hidden rounded-lg border border-ink/20 bg-ink font-mono text-[12px] leading-[1.7] text-cream/85`}
   >
     <div className="flex items-center justify-between border-b border-cream/10 px-3 py-2 text-[11px] text-cream/45">
       <span className="flex items-center gap-2">
@@ -117,7 +117,7 @@ const AppBuilderVignette = () => {
       </MiniChromeBar>
       <div className="grid flex-1 gap-3 p-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="flex flex-col gap-2.5">
-          <div className="ml-auto w-fit max-w-[92%] rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream">
+          <div className="ml-auto w-fit max-w-[92%] ink-panel rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream">
             Build a CRM for my roofing business with a quotes pipeline.
           </div>
           <ul className="space-y-1.5 px-1 text-[11px] text-ink-faint">
@@ -127,7 +127,7 @@ const AppBuilderVignette = () => {
               "Deployed release v3",
             ].map((step, i) => (
               <li key={step} className={styles.step} style={stagger(i)}>
-                <span className="text-pine">✓</span> {step}
+                <span className="text-highlight">✓</span> {step}
               </li>
             ))}
           </ul>
@@ -141,7 +141,7 @@ const AppBuilderVignette = () => {
             <span className="flex items-center gap-1.5 text-ink-faint">
               <span
                 aria-hidden="true"
-                className={`h-1.5 w-1.5 rounded-full bg-pine ${styles.liveDot}`}
+                className={`h-1.5 w-1.5 rounded-full bg-highlight ${styles.liveDot}`}
               />
               Live
             </span>
@@ -154,7 +154,7 @@ const AppBuilderVignette = () => {
             ].map(([stage, count], i) => (
               <div
                 key={stage}
-                className={`flex items-baseline justify-between rounded-sm bg-paper px-2 py-1 ${styles.stat}`}
+                className={`flex items-baseline justify-between rounded-sm bg-ink/[0.05] px-2 py-1 ${styles.stat}`}
                 style={stagger(i)}
               >
                 <span className="text-ink-faint">{stage}</span>
@@ -176,7 +176,7 @@ const AppBuilderVignette = () => {
                   {quote.amount}
                 </span>
                 <span
-                  className={`w-9 shrink-0 text-right text-[10px] ${quote.stage === "Won" ? "text-pine" : "text-ink-faint"}`}
+                  className={`w-9 shrink-0 text-right text-[10px] ${quote.stage === "Won" ? "text-highlight" : "text-ink-faint"}`}
                 >
                   {quote.stage}
                 </span>
@@ -192,17 +192,17 @@ const AppBuilderVignette = () => {
 // An agent inside the company boundary, reading the systems it is allowed to.
 const CompanyAgentVignette = () => (
   <div className={`${VIGNETTE_CLASS} p-3`}>
-    <div className="relative rounded-md border border-dashed border-pine/50 p-3 pt-5">
-      <span className="absolute -top-2 left-3 bg-white px-1.5 text-[10px] font-medium text-pine">
+    <div className="relative rounded-md border border-dashed border-highlight/50 p-3 pt-5">
+      <span className="absolute -top-2 left-3 bg-white px-1.5 text-[10px] font-medium text-highlight">
         Your VPC · no data leaves your cloud
       </span>
       <div
-        className={`flex items-center justify-between gap-3 rounded-md bg-paper px-3 py-1.5 text-[11px] ${styles.ticket}`}
+        className={`flex items-center justify-between gap-3 rounded-md bg-ink/[0.05] px-3 py-1.5 text-[11px] ${styles.ticket}`}
       >
         <span className="flex min-w-0 items-center gap-2 text-ink">
           <span
             aria-hidden="true"
-            className={`h-1.5 w-1.5 shrink-0 rounded-full bg-pine ${styles.ticketDot}`}
+            className={`h-1.5 w-1.5 shrink-0 rounded-full bg-highlight ${styles.ticketDot}`}
           />
           <span className="truncate">#4821 · Refund not processed</span>
         </span>
@@ -213,7 +213,7 @@ const CompanyAgentVignette = () => (
           centers at any width. Wires fan out from the agent's vertical center. */}
       <div className="mt-2.5 grid auto-rows-fr grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3">
         <div
-          className={`row-span-3 self-center rounded-md border border-ink/10 bg-paper px-2.5 py-2 ${styles.agentBox}`}
+          className={`row-span-3 self-center rounded-md border border-ink/10 bg-ink/[0.05] px-2.5 py-2 ${styles.agentBox}`}
         >
           <div className="text-[10px] text-ink-faint">Agent</div>
           <div className="font-medium text-ink">Support triage</div>
@@ -236,7 +236,7 @@ const CompanyAgentVignette = () => (
                 key={d}
                 d={d}
                 vectorEffect="non-scaling-stroke"
-                className={`stroke-pine/40 ${styles.wire}`}
+                className={`stroke-highlight/40 ${styles.wire}`}
                 style={stagger(i)}
               />
             ))}
@@ -255,14 +255,14 @@ const CompanyAgentVignette = () => (
     </div>
     <p className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-0.5 pt-2.5 text-[11px] text-ink-faint">
       <span
-        className={`flex w-fit items-center gap-1 rounded-sm border border-pine/30 bg-white px-1.5 py-px text-[10px] text-pine ${styles.resultChip}`}
+        className={`flex w-fit items-center gap-1 rounded-sm border border-highlight/30 bg-white px-1.5 py-px text-[10px] text-highlight ${styles.resultChip}`}
       >
         <span aria-hidden="true">✓</span> Refund issued · ticket resolved
       </span>
       <span className="flex items-center gap-1.5">
         <span
           aria-hidden="true"
-          className={`h-1.5 w-1.5 rounded-full bg-pine ${styles.connectedDot}`}
+          className={`h-1.5 w-1.5 rounded-full bg-highlight ${styles.connectedDot}`}
         />
         3 systems connected
       </span>
@@ -292,12 +292,12 @@ const CheckGlyph = ({ className }: { className?: string }) => (
 const PersonalAgentVignette = () => (
   <div className={`${VIGNETTE_CLASS} p-3`}>
     <div
-      className={`flex items-center justify-between rounded-md bg-paper px-3 py-2 text-[11px] ${styles.schedule}`}
+      className={`flex items-center justify-between rounded-md bg-ink/[0.05] px-3 py-2 text-[11px] ${styles.schedule}`}
     >
       <span className="flex items-center gap-2 text-ink">
         <span
           aria-hidden="true"
-          className={`h-1.5 w-1.5 rounded-full bg-pine ${styles.scheduleDot}`}
+          className={`h-1.5 w-1.5 rounded-full bg-highlight ${styles.scheduleDot}`}
         />
         Morning briefing
       </span>
@@ -305,14 +305,14 @@ const PersonalAgentVignette = () => (
     </div>
     <div className="mt-2.5 space-y-2">
       <div
-        className={`ml-auto w-fit max-w-[82%] rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream ${styles.bubbleOut}`}
+        className={`ml-auto w-fit max-w-[82%] ink-panel rounded-2xl rounded-br-md bg-ink px-3 py-1.5 text-cream ${styles.bubbleOut}`}
       >
         Move my 3pm with Sam to tomorrow.
       </div>
       <div className="relative">
         <div
           aria-hidden="true"
-          className={`absolute left-0 top-0 flex h-8 items-center gap-1 rounded-2xl rounded-bl-md bg-paper px-3 opacity-0 ${styles.typing}`}
+          className={`absolute left-0 top-0 flex h-8 items-center gap-1 rounded-2xl rounded-bl-md bg-ink/[0.05] px-3 opacity-0 ${styles.typing}`}
         >
           {[0, 1, 2].map((i) => (
             <span
@@ -323,11 +323,11 @@ const PersonalAgentVignette = () => (
           ))}
         </div>
         <div
-          className={`w-fit max-w-[88%] rounded-2xl rounded-bl-md bg-paper px-3 py-2 ${styles.bubbleIn}`}
+          className={`w-fit max-w-[88%] rounded-2xl rounded-bl-md bg-ink/[0.05] px-3 py-2 ${styles.bubbleIn}`}
         >
           Done. Sam accepted 10am tomorrow, and I&apos;ll remind you at 9:45.
           <span
-            className={`mt-1.5 flex w-fit items-center gap-1 rounded-sm border border-pine/30 bg-white px-1.5 py-px text-[10px] text-pine ${styles.chip}`}
+            className={`mt-1.5 flex w-fit items-center gap-1 rounded-sm border border-highlight/30 bg-white px-1.5 py-px text-[10px] text-highlight ${styles.chip}`}
           >
             <span aria-hidden="true">✓</span> Reminder · tomorrow 9:45
           </span>
@@ -391,7 +391,7 @@ const TypedLine = ({
 // ticks, RS types a new line, and the sync settles.
 const RealtimeVignette = () => {
   const people = [
-    { initials: "AK", fill: "bg-pine" },
+    { initials: "AK", fill: "bg-highlight" },
     { initials: "JM", fill: "bg-product-actors" },
     { initials: "RS", fill: "bg-product-workflows" },
   ];
@@ -405,7 +405,7 @@ const RealtimeVignette = () => {
           {people.map((person, i) => (
             <span
               key={person.initials}
-              className={`flex h-5 w-5 items-center justify-center rounded-full border-2 border-paper text-[8px] font-medium text-white ${person.fill} ${styles.avatar}`}
+              className={`flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-[8px] font-medium text-white ${person.fill} ${styles.avatar}`}
               style={stagger(i)}
             >
               {person.initials}
@@ -419,7 +419,7 @@ const RealtimeVignette = () => {
           <li className="flex items-center gap-2">
             <span
               aria-hidden="true"
-              className="flex h-3 w-3 items-center justify-center rounded-sm border border-ink/25 bg-pine"
+              className="flex h-3 w-3 items-center justify-center rounded-sm border border-ink/25 bg-highlight"
             >
               <CheckGlyph />
             </span>
@@ -465,7 +465,7 @@ const RealtimeVignette = () => {
           <span className="flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className={`h-1.5 w-1.5 rounded-full bg-pine ${styles.connectedDot}`}
+              className={`h-1.5 w-1.5 rounded-full bg-highlight ${styles.connectedDot}`}
             />
             3 editing now
           </span>
@@ -486,7 +486,7 @@ const RealtimeVignette = () => {
   );
 };
 
-const solutions: Solution[] = [
+export const solutions: Solution[] = [
   {
     id: "coding-agents",
     title: "Coding agents",
@@ -499,7 +499,7 @@ const solutions: Solution[] = [
   {
     id: "agent-app-builders",
     title: "Agent app builders",
-    href: "/dynamic-apps/",
+    href: "/dynamic-apps/docs/",
     linkLabel: "Explore Dynamic Apps",
     uses: ["dynamic-apps", "actors"],
     vignette: <AppBuilderVignette />,
@@ -516,7 +516,7 @@ const solutions: Solution[] = [
   {
     id: "personal-agents",
     title: "Personal agents",
-    href: "/actors/",
+    href: "/actors/docs/",
     linkLabel: "Explore Actors",
     uses: ["actors", "workflows"],
     vignette: <PersonalAgentVignette />,
@@ -524,7 +524,7 @@ const solutions: Solution[] = [
   {
     id: "realtime-apps",
     title: "Realtime apps",
-    href: "/actors/",
+    href: "/actors/docs/",
     linkLabel: "Explore Actors",
     uses: ["actors"],
     vignette: <RealtimeVignette />,

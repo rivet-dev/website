@@ -13,7 +13,7 @@ import { EYEBROW_CLASS } from "../typography";
  * Kept apart from the tools list — that one is what you write actors in, this
  * one is where you run them.
  */
-const clouds = platformsFor("actors", "control-plane");
+const clouds = platformsFor("control-plane");
 
 export const CloudStrip = () => (
 	<div className="mt-12 border-t border-ink/10 pt-8" data-site-reveal="">

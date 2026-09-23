@@ -18,15 +18,27 @@ const docs = defineCollection({
 	}),
 });
 
-// Self-host guides are authored once and generated for every product, so they
-// live outside the product-scoped `docs` collection. See
-// src/pages/[product]/self-host/[...slug].astro.
+// Self-host guides are website-owned and shared by every product, so they live
+// outside the product-scoped `docs` collection. See
+// src/pages/docs/deploy/self-host/[...slug].astro.
 const selfHost = defineCollection({
 	loader: glob({ pattern: '**/*.mdx', base: './src/content/self-host' }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
 		badge: z.string().optional(),
+		...seoOverrides,
+	}),
+});
+
+// Each product's docs root, authored here rather than in the product repo: the
+// overview carries the product's positioning, which the website owns. It
+// shadows the bundle's own `docs/index.mdx` at `/{product}/docs/`.
+const overviews = defineCollection({
+	loader: glob({ pattern: '*.mdx', base: './src/content/overviews' }),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
 		...seoOverrides,
 	}),
 });
@@ -79,6 +91,7 @@ const posts = defineCollection({
 export const collections = {
 	docs,
 	selfHost,
+	overviews,
 	guides,
 	posts,
 };

@@ -96,7 +96,7 @@ export function LogoGallery() {
 				>
 					<div
 						className={`flex h-44 items-center justify-center border-b border-ink/10 ${
-							logo.ground === "dark" ? "ink-grain bg-ink" : "bg-white"
+							logo.ground === "dark" ? "ink-grain bg-ink" : "registry-logo-plate bg-white"
 						}`}
 					>
 						<img src={logo.src} alt={`Rivet ${logo.title.toLowerCase()}`} className={logo.imgClass} />
@@ -158,7 +158,7 @@ export function ProductMarkGallery() {
 								<div className="flex items-center gap-1.5">
 									<span className="text-sm font-medium text-ink">{product.name}</span>
 									{product.badge ? (
-										<span className="rounded-full border border-ink/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-ink-faint">
+										<span className="rounded border border-ink/15 px-1.5 py-px text-[11px] font-medium leading-4 text-ink-faint">
 											{product.badge}
 										</span>
 									) : null}

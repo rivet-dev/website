@@ -36,7 +36,7 @@ export const templates: Template[] = [
 		name: "chat-room",
 		displayName: "Chat Room",
 		description:
-			"Realtime chat where each room is its own Rivet Actor, persisting message history in the actor's SQLite database and broadcasting new messages to connected clients.",
+			"Realtime chat where each room is its own Rivet Actor, persisting message history in the Actor's SQLite database and broadcasting new messages to connected clients.",
 		tags: ["realtime"],
 		technologies: ["react", "sqlite", "websocket"],
 		providers: { vercel: null },
@@ -72,7 +72,7 @@ export const templates: Template[] = [
 		name: "per-tenant-database",
 		displayName: "Per-Tenant Database",
 		description:
-			"Each tenant maps to its own Rivet Actor keyed by tenant id, so actor state acts as a fully isolated per-tenant database with live updates.",
+			"Each tenant maps to its own Rivet Actor keyed by tenant id, so Actor state acts as a fully isolated per-tenant database with live updates.",
 		tags: ["data", "realtime"],
 		technologies: ["react"],
 		providers: { vercel: null },
@@ -81,7 +81,7 @@ export const templates: Template[] = [
 		name: "sqlite-drizzle",
 		displayName: "SQLite + Drizzle",
 		description:
-			"Drizzle ORM with actor-scoped SQLite using a typed schema and generated migrations.",
+			"Drizzle ORM with Actor-scoped SQLite using a typed schema and generated migrations.",
 		tags: ["data"],
 		technologies: ["sqlite"],
 		providers: { vercel: null },
@@ -91,7 +91,7 @@ export const templates: Template[] = [
 		name: "scheduling",
 		displayName: "Scheduling",
 		description:
-			"Schedule actor actions to run after a delay or at an exact timestamp, with durable timers that survive actor restarts.",
+			"Schedule Actor actions to run after a delay or at an exact timestamp, with durable timers that survive Actor restarts.",
 		tags: ["jobs"],
 		technologies: ["react"],
 		providers: { vercel: null },
@@ -100,7 +100,7 @@ export const templates: Template[] = [
 		name: "sandbox-coding-agent",
 		displayName: "Sandbox Coding Agent",
 		description:
-			"Each agent actor drives a coding agent running inside an isolated sandbox, with Docker, Daytona, or E2B providers.",
+			"Each agent Actor drives a coding agent running inside an isolated sandbox, with Docker, Daytona, or E2B providers.",
 		tags: ["ai"],
 		technologies: ["react"],
 		providers: { vercel: null },
@@ -109,7 +109,7 @@ export const templates: Template[] = [
 		name: "multiplayer-game-patterns",
 		displayName: "Multiplayer Game Patterns",
 		description:
-			"Working matchmaking, lobby, and tick-loop actors for battle royale, arena, IO style, open world, party, ranked, turn-based, and idle games.",
+			"Working matchmaking, lobby, and tick-loop Actors for battle royale, arena, IO style, open world, party, ranked, turn-based, and idle games.",
 		tags: ["realtime"],
 		technologies: ["websocket"],
 		providers: { vercel: null },

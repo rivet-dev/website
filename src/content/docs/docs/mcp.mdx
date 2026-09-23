@@ -1,8 +1,8 @@
 ---
 title: Rivet MCP
-description: Connect your AI client to Rivet to inspect actors, call actions, and use the Actor Inspector.
+description: Connect your AI client to Rivet to inspect Actors, call actions, and use the Actor Inspector.
 seoTitle: "Rivet MCP: connect your AI client to Rivet"
-seoDescription: Connect Claude Code, Codex, Cursor, and other AI clients to Rivet to inspect actors, call actions, and use the Actor Inspector.
+seoDescription: Connect Claude Code, Codex, Cursor, and other AI clients to Rivet to inspect Actors, call actions, and use the Actor Inspector.
 ---
 
 import { faClaude, faCursor, faGemini, faLaptopCode, faOpenai, faVscode } from '@rivet-gg/icons';
@@ -84,29 +84,29 @@ Replace the placeholders with the same slugs used in your [dashboard](https://da
 - Every call goes through Rivet. Rivet checks it against the access you approved and attaches your credentials.
 - A hosted connection carries only the access you granted, and its grant expires after 15 minutes.
 - Your credentials stay on Rivet and never reach the model.
-- An inline Inspector is limited to the actor you requested and disappears with the conversation. Clients that cannot render it receive the same details as text.
+- An inline Inspector is limited to the Actor you requested and disappears with the conversation. Clients that cannot render it receive the same details as text.
 
 ## What you can do
 
 These examples are illustrative and make no live backend calls.
 
-### Find running actors
+### Find running Actors
 
 <CodeSnippet file="examples/docs/mcp/find-running-actors.txt" title="Prompt" />
 
-Rivet MCP uses `search` to find `rivet.actors.list`, lists the matching `chat-room` actors, and returns one concise result: **3 rooms awake**.
+Rivet MCP uses `search` to find `rivet.actors.list`, lists the matching `chat-room` Actors, and returns one concise result: **3 rooms awake**.
 
-### Call an actor action
+### Call an Actor action
 
 <CodeSnippet file="examples/docs/mcp/call-actor-action.txt" title="Prompt" />
 
-Rivet MCP uses `search` to find `rivet.actor.action`, calls the `getHistory` action on the `chat-room · acme` actor, and returns the action result: **128 messages from Acme**.
+Rivet MCP uses `search` to find `rivet.actor.action`, calls the `getHistory` action on the `chat-room · acme` Actor, and returns the action result: **128 messages from Acme**.
 
-### Inspect an actor inline
+### Inspect an Actor inline
 
 <CodeSnippet file="examples/docs/mcp/inspect-actor-inline.txt" title="Prompt" />
 
-The same actor view available in the dashboard opens inside the conversation. It includes the **State**, **Connections**, **Queue**, **Workflow**, and **Database** tabs. The inline view is limited to the actor you requested and disappears with the conversation. Clients that cannot render the Inspector receive the same details as text.
+The same Actor view available in the dashboard opens inside the conversation. It includes the **State**, **Connections**, **Queue**, **Workflow**, and **Database** tabs. The inline view is limited to the Actor you requested and disappears with the conversation. Clients that cannot render the Inspector receive the same details as text.
 
 ## One request, two tools
 

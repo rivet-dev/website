@@ -1,44 +1,24 @@
 {
 	"byoc": [
 		{
-			"title": "General",
+			"title": "BYOC",
 			"pages": [
-				{ "title": "Overview", "href": "/cloud/byoc", "icon": "faSquareInfo" },
-				{ "title": "Quickstart", "href": "/cloud/byoc/quickstart", "icon": "faFastForward" }
-			]
-		},
-		{
-			"title": "Reference",
-			"pages": [
-				{ "title": "Configuration", "href": "/cloud/byoc/configuration", "icon": "faSliders" },
-				{ "title": "Shipping metrics", "href": "/cloud/byoc/shipping-metrics", "icon": "faChartLine" },
-				{ "title": "Credentials & dashboard", "href": "/cloud/byoc/credentials", "icon": "faKey" },
-				{ "title": "Architecture", "href": "/cloud/byoc/architecture", "icon": "faDiagramProject" }
+				{ "title": "Overview", "href": "/docs/deploy/byoc", "icon": "faSquareInfo" },
+				{ "title": "Quickstart", "href": "/docs/deploy/byoc/quickstart", "icon": "faFastForward" },
+				{ "title": "Configuration", "href": "/docs/deploy/byoc/configuration", "icon": "faSliders" },
+				{ "title": "Shipping metrics", "href": "/docs/deploy/byoc/shipping-metrics", "icon": "faChartLine" },
+				{ "title": "Credentials & dashboard", "href": "/docs/deploy/byoc/credentials", "icon": "faKey" },
+				{ "title": "Architecture", "href": "/docs/deploy/byoc/architecture", "icon": "faDiagramProject" }
 			]
 		}
 	],
 	"docs": [
 		{
-			"title": "General",
+			"title": "Cloud",
 			"pages": [
-				{
-					"title": "Overview",
-					"href": "/cloud/docs",
-					"icon": "faSquareInfo"
-				}
-			]
-		},
-		{
-			"title": "Deploying",
-			"pages": [
-				{
-					"title": "Rivet Compute",
-					"href": "/cloud/docs/compute"
-				},
-				{
-					"title": "Preview Deployments",
-					"href": "/cloud/docs/preview-deployments"
-				}
+				{ "title": "Overview", "href": "/docs/deploy/cloud", "icon": "faSquareInfo" },
+				{ "title": "Rivet Compute", "href": "/docs/deploy/cloud/compute", "icon": "faServer" },
+				{ "title": "Preview Deployments", "href": "/docs/deploy/cloud/preview-deployments", "icon": "faCodeBranch" }
 			]
 		}
 	]

@@ -16,7 +16,7 @@ npx @rivetkit/cli setup-ci
 gh secret set RIVET_CLOUD_TOKEN
 ```
 
-The generated `.github/workflows/rivet-deploy.yml` deploys production on push to your default branch, creates a namespace per pull request, posts the preview link as a comment, and cleans the namespace up on close. See [Rivet Compute](/cloud/docs/compute).
+The generated `.github/workflows/rivet-deploy.yml` deploys production on push to your default branch, creates a namespace per pull request, posts the preview link as a comment, and cleans the namespace up on close. See [Rivet Compute](/docs/deploy/cloud/compute).
 
 ## With Vercel
 
@@ -60,17 +60,17 @@ jobs:
 </Step>
 </Steps>
 
-The action also configures the Vercel Deployment Protection bypass header, which is otherwise a common source of `401`s from Rivet into preview deployments. See [Vercel](/actors/self-host/workers/vercel).
+The action also configures the Vercel Deployment Protection bypass header, which is otherwise a common source of `401`s from Rivet into preview deployments. See [Vercel](/docs/deploy/self-host/workers/vercel).
 
 ## On other platforms
 
 Any platform works, as long as the pull-request build gets endpoint values for a fresh namespace instead of production's. Create the namespace with the Cloud API using a `cloud_api_*` token, inject the resulting endpoints as build-time environment variables, and delete the namespace when the pull request closes.
 
 <Warning>
-Never point a preview build at your production namespace. Previews create and destroy actors freely, and that state is shared with whatever else uses the namespace.
+Never point a preview build at your production namespace. Previews create and destroy Actors freely, and that state is shared with whatever else uses the namespace.
 </Warning>
 
 ## Next steps
 
-- [Rivet Compute](/cloud/docs/compute)
-- [Tokens](/cloud/docs#tokens)
+- [Rivet Compute](/docs/deploy/cloud/compute)
+- [Tokens](/docs/deploy/cloud#tokens)

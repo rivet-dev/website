@@ -5,7 +5,7 @@ import { fetchOpeningsCount } from "@/lib/careers";
 import { Button } from "@/components/Button";
 import routes from "@/generated/routes.json";
 import clsx from "clsx";
-import { VISIBLE_PRODUCTS } from "@/sitemap/product-metadata";
+import { products } from "@/sitemap/products";
 import { SITE_WIDE_GUTTERED_RAIL_CLASS } from "@/components/marketing/layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 
@@ -21,27 +21,29 @@ import {
 } from "@rivet-gg/icons";
 
 const footer = {
-	// Derived so the footer cannot drift from the product registry. Each entry
-	// points at the product's Overview page, matching the header switcher.
-	product: [
-		...VISIBLE_PRODUCTS.map((item) => ({ id: item.id, name: item.name, href: `/${item.id}` })),
-		// Secure Exec is a library rather than a pillar, so it may be hidden from
-		// the switcher; the footer is then its only way in. Appended only when the
-		// registry has not already listed it, so the link survives either setting.
-		{ id: "secure-exec", name: "Secure Exec", href: "/secure-exec" },
-	].filter(
-		(item, index, all) => all.findIndex((other) => other.id === item.id) === index,
-	),
+	// The actor types, in docs-tab order. Derived from the product registry so
+	// the footer cannot drift from it; each entry points where the product's
+	// own link lands (the old `/actors/` marketing URLs redirect).
+	actors: ["actors", "agents", "workflows", "sandboxes", "dynamic-apps"]
+		.map((id) => products.find((product) => product.id === id))
+		.filter((item) => item && !item.unlaunched)
+		.map((item) => ({ name: item.name, href: item.href })),
+	// Libraries run inside actors rather than being one; each keeps its own
+	// subsite and this is the only place the main site lists them together.
+	libraries: [
+		{ name: "agentOS", href: "/agentos/" },
+		{ name: "Secure Exec", href: "/secure-exec/" },
+	],
 	company: [
-		{ name: "Cloud Pricing", href: "/cloud" },
-		{ name: "Bring Your Own Cloud", href: "/cloud/byoc" },
+		{ name: "Pricing", href: "/pricing" },
+		{ name: "Bring Your Own Cloud", href: "/docs/deploy/byoc/" },
 		{ name: "Enterprise", href: "/enterprise" },
 		{ name: "Careers", href: "/careers" },
 		{ name: "Talk to an engineer", href: "/talk-to-an-engineer" },
 		{ name: "YC & Speedrun Deal", href: "/startups" },
 	],
 	devs: [
-		{ name: "Documentation", href: "/docs" },
+		{ name: "Documentation", href: "/docs/" },
 		{ name: "MCP", href: "https://rivet.dev/docs/mcp/" },
 		{ name: "Changelog", href: "/blog/" },
 		{ name: "Status Page", href: "https://rivet.betteruptime.com/" },
@@ -163,7 +165,7 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 	const openings = useOpeningsCount(initialOpenings);
 	return (
 		<div className={clsx("mx-auto w-full py-16", pageFamily === "site" ? "max-w-none" : "max-w-7xl")}>
-			<div className="grid grid-cols-1 min-[440px]:grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-7">
+			<div className="grid grid-cols-1 min-[440px]:grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-8">
 				{/* Brand column */}
 				<div className="col-span-1 min-[440px]:col-span-2 md:col-span-4 lg:col-span-1 space-y-6">
 					<img className="h-8 w-8" src={imgLogo.src} alt="Rivet" />
@@ -184,15 +186,31 @@ function SmallPrint({ initialOpenings, pageFamily = "default" }) {
 					</div>
 				</div>
 
-				{/* Product */}
+				{/* Actors */}
 				<div>
-					<h3 className="text-sm font-medium text-ink-faint mb-4">Products</h3>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Actors</h3>
 					<ul className="space-y-3">
-						{footer.product.map((item) => (
+						{footer.actors.map((item) => (
 							<li key={item.name}>
 								<a
 									href={canonicalizeInternalHref(item.href)}
-									target={item.target}
+									className="text-sm text-ink-soft hover:text-ink transition-colors"
+								>
+									{item.name}
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				{/* Libraries */}
+				<div>
+					<h3 className="text-sm font-medium text-ink-faint mb-4">Libraries</h3>
+					<ul className="space-y-3">
+						{footer.libraries.map((item) => (
+							<li key={item.name}>
+								<a
+									href={canonicalizeInternalHref(item.href)}
 									className="text-sm text-ink-soft hover:text-ink transition-colors"
 								>
 									{item.name}

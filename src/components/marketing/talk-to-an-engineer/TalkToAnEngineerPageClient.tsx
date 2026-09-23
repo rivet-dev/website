@@ -14,18 +14,15 @@ import {
 // column; the product marks float around it.
 const THINKER_SRC = "/images/thinking/the-thinker.webp";
 
-// Resting tilt, float offset, and placement per product mark, so the four
-// badges orbit the figure — the agentOS treatment. Positions hug the
-// silhouette of this exact cutout (head crown, shoulder, shin, rock base);
-// re-tune by eye if the-thinker.webp is ever re-cropped.
-const TILT = [-7, 6, 5, -6];
-const OFFSET = [-10, 12, 14, -8];
-const POSITIONS = [
-	"left-[12%] -top-6", // Actors — above the bowed head, reaching toward the h1
-	"right-[14%] top-[26%]", // agentOS — overlapping the curve of the back
-	"-left-6 bottom-[30%]", // Workflows — beside the shin, drifting into the gutter
-	"right-[6%] -bottom-2", // Dynamic Apps — overlapping the rock's base corner
-];
+// Give every product its own spot around this cutout, independent of the
+// product list order. Keep the face and torso clear as the badges float.
+const PLACEMENTS: Record<string, { position: string; tilt: number; offset: number }> = {
+	actors: { position: "left-[2%] -top-8", tilt: -7, offset: -10 },
+	agentos: { position: "right-0 top-[22%]", tilt: 6, offset: 12 },
+	workflows: { position: "-left-6 top-[46%]", tilt: 5, offset: 14 },
+	"dynamic-apps": { position: "right-[2%] bottom-[1%]", tilt: -6, offset: -8 },
+	"secure-exec": { position: "left-[2%] bottom-[5%]", tilt: -8, offset: -6 },
+};
 
 function ProductIconCluster() {
 	const reduceMotion = useReducedMotion() ?? false;
@@ -45,9 +42,7 @@ function ProductIconCluster() {
 			/>
 
 			{visibleProducts.map((product, i) => {
-				const tilt = TILT[i % TILT.length];
-				const offset = OFFSET[i % OFFSET.length];
-				const position = POSITIONS[i % POSITIONS.length];
+				const { tilt, offset, position } = PLACEMENTS[product.id];
 
 				return (
 					<motion.a
@@ -55,6 +50,7 @@ function ProductIconCluster() {
 						href={canonicalizeInternalHref(product.href)}
 						aria-label={product.name}
 						initial={reduceMotion ? false : { opacity: 0, y: 24, rotate: tilt }}
+						animate={reduceMotion ? { opacity: 1, rotate: tilt, y: offset } : undefined}
 						whileInView={
 							reduceMotion
 								? undefined
@@ -62,20 +58,17 @@ function ProductIconCluster() {
 						}
 						viewport={{ once: true }}
 						whileHover={reduceMotion ? undefined : { rotate: 0, scale: 1.06 }}
-						transition={{
+						transition={reduceMotion ? { duration: 0 } : {
 							opacity: { duration: 0.5, delay: i * 0.09 },
 							rotate: { duration: 0.4, delay: i * 0.09 },
 							scale: { duration: 0.25 },
-							y: reduceMotion
-								? undefined
-								: {
-										duration: 4.2 + i * 0.5,
-										repeat: Infinity,
-										ease: "easeInOut",
-										delay: i * 0.35,
-									},
+							y: {
+								duration: 4.2 + i * 0.5,
+								repeat: Infinity,
+								ease: "easeInOut",
+								delay: i * 0.35,
+							},
 						}}
-						style={reduceMotion ? { rotate: tilt, y: offset } : undefined}
 						className={`group absolute ${position} flex items-center justify-center rounded-[34.375%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 focus-visible:ring-offset-2 focus-visible:ring-offset-paper`}
 					>
 						{/* The product color is the tile, the mark rides in white — the
