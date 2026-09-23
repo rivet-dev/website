@@ -15,6 +15,7 @@
 		"render-launch-images": "tsx ./.claude/skills/create-launch-post/scripts/render-launch-images.ts",
 		"render-tile-images": "tsx ./.claude/skills/create-launch-post/scripts/render-tile-images.ts",
 		"render-byoc-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-byoc-hero.ts",
+		"render-otel-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-otel-hero.ts",
 		"render-technical-image": "tsx ./.claude/skills/create-launch-post/scripts/render-technical-image.ts",
 		"gen:markdown": "tsx ./scripts/generate-markdown.ts",
 		"index:search": "tsx ./scripts/index-search.ts",
