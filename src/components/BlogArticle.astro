@@ -218,7 +218,7 @@ const otherArticles = allPosts
 	.blog-article .blog-prose {
 		font-size: 15px;
 		line-height: 1.75;
-		color: #56524a;
+		color: rgb(var(--site-ink-soft, 86 82 74));
 	}
 
 	.blog-article .blog-prose p,
@@ -239,7 +239,7 @@ const otherArticles = allPosts
 		letter-spacing: -0.015em;
 		margin-top: 2.75rem;
 		margin-bottom: 1rem;
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose h3 {
@@ -249,7 +249,7 @@ const otherArticles = allPosts
 		letter-spacing: -0.015em;
 		margin-top: 2.25rem;
 		margin-bottom: 0.75rem;
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose h4 {
@@ -257,13 +257,13 @@ const otherArticles = allPosts
 		font-weight: 500;
 		margin-top: 2rem;
 		margin-bottom: 0.5rem;
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose a:not(.not-prose) {
-		color: #2e4034;
+		color: rgb(var(--site-pine, 46 64 52));
 		text-decoration: underline;
-		text-decoration-color: rgb(46 64 52 / 0.35);
+		text-decoration-color: rgb(var(--site-pine, 46 64 52) / 0.35);
 		text-underline-offset: 0.2em;
 		text-decoration-thickness: 1px;
 		font-weight: 500;
@@ -271,12 +271,12 @@ const otherArticles = allPosts
 	}
 
 	.blog-article .blog-prose a:not(.not-prose):hover {
-		color: #1b1916;
-		text-decoration-color: rgb(46 64 52 / 0.9);
+		color: rgb(var(--site-ink, 27 25 22));
+		text-decoration-color: rgb(var(--site-pine, 46 64 52) / 0.9);
 	}
 
 	.blog-article .blog-prose strong {
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 		font-weight: 600;
 	}
 
@@ -288,12 +288,12 @@ const otherArticles = allPosts
 	}
 
 	.blog-article .blog-prose :not(pre) > code {
-		background: rgb(27 25 22 / 0.05);
-		border: 1px solid rgb(27 25 22 / 0.1);
+		background: rgb(var(--site-ink, 27 25 22) / 0.05);
+		border: 1px solid rgb(var(--site-ink, 27 25 22) / 0.1);
 		border-radius: 0.375rem;
 		padding: 0.1em 0.4em;
 		font-size: 0.875em;
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose pre {
@@ -308,22 +308,22 @@ const otherArticles = allPosts
 	}
 
 	.blog-article .blog-prose blockquote {
-		border-left: 2px solid #2e4034;
+		border-left: 2px solid rgb(var(--site-pine, 46 64 52));
 		padding-left: 1.25rem;
 		font-style: normal;
-		color: #56524a;
+		color: rgb(var(--site-ink-soft, 86 82 74));
 	}
 
 	.blog-article .blog-prose img,
 	.blog-article .blog-prose video {
 		border-radius: 0.75rem;
-		border: 1px solid rgb(27 25 22 / 0.1);
+		border: 1px solid rgb(var(--site-ink, 27 25 22) / 0.1);
 		margin-top: 2rem;
 		margin-bottom: 2rem;
 	}
 
 	.blog-article .blog-prose hr {
-		border-color: rgb(27 25 22 / 0.1);
+		border-color: rgb(var(--site-ink, 27 25 22) / 0.1);
 		margin-top: 2.75rem;
 		margin-bottom: 2.75rem;
 	}
@@ -347,7 +347,7 @@ const otherArticles = allPosts
 	}
 
 	.blog-article .blog-prose li::marker {
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose h2 a:not(.not-prose),
@@ -367,21 +367,21 @@ const otherArticles = allPosts
 
 	.blog-article .blog-prose th,
 	.blog-article .blog-prose td {
-		border: 1px solid rgb(27 25 22 / 0.1);
+		border: 1px solid rgb(var(--site-ink, 27 25 22) / 0.1);
 		padding: 0.5rem 0.75rem;
 		text-align: left;
-		color: #1b1916;
+		color: rgb(var(--site-ink, 27 25 22));
 	}
 
 	.blog-article .blog-prose th {
 		font-weight: 600;
-		background-color: rgb(27 25 22 / 0.03);
+		background-color: rgb(var(--site-ink, 27 25 22) / 0.03);
 	}
 
 	/* Active TOC entry, driven by the IntersectionObserver script below. */
 	.blog-article [data-toc-link][data-active='true'] {
-		border-color: #2e4034;
-		color: #2e4034;
+		border-color: rgb(var(--site-pine, 46 64 52));
+		color: rgb(var(--site-pine, 46 64 52));
 		font-weight: 500;
 	}
 
