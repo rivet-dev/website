@@ -20,6 +20,10 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 - The site-wide docs overview is `/docs/`; the Guides tab is `/guides/` (the Actors bundle's `learn` section plus website-owned guides in `src/content/guides/`); the Deploy tab is `/docs/deploy/{self-host,byoc,cloud}/`. Product documentation stays at `/{product}/docs/` and `/{product}/integrations/`.
 - The route prefixes live in `src/sitemap/deploy.ts` and `src/sitemap/guides.ts`. Derive hrefs from them; never hand-write `/orchestrate/`, `/{product}/self-host/`, or `/actors/learn/`, which are redirects.
 
+## Docs Pages
+
+- A docs page that introduces a feature opens with a `## Quickstart` crash course: the shortest end-to-end path to a working result, as `<Steps>` with minimal code and no options, tradeoffs, or edge cases. Everything else goes below it. Pure reference pages, which a reader arrives at already knowing what they want, skip it.
+
 ## Self-Host Guides
 
 - There is one shared copy of every guide at `/docs/deploy/self-host/`, authored in `src/content/self-host/`. Guides are product-agnostic; do not fork a guide per product or reintroduce per-product slots.
