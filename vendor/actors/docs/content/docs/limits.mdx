@@ -108,7 +108,7 @@ The Beta [Actor Runtime Socket](/actors/docs/actor-runtime-socket) negotiates it
 
 ### KV Preloading
 
-When an actor starts, the control plane can pre-fetch KV data declared in the actor name metadata and deliver it alongside the start command. This removes round-trips to storage during actor startup. RivetKit emits the preload manifest from its own key layout and exposes per-actor overrides via `options`. Operators can still enforce a global cap in the [engine config](/actors/self-host/control-plane) with `pegboard.preload_max_total_bytes`. In serverless mode, this data is serialized into the `/api/rivet/start` request body along with actor config and protocol metadata, so the accepted body size must be larger than the preload budget. RivetKit defaults `serverless.maxStartPayloadBytes` to 16 MiB to leave margin for the default 1 MiB preload budget and larger SQLite startup page preloads.
+When an actor starts, the control plane can pre-fetch KV data declared in the actor name metadata and deliver it alongside the start command. This removes round-trips to storage during actor startup. RivetKit emits the preload manifest from its own key layout and exposes per-actor overrides via `options`. Operators can still enforce a global cap in the [engine config](/docs/deploy/self-host/control-plane) with `pegboard.preload_max_total_bytes`. In serverless mode, this data is serialized into the `/api/rivet/start` request body along with actor config and protocol metadata, so the accepted body size must be larger than the preload budget. RivetKit defaults `serverless.maxStartPayloadBytes` to 16 MiB to leave margin for the default 1 MiB preload budget and larger SQLite startup page preloads.
 
 | Name | Soft Limit | Hard Limit | Description |
 |------|------------|------------|-------------|
@@ -155,13 +155,13 @@ See [Actor Input](/actors/docs/input) for details.
 
 ### Serverless Shutdown
 
-These timeouts control how actors are shut down when a serverless request reaches its lifespan limit. See [Shutdown Sequence](/actors/docs/general/runtime-modes#shutdown-sequence) for details.
+These timeouts control how actors are shut down when a serverless request reaches its lifespan limit. See [Shutdown Sequence](/docs/runtime-modes#shutdown-sequence) for details.
 
 | Name | Soft Limit | Hard Limit | Description |
 |------|------------|------------|-------------|
-| Request lifespan | 3600 seconds (60 min) | — | Total lifespan of a serverless request before drain begins. Configurable via `requestLifespan` in [`configurePool`](/actors/docs/general/registry-configuration). |
-| Runner config drain grace period | — | 30 minutes | Time a serverless runner reserves for actors to stop gracefully. Configurable via `drainGracePeriod` in [`configurePool`](/actors/docs/general/registry-configuration). |
-| Engine serverless drain fallback | — | 10 seconds | Engine-level fallback used when no per-runner config applies. Configurable via [engine config](/actors/self-host/control-plane) (`pegboard.serverless_drain_grace_period`). |
+| Request lifespan | 3600 seconds (60 min) | — | Total lifespan of a serverless request before drain begins. Configurable via `requestLifespan` in [`configurePool`](/actors/docs/registry-configuration). |
+| Runner config drain grace period | — | 30 minutes | Time a serverless runner reserves for actors to stop gracefully. Configurable via `drainGracePeriod` in [`configurePool`](/actors/docs/registry-configuration). |
+| Engine serverless drain fallback | — | 10 seconds | Engine-level fallback used when no per-runner config applies. Configurable via [engine config](/docs/deploy/self-host/control-plane) (`pegboard.serverless_drain_grace_period`). |
 
 ### Actor Lifecycle
 

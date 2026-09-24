@@ -324,7 +324,7 @@ function guidesRedirects() {
 // at `/integrations/...`. Every page keeps its slug.
 function integrationsRedirects() {
 	const map = {};
-	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'docs/actors/integrations'))) {
+	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'docs/integrations/docs'))) {
 		map[slug ? `/actors/integrations/${slug}` : '/actors/integrations'] = slug
 			? `/integrations/${slug}/`
 			: '/integrations/';
@@ -332,8 +332,70 @@ function integrationsRedirects() {
 	return map;
 }
 
+// The Actors bundle was split into three: Actors, the product-agnostic docs at
+// `/docs/`, and Integrations. Two things moved at once, so both are mapped here.
+//
+//   - Twelve pages about running workloads rather than writing actors left the
+//     Actors vertical for `/docs/`.
+//   - The bundle's `general/` subdirectory was flattened away, so every page
+//     that stayed lost that path segment.
+//
+// The old `/docs/general/<page>` spellings are covered too: those URLs predate
+// the per-product split and `legacyDocsRedirects` used to map them into
+// `/actors/docs/general/`, which no longer exists.
+function bundleSplitRedirects() {
+	// Old slug under `/actors/docs/` -> new path.
+	const MOVED = {
+		cli: '/docs/cli/',
+		'container-runner': '/docs/container-runner/',
+		statuses: '/docs/statuses/',
+		versions: '/docs/versions/',
+		'general/edge': '/docs/regions/',
+		'general/endpoints': '/docs/endpoints/',
+		'general/environment-variables': '/docs/environment-variables/',
+		'general/pool-configuration': '/docs/pool-configuration/',
+		'general/runtime-modes': '/docs/runtime-modes/',
+		'general/skill': '/docs/skill/',
+		'general/tracing': '/docs/tracing/',
+	};
+	// Pages that stayed in the Actors bundle but lost the `general/` segment.
+	const FLATTENED = [
+		'actor-configuration',
+		'cors',
+		'http-server',
+		'logging',
+		'production-checklist',
+		'registry-configuration',
+		'wasm-vs-native-sdk',
+	];
+
+	const map = {};
+	for (const [slug, target] of Object.entries(MOVED)) {
+		map[`/actors/docs/${slug}`] = target;
+		// Only the `general/`-prefixed legacy spellings get a `/docs/` entry. A
+		// flat one such as `/docs/cli` is now the destination itself, and mapping
+		// it would be a self-redirect.
+		if (slug.includes('/')) map[`/docs/${slug}`] = target;
+	}
+	for (const slug of FLATTENED) {
+		map[`/actors/docs/general/${slug}`] = `/actors/docs/${slug}/`;
+		map[`/docs/general/${slug}`] = `/actors/docs/${slug}/`;
+	}
+	// `debugging` split in two, keeping both URLs live: the management and runner
+	// APIs at `/docs/debugging`, the actor inspector at `/actors/docs/debugging`.
+	// Neither needs a redirect.
+	//
+	// Retired pages.
+	map['/actors/docs/fetch-and-websocket-handler'] = '/actors/docs/websocket-handler/';
+	map['/actors/use-cases'] = '/actors/docs/';
+	map['/actors/learn/a-radically-simpler-architecture'] =
+		'/guides/a-radically-simpler-architecture/';
+	return map;
+}
+
 export const redirects = {
 	...legacyDocsRedirects(),
+	...bundleSplitRedirects(),
 	...cloudDocsRedirects(),
 	...selfHostRedirects(),
 	...guidesRedirects(),

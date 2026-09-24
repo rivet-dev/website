@@ -22,12 +22,21 @@ const ACTORS_LEARN_HREF_PREFIX = "/actors/learn";
 export interface SiteGuide {
 	slug: string;
 	title: string;
+	/** Sidebar group. Defaults to Solutions. */
+	group?: string;
 }
 
 export const SITE_GUIDES: SiteGuide[] = [
 	{ slug: "coding-agents", title: "Coding Agents" },
 	{ slug: "agent-app-builders", title: "Agent App Builders" },
 	{ slug: "company-agents", title: "Company-Specific Agents" },
+	{
+		// Prose rather than a worked example, so it sits in its own group rather
+		// than beside the solution guides.
+		slug: "a-radically-simpler-architecture",
+		title: "A Radically Simpler Architecture",
+		group: "Architecture",
+	},
 ];
 
 export function guideHref(slug: string): string {
@@ -61,11 +70,15 @@ export function rerootLearnHref(href: string): string {
 	return href;
 }
 
-/** The sidebar group that lists every website-owned guide. */
-export const SITE_GUIDES_SIDEBAR_GROUP: SidebarItem = {
-	title: "Solutions",
-	pages: SITE_GUIDES.map((guide) => ({
-		title: guide.title,
-		href: guideHref(guide.slug),
-	})),
-};
+/** The sidebar groups that list every website-owned guide, in first-seen order. */
+export const SITE_GUIDES_SIDEBAR_GROUPS: SidebarItem[] = SITE_GUIDES.reduce(
+	(groups: SidebarItem[], guide) => {
+		const title = guide.group ?? "Solutions";
+		const page = { title: guide.title, href: guideHref(guide.slug) };
+		const group = groups.find((candidate) => candidate.title === title);
+		if (group) group.pages.push(page);
+		else groups.push({ title, pages: [page] });
+		return groups;
+	},
+	[],
+);

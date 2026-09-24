@@ -10,7 +10,7 @@ Before diving into specific errors, try these general troubleshooting steps:
 
 - Check your server logs for `level=ERROR` or `level=WARN` messages.
 - Check if any of your backend processes have crashed or restarted unexpectedly.
-- If you need more diagnostics, set `RIVET_LOG_LEVEL=DEBUG` for verbose logging. See [Logging](/actors/docs/general/logging) for more options.
+- If you need more diagnostics, set `RIVET_LOG_LEVEL=DEBUG` for verbose logging. See [Logging](/actors/docs/logging) for more options.
 
 ## Reporting Issues
 
@@ -31,7 +31,7 @@ When reporting, please include:
 
 ## Actor status is crashed
 
-See [Actor Statuses](/actors/docs/statuses) for more about this status.
+See [Actor Statuses](/docs/statuses) for more about this status.
 
 The dashboard will show the specific failure reason. Common errors include:
 
@@ -41,7 +41,7 @@ The actor's `run` handler threw an unhandled exception or exited unexpectedly. C
 
 ### `no_capacity`
 
-No server was available to run your actor. The cause depends on your [runtime mode](/actors/docs/general/runtime-modes):
+No server was available to run your actor. The cause depends on your [runtime mode](/docs/runtime-modes):
 
 **Serverless**:
 
@@ -71,7 +71,7 @@ The actor could not be allocated because the concurrent actor limit was reached.
 
 ### `no_envoys`
 
-No server was available to run your actor. This is equivalent to `no_capacity` on the current allocation path. See the `no_capacity` section above for the causes and fixes for your [runtime mode](/actors/docs/general/runtime-modes).
+No server was available to run your actor. This is equivalent to `no_capacity` on the current allocation path. See the `no_capacity` section above for the causes and fixes for your [runtime mode](/docs/runtime-modes).
 
 ### `envoy_no_response`
 
@@ -141,20 +141,20 @@ Fix the error in the relevant lifecycle hook and redeploy.
 
 ## Actors not upgrading to new code
 
-If your actors are still running old code after deploying a new version, your [versioning](/actors/docs/versions) is likely not configured correctly.
+If your actors are still running old code after deploying a new version, your [versioning](/docs/versions) is likely not configured correctly.
 
-Without versioning, Rivet has no way to distinguish old deployments from new ones. The behavior depends on your [runtime mode](/actors/docs/general/runtime-modes):
+Without versioning, Rivet has no way to distinguish old deployments from new ones. The behavior depends on your [runtime mode](/docs/runtime-modes):
 
 - **Serverless**: Old requests may still be open from the previous deployment, so actors continue running on the old version's connection until those requests close.
 - **Runners**: The old runner container is still running and will continue accepting new actors. New actors may be scheduled on the old runner instead of the new one.
 
-To fix this, configure a version number in your [registry configuration](/actors/docs/general/registry-configuration). When a new version is deployed, Rivet will allocate new actors to the latest version and optionally drain old actors to migrate them.
+To fix this, configure a version number in your [registry configuration](/actors/docs/registry-configuration). When a new version is deployed, Rivet will allocate new actors to the latest version and optionally drain old actors to migrate them.
 
 ## Actor status is pending
 
-See [Actor Statuses](/actors/docs/statuses) for more about this status.
+See [Actor Statuses](/docs/statuses) for more about this status.
 
-An actor stays in "pending" status when Rivet is waiting for a server to accept it. The cause depends on your [runtime mode](/actors/docs/general/runtime-modes):
+An actor stays in "pending" status when Rivet is waiting for a server to accept it. The cause depends on your [runtime mode](/docs/runtime-modes):
 
 **Serverless**:
 

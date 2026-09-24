@@ -128,6 +128,9 @@ export const PRODUCTS: ProductMetadata[] = [
 		verb: "Orchestrate",
 		premise: "Give every agent a durable process to live in",
 		repo: "rivet",
+		// One of three bundles in that repo, beside `docs/general` (the
+		// product-agnostic docs at /docs/) and `docs/integrations`.
+		bundlePath: "docs/actors",
 		// Neutral graphite rather than a hue: Actors is the primitive under every
 		// other product, so it takes no color of its own. Reads on porcelain
 		// (5.7:1) and, lightened, on the dark theme.
@@ -215,13 +218,16 @@ export const PRODUCTS: ProductMetadata[] = [
 	},
 	{
 		// Third-party frameworks and SDKs that run on the actor types. A shared
-		// docs section, not a vertical: its pages sit under each product, so it
-		// has no bundle and no routes of its own. Listed here so it takes a mark
-		// and a gray tile beside the actor types in the docs tab strip.
+		// docs section rather than a vertical: it owns its bundle but renders at
+		// the site root (`/integrations/`) rather than under a product, and its
+		// sidebar is built from src/data/integrations.ts so it can carry vendor
+		// logos and category groups. Listed here so it takes a mark and a gray
+		// tile beside the actor types in the docs tab strip.
 		id: "integrations",
 		name: "Integrations",
 		tagline: "Third-party frameworks and SDKs backed by Rivet Actors",
-		repo: "rivet-website",
+		repo: "rivet",
+		bundlePath: "docs/integrations",
 		// Neutral gray, a step lighter than Actors' graphite so the two tiles
 		// read apart. White glyph at 5.1:1; lightened on the dark theme.
 		color: "#6B6E75",
@@ -278,7 +284,10 @@ export const PRODUCT_IDS = PRODUCTS.map((product) => product.id);
  * whose only tab links out to another product's docs (Sandboxes -> agentOS).
  */
 export function ownsDocsBundle(product: ProductMetadata): boolean {
-	if (product.section) return false;
+	// A shared section owns a bundle only when it says where that bundle is.
+	// Integrations does; its pages render at `/integrations/` rather than under
+	// a product vertical, but they are still authored in a product repo.
+	if (product.section) return Boolean(product.bundlePath ?? product.localBundle);
 	if (product.docsHome && (product.tabs ?? []).every((tab) => tab === "docs")) return false;
 	return true;
 }

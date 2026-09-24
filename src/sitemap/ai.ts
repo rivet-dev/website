@@ -4,11 +4,11 @@ export const AI_DOCS_ITEMS = [
 	{
 		id: "skills",
 		title: "Skills",
-		href: "/actors/docs/general/skill/",
-		contentId: "actors/docs/general/skill",
-		markdownPath: "actors/docs/general/skill",
+		href: "/docs/skill/",
+		contentId: "docs/skill",
+		markdownPath: "docs/skill",
 		editUrl:
-			"https://github.com/rivet-dev/rivet/edit/main/docs/content/docs/general/skill.mdx",
+			"https://github.com/rivet-dev/rivet/edit/main/docs/general/content/skill.mdx",
 		description:
 			"Install Rivet guidance and implementation patterns in supported AI coding assistants.",
 	},
@@ -19,7 +19,7 @@ export const AI_DOCS_ITEMS = [
 		contentId: "docs/mcp",
 		markdownPath: "docs/mcp",
 		editUrl:
-			"https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx",
+			"https://github.com/rivet-dev/rivet/edit/main/docs/general/content/mcp.mdx",
 		description:
 			"Connect Claude Code, Codex, Cursor, and other AI clients to Rivet.",
 	},
@@ -28,12 +28,12 @@ export const AI_DOCS_ITEMS = [
 export type AiDocsItem = (typeof AI_DOCS_ITEMS)[number];
 
 /**
- * Keep shared AI documentation inside the current product's docs shell. Actors
- * owns the canonical Skills page and is the default shell for the canonical MCP
- * page; every other product gets a noncanonical contextual alias.
+ * Keep shared AI documentation inside the current product's docs shell. Both
+ * canonical pages live in the product-agnostic bundle at `/docs/`; every
+ * product gets a noncanonical contextual alias under its own vertical.
  */
 export function aiDocsHref(item: AiDocsItem, productId?: string): string {
-	if (!productId || productId === "actors") return item.href;
+	if (!productId) return item.href;
 	return `/${productId}/docs/ai/${item.id}/`;
 }
 

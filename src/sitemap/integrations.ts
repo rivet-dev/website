@@ -9,11 +9,21 @@
  */
 export const INTEGRATIONS_ROUTE_PREFIX = "/integrations";
 
-/** The product whose integrations are the site's. */
+/**
+ * The product vertical whose Integrations tab is this section. Also the key its
+ * cards and sidebar are listed under in `src/data/integrations.ts`.
+ */
 export const SITE_INTEGRATIONS_PRODUCT = "actors";
 
+/**
+ * The bundle the pages are authored in. Integrations owns its own bundle in the
+ * `rivet-dev/rivet` (`docs/integrations`) rather than riding inside the Actors
+ * bundle, because it renders at the site root and covers more than one product.
+ */
+export const SITE_INTEGRATIONS_BUNDLE = "integrations";
+
 /** Content-collection prefix of those pages. */
-export const SITE_INTEGRATIONS_CONTENT_PREFIX = `${SITE_INTEGRATIONS_PRODUCT}/integrations`;
+export const SITE_INTEGRATIONS_CONTENT_PREFIX = `${SITE_INTEGRATIONS_BUNDLE}/docs`;
 
 /**
  * Href of a product's integrations page. The site product's pages sit at the

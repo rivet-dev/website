@@ -31,6 +31,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { PRODUCTS, ownsDocsBundle } from "../src/sitemap/product-metadata";
+import { DOCS_SOURCES, SITE_DOCS_NAMESPACE } from "../src/sitemap/docs-sources";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -38,7 +39,7 @@ const CONTENT_BASE = path.join(REPO_ROOT, "src/content/docs");
 
 // Runs under tsx so the product list comes from the one metadata file rather
 // than being duplicated here.
-const DOCS_SOURCES = Object.fromEntries(
+const BUNDLES = Object.fromEntries(
 	PRODUCTS.filter(ownsDocsBundle).map((product) => {
 		// A product serving another's bundle (`bundleOf`) links to the
 		// same source; its routes differ, its content does not.
@@ -60,13 +61,24 @@ const DOCS_SOURCES = Object.fromEntries(
 	}),
 );
 
+// The product-agnostic docs at `/docs/` are not a product vertical, so they are
+// not in PRODUCTS, but they are a bundle in a product repo like any other. The
+// namespace has no tab dimension, so its bundle content is flat and links in
+// exactly like a product's does.
+BUNDLES[SITE_DOCS_NAMESPACE] = {
+	sourceId: SITE_DOCS_NAMESPACE,
+	repo: DOCS_SOURCES[SITE_DOCS_NAMESPACE].repo,
+	localBundle: DOCS_SOURCES[SITE_DOCS_NAMESPACE].localBundle,
+	bundlePath: DOCS_SOURCES[SITE_DOCS_NAMESPACE].bundlePath ?? "docs",
+};
+
 const force = process.argv.includes("--force");
 
 /** Where a product's docs should come from, and how we found it. */
 function resolveTarget(productId, repo, localBundle, bundlePath = "docs") {
 	// A bundle in this repo has no sibling to prefer and no override to respect.
 	if (localBundle) {
-		const local = path.resolve(REPO_ROOT, localBundle, "docs/content");
+		const local = path.resolve(REPO_ROOT, localBundle, bundlePath, "content");
 		return existsSync(local)
 			? { target: local, via: "in-repo" }
 			: { target: null, via: "missing" };
@@ -98,7 +110,7 @@ const rows = [];
 const problems = [];
 
 for (const [productId, { sourceId, repo, localBundle, bundlePath }] of Object.entries(
-	DOCS_SOURCES,
+	BUNDLES,
 )) {
 	const linkPath = path.join(CONTENT_BASE, productId);
 	const current = describe(linkPath);
@@ -178,7 +190,7 @@ function collectIcons(node) {
 	for (const value of Object.values(node)) collectIcons(value);
 }
 
-for (const [productId] of Object.entries(DOCS_SOURCES)) {
+for (const [productId] of Object.entries(BUNDLES)) {
 	// The content link points at <repo>/docs/content; the sidebar sits beside it.
 	const contentLink = path.join(CONTENT_BASE, productId);
 	const sidebarPath = path.resolve(path.dirname(realpathSync(contentLink)), "sidebar.json");
@@ -221,13 +233,24 @@ console.log(`generated sidebars.json and sidebar-icons.ts (${sorted.length} icon
 const ARTIFACTS: Array<[product: string, from: string, to: string]> = [
 	["actors", "rivetkit-typescript/artifacts/actor-config.json", "actor-config.json"],
 	["actors", "rivetkit-typescript/artifacts/registry-config.json", "registry-config.json"],
-	["actors", "engine/artifacts/config-schema.json", "engine-config-schema.json"],
+	// Control-plane config, so it ships with the product-agnostic bundle.
+	[SITE_DOCS_NAMESPACE, "engine/artifacts/config-schema.json", "engine-config-schema.json"],
 	// agentOS software catalog, generated in that repo by scripts/gen-registry.mjs.
 	["agentos", "docs/registry.json", "registry.json"],
 ];
 
-const productRoot = (productId: string) =>
-	path.resolve(path.dirname(realpathSync(path.join(CONTENT_BASE, productId))), "..");
+// The repo root behind a bundle link. The link points at `<root>/<bundle>/content`,
+// so walk back out by however many segments the bundle path has. A vendored
+// bundle is always normalized to `vendor/<product>/docs`, whatever the product's
+// own bundle path is, so it walks back one.
+const productRoot = (productId: string) => {
+	const contentDir = realpathSync(path.join(CONTENT_BASE, productId));
+	const bundleRoot = path.resolve(contentDir, "..");
+	const vendorRoot = path.resolve(bundleRoot, "..");
+	if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId)) return vendorRoot;
+	const depth = (BUNDLES[productId]?.bundlePath ?? "docs").split("/").length;
+	return path.resolve(bundleRoot, ...Array(depth).fill(".."));
+};
 
 const artifactsDir = path.join(GENERATED, "artifacts");
 mkdirSync(artifactsDir, { recursive: true });
@@ -255,8 +278,12 @@ console.log(`copied ${ARTIFACTS.length} generated artifacts from the product rep
 // clobber a website asset.
 // ---------------------------------------------------------------------------
 let assetCount = 0;
-for (const productId of Object.keys(DOCS_SOURCES)) {
-	const from = path.join(productRoot(productId), "docs/public");
+for (const productId of Object.keys(BUNDLES)) {
+	const from = path.join(
+		productRoot(productId),
+		BUNDLES[productId]?.bundlePath ?? "docs",
+		"public",
+	);
 	if (!existsSync(from)) continue;
 	const walk = (dir: string) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {

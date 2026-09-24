@@ -37,8 +37,8 @@ export interface DocsSource {
 }
 
 const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
-	// Shared sections (Integrations) own no content bundle.
-	PRODUCTS.filter((product) => !product.section).map((product) => [
+	// A shared section owns a content bundle only when it declares one.
+	PRODUCTS.filter((product) => !product.section || product.bundlePath).map((product) => [
 		product.id,
 		{
 			repo: product.repo,
@@ -49,14 +49,19 @@ const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
 );
 
 /**
- * Website-owned documentation that sits beside, rather than inside, a product
- * vertical: the docs overview at `/docs/` and the pages under it.
+ * Product-agnostic documentation that sits beside, rather than inside, a
+ * product vertical: the docs overview at `/docs/` and the pages under it.
+ *
+ * It ships from `rivet-dev/rivet`'s `docs/general` bundle, next to the snippets
+ * and generated schemas its pages embed. Unlike a product bundle there is no
+ * tab dimension here, so the bundle's content is flat: `content/<slug>.mdx`
+ * links straight in as `docs/<slug>` and renders at `/docs/<slug>`.
  */
 export const SITE_DOCS_NAMESPACE = "docs";
 
 const SITE_DOCS_SOURCE: DocsSource = {
-	repo: "rivet-website",
-	localBundle: ".",
+	repo: "rivet",
+	bundlePath: "docs/general",
 };
 
 /** Namespaces whose content lives in this repository rather than a product bundle. */
