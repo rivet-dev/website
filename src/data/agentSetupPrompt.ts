@@ -45,7 +45,7 @@ export const AGENT_SETUP_PROMPTS = {
 		packageName: '@rivet-dev/workflows',
 		quickstartUrl: 'https://rivet.dev/workflows/docs/quickstart/',
 		docsUrl: 'https://rivet.dev/workflows/docs/',
-		issuesUrl: 'https://github.com/rivet-dev/rivet/issues',
+		issuesUrl: 'https://github.com/rivet-dev/workflows/issues',
 	}),
 	'dynamic-apps': buildAgentSetupPrompt({
 		product: 'Dynamic Apps',

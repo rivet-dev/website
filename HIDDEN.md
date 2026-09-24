@@ -45,7 +45,6 @@ Pages that render a TODO callout. These are live and indexed.
 | `/actors/docs/http-api` | rivet repo |
 | `/agentos/docs/software` (was `/agentos/docs/software`) | agentos repo |
 | `/dynamic-apps/docs`, `/docs/concepts`, `/docs/quickstart` | dynamic-apps repo — whole vertical unwritten |
-| `/workflows/docs`, `/docs/concepts`, `/docs/quickstart` | workflows repo — whole vertical unwritten |
 | `/secure-exec/docs` | secure-exec repo — docs not ported from secureexec.dev yet. `vendor/secure-exec` is a one-page placeholder bundle, and the Overview's deep docs links still point at `https://secureexec.dev/docs/*` until they land |
 
 ## Content parked, not published
