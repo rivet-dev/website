@@ -70,6 +70,10 @@ const explicitRedirects = {
 	'/docs/actors/scaling': '/actors/docs/design-patterns/',
 	'/actors/docs/sharing-and-joining-state': '/actors/docs/design-patterns/',
 	'/docs/actors/sharing-and-joining-state': '/actors/docs/design-patterns/',
+	// Access Control merged into Permissions when the Authentication section
+	// split credentials (Overview, JWTs, ACL) from in-Actor authorization.
+	'/actors/docs/access-control': '/actors/docs/permissions/',
+	'/docs/actors/access-control': '/actors/docs/permissions/',
 	'/docs/actors/ephemeral-variables': '/actors/docs/state/',
 	'/docs/actors/persistence': '/actors/docs/state/',
 	'/docs/actors/postgres': '/actors/docs/state/',
