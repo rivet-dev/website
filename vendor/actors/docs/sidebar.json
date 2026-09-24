@@ -105,14 +105,6 @@
 					"collapsible": true,
 					"pages": [
 						{
-							"title": "Authentication",
-							"href": "/actors/docs/authentication"
-						},
-						{
-							"title": "Access Control",
-							"href": "/actors/docs/access-control"
-						},
-						{
 							"title": "Connections",
 							"href": "/actors/docs/connections"
 						},
@@ -141,6 +133,10 @@
 						{
 							"title": "Lifecycle",
 							"href": "/actors/docs/lifecycle"
+						},
+						{
+							"title": "Permissions",
+							"href": "/actors/docs/permissions"
 						},
 						{
 							"title": "Input Parameters",
@@ -318,6 +314,10 @@
 				{
 					"title": "AI Agent",
 					"href": "/actors/learn/ai-agent"
+				},
+				{
+					"title": "Authenticate Users End to End",
+					"href": "/actors/learn/authentication"
 				},
 				{
 					"title": "Chat Room",
