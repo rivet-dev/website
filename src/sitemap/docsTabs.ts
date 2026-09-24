@@ -138,11 +138,10 @@ export function activeDocsTab(pathname: string): DocsTabId | undefined {
 	) {
 		return "deploy";
 	}
-	if (first === "docs") {
-		// `/docs/mcp/` renders inside the Actors docs sidebar (AI tools section);
-		// the rest of `/docs/` is the overview.
-		return second === "mcp" ? "actors" : "overview";
-	}
+	// Everything under `/docs/` is the product-agnostic overview, including the
+	// canonical AI Tools pages. Each product carries its own contextual alias
+	// under `/<product>/docs/ai/`, so no page here belongs to a product tab.
+	if (first === "docs") return "overview";
 	if (PRODUCTS.some((product) => product.id === first && product.standalone))
 		return undefined;
 	if (second === "docs" || second === "registry") return PRODUCT_TABS[first];

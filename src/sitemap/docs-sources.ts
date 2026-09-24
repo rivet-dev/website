@@ -59,6 +59,9 @@ const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
  */
 export const SITE_DOCS_NAMESPACE = "docs";
 
+/** Where that bundle renders. Note `/docs/deploy/` is a separate section. */
+export const SITE_DOCS_ROUTE_PREFIX = "/docs";
+
 const SITE_DOCS_SOURCE: DocsSource = {
 	repo: "rivet",
 	bundlePath: "docs/general",

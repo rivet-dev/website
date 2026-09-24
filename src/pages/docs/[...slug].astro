@@ -1,8 +1,8 @@
 ---
-// Website-owned documentation: /docs/{...slug}.
+// Product-agnostic documentation: /docs/{...slug}.
 //
 //   src/content/docs/docs/index.mdx  ->  /docs/       the docs overview
-//   src/content/docs/docs/mcp.mdx    ->  /docs/mcp/   rendered inside the Actors docs shell
+//   src/content/docs/docs/mcp.mdx    ->  /docs/mcp/   canonical AI Tools page
 //
 // Product documentation keeps its own /{product}/{tab}/{...slug} route, and
 // the Deploy section has its own routes under /docs/deploy/.
@@ -10,7 +10,8 @@ import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
-import { SITE_DOCS_NAMESPACE } from '@/sitemap/docs-sources';
+import { AI_DOCS_ITEMS } from '@/sitemap/ai';
+import { SITE_DOCS_NAMESPACE, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('docs');
@@ -33,27 +34,25 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
-const isMcp = entry.id === 'docs/mcp';
 const isOverview = entry.id === SITE_DOCS_NAMESPACE;
+// The AI Tools pages are canonical here and aliased into every product, so the
+// shared record owns their edit link back into the `rivet` bundle.
+const aiItem = AI_DOCS_ITEMS.find((item) => item.contentId === entry.id);
 ---
 
 <DocsArticlePage
 	entry={entry}
-	routePrefix="/docs"
+	routePrefix={SITE_DOCS_ROUTE_PREFIX}
 	entryIdPrefix={entryPrefix}
 	breadcrumbName="Documentation"
-	productId={isMcp ? 'actors' : undefined}
-	tabId={isMcp ? 'docs' : undefined}
-	sectionLabel={isMcp ? undefined : 'Documentation'}
+	sectionLabel="Documentation"
 	seoContextLabel="Rivet documentation"
-	canonicalUrl={isMcp ? 'https://rivet.dev/docs/mcp/' : isOverview ? 'https://rivet.dev/docs/' : undefined}
+	canonicalUrl={isOverview ? 'https://rivet.dev/docs/' : undefined}
 	editUrlOverride={
-		isMcp
-			? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx'
-			: isOverview
-				? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/index.mdx'
-				: undefined
+		isOverview
+			? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/index.mdx'
+			: aiItem?.editUrl
 	}
-	exactTitle={isMcp || isOverview}
+	exactTitle={aiItem?.id === 'mcp' || isOverview}
 	robots={robots}
 />

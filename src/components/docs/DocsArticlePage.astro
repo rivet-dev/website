@@ -18,6 +18,7 @@ import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
 import { integrationFor } from '@/data/integrations';
+import { SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
 import {
 	INTEGRATIONS_ROUTE_PREFIX,
 	SITE_INTEGRATIONS_CONTENT_PREFIX,
@@ -101,31 +102,33 @@ const integration = productId && tabId === 'integrations' && slugPath
 	? integrationFor(productId, slugPath)
 	: undefined;
 const discovered = findActiveTab(fullPath, sitemap);
+// The product-agnostic Overview section owns `/docs/`. Resolve it by route like
+// a product tab, because its AI Tools pages are injected into the sidebar below
+// rather than authored into it, so page lookup alone cannot find their tab.
+const isSiteDocsSection = routePrefix === SITE_DOCS_ROUTE_PREFIX;
 const routeOwnedTab = productId && tabId
 	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
-	: undefined;
+	: isSiteDocsSection
+		? sitemap.find((tab) => tab.href.replace(/\/$/, '') === SITE_DOCS_ROUTE_PREFIX)
+		: undefined;
 const activeTab = routeOwnedTab ?? discovered?.tab;
 const sourceSidebar = activeTab?.sidebar ?? [];
-// Product Documentation tabs (and `/docs/mcp/`, which renders in the Actors
-// shell) carry the site-wide AI Tools group. The overview at `/docs/` and the
-// Deploy section do not.
-const sidebar = tabId === 'docs' ? withAiSidebarSection(sourceSidebar, productId) : sourceSidebar;
+// Every Documentation sidebar carries the site-wide AI Tools group: the
+// canonical pages under `/docs/`, and a contextual alias inside each product.
+// Guides, Deploy, and Integrations do not.
+const sidebar = tabId === 'docs' || isSiteDocsSection
+	? withAiSidebarSection(sourceSidebar, productId)
+	: sourceSidebar;
 const activePage = activeTab
 	? findPageForHref(fullPath, { ...activeTab, sidebar })
 	: discovered?.page;
-const discoveredParentPage = activePage?.parent;
-const rawParentPage =
-	discoveredParentPage &&
-	'title' in discoveredParentPage &&
-	discoveredParentPage.title === 'AI Integration'
-		? { ...discoveredParentPage, title: 'AI Tools' }
-		: discoveredParentPage;
+const parentPageCandidate = activePage?.parent;
 // A section's overview page sits inside a sidebar section of the same name, so
 // the eyebrow would just repeat the h1 ("Control Plane" over "Control Plane").
 const parentPage =
-	rawParentPage && 'title' in rawParentPage && rawParentPage.title === title
+	parentPageCandidate && 'title' in parentPageCandidate && parentPageCandidate.title === title
 		? undefined
-		: rawParentPage;
+		: parentPageCandidate;
 const hasSidebar = sidebar.length > 0;
 const canonicalUrl = canonicalUrlOverride ?? `https://rivet.dev${fullPath}`;
 

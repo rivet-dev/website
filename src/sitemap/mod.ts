@@ -4,6 +4,7 @@ import { overviewSidebar } from "./overview";
 import { DEPLOY_ROUTE_PREFIX } from "./deploy";
 import { GUIDES_ROUTE_PREFIX } from "./guides";
 import { INTEGRATIONS_ROUTE_PREFIX, SITE_INTEGRATIONS_PRODUCT } from "./integrations";
+import { SITE_DOCS_ROUTE_PREFIX } from "./docs-sources";
 import { integrationSidebar } from "@/data/integrations";
 
 export * from "./products";
@@ -28,7 +29,11 @@ export const sitemap = [
 				sidebar: tab.sidebar,
 			})),
 	),
-	{ title: "Overview", href: "/docs/", sidebar: overviewSidebar },
+	{
+		title: "Overview",
+		href: `${SITE_DOCS_ROUTE_PREFIX}/`,
+		sidebar: overviewSidebar,
+	},
 	{
 		title: "Guides",
 		href: `${GUIDES_ROUTE_PREFIX}/`,

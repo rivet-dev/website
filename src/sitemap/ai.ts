@@ -47,22 +47,36 @@ export function aiSidebarSection(productId?: string): SidebarItem {
 	};
 }
 
+/** Group and page titles an imported bundle may still use for these pages. */
+const LEGACY_AI_TITLES: ReadonlySet<string> = new Set([
+	"AI",
+	"AI Tools",
+	"AI Integration",
+]);
+
+const isLegacyAiTitle = (title: string | undefined) =>
+	title !== undefined && LEGACY_AI_TITLES.has(title);
+
 /**
  * Add the site-wide AI links to a rendered Documentation sidebar without
  * making those links part of every product's route-owning sitemap.
+ *
+ * Imported sidebars are synced from the product repositories on their own
+ * schedule, so one may still carry a hand-authored version of this group. Drop
+ * those first; the injected group is the single source of truth.
  */
 export function withAiSidebarSection(
 	sidebar: readonly SidebarItem[],
 	productId?: string,
 ): SidebarItem[] {
 	const normalized = sidebar
-		.filter((item) => item.title !== "AI" && item.title !== "AI Tools")
+		.filter((item) => !isLegacyAiTitle(item.title))
 		.map((item) => {
 			if (!("pages" in item)) return item;
 			return {
 				...item,
 				pages: item.pages.filter(
-					(page) => !("title" in page) || page.title !== "AI Integration",
+					(page) => !("title" in page) || !isLegacyAiTitle(page.title),
 				),
 			};
 		});
