@@ -17,6 +17,7 @@
 		"render-byoc-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-byoc-hero.ts",
 		"render-otel-hero": "tsx ./.claude/skills/create-launch-post/scripts/render-otel-hero.ts",
 		"render-technical-image": "tsx ./.claude/skills/create-launch-post/scripts/render-technical-image.ts",
+		"render:og": "tsx ./scripts/render-og-images.ts",
 		"gen:markdown": "tsx ./scripts/generate-markdown.ts",
 		"index:search": "tsx ./scripts/index-search.ts",
 		"gen:skills": "tsx ./scripts/generate-skills.ts",

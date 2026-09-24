@@ -5,6 +5,7 @@ import { Header } from '@/components/v2/Header';
 import { SITE_PAGE_CLASS } from '@/components/marketing/layout';
 import { activeDocsTab } from '@/sitemap/docsTabs';
 import { getProduct } from '@/sitemap/products';
+import { productOgImage } from '@/lib/ogImage';
 
 interface Props {
 	title: string;
@@ -44,6 +45,9 @@ const {
 	productId,
 	tabId = 'overview',
 } = Astro.props;
+// Link preview: pages inside a product vertical (compare pages, the agentOS
+// registry) inherit that product's card; other pages take the site-wide card.
+const effectiveOgImage = ogImage ?? productOgImage(productId);
 const pathname = Astro.url.pathname;
 // Standalone subsites (agentOS, Secure Exec) always take the two-row header:
 // their product bar is the subnav on every page of the subsite.
@@ -56,7 +60,7 @@ const showDocsHeader =
 	title={title}
 	description={description}
 	canonicalUrl={canonicalUrl}
-	ogImage={ogImage}
+	ogImage={effectiveOgImage}
 	ogImageAlt={ogImageAlt}
 	ogImageWidth={ogImageWidth}
 	ogImageHeight={ogImageHeight}

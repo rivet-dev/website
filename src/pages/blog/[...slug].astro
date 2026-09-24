@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { ogImageFor } from '@/lib/ogImage';
 import BlogLayout from '@/layouts/BlogLayout.astro';
 import BlogArticle from '@/components/BlogArticle.astro';
 import { getPostImage } from '@/lib/postImage';
@@ -69,7 +70,7 @@ const breadcrumbSchema = {
 	title={seo.title}
 	description={seo.description}
 	canonicalUrl={`https://rivet.dev/blog/${slug}/`}
-	ogImage={image?.src}
+	ogImage={image?.src ?? ogImageFor('blog')}
 	ogImageWidth={image?.width}
 	ogImageHeight={image?.height}
 	publishedTime={entry.data.published.toISOString()}

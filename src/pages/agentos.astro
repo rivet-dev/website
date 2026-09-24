@@ -2,6 +2,7 @@
 import AgentOSPage, { FILESYSTEM_CODE } from '@/components/marketing/agentos/AgentOSPage';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { highlightCodeHtml } from '@/lib/highlight-code';
+import { ogImageFor } from '@/lib/ogImage';
 
 const heroTabSnippets = [
 	{ key: 'cron', fileName: 'agent-loop.ts', code: `import { createClient } from "@rivet-dev/agentos/client";
@@ -238,7 +239,7 @@ const filesystemHighlightedCode = await highlightCodeHtml(FILESYSTEM_CODE, 'ts')
 	title="agentOS - A Computer for Every Agent"
 	description="A virtual operating system for agents, with files, processes, shell, and networking in one lightweight library."
 	canonicalUrl="https://rivet.dev/agentos/"
-	ogImage="https://assets.rivet.dev/website/public/promo/og/agentos.png"
+	ogImage={ogImageFor('agentos')}
 >
 	<AgentOSPage
 		heroTabs={heroTabs}

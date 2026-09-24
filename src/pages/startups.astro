@@ -1,6 +1,7 @@
 ---
 import { getImage } from 'astro:assets';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import StartupsPage from '@/components/marketing/startups/StartupsPage';
 const imgFounders = { src: "https://assets.rivet.dev/website/images/yc-founders.jpg", width: 5925, height: 3942, format: "jpg" };
 const imgSpeedrun = { src: "https://assets.rivet.dev/website/images/a16z-speedrun.jpg", width: 2048, height: 1365, format: "jpg" };
@@ -25,6 +26,7 @@ const optimizedSpeedrun = await getImage({
 	title="Cloud Infrastructure for YC and a16z Startups"
 	description="Get 50% off Rivet Cloud for YC and a16z Speedrun companies. Build on infrastructure for the agentic era with support designed for startups."
 	canonicalUrl="https://rivet.dev/startups/"
+	ogImage={ogImageFor('startups')}
 >
 	<StartupsPage
 		client:load

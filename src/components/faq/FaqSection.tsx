@@ -63,29 +63,33 @@ export function FaqList({ items, theme = 'dark' }: FaqListProps) {
 				const answerId = `faq-answer-${index}`;
 				return (
 					<div key={item.question} className="pb-2">
-						{/* The row's vertical padding sits on the button, not the wrapper,
-						    so the whole row is a hit target rather than just the text line. */}
-						<button
-							type="button"
-							onClick={() => setOpenIndex(open ? null : index)}
-							aria-expanded={open}
-							aria-controls={answerId}
-							className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-md pt-5 pb-3 text-left text-base font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${styles.focus} ${styles.question}`}
-						>
-							{item.question}
-							<svg
-								viewBox="0 0 16 16"
-								aria-hidden="true"
-								className={`h-4 w-4 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${open ? 'rotate-45' : ''} ${styles.icon}`}
+						{/* Each question is an h3 so the FAQ reads as an outline to crawlers
+						    and screen readers; the button inside it keeps the disclosure
+						    behaviour. The row's vertical padding sits on the button, not the
+						    wrapper, so the whole row is a hit target rather than just the text line. */}
+						<h3 className="m-0 text-base font-medium">
+							<button
+								type="button"
+								onClick={() => setOpenIndex(open ? null : index)}
+								aria-expanded={open}
+								aria-controls={answerId}
+								className={`flex w-full cursor-pointer items-center justify-between gap-4 rounded-md pt-5 pb-3 text-left text-base font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${styles.focus} ${styles.question}`}
 							>
-								<path
-									d="M8 2v12M2 8h12"
-									stroke="currentColor"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-								/>
-							</svg>
-						</button>
+								{item.question}
+								<svg
+									viewBox="0 0 16 16"
+									aria-hidden="true"
+									className={`h-4 w-4 flex-shrink-0 transition-transform duration-300 ease-out motion-reduce:transition-none ${open ? 'rotate-45' : ''} ${styles.icon}`}
+								>
+									<path
+										d="M8 2v12M2 8h12"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+									/>
+								</svg>
+							</button>
+						</h3>
 						<motion.div
 							id={answerId}
 							inert={!open}

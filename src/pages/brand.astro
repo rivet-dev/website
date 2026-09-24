@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import { jsonLdString } from '@/lib/jsonLd';
 import {
@@ -67,6 +68,7 @@ const inlineLink =
 	title="Brand kit: logos, colors, and press assets"
 	description="Logos, product marks, colors, and typography for the Rivet brand. Download the full press kit or copy any asset for docs, decks, and articles."
 	canonicalUrl="https://rivet.dev/brand/"
+	ogImage={ogImageFor('brand')}
 >
 	<script type="application/ld+json" set:html={jsonLdString(brandBreadcrumb)} />
 	<main id="main-content" tabindex="-1">

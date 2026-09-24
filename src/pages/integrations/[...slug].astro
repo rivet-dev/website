@@ -6,6 +6,7 @@
 // src/sitemap/integrations.ts. Standalone subsites (agentOS) keep their own
 // `/<product>/integrations/` tab through the per-product route.
 import { getCollection } from 'astro:content';
+import { ogImageFor } from '@/lib/ogImage';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
@@ -40,6 +41,7 @@ const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 	entryIdPrefix={`${SITE_INTEGRATIONS_CONTENT_PREFIX}/`}
 	routeSlugOverride={routeSlugOverride}
 	breadcrumbName="Integrations"
+	ogImage={ogImageFor('integrations')}
 	productId={SITE_INTEGRATIONS_PRODUCT}
 	tabId="integrations"
 	seoContextLabel="Rivet Integrations"

@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import { jsonLdString } from '@/lib/jsonLd';
 import { DeploymentBoundaryDiagram } from '@/components/marketing/diagrams/DeploymentBoundaryDiagram';
 import { CatalogCard } from '@/components/marketing/editorial/CatalogCard';
@@ -102,7 +103,7 @@ const enterpriseEditionFeatures = [
 ];
 ---
 
-<MarketingLayout title={title} description={description} canonicalUrl={canonicalUrl}>
+<MarketingLayout title={title} description={description} canonicalUrl={canonicalUrl} ogImage={ogImageFor('enterprise')}>
 	<script type="application/ld+json" set:html={jsonLdString(breadcrumbSchema)} />
 	<main id="main-content" tabindex="-1">
 			<!-- Hero -->
