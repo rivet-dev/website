@@ -64,12 +64,12 @@ export function GitHubStarsDropdown({
 	};
 
 	useEffect(() => {
-		fetchStars("rivet-dev/actors", setRivetStars);
+		fetchStars("rivet-dev/rivet", setRivetStars);
 	}, []);
 
 	return (
 		<a
-			href="https://github.com/rivet-dev/actors"
+			href="https://github.com/rivet-dev/rivet"
 			target="_blank"
 			rel="noreferrer"
 			className={cn("flex items-center gap-2 transition-colors", className)}
