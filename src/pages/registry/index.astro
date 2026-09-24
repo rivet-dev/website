@@ -1,0 +1,68 @@
+---
+// The Rivet Registry: actor types the orchestrator schedules. A sibling of the
+// product verticals rather than a tab inside one, because the catalog spans all
+// of them. Shares the agentOS storefront components, with its own taxonomy.
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import RegistryPageClient from '@/components/marketing/registry/RegistryPageClient';
+import type { RegistryCardEntry } from '@/components/marketing/registry/RegistryPageClient';
+import { actorRegistry, ACTOR_REGISTRY_CATEGORIES } from '@/data/actor-registry';
+import { isListed } from '@/sitemap/products';
+import {
+	SITE_SECTION_CLASS,
+	SITE_STANDARD_RAIL_CLASS,
+	SITE_UTILITY_HERO_CLASS,
+} from '@/components/marketing/layout';
+import { SectionRule } from '@/components/marketing/SectionRule';
+import { HERO_H1_CLASS, SUBTITLE_CLASS } from '@/components/marketing/typography';
+
+// Slim each entry down to the fields the storefront renders, so the detail
+// copy never ships in the island's serialized props. Unlaunched products
+// (Agents, for now) keep their entry but are not listed.
+const entries: RegistryCardEntry[] = actorRegistry
+	.filter((entry) => !entry.productId || isListed(entry.productId))
+	.map((entry) => ({
+		slug: entry.slug,
+		title: entry.title,
+		description: entry.description,
+		types: entry.types,
+		status: "docs",
+		featured: entry.featured,
+		beta: entry.beta,
+		icon: entry.icon,
+		image: entry.image,
+		productId: entry.productId,
+		href: entry.href,
+	}));
+---
+
+<MarketingLayout
+	title="Actor Registry - Rivet"
+	description="Browse the Actor types that run on Rivet: agents, workflows, sandboxes, dynamic apps, and the frameworks built on top of them."
+	canonicalUrl="https://rivet.dev/registry/"
+>
+	<main id="main-content" tabindex="-1">
+		<section class={SITE_UTILITY_HERO_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS} data-site-reveal>
+				<h1 class={HERO_H1_CLASS}>Rivet Registry</h1>
+				<p class={`${SUBTITLE_CLASS} max-w-2xl`}>
+					Every workload on Rivet is an Actor. These are the ones you can start
+					from, and the frameworks that run on them.
+				</p>
+			</div>
+		</section>
+
+		<SectionRule />
+
+		<section class={SITE_SECTION_CLASS}>
+			<div class={SITE_STANDARD_RAIL_CLASS}>
+				<RegistryPageClient
+					entries={entries}
+					hrefBase="/registry/"
+					categoryOrder={ACTOR_REGISTRY_CATEGORIES}
+					footerCta={false}
+					client:load
+				/>
+			</div>
+		</section>
+	</main>
+</MarketingLayout>

@@ -16,10 +16,6 @@ A complete deployment, end to end.
 - A [Freestyle](https://freestyle.sh) account
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -35,8 +31,6 @@ import { registry } from "./index";
 // @ts-ignore
 Deno.serve((request: Request) => registry.handler(request));
 ```
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -116,10 +110,6 @@ Once the runner config is applied, the deployment appears as connected in the da
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Next steps
 

@@ -105,14 +105,6 @@
 					"collapsible": true,
 					"pages": [
 						{
-							"title": "Authentication",
-							"href": "/actors/docs/authentication"
-						},
-						{
-							"title": "Access Control",
-							"href": "/actors/docs/access-control"
-						},
-						{
 							"title": "Connections",
 							"href": "/actors/docs/connections"
 						},
@@ -143,6 +135,10 @@
 							"href": "/actors/docs/lifecycle"
 						},
 						{
+							"title": "Permissions",
+							"href": "/actors/docs/permissions"
+						},
+						{
 							"title": "Input Parameters",
 							"href": "/actors/docs/input"
 						},
@@ -157,10 +153,6 @@
 						{
 							"title": "Destroying",
 							"href": "/actors/docs/destroy"
-						},
-						{
-							"title": "Statuses",
-							"href": "/actors/docs/statuses"
 						}
 					]
 				},
@@ -177,8 +169,12 @@
 							"href": "/actors/docs/sqlite-profiling"
 						},
 						{
+							"title": "Low-Level KV Storage",
+							"href": "/actors/docs/kv"
+						},
+						{
 							"title": "Logging",
-							"href": "/actors/docs/general/logging"
+							"href": "/actors/docs/logging"
 						},
 						{
 							"title": "Errors",
@@ -189,7 +185,7 @@
 							"href": "/actors/docs/testing"
 						},
 						{
-							"title": "Debugging",
+							"title": "Debugging Actors",
 							"href": "/actors/docs/debugging"
 						},
 						{
@@ -198,11 +194,7 @@
 						},
 						{
 							"title": "CORS",
-							"href": "/actors/docs/general/cors"
-						},
-						{
-							"title": "Versions & Upgrades",
-							"href": "/actors/docs/versions"
+							"href": "/actors/docs/cors"
 						},
 						{
 							"title": "Icons & Names",
@@ -220,10 +212,6 @@
 						{
 							"title": "Limits",
 							"href": "/actors/docs/limits"
-						},
-						{
-							"title": "Regions & Multi-Region",
-							"href": "/actors/docs/general/edge"
 						}
 					]
 				}
@@ -278,77 +266,31 @@
 				},
 				{
 					"title": "Production Checklist",
-					"href": "/actors/docs/general/production-checklist"
-				},
-				{
-					"title": "CLI",
-					"href": "/actors/docs/cli"
+					"href": "/actors/docs/production-checklist"
 				},
 				{
 					"title": "Configuration",
 					"collapsible": true,
 					"pages": [
 						{
-							"title": "Runtime Modes",
-							"href": "/actors/docs/general/runtime-modes"
-						},
-						{
-							"title": "WASM vs Native SDK",
-							"href": "/actors/docs/general/wasm-vs-native-sdk"
-						},
-						{
 							"title": "Registry Configuration",
-							"href": "/actors/docs/general/registry-configuration"
+							"href": "/actors/docs/registry-configuration"
 						},
 						{
 							"title": "Actor Configuration",
-							"href": "/actors/docs/general/actor-configuration"
-						},
-						{
-							"title": "Environment Variables",
-							"href": "/actors/docs/general/environment-variables"
+							"href": "/actors/docs/actor-configuration"
 						},
 						{
 							"title": "HTTP Server",
-							"href": "/actors/docs/general/http-server"
+							"href": "/actors/docs/http-server"
 						},
 						{
-							"title": "Endpoints",
-							"href": "/actors/docs/general/endpoints"
+							"title": "Environment Variables",
+							"href": "/actors/docs/environment-variables"
 						},
 						{
-							"title": "Pool Configuration",
-							"href": "/actors/docs/general/pool-configuration"
-						},
-						{
-							"title": "Container Runner",
-							"href": "/actors/docs/container-runner"
-						}
-					]
-				},
-				{
-					"title": "API Reference",
-					"collapsible": true,
-					"pages": [
-						{
-							"title": "OpenAPI",
-							"href": "https://github.com/rivet-dev/rivet/tree/main/rivetkit-openapi",
-							"external": true
-						},
-						{
-							"title": "AsyncAPI",
-							"href": "https://github.com/rivet-dev/rivet/tree/main/rivetkit-asyncapi",
-							"external": true
-						}
-					]
-				},
-				{
-					"title": "AI Integration",
-					"collapsible": true,
-					"pages": [
-						{
-							"title": "Skill File",
-							"href": "/actors/docs/general/skill"
+							"title": "WASM vs Native SDK",
+							"href": "/actors/docs/wasm-vs-native-sdk"
 						}
 					]
 				}
@@ -367,20 +309,15 @@
 			]
 		},
 		{
-			"title": "Architecture",
-			"pages": [
-				{
-					"title": "A Radically Simpler Architecture",
-					"href": "/actors/learn/a-radically-simpler-architecture"
-				}
-			]
-		},
-		{
 			"title": "Guides",
 			"pages": [
 				{
 					"title": "AI Agent",
 					"href": "/actors/learn/ai-agent"
+				},
+				{
+					"title": "Authenticate Users End to End",
+					"href": "/actors/learn/authentication"
 				},
 				{
 					"title": "Chat Room",
@@ -405,39 +342,6 @@
 				{
 					"title": "Multiplayer Game",
 					"href": "/actors/learn/multiplayer-game"
-				}
-			]
-		}
-	],
-	"integrations": [
-		{
-			"title": "General",
-			"pages": [
-				{
-					"title": "Overview",
-					"href": "/actors/integrations",
-					"icon": "faSquareInfo"
-				}
-			]
-		},
-		{
-			"title": "Integrations",
-			"pages": [
-				{
-					"title": "Durable Streams",
-					"href": "/actors/integrations/durable-streams"
-				},
-				{
-					"title": "Flue",
-					"href": "/actors/integrations/flue"
-				},
-				{
-					"title": "Vercel Eve",
-					"href": "/actors/integrations/vercel-eve"
-				},
-				{
-					"title": "Workflow SDK (Beta)",
-					"href": "/actors/integrations/workflow-sdk"
 				}
 			]
 		}

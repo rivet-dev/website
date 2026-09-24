@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { productLogos } from "@/sitemap/productLogos";
 
 export type ProductMotifId =
   "actors" | "agentos" | "workflows" | "dynamic-apps";
@@ -8,6 +7,17 @@ export interface ProductMotifProps {
   productId: ProductMotifId;
   surface: "card" | "hero";
 }
+
+// The motifs rest still and run on hover. main.css keys each one's
+// animation-play-state to a class on the hovered card, not on the motif, so
+// whichever card wraps a card-surface motif must carry this class or the
+// artwork never moves.
+export const productMotifCardClass: Record<ProductMotifId, string> = {
+  actors: "actors-card",
+  workflows: "workflow-card",
+  agentos: "agentos-card",
+  "dynamic-apps": "dynamic-apps-card",
+};
 
 // Workflows draws the execution route as a bundle of three nested serpentine
 // lanes — no task boxes, just the path. Each lane is the same meander offset
@@ -406,10 +416,10 @@ const AgentOSMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   </svg>
 );
 
-// This is the exact outer rounded square from the Actors product mark. Drawing
-// only that path removes the old accent-colored center cover and makes the
-// outline reusable over both product blue and the porcelain hero.
-const ActorsMarkOutline = () => (
+// This is the exact outer rounded square from the Actors product mark, drawn
+// as a stroke only so it sits on any plate color: the hero draws it as a
+// hairline in the motif line color, the card as the mark's own white ring.
+const ActorsMarkOutline = ({ surface }: Pick<ProductMotifProps, "surface">) => (
   <svg className="actors-logo actors-logo--outline" viewBox="0 0 128 128">
     <rect
       className="actors-logo-outline-path"
@@ -418,7 +428,7 @@ const ActorsMarkOutline = () => (
       width="91.5"
       height="91.5"
       rx="25.75"
-      vectorEffect="non-scaling-stroke"
+      vectorEffect={surface === "card" ? undefined : "non-scaling-stroke"}
     />
   </svg>
 );
@@ -453,18 +463,7 @@ const ActorsMotif = ({ surface }: Pick<ProductMotifProps, "surface">) => (
               } as CSSProperties
             }
           >
-            {surface === "card" ? (
-              <>
-                <img
-                  alt=""
-                  className="actors-logo actors-logo--outline"
-                  src={productLogos.actors.src}
-                />
-                <span className="actors-logo-center-cover bg-product-actors" />
-              </>
-            ) : (
-              <ActorsMarkOutline />
-            )}
+            <ActorsMarkOutline surface={surface} />
           </span>
         ))}
       </div>

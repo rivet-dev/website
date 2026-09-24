@@ -1,3 +1,6 @@
+import { cn } from "@rivet-gg/components";
+import { ProductBadge } from "@/components/ProductBar";
+import { getProduct } from "@/sitemap/products";
 import type { RegistryIconName } from "../../../data/registry-icons";
 import { REGISTRY_ICONS } from "../../../data/registry-icons";
 
@@ -40,6 +43,11 @@ const TILE_SURFACE =
 	"relative flex shrink-0 items-center justify-center overflow-hidden " +
 	"ring-1 ring-ink/[0.08]";
 
+// Vendor logos are drawn for a white plate, so in dark mode the plate stays
+// white and the tile forces a light color-scheme (theme.css); that keeps
+// currentColor SVGs loaded via <img> resolving to black.
+const LOGO_PLATE = `registry-logo-plate ${TILE_SURFACE} bg-white`;
+
 function monogramTint(title: string) {
 	let hash = 0;
 	for (const char of title) hash = (hash + char.charCodeAt(0)) % 997;
@@ -50,6 +58,12 @@ interface RegistryIconTileProps {
 	title: string;
 	image?: string;
 	icon?: RegistryIconName;
+	/**
+	 * Product whose accent tile and wordmark this entry wears. Takes precedence
+	 * over `image` and `icon`, so an actor type looks the same in the catalog as
+	 * it does on the landing page.
+	 */
+	productId?: string;
 	size: number;
 	className?: string;
 }
@@ -58,6 +72,7 @@ export function RegistryIconTile({
 	title,
 	image,
 	icon,
+	productId,
 	size,
 	className,
 }: RegistryIconTileProps) {
@@ -66,6 +81,19 @@ export function RegistryIconTile({
 		height: size,
 		borderRadius: Math.round(size * 0.24),
 	};
+
+	// The product color is the tile, never the mark — same rule ProductBadge
+	// enforces everywhere else products are listed.
+	const product = productId ? getProduct(productId) : undefined;
+	if (product) {
+		return (
+			<ProductBadge
+				product={product}
+				className={cn("shrink-0", className)}
+				style={{ width: size, height: size }}
+			/>
+		);
+	}
 
 	if (image) {
 		if (BLEED_IMAGES.has(image)) {
@@ -82,10 +110,7 @@ export function RegistryIconTile({
 			);
 		}
 		return (
-			<div
-				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
-				style={frame}
-			>
+			<div className={`${LOGO_PLATE} ${className ?? ""}`} style={frame}>
 				<img
 					src={image}
 					alt=""
@@ -103,10 +128,7 @@ export function RegistryIconTile({
 	if (icon) {
 		const IconComponent = REGISTRY_ICONS[icon];
 		return (
-			<div
-				className={`${TILE_SURFACE} bg-white ${className ?? ""}`}
-				style={frame}
-			>
+			<div className={`${LOGO_PLATE} ${className ?? ""}`} style={frame}>
 				<IconComponent
 					className="text-ink-soft"
 					style={{ width: size * 0.5, height: size * 0.5 }}

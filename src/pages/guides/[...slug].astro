@@ -1,0 +1,99 @@
+---
+// The Guides tab: /guides/{...slug}
+//
+//   src/content/docs/actors/learn/**   the Actors bundle's guides, re-rooted here
+//   src/content/guides/*.mdx           website-owned: the overview (`index`) and
+//                                      the solution guides (SITE_GUIDES)
+//
+// All share the sidebar built by `guidesSidebar()` in src/sitemap/products.ts.
+// The overview is website-owned rather than the bundle's `learn/index.mdx`
+// because it is generated from that sidebar (`GuideCards`).
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { createGuideCards } from '@/components/docs/GuideCards';
+import { getContentParamSlug } from '@/lib/content-path';
+import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
+import {
+	ACTORS_LEARN_CONTENT_PREFIX,
+	GUIDES_ROUTE_PREFIX,
+	SITE_GUIDES,
+	guideHref,
+} from '@/sitemap/guides';
+
+export async function getStaticPaths() {
+	// `getStaticPaths` is hoisted, so anything it uses must be declared inside.
+	const GUIDES_OVERVIEW_ID = 'index';
+	const paths = [];
+	const siteGuides = new Map((await getCollection('guides')).map((entry) => [entry.id, entry]));
+
+	// Every guide's description, keyed by its site href, for the overview cards.
+	const descriptions: Record<string, string | undefined> = {};
+
+	const learnPrefix = `${ACTORS_LEARN_CONTENT_PREFIX}/`;
+	for (const entry of await getCollection('docs')) {
+		// The glob loader collapses `learn/index.mdx` to the id `actors/learn`;
+		// that page is replaced by the website-owned overview below.
+		if (entry.id === ACTORS_LEARN_CONTENT_PREFIX) continue;
+		if (!entry.id.startsWith(learnPrefix)) continue;
+		const slug = entry.id.slice(learnPrefix.length);
+		descriptions[guideHref(slug)] = entry.data.description;
+		paths.push({
+			params: { slug: getContentParamSlug(slug) },
+			props: {
+				entry,
+				editUrlOverride: `https://github.com/rivet-dev/rivet/edit/main/docs/actors/content/learn/${slug}.mdx`,
+			},
+		});
+	}
+
+	for (const guide of SITE_GUIDES) {
+		const entry = siteGuides.get(guide.slug);
+		if (!entry) {
+			throw new Error(
+				`src/sitemap/guides.ts lists "${guide.slug}" but src/content/guides/${guide.slug}.mdx is missing`,
+			);
+		}
+		descriptions[guideHref(guide.slug)] = entry.data.description;
+		paths.push({
+			params: { slug: guide.slug },
+			props: {
+				entry,
+				editUrlOverride: `https://github.com/rivet-dev/website/edit/main/src/content/guides/${guide.slug}.mdx`,
+			},
+		});
+	}
+
+	const overview = siteGuides.get(GUIDES_OVERVIEW_ID);
+	if (!overview) {
+		throw new Error(`The Guides overview src/content/guides/${GUIDES_OVERVIEW_ID}.mdx is missing`);
+	}
+	paths.push({
+		params: { slug: undefined },
+		props: {
+			entry: overview,
+			routeSlugOverride: '',
+			editUrlOverride: `https://github.com/rivet-dev/website/edit/main/src/content/guides/${GUIDES_OVERVIEW_ID}.mdx`,
+			descriptions,
+		},
+	});
+
+	return paths;
+}
+
+const { entry, routeSlugOverride, editUrlOverride, descriptions } = Astro.props;
+const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix={GUIDES_ROUTE_PREFIX}
+	entryIdPrefix={`${ACTORS_LEARN_CONTENT_PREFIX}/`}
+	routeSlugOverride={routeSlugOverride}
+	breadcrumbName="Guides"
+	seoContextLabel="Rivet Guides"
+	editUrlOverride={editUrlOverride}
+	extraComponents={descriptions ? {
+		GuideCards: createGuideCards({ overviewHref: guideHref(''), descriptions }),
+	} : {}}
+	robots={robots}
+/>

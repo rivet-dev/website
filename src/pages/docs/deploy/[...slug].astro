@@ -1,0 +1,91 @@
+---
+// The Deploy section, one route for every page under it:
+//
+//   /docs/deploy/                    <- src/content/self-host/index.mdx (overview)
+//   /docs/deploy/self-host/{...}     <- src/content/self-host/**  (from deployMatrix)
+//   /docs/deploy/cloud/{...}         <- cloud/docs/content/docs/**
+//   /docs/deploy/byoc/{...}          <- cloud/docs/content/byoc/**
+//
+// The self-host guides are one shared copy for every product; their route set
+// comes from `deployMatrix`, which also builds the sidebar, so the two cannot
+// disagree about which guides exist. All four groups share one sidebar.
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { createSelfHostLink } from '@/components/docs/SelfHostLink';
+import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
+import {
+	CLOUD_BUNDLE_ID,
+	DEPLOY_ROUTE_PREFIX,
+	SELF_HOST_ROUTE_PREFIX,
+	deployRouteSlugForContentId,
+	deployRouteSlugForSelfHostGuide,
+} from '@/sitemap/deploy';
+import { selfHostGuides } from '@/sitemap/deployMatrix';
+
+const SECTION_LABELS: Record<string, string> = {
+	cloud: 'Rivet Cloud',
+	byoc: 'Rivet BYOC',
+	'self-host/workers': 'Rivet Worker Self-Host',
+	'self-host/control-plane': 'Rivet Control Plane Self-Host',
+	'self-host': 'Rivet Self-Host',
+};
+
+export async function getStaticPaths() {
+	const paths = [];
+
+	const selfHost = await getCollection('selfHost');
+	const byId = new Map(selfHost.map((entry) => [entry.id, entry]));
+	for (const guide of selfHostGuides()) {
+		// `index` collapses to the section root in the glob loader, so
+		// `workers/index.mdx` has the id `workers`.
+		const entry = byId.get(guide.slug);
+		if (!entry) {
+			throw new Error(
+				`Self-host guide source missing for "${guide.slug}". Add src/content/self-host/${guide.slug}.mdx or remove it from deployMatrix.`,
+			);
+		}
+		const routeSlug = deployRouteSlugForSelfHostGuide(guide.slug);
+		paths.push({
+			params: { slug: routeSlug },
+			props: { entry, routeSlug: routeSlug ?? '', selfHost: true },
+		});
+	}
+
+	const docs = await getCollection('docs');
+	for (const entry of docs) {
+		if (!entry.id.startsWith(`${CLOUD_BUNDLE_ID}/`)) continue;
+		// `cloud/docs/compute` -> `cloud/compute`
+		const routeSlug = deployRouteSlugForContentId(entry.id);
+		if (!routeSlug) {
+			throw new Error(`No Deploy route for docs entry "${entry.id}"; see src/sitemap/deploy.ts`);
+		}
+		paths.push({
+			params: { slug: routeSlug },
+			props: { entry, routeSlug, selfHost: false },
+		});
+	}
+	return paths;
+}
+
+const { entry, routeSlug, selfHost } = Astro.props;
+const segments = routeSlug.split('/');
+const seoContextLabel =
+	SECTION_LABELS[segments.slice(0, 2).join('/')] ?? SECTION_LABELS[segments[0]] ?? 'Rivet Deploy';
+// The Cloud bundle's own path, for the edit link: `cloud/docs/compute` -> `docs/compute.mdx`.
+const bundlePath = selfHost ? '' : entry.id.slice(`${CLOUD_BUNDLE_ID}/`.length);
+const bundleFile = /^(docs|byoc)$/.test(bundlePath) ? `${bundlePath}/index.mdx` : `${bundlePath}.mdx`;
+const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix={DEPLOY_ROUTE_PREFIX}
+	routeSlugOverride={routeSlug}
+	breadcrumbName="Deploy"
+	seoContextLabel={seoContextLabel}
+	editUrlOverride={selfHost ? undefined : `https://github.com/rivet-dev/website/edit/main/cloud/docs/content/${bundleFile}`}
+	extraComponents={{
+		SelfHostLink: createSelfHostLink(SELF_HOST_ROUTE_PREFIX),
+	}}
+	robots={robots}
+/>

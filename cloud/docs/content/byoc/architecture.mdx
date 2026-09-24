@@ -55,13 +55,13 @@ For a fully air-gapped deployment, [contact us](/talk-to-an-engineer/).
 
 Use the `private_endpoint` in your Terraform deployment outputs from your VPC or a connected network. Inside the same Kubernetes cluster, you can also use `http://rivet-engine.rivet.svc.cluster.local:6420` (replace `rivet` if you changed `kubernetes_namespace`).
 
-Authenticate with your admin token. See [Credentials & dashboard](/cloud/byoc/credentials) to retrieve it.
+Authenticate with your admin token. See [Credentials & dashboard](/docs/deploy/byoc/credentials) to retrieve it.
 
 ### From a public endpoint
 
-When `rivet_endpoint_access` is `public`, use your configured hostname, such as `https://rivet.mycompany.com`. HTTPS is configured automatically after [DNS setup](/cloud/byoc/quickstart#configure-dns-for-public-access).
+When `rivet_endpoint_access` is `public`, use your configured hostname, such as `https://rivet.mycompany.com`. HTTPS is configured automatically after [DNS setup](/docs/deploy/byoc/quickstart#configure-dns-for-public-access).
 
-Authenticate with your [admin token](/cloud/byoc/credentials), or [create a public token using ACL](/actors/self-host/control-plane/rbac#publishable-key).
+Authenticate with your [admin token](/docs/deploy/byoc/credentials), or [create a public token using ACL](/docs/deploy/self-host/control-plane/rbac#publishable-key).
 
 ## Multi-region
 
@@ -71,5 +71,5 @@ Each region has its own VPC, Kubernetes cluster, operator, and Rivet deployment.
 
 ## Next steps
 
-- [BYOC quickstart](/cloud/byoc/quickstart)
-- [Connect workers](/actors/self-host/workers)
+- [BYOC quickstart](/docs/deploy/byoc/quickstart)
+- [Connect workers](/docs/deploy/self-host/workers)

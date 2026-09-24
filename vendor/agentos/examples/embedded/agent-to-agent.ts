@@ -1,5 +1,5 @@
 import pi from "@agentos-software/pi";
-import { AgentOs, type Bindings } from "@rivet-dev/agentos-core";
+import { AgentOs } from "@rivet-dev/agentos-core";
 import { z } from "zod";
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -13,29 +13,27 @@ await reviewer.sessions.open({
 	env: { ANTHROPIC_API_KEY: apiKey },
 });
 
-const review: Bindings = {
-	name: "review",
-	description: "Ask the reviewer agent for feedback",
-	bindings: {
-		draft: {
-			description: "Review a draft",
-			inputSchema: z.object({ draft: z.string() }),
-			execute: async ({ draft }: { draft: string }) => {
-				const response = await reviewer.sessions.prompt({
-					content: [{ type: "text", text: `Review this draft:\n\n${draft}` }],
-				});
-				const feedback =
-					response.message?.content
-						.filter((block) => block.type === "text")
-						.map((block) => block.text)
-						.join("") ?? "";
-				return { feedback };
-			},
+const review = {
+	draft: {
+		inputSchema: z.object({ draft: z.string() }).describe("Review a draft"),
+		execute: async ({ draft }: { draft: string }) => {
+			const response = await reviewer.sessions.prompt({
+				content: [{ type: "text", text: `Review this draft:\n\n${draft}` }],
+			});
+			const feedback =
+				response.message?.content
+					.filter((block) => block.type === "text")
+					.map((block) => block.text)
+					.join("") ?? "";
+			return { feedback };
 		},
 	},
 };
 
-const writer = await AgentOs.create({ software: [pi], bindings: [review] });
+const writer = await AgentOs.create({
+	software: [pi],
+	hostFunctions: { review: review },
+});
 
 try {
 	await writer.sessions.open({
@@ -46,7 +44,7 @@ try {
 		content: [
 			{
 				type: "text",
-				text: "Draft a release note, then ask the review binding for feedback.",
+				text: "Draft a release note, then ask the review host function for feedback.",
 			},
 		],
 	});

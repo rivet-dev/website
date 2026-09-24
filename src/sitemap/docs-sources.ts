@@ -28,27 +28,53 @@ export interface DocsSource {
 	 * Takes precedence over `repo`.
 	 */
 	localBundle?: string;
+	/**
+	 * Bundle directory inside the product's repo, when it is not `docs/`. The
+	 * product's repo root stays the snippet root, so a bundle at
+	 * `secure-exec/docs` still resolves `secure-exec/examples/...` snippets.
+	 */
+	bundlePath?: string;
 }
 
 const PRODUCT_DOCS_SOURCES: Record<string, DocsSource> = Object.fromEntries(
-	PRODUCTS.map((product) => [
+	// A shared section owns a content bundle only when it declares one.
+	PRODUCTS.filter((product) => !product.section || product.bundlePath).map((product) => [
 		product.id,
 		{
 			repo: product.repo,
 			localBundle: product.localBundle,
+			bundlePath: product.bundlePath,
 		},
 	]),
 );
 
-/** Website-owned documentation that sits beside, rather than inside, a product vertical. */
+/**
+ * Product-agnostic documentation that sits beside, rather than inside, a
+ * product vertical: the docs overview at `/docs/` and the pages under it.
+ *
+ * It ships from `rivet-dev/rivet`'s `docs/general` bundle, next to the snippets
+ * and generated schemas its pages embed. Unlike a product bundle there is no
+ * tab dimension here, so the bundle's content is flat: `content/<slug>.mdx`
+ * links straight in as `docs/<slug>` and renders at `/docs/<slug>`.
+ */
 export const SITE_DOCS_NAMESPACE = "docs";
+
+/** Where that bundle renders. Note `/docs/deploy/` is a separate section. */
+export const SITE_DOCS_ROUTE_PREFIX = "/docs";
+
+const SITE_DOCS_SOURCE: DocsSource = {
+	repo: "rivet",
+	bundlePath: "docs/general",
+};
+
+/** Namespaces whose content lives in this repository rather than a product bundle. */
+export const SITE_DOCS_NAMESPACES: ReadonlySet<string> = new Set([
+	SITE_DOCS_NAMESPACE,
+]);
 
 export const DOCS_SOURCES: Record<string, DocsSource> = {
 	...PRODUCT_DOCS_SOURCES,
-	[SITE_DOCS_NAMESPACE]: {
-		repo: "rivet-website",
-		localBundle: ".",
-	},
+	[SITE_DOCS_NAMESPACE]: SITE_DOCS_SOURCE,
 };
 
 export const DOCS_PRODUCT_IDS = Object.keys(DOCS_SOURCES);

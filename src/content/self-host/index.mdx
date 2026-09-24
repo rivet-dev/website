@@ -1,36 +1,40 @@
 ---
-title: "Self-Host"
-description: "Choose self-hosting, BYOW (Bring Your Own Workers), or fully managed BYOC (Bring Your Own Cloud)."
+title: "Deploy"
+description: "Choose where the control plane and your workers run: Rivet Cloud, bring your own cloud, or self-host."
 ---
 
 import SelfHostByocDiagram from '@/components/docs/SelfHostByocDiagram.astro';
 
-## Self-host vs BYOW vs BYOC
+## Deployment Options
 
-Choose where your control plane and workers run, and who manages them.
+Workers always run your code, so you always own them. The options differ in where the control plane and storage run, and who operates them.
 
-| | Self-host | BYOW | BYOC |
+| | Control plane and storage | Workers | Operated by |
 | --- | --- | --- | --- |
-| **Control plane and storage** | Your infrastructure | Rivet Cloud | Your VPC |
-| **Managed by** | You | Rivet | Rivet |
-| **Workers** | You manage | You manage | You manage |
+| **Rivet Cloud & managed workers** | Rivet Cloud | Rivet Compute | Rivet |
+| **Rivet Cloud & bring your own worker** | Rivet Cloud | Your infrastructure | Rivet |
+| **Bring your own cloud** | Your VPC | Your infrastructure | Rivet |
+| **Self-host** | Your infrastructure | Your infrastructure | You |
 
-### Self-host
+### Rivet Cloud & managed workers
 
-You run and maintain the workers, control plane, and storage. Choose this when you need to operate the stack yourself, including fully air-gapped deployments.
+Rivet Cloud runs the control plane, storage, and your workers on [Rivet Compute](/docs/deploy/cloud/compute). Nothing to operate; deploy from the [Rivet dashboard](https://dashboard.rivet.dev).
 
-<svg viewBox="0 0 760 210" role="img" aria-label="Self-hosted architecture with a worker, the control plane, and storage connected bidirectionally inside your infrastructure." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
-  <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
-  <rect x="20" y="25" width="720" height="160" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
-  <text x="42" y="51" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">YOUR INFRASTRUCTURE</text>
-  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="82" width="170" height="64" rx="7" fill="#ffffff"/><rect x="295" y="82" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="520" y="82" width="170" height="64" rx="7" fill="#ffffff"/></g>
-  <g text-anchor="middle" fill="#1b1916"><text x="155" y="108" font-size="14" font-weight="600">Worker</text><text x="155" y="128" font-size="12" fill="#56524a">(your code)</text><text x="380" y="120" font-size="14" font-weight="600">Control plane</text><text x="605" y="120" font-size="14" font-weight="600">Storage</text></g>
-  <g stroke="#2E4034" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
+<svg viewBox="0 0 760 230" role="img" aria-label="Fully managed architecture: your worker runs on Rivet Compute alongside the control plane and storage, all inside Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="cloud-managed-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <rect x="20" y="25" width="720" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <rect x="48" y="65" width="214" height="120" rx="8" fill="none" stroke="#2E4034" stroke-width="1" stroke-opacity=".45"/>
+  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034"><text x="42" y="51">RIVET CLOUD</text><text x="66" y="89">RIVET COMPUTE</text></g>
+  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="103" width="170" height="64" rx="7" fill="#ffffff"/><rect x="317" y="103" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="542" y="103" width="170" height="64" rx="7" fill="#ffffff"/></g>
+  <g text-anchor="middle" fill="#1b1916"><text x="155" y="129" font-size="14" font-weight="600">Worker</text><text x="155" y="149" font-size="12" fill="#56524a">(your code)</text><text x="402" y="141" font-size="14" font-weight="600">Control plane</text><text x="627" y="141" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="#2E4034" stroke-width="1.4"><line x1="263" y1="135" x2="316" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/><line x1="488" y1="135" x2="541" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/></g>
 </svg>
 
-### BYOW (Bring Your Own Workers)
+See the [Cloud overview](/docs/deploy/cloud).
 
-You run your workers on your infrastructure. Rivet Cloud hosts and manages the control plane and storage, so you only maintain your application code and worker infrastructure.
+### Rivet Cloud & bring your own worker
+
+Rivet Cloud runs the control plane and storage. Your workers run on your own infrastructure and connect outbound, so you keep your code and data next to the rest of your stack.
 
 <svg viewBox="0 0 760 230" role="img" aria-label="Bring your own workers: a worker in your infrastructure connects to the control plane and storage hosted in Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs><marker id="byoc-cloud-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
@@ -41,15 +45,30 @@ You run your workers on your infrastructure. Rivet Cloud hosts and manages the c
   <g stroke="#2E4034" stroke-width="1.4"><line x1="221" y1="120" x2="324" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/><line x1="486" y1="120" x2="549" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/></g>
 </svg>
 
-See <SelfHostLink to="workers">worker deployment options</SelfHostLink> and manage your project in the [Rivet dashboard](https://dashboard.rivet.dev).
+See <SelfHostLink to="workers">Deploy Workers</SelfHostLink>.
 
-### BYOC (Bring Your Own Cloud)
+### Bring your own cloud
 
-Rivet Enterprise Edition and FoundationDB run inside your VPC, fully managed by Rivet. An operator in your cluster pulls deployment instructions from Rivet Cloud and maintains the deployment. You manage your workers.
+Rivet Enterprise Edition and FoundationDB run inside your VPC, operated by Rivet. An operator in your cluster pulls deployment instructions from Rivet Cloud and maintains the deployment. Your workers run alongside it.
 
 <SelfHostByocDiagram />
 
-See the [BYOC quickstart](/cloud/byoc/quickstart).
+See the [BYOC quickstart](/docs/deploy/byoc/quickstart).
+
+### Self-host
+
+You run the workers, control plane, and storage. Choose this when you need to operate the stack yourself, including fully air-gapped deployments.
+
+<svg viewBox="0 0 760 210" role="img" aria-label="Self-hosted architecture with a worker, the control plane, and storage connected bidirectionally inside your infrastructure." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
+  <rect x="20" y="25" width="720" height="160" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="42" y="51" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">YOUR INFRASTRUCTURE</text>
+  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="82" width="170" height="64" rx="7" fill="#ffffff"/><rect x="295" y="82" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="520" y="82" width="170" height="64" rx="7" fill="#ffffff"/></g>
+  <g text-anchor="middle" fill="#1b1916"><text x="155" y="108" font-size="14" font-weight="600">Worker</text><text x="155" y="128" font-size="12" fill="#56524a">(your code)</text><text x="380" y="120" font-size="14" font-weight="600">Control plane</text><text x="605" y="120" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="#2E4034" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
+</svg>
+
+See <SelfHostLink to="control-plane">Self-Host</SelfHostLink>.
 
 ## Architecture
 
@@ -59,15 +78,8 @@ Rivet has 3 core components:
 - **Control plane**: The orchestration service that manages actor lifecycle, routes messages, and serves the API.
 - **Storage**: The persistence layer for actor state and the messaging infrastructure for real-time communication.
 
-## Storage backends
-
-- **File system**: Recommended for single-node deployments
-- **PostgreSQL**: Recommended for multi-node deployments; production-ready for light-to-moderate workloads, not built for enterprise scale
-- **FoundationDB**: Best scalability and performance for production deployments ([requires enterprise](/talk-to-an-engineer/))
-
-See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for configuration.
-
 ## Next steps
 
-- <SelfHostLink to="control-plane">Run a control plane</SelfHostLink>
-- <SelfHostLink to="workers">Run workers</SelfHostLink>
+- [Deploy on Rivet Cloud](/docs/deploy/cloud)
+- <SelfHostLink to="workers">Deploy workers</SelfHostLink>
+- <SelfHostLink to="control-plane">Self-host the control plane</SelfHostLink>

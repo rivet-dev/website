@@ -1,0 +1,47 @@
+---
+// The Integrations section: /integrations/{...slug}
+//
+// Pages come from the Actors bundle's `integrations` section
+// (src/content/docs/actors/integrations/**), re-rooted here; see
+// src/sitemap/integrations.ts. Standalone subsites (agentOS) keep their own
+// `/<product>/integrations/` tab through the per-product route.
+import { getCollection } from 'astro:content';
+import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { getContentParamSlug } from '@/lib/content-path';
+import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
+import {
+	INTEGRATIONS_ROUTE_PREFIX,
+	SITE_INTEGRATIONS_CONTENT_PREFIX,
+	SITE_INTEGRATIONS_PRODUCT,
+} from '@/sitemap/integrations';
+
+export async function getStaticPaths() {
+	const prefix = `${SITE_INTEGRATIONS_CONTENT_PREFIX}/`;
+	const paths = [];
+	for (const entry of await getCollection('docs')) {
+		// The glob loader collapses `integrations/index.mdx` to the directory id.
+		const isRoot = entry.id === SITE_INTEGRATIONS_CONTENT_PREFIX;
+		if (!isRoot && !entry.id.startsWith(prefix)) continue;
+		paths.push({
+			params: { slug: isRoot ? undefined : getContentParamSlug(entry.id.slice(prefix.length)) },
+			props: { entry, routeSlugOverride: isRoot ? '' : undefined },
+		});
+	}
+	return paths;
+}
+
+const { entry, routeSlugOverride } = Astro.props;
+const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
+---
+
+<DocsArticlePage
+	entry={entry}
+	routePrefix={INTEGRATIONS_ROUTE_PREFIX}
+	entryIdPrefix={`${SITE_INTEGRATIONS_CONTENT_PREFIX}/`}
+	routeSlugOverride={routeSlugOverride}
+	breadcrumbName="Integrations"
+	productId={SITE_INTEGRATIONS_PRODUCT}
+	tabId="integrations"
+	seoContextLabel="Rivet Integrations"
+	robots={robots}
+/>

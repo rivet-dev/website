@@ -35,7 +35,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 		{
 			title: 'Provides monitoring and observability',
 			description:
-				'When you need built-in monitoring for actors that integrates with your existing observability stack',
+				'When you need built-in monitoring for Actors that integrates with your existing observability stack',
 		},
 		{
 			title: 'Rich ecosystem of integrations',
@@ -166,7 +166,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'Actor support',
 					rivet: {
 						status: 'yes',
-						text: 'First-class actor model with Rivet Actors library',
+						text: 'First-class Actor model with Rivet Actors library',
 					},
 					competitor: {
 						status: 'yes',
@@ -179,7 +179,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'KV Persistence',
 					rivet: {
 						status: 'yes',
-						text: 'Built-in KV storage for actors',
+						text: 'Built-in KV storage for Actors',
 					},
 					competitor: {
 						status: 'yes',
@@ -194,7 +194,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 						status: 'yes',
 						text: (
 							<>
-								Built-in SQLite database per actor with raw SQL and Drizzle support.{' '}
+								Built-in SQLite database per Actor with raw SQL and Drizzle support.{' '}
 								<a href="https://rivet.dev/actors/docs/sqlite/">Learn more</a>.
 							</>
 						),
@@ -236,7 +236,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'Event broadcasting',
 					rivet: {
 						status: 'yes',
-						text: 'Built-in event broadcasting to specific connections or all actors',
+						text: 'Built-in event broadcasting to specific connections or all Actors',
 					},
 					competitor: {
 						status: 'partial',
@@ -272,7 +272,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 						'Comprehensive testing capabilities ensure code quality and reliability',
 				},
 				{
-					feature: 'Customizable actor lifecycle',
+					feature: 'Customizable Actor lifecycle',
 					rivet: {
 						status: 'yes',
 						text: 'Flexible draining mechanism with configurable lifecycle management',
@@ -285,7 +285,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 						'Customizable lifecycle management allows for graceful state transfers and prevents data loss',
 				},
 				{
-					feature: 'Control over actor upgrades',
+					feature: 'Control over Actor upgrades',
 					rivet: {
 						status: 'yes',
 						text: 'Full control based on your existing rollout mechanisms',
@@ -301,20 +301,20 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'Actor creation with input data',
 					rivet: {
 						status: 'yes',
-						text: 'Pass initialization data when creating actors',
+						text: 'Pass initialization data when creating Actors',
 					},
 					competitor: {
 						status: 'no',
 						text: 'Cannot pass input data during Durable Object creation',
 					},
 					importance:
-						'Ability to initialize actors with data simplifies setup and reduces boilerplate',
+						'Ability to initialize Actors with data simplifies setup and reduces boilerplate',
 				},
 				{
 					feature: 'Actor shutdown control',
 					rivet: {
 						status: 'yes',
-						text: 'Clean shutdown API for actors',
+						text: 'Clean shutdown API for Actors',
 					},
 					competitor: {
 						status: 'partial',
@@ -371,33 +371,33 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'State inspector',
 					rivet: {
 						status: 'yes',
-						text: 'Built-in tools to inspect and modify actor state',
+						text: 'Built-in tools to inspect and modify Actor state',
 					},
 					competitor: {
 						status: 'partial',
 						text: 'Data Studio can view and edit SQLite-backed Durable Object storage from the dashboard; in-memory state is not inspectable',
 					},
 					importance:
-						'Ability to view & edit actor state in real time simplifies debugging and management',
+						'Ability to view & edit Actor state in real time simplifies debugging and management',
 				},
 				{
 					feature: 'RPC debugger',
 					rivet: {
 						status: 'yes',
-						text: 'Interactive RPC testing tools for actors',
+						text: 'Interactive RPC testing tools for Actors',
 					},
 					competitor: {
 						status: 'no',
 						text: 'No built-in RPC debugging',
 					},
 					importance:
-						'Ability to test remote procedure calls to actors accelerates development and troubleshooting',
+						'Ability to test remote procedure calls to Actors accelerates development and troubleshooting',
 				},
 				{
 					feature: 'Connection inspector',
 					rivet: {
 						status: 'yes',
-						text: 'Real-time monitoring of actor connections',
+						text: 'Real-time monitoring of Actor connections',
 					},
 					competitor: {
 						status: 'no',
@@ -410,14 +410,14 @@ export const cloudflareDurableObjects: CompareEntry = {
 					feature: 'Actor listing and management',
 					rivet: {
 						status: 'yes',
-						text: 'Browse and manage active actors with full interaction capabilities',
+						text: 'Browse and manage active Actors with full interaction capabilities',
 					},
 					competitor: {
 						status: 'partial',
 						text: 'Can list Durable Objects but cannot interact with them',
 					},
 					importance:
-						'Being able to list and interact with live actors enables debugging and operational management',
+						'Being able to list and interact with live Actors enables debugging and operational management',
 				},
 			],
 		},
@@ -464,7 +464,7 @@ export const cloudflareDurableObjects: CompareEntry = {
 		{
 			question: 'Is Rivet an alternative to Cloudflare Durable Objects?',
 			answerHtml:
-				'Yes. Rivet Actors provide the same stateful actor model as Durable Objects, including persistent state, WebSockets, and scheduling, as an open-source platform that runs on Rivet Cloud or your own infrastructure. See the <a href="https://rivet.dev/actors/docs/">Rivet Actors documentation</a> for details.',
+				'Yes. Rivet Actors provide the same stateful Actor model as Durable Objects, including persistent state, WebSockets, and scheduling, as an open-source platform that runs on Rivet Cloud or your own infrastructure. See the <a href="https://rivet.dev/actors/docs/">Rivet Actors documentation</a> for details.',
 		},
 		{
 			question: 'Can I run Rivet Actors outside of a single cloud provider?',
@@ -499,6 +499,6 @@ export const cloudflareDurableObjects: CompareEntry = {
 		'durable objects',
 		'cloudflare workers alternative',
 		'stateful serverless',
-		'actor model',
+		'Actor model',
 	],
 };

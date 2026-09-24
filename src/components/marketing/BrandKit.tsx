@@ -96,7 +96,7 @@ export function LogoGallery() {
 				>
 					<div
 						className={`flex h-44 items-center justify-center border-b border-ink/10 ${
-							logo.ground === "dark" ? "ink-grain bg-ink" : "bg-white"
+							logo.ground === "dark" ? "ink-grain bg-ink" : "registry-logo-plate bg-white"
 						}`}
 					>
 						<img src={logo.src} alt={`Rivet ${logo.title.toLowerCase()}`} className={logo.imgClass} />
@@ -129,9 +129,9 @@ export function LogoGallery() {
 
 // --- Product marks ---------------------------------------------------------
 
-// Display order matches the sitemap (Rivet Cloud is hidden from the switcher
-// but still carried, so it is pulled in explicitly).
-const PRODUCT_ORDER = ["actors", "agentos", "workflows", "dynamic-apps", "cloud"];
+// Display order matches the sitemap (Rivet Cloud and Secure Exec are hidden
+// from the switcher but still carried, so they are pulled in explicitly).
+const PRODUCT_ORDER = ["actors", "agentos", "workflows", "dynamic-apps", "secure-exec", "cloud"];
 
 // Standalone, accent-colored versions of each badge (tile baked in), generated
 // under public/images/brand/ so the marks are downloadable exactly as shown.
@@ -144,7 +144,7 @@ export function ProductMarkGallery() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+			<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
 				{ordered.map((product) => {
 					const accent = productAccent(product.id);
 					const hex = accent?.hex ?? "#1B1916";
@@ -155,10 +155,10 @@ export function ProductMarkGallery() {
 						>
 							<ProductBadge product={product} className="size-14" />
 							<div className="flex flex-col items-center gap-1">
-								<div className="flex items-center gap-1.5">
-									<span className="text-sm font-medium text-ink">{product.name}</span>
+								<div className="flex flex-wrap items-center justify-center gap-1.5">
+									<span className="whitespace-nowrap text-sm font-medium text-ink">{product.name}</span>
 									{product.badge ? (
-										<span className="rounded-full border border-ink/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-ink-faint">
+										<span className="rounded border border-ink/15 px-1.5 py-px text-[11px] font-medium leading-4 text-ink-faint">
 											{product.badge}
 										</span>
 									) : null}

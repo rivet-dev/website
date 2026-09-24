@@ -101,9 +101,9 @@ const platformLinks: StackLink[] = [
     .filter((option): option is DeployOption => option !== undefined)
     .map((option) => ({
       name: option.shortTitle || option.displayName,
-      href: `/actors/self-host/workers/${option.slug}/`,
+      href: `/docs/deploy/self-host/workers/${option.slug}/`,
     })),
-  { name: "+ more", href: "/actors/self-host/workers/" },
+  { name: "+ more", href: "/docs/deploy/self-host/workers/" },
 ];
 
 const groups: StackGroup[] = [
@@ -115,7 +115,7 @@ const groups: StackGroup[] = [
     icon: Blocks,
     items: integrations.map((integration) => ({
       name: integration.title,
-      href: `/actors/integrations/${integration.slug}`,
+      href: `/integrations/${integration.slug}/`,
     })),
   },
 ];

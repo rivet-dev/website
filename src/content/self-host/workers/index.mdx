@@ -90,8 +90,6 @@ Rivet requires Node 22 or newer, so pin an active LTS. Prefer the Debian-based i
 
 Runner-mode workers listen on no port, so the image sets none. Serverless platforms inject their own `PORT`.
 
-<ProductSlot name="snippet" />
-
 ## Graceful shutdown
 
 Actors drain for up to 30 minutes when a worker stops. Give the process at least **35 minutes** between `SIGTERM` and `SIGKILL`, and make sure your process actually receives the signal: a wrapper such as `npm start` becomes PID 1 and swallows it. Invoke your binary directly, or run `dumb-init` or `tini` as PID 1.

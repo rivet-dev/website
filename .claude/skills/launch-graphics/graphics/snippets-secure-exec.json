@@ -1,0 +1,7 @@
+[
+	{
+		"title": "",
+		"language": "ts",
+		"code": "import { evaluate } from \"secure-exec\";\n\nconst untrustedCode = generateText(/* ... */);\n\nconst result = await evaluate(untrustedCode, {\n  hostFunctions: {\n    customers: {\n      findAccounts: {\n        inputSchema: z.object({ industry: z.string() }),\n        execute: ({ industry }) => crm.findAccounts(industry),\n      },\n      // ...\n    },\n  },\n});"
+	}
+]

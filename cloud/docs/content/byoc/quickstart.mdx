@@ -53,7 +53,7 @@ Update these common settings in `terraform.tfvars.json`:
 - **Endpoint access** (`rivet_endpoint_access`): Choose `private` for private HTTP or `public` for public HTTPS plus private HTTP.
 - **Public hostname** (`rivet_hostname`): A hostname such as `"rivet.mycompany.com"` for public access; omit for private access.
 
-See [Configuration](/cloud/byoc/configuration) for more settings.
+See [Configuration](/docs/deploy/byoc/configuration) for more settings.
 
 <Tabs>
 <Tab title="AWS">
@@ -140,18 +140,20 @@ Rivet will notify you when the control plane has been deployed.
 </Step>
 <Step title="Get credentials and view Rivet dashboard">
 
-Follow the [Credentials & dashboard guide](/cloud/byoc/credentials).
+Follow the [Credentials & dashboard guide](/docs/deploy/byoc/credentials).
 
 </Step>
 <Step title="Connect a worker">
 
 Deploy a worker on:
 
-- [Kubernetes](/actors/self-host/workers/kubernetes)
-- [AWS ECS](/actors/self-host/workers/aws-ecs)
-- [Google Cloud Run](/actors/self-host/workers/gcp-cloud-run)
-- [AWS Lambda](/actors/self-host/workers/aws-lambda)
-- [More options](/actors/self-host/workers)
+- [Kubernetes](/docs/deploy/self-host/workers/kubernetes)
+- [AWS ECS](/docs/deploy/self-host/workers/aws-ecs)
+- [Google Cloud Run](/docs/deploy/self-host/workers/gcp-cloud-run)
+- [AWS Lambda](/docs/deploy/self-host/workers/aws-lambda)
+- [More options](/docs/deploy/self-host/workers)
 
 </Step>
 </Steps>
+
+To share cluster metrics after deployment, follow [Shipping metrics](/docs/deploy/byoc/shipping-metrics).

@@ -18,19 +18,28 @@ src/generated/
 # slash matches only directories. With one, git happily tracks the link itself
 # and a developer's local target path ends up committed.
 src/content/docs/actors
+src/content/docs/docs
+src/content/docs/integrations
+src/content/docs/agents
 src/content/docs/agentos
 src/content/docs/cloud
 src/content/docs/dynamic-apps
+src/content/docs/secure-exec
 src/content/docs/workflows
 
 # Written into public/ by `pnpm gen:markdown` and `pnpm gen:skills`: the
 # Markdown mirror of every docs page, and the per-product AI skills. Derived
 # from the docs on every build, so never committed.
 /public/actors/
+/public/agents/
 /public/agentos/
 /public/cloud/
 /public/dynamic-apps/
 /public/docs/
+/public/docs.md
+/public/guides/
+/public/guides.md
+/public/secure-exec/
 /public/workflows/
 /public/metadata/
 

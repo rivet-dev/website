@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
-import { getDocsPath } from '../metadata/shared';
+import { getDocsPath, isRoutedDocsContentId } from '../metadata/shared';
 
 export const prerender = true;
 
@@ -14,9 +14,9 @@ export const GET: APIRoute = async ({ site }) => {
 		getCollection('posts'),
 	]);
 
-	// Build docs URLs (exclude cloud docs)
+	// Build docs URLs (exclude cloud docs and bundles served under another product)
 	const docsUrls = docs
-		.filter(doc => !doc.id.startsWith('cloud'))
+		.filter(doc => !doc.id.startsWith('cloud') && isRoutedDocsContentId(doc.id))
 		.map(doc => {
 			const cleanPath = doc.id.replace(/\/index$/, '').replace(/^index$/, '');
 			return `${siteUrl}${getDocsPath(cleanPath)}/`;
@@ -49,11 +49,13 @@ export const GET: APIRoute = async ({ site }) => {
 	const staticUrls = [
 		`${siteUrl}/`,
 		`${siteUrl}/docs/`,
-		`${siteUrl}/actors/`,
+		`${siteUrl}/guides/`,
+		`${siteUrl}/docs/deploy/`,
+		`${siteUrl}/actors/docs/`,
 		`${siteUrl}/agentos/`,
-		`${siteUrl}/dynamic-apps/`,
-		`${siteUrl}/workflows/`,
-		`${siteUrl}/cloud/`,
+		`${siteUrl}/dynamic-apps/docs/`,
+		`${siteUrl}/workflows/docs/`,
+		`${siteUrl}/pricing/`,
 		`${siteUrl}/enterprise/`,
 		`${siteUrl}/startups/`,
 		`${siteUrl}/careers/`,

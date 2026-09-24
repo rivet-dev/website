@@ -263,21 +263,21 @@
 
 @keyframes connect {
   from {
-    border-color: rgb(27 25 22 / 0.1);
-    color: #56524a;
+    border-color: rgb(var(--site-ink, 27 25 22) / 0.1);
+    color: rgb(var(--site-ink-soft, 86 82 74));
   }
   to {
-    border-color: rgb(46 64 52 / 0.6);
-    color: #1b1916;
+    border-color: rgb(var(--runtime-highlight, 183 75 35) / 0.6);
+    color: rgb(var(--site-ink, 27 25 22));
   }
 }
 
 @keyframes flash {
   0% {
-    background-color: rgb(46 64 52 / 0.12);
+    background-color: rgb(var(--runtime-highlight, 183 75 35) / 0.12);
   }
   100% {
-    background-color: #efefef;
+    background-color: rgb(var(--site-ink, 27 25 22) / 0.05);
   }
 }
 
@@ -319,17 +319,17 @@
     background-color: transparent;
   }
   to {
-    background-color: #2e4034;
+    background-color: rgb(var(--runtime-highlight, 183 75 35));
   }
 }
 
 /* Quick expand-and-settle ring for a scheduled trigger firing. */
 @keyframes ping {
   0% {
-    box-shadow: 0 0 0 0 rgb(46 64 52 / 0.45);
+    box-shadow: 0 0 0 0 rgb(var(--runtime-highlight, 183 75 35) / 0.45);
   }
   100% {
-    box-shadow: 0 0 0 7px rgb(46 64 52 / 0);
+    box-shadow: 0 0 0 7px rgb(var(--runtime-highlight, 183 75 35) / 0);
   }
 }
 

@@ -4,14 +4,22 @@ import { getImage } from 'astro:assets';
 import { getPostImage } from '@/lib/postImage';
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
 import { RedesignedHero } from '@/components/marketing/sections/RedesignedHero';
-import { StackSection } from '@/components/marketing/sections/StackSection';
-import { AgentStackSection } from '@/components/marketing/sections/AgentStackSection';
 import { SolutionsSection } from '@/components/marketing/sections/SolutionsSection';
-import { ObservabilitySection } from '@/components/marketing/sections/ObservabilitySection';
-import { IntegrationsSection } from '@/components/marketing/sections/IntegrationsSection';
+import { DensitySection } from '@/components/marketing/orchestration/DensitySection';
+import { ColdStartSection } from '@/components/marketing/orchestration/ColdStartSection';
+import { ScaleSection } from '@/components/marketing/orchestration/ScaleSection';
+import { HibernationSection } from '@/components/marketing/orchestration/HibernationSection';
+import { DurableStateSection } from '@/components/marketing/orchestration/DurableStateSection';
+import { GeneratedCodeSection } from '@/components/marketing/orchestration/GeneratedCodeSection';
+import { ToolsSection } from '@/components/marketing/orchestration/ToolsSection';
+import { OrchestratorFeaturesSection } from '@/components/marketing/orchestration/OrchestratorFeaturesSection';
+import { ActorTypesSection } from '@/components/marketing/orchestration/ActorTypesSection';
 import { HostingSection } from '@/components/marketing/sections/HostingSection';
 import { OnPremSection } from '@/components/marketing/sections/OnPremSection';
 import { ClosingCtaPanel } from '@/components/marketing/ClosingCtaPanel';
+import FaqJsonLd from '@/components/faq/FaqJsonLd.astro';
+import { FaqSection } from '@/components/faq/FaqSection';
+import { homeFaqs } from '@/data/faqs/home';
 import { SectionRule } from '@/components/marketing/SectionRule';
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
@@ -115,240 +123,50 @@ const latestPost = latestEntry
 ---
 
 <MarketingLayout
-	title="Rivet - Infrastructure for the Agentic Era"
-	description="Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build."
+	title="Rivet - The Orchestrator for Agentic Workloads"
+	description="A fast, high-density and scalable orchestrator for every workload an agent needs. Run agents, workflows, and sandboxes as durable Actors."
 	canonicalUrl="https://rivet.dev/"
 >
 	<main id="main-content" tabindex="-1">
 		<RedesignedHero latestPost={latestPost} thinkingImages={thinkingImages} client:load />
 		<SectionRule />
-		<StackSection />
-		<SectionRule />
-		<AgentStackSection />
-		<SectionRule />
-		<IntegrationsSection />
-		<SectionRule />
-		<OnPremSection />
+		<ActorTypesSection />
 		<SectionRule />
 		<SolutionsSection />
 		<SectionRule />
-		<ObservabilitySection />
+		<DensitySection client:visible />
+		<SectionRule />
+		<ColdStartSection client:visible />
+		<SectionRule />
+		<ScaleSection client:visible />
+		<SectionRule />
+		<HibernationSection client:visible />
+		<SectionRule />
+		<DurableStateSection client:visible />
+		<SectionRule />
+		<GeneratedCodeSection client:visible />
+		<SectionRule />
+		<ToolsSection client:visible />
+		<SectionRule />
+		<OrchestratorFeaturesSection client:visible />
+		<SectionRule />
+		<OnPremSection />
 		<SectionRule />
 		<HostingSection />
 		<SectionRule />
+		{/* Hydrated on scroll so the accordion animates; content is still SSR'd
+		    into the HTML for crawlers. */}
+		<div data-site-reveal>
+			<FaqSection items={homeFaqs} theme="light" client:visible />
+		</div>
+		<FaqJsonLd items={homeFaqs} />
+		<SectionRule />
 		<ClosingCtaPanel
-			title="Infrastructure for the agentic era."
-			description="Build with agents, build for agents, and run it where your data lives."
+			title="Orchestration for agentic workloads."
+			description="Run agents, workflows, and sandboxes as durable Actors — on your infrastructure or ours."
 		>
 			<a href="/docs/" class={INK_PANEL_LIGHT_BUTTON_CLASS}>Start Building</a>
 			<a href="/talk-to-an-engineer/" class={INK_PANEL_GHOST_BUTTON_CLASS}>Talk to an Engineer</a>
 		</ClosingCtaPanel>
 	</main>
 </MarketingLayout>
-
-<script>
-	type AgentStackStoryController = {
-		destroy: () => void;
-	};
-
-	const agentStackWindow = window as typeof window & {
-		__rivetAgentStackStoryController?: AgentStackStoryController;
-	};
-
-	agentStackWindow.__rivetAgentStackStoryController?.destroy();
-
-	// Match Tailwind's rem-based `lg` breakpoint without leaving a fractional gap.
-	const mobileViewport = window.matchMedia('(max-width: 63.999rem)');
-	const phoneViewport = window.matchMedia('(max-width: 47.999rem)');
-	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-	// Firefox Release still gates CSS view timelines. Unsupported browsers use
-	// paused Web Animations whose current time is advanced by scroll progress.
-	const supportsAgentStackViewTimeline =
-		CSS.supports('animation-timeline: view()') &&
-		CSS.supports('view-timeline-name: --agent-stack') &&
-		CSS.supports('animation-timeline: --agent-stack');
-	let observers: IntersectionObserver[] = [];
-	let resizeFrame = 0;
-	let scrollFrame = 0;
-	let desktopFallbacks: Array<{ figure: HTMLElement; animations: Animation[] }> = [];
-	const desktopFallbackDuration = 1000;
-
-	const disconnectObservers = () => {
-		for (const observer of observers) observer.disconnect();
-		observers = [];
-	};
-
-	const clearDesktopStackFallback = () => {
-		window.cancelAnimationFrame(scrollFrame);
-		scrollFrame = 0;
-		for (const fallback of desktopFallbacks) {
-			for (const animation of fallback.animations) animation.cancel();
-		}
-		desktopFallbacks = [];
-	};
-
-	const updateDesktopStackFallback = () => {
-		scrollFrame = 0;
-		for (const { figure, animations } of desktopFallbacks) {
-			const bounds = figure.getBoundingClientRect();
-			const progress = Math.min(
-				1,
-				Math.max(0, (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height)),
-			);
-			for (const animation of animations) {
-				animation.currentTime = progress * desktopFallbackDuration;
-			}
-		}
-	};
-
-	const requestDesktopStackFallbackUpdate = () => {
-		if (scrollFrame !== 0 || desktopFallbacks.length === 0) return;
-		scrollFrame = window.requestAnimationFrame(updateDesktopStackFallback);
-	};
-
-	const createDesktopStackFallbackAnimation = (target: Element, keyframes: Keyframe[]) => {
-		const animation = target.animate(keyframes, {
-			duration: desktopFallbackDuration,
-			fill: 'both',
-		});
-		animation.pause();
-		return animation;
-	};
-
-	const bindDesktopStackFallback = () => {
-		clearDesktopStackFallback();
-		if (supportsAgentStackViewTimeline || mobileViewport.matches || reducedMotion.matches) return;
-
-		for (const figure of document.querySelectorAll<HTMLElement>('figure.agent-stack-figure')) {
-			const animations: Animation[] = [];
-			for (const plate of figure.querySelectorAll<SVGGraphicsElement>('[data-plate]')) {
-				const condense = plate.style.getPropertyValue('--agent-stack-condense');
-				const condensedTransform = `translateY(${condense})`;
-				animations.push(
-					createDesktopStackFallbackAnimation(plate, [
-						{ offset: 0, transform: condensedTransform },
-						{ offset: 0.3, transform: condensedTransform },
-						{ offset: 0.44, transform: 'translateY(0)' },
-						{ offset: 0.58, transform: 'translateY(0)' },
-						{ offset: 0.72, transform: condensedTransform },
-						{ offset: 1, transform: condensedTransform },
-					]),
-				);
-
-				const callout = plate.querySelector<SVGGElement>('[data-callout]');
-				if (callout) {
-					animations.push(
-						createDesktopStackFallbackAnimation(callout, [
-							{ offset: 0, opacity: 0, visibility: 'hidden' },
-							{ offset: 0.4, opacity: 0, visibility: 'hidden' },
-							{ offset: 0.47, opacity: 1, visibility: 'visible' },
-							{ offset: 0.56, opacity: 1, visibility: 'visible' },
-							{ offset: 0.63, opacity: 0, visibility: 'hidden' },
-							{ offset: 1, opacity: 0, visibility: 'hidden' },
-						]),
-					);
-				}
-			}
-
-			const grid = figure.querySelector<HTMLElement>('[data-stack-grid]');
-			if (grid) {
-				animations.push(
-					createDesktopStackFallbackAnimation(grid, [
-						{ offset: 0, opacity: 1 },
-						{ offset: 0.3, opacity: 1 },
-						{ offset: 0.44, opacity: 0.72 },
-						{ offset: 0.58, opacity: 0.72 },
-						{ offset: 0.72, opacity: 1 },
-						{ offset: 1, opacity: 1 },
-					]),
-				);
-			}
-
-			desktopFallbacks.push({ figure, animations });
-		}
-
-		updateDesktopStackFallback();
-	};
-
-	const bindAgentStackStory = () => {
-		disconnectObservers();
-		if (!mobileViewport.matches || !('IntersectionObserver' in window)) return;
-
-		for (const story of document.querySelectorAll<HTMLElement>('[data-agent-stack-story]')) {
-			const steps = Array.from(
-				story.querySelectorAll<HTMLElement>('[data-agent-stack-step]'),
-			);
-			if (steps.length === 0) continue;
-
-			const stepsAboveReadingLine = new Set<HTMLElement>();
-			const setActiveStep = () => {
-				let activeStep = steps[0];
-				for (const step of steps) {
-					if (stepsAboveReadingLine.has(step)) activeStep = step;
-				}
-
-				const activeLayer = activeStep.dataset.agentStackStep;
-				if (!activeLayer) return;
-
-				story.dataset.activeLayer = activeLayer;
-				for (const step of steps) {
-					if (step === activeStep) step.setAttribute('aria-current', 'step');
-					else step.removeAttribute('aria-current');
-				}
-			};
-
-			const readingLine = phoneViewport.matches ? 0.7 : 0.58;
-			const observer = new IntersectionObserver(
-				(entries) => {
-					for (const entry of entries) {
-						if (!(entry.target instanceof HTMLElement)) continue;
-						const step = entry.target.closest<HTMLElement>('[data-agent-stack-step]');
-						if (!step) continue;
-						if (entry.isIntersecting) stepsAboveReadingLine.add(step);
-						else stepsAboveReadingLine.delete(step);
-					}
-					setActiveStep();
-				},
-				// On phones the card clears the sticky diagram before activation.
-				// In the tablet two-column layout, keep the reading line near center.
-				{ rootMargin: `100000px 0px -${window.innerHeight * (1 - readingLine)}px 0px` },
-			);
-
-			for (const step of steps) {
-				observer.observe(step.querySelector<HTMLElement>('[data-agent-stack-card]') ?? step);
-			}
-			observers.push(observer);
-		}
-	};
-
-	const bindAgentStackAnimations = () => {
-		bindAgentStackStory();
-		bindDesktopStackFallback();
-	};
-	const handleViewportChange = () => bindAgentStackAnimations();
-	const handleViewportResize = () => {
-		window.cancelAnimationFrame(resizeFrame);
-		resizeFrame = window.requestAnimationFrame(bindAgentStackAnimations);
-	};
-	const destroy = () => {
-		disconnectObservers();
-		clearDesktopStackFallback();
-		window.cancelAnimationFrame(resizeFrame);
-		document.removeEventListener('astro:page-load', bindAgentStackAnimations);
-		mobileViewport.removeEventListener('change', handleViewportChange);
-		reducedMotion.removeEventListener('change', handleViewportChange);
-		window.removeEventListener('resize', handleViewportResize);
-		window.removeEventListener('scroll', requestDesktopStackFallbackUpdate);
-		if (agentStackWindow.__rivetAgentStackStoryController?.destroy === destroy) {
-			delete agentStackWindow.__rivetAgentStackStoryController;
-		}
-	};
-
-	agentStackWindow.__rivetAgentStackStoryController = { destroy };
-	document.addEventListener('astro:page-load', bindAgentStackAnimations);
-	mobileViewport.addEventListener('change', handleViewportChange);
-	reducedMotion.addEventListener('change', handleViewportChange);
-	window.addEventListener('resize', handleViewportResize);
-	window.addEventListener('scroll', requestDesktopStackFallbackUpdate, { passive: true });
-	bindAgentStackAnimations();
-</script>

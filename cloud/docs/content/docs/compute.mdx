@@ -40,7 +40,7 @@ Your server must listen on the port in `RIVET_PORT`, which defaults to `3000`.
 2. Click **Connect**, then **Rivet Cloud**.
 3. Copy `RIVET_CLOUD_TOKEN`.
 
-This is a `cloud_api_*` management token, not a `pk_*` publishable key. See [Tokens](/cloud/docs#tokens).
+This is a `cloud_api_*` management token, not a `pk_*` publishable key. See [Tokens](/docs/deploy/cloud#tokens).
 
 </Step>
 <Step title="Deploy">
@@ -61,7 +61,7 @@ The dashboard shows live status:
 | Initializing | Starting the runtime environment |
 | Deploying | Pulling and launching your container |
 | Binding | Connecting the runner to the network |
-| Ready | Live, and accepting actor connections |
+| Ready | Live, and accepting Actor connections |
 
 <LLMOnly>
 
@@ -92,7 +92,7 @@ This writes `.github/workflows/rivet-deploy.yml`. Add the token as a repository 
 gh secret set RIVET_CLOUD_TOKEN
 ```
 
-The workflow deploys production on push to your default branch and creates an isolated namespace per pull request. See [Preview Deployments](/cloud/docs/preview-deployments).
+The workflow deploys production on push to your default branch and creates an isolated namespace per pull request. See [Preview Deployments](/docs/deploy/cloud/preview-deployments).
 
 </Step>
 </Steps>

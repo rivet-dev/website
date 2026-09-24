@@ -216,7 +216,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 	const benefits = [
 		{ title: '50% off for 12 months', description: '50% off the Team plan' },
 		{ title: 'Priority Slack support', description: 'Direct access to our engineering team for fast answers and guidance' },
-		{ title: 'Architecture review', description: '1-on-1 session with our team to optimize your actor architecture' },
+		{ title: 'Architecture review', description: '1-on-1 session with our team to optimize your Actor architecture' },
 	];
 
 	const eligibility = [
@@ -251,7 +251,7 @@ export default function StartupsPage({ foundersImage, speedrunImage }: StartupsP
 									</span>
 									{' '}and{' '}
 									<span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-ink/15 bg-white/55 px-2.5 py-0.5 text-sm text-ink-soft align-middle">
-										<img src={imgA16z.src} alt="Andreessen Horowitz (a16z) logo" width={16} height={12} className="h-3 w-auto invert" loading="eager" decoding="async" />
+										<img src={imgA16z.src} alt="Andreessen Horowitz (a16z) logo" width={16} height={12} className="theme-light-invert h-3 w-auto" loading="eager" decoding="async" />
 										<span>a16z SR002</span>
 									</span>
 									{' '}alumni, we're offering fellow YC and Speedrun companies pricing and support to ship faster.

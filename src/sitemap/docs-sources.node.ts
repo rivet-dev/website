@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 import {
 	DOCS_SOURCES,
 	SHARED_CONTENT_PRODUCT,
-	SITE_DOCS_NAMESPACE,
+	SITE_DOCS_NAMESPACES,
 	productFromPath,
 } from "./docs-sources";
 
@@ -33,15 +33,28 @@ export function contentLinkPath(productId: string): string {
 	return path.resolve(REPO_ROOT, "src/content/docs", productId);
 }
 
+/** The bundle directory inside a product's repo. Defaults to `docs`. */
+export function bundlePath(productId: string): string {
+	return DOCS_SOURCES[productId]?.bundlePath ?? "docs";
+}
+
 /**
  * The repo root behind an existing content symlink. The link points at
- * `<repo>/docs/content`, so the root is two levels up.
+ * `<repo>/<bundle>/content`, so the root is one level above the bundle. A
+ * vendored bundle is always normalized to `<vendor>/<product>/docs`, whatever
+ * the product's own bundle path is.
  */
 function rootFromContentLink(productId: string): string | undefined {
 	const link = contentLinkPath(productId);
 	try {
 		if (!lstatSync(link).isSymbolicLink()) return undefined;
-		return path.resolve(realpathSync(link), "../..");
+		const bundleRoot = path.resolve(realpathSync(link), "..");
+		const vendorRoot = path.resolve(bundleRoot, "..");
+		if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId)) {
+			return vendorRoot;
+		}
+		const depth = bundlePath(productId).split("/").length;
+		return path.resolve(bundleRoot, ...Array(depth).fill(".."));
 	} catch {
 		return undefined;
 	}
@@ -70,7 +83,9 @@ export function docsRoot(productId: string): string | undefined {
 	if (linked) return linked;
 
 	const sibling = path.resolve(REPO_ROOT, "..", source.repo);
-	if (existsSync(sibling)) return sibling;
+	if (existsSync(path.join(sibling, bundlePath(productId), "content"))) {
+		return sibling;
+	}
 
 	const vendored = path.resolve(REPO_ROOT, "vendor", productId);
 	if (existsSync(vendored)) return vendored;
@@ -133,8 +148,8 @@ export function snippetRootForContentPath(
 		// roots: the website root contains unrelated content that must keep falling
 		// back to the Actors examples.
 		const namespacedSource = productFromPath(contentPath);
-		if (namespacedSource === SITE_DOCS_NAMESPACE) {
-			return snippetRoot(SITE_DOCS_NAMESPACE);
+		if (namespacedSource && SITE_DOCS_NAMESPACES.has(namespacedSource)) {
+			return snippetRoot(namespacedSource);
 		}
 
 		// Product docs are symlinked in, and Vite reports the resolved realpath
@@ -142,11 +157,23 @@ export function snippetRootForContentPath(
 		// shape is usually gone by the time we see it. Match on the repo root
 		// first and fall back to the path shape.
 		const normalized = path.resolve(contentPath);
-		if (normalized.startsWith(`${path.resolve(REPO_ROOT, "src/content/self-host")}${path.sep}`)) {
+		if (
+			normalized.startsWith(
+				`${path.resolve(REPO_ROOT, "src/content/self-host")}${path.sep}`,
+			)
+		) {
 			return REPO_ROOT;
 		}
+		// Product overviews are website-owned but embed the product's own
+		// examples, so they resolve against that product's repo.
+		const overviewsDir = `${path.resolve(REPO_ROOT, "src/content/overviews")}${path.sep}`;
+		if (normalized.startsWith(overviewsDir)) {
+			const productId = path.basename(normalized, path.extname(normalized));
+			const root = snippetRoot(productId);
+			if (root) return root;
+		}
 		for (const productId of Object.keys(DOCS_SOURCES)) {
-			if (productId === SITE_DOCS_NAMESPACE) continue;
+			if (SITE_DOCS_NAMESPACES.has(productId)) continue;
 			const root = docsRoot(productId);
 			if (root && normalized.startsWith(`${path.resolve(root)}${path.sep}`)) {
 				return snippetRoot(productId) ?? root;

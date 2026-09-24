@@ -1,0 +1,172 @@
+---
+// Secure Exec overview, ported from secureexec.dev. The page body keeps that
+// site's own dark design, scoped under `.secure-exec-page`; only its nav and
+// footer were swapped for the Rivet header, product bar, and footer, both
+// forced dark for this page alone (`light={false}` + `darkChrome`). The docs
+// tab uses the normal light shell.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Header } from '@/components/v2/Header';
+import { Hero } from '@/components/marketing/secure-exec/Hero';
+import { VirtualOS } from '@/components/marketing/secure-exec/VirtualOS';
+import { FeatureGrid } from '@/components/marketing/secure-exec/FeatureGrid';
+import { Benchmarks } from '@/components/marketing/secure-exec/Benchmarks';
+import { SecurityModel } from '@/components/marketing/secure-exec/SecurityModel';
+import { FAQ } from '@/components/marketing/secure-exec/FAQ';
+import { FooterCTA } from '@/components/marketing/secure-exec/FooterCTA';
+import { jsonLdString } from '@/lib/jsonLd';
+import '@/components/marketing/secure-exec/secure-exec.css';
+
+const description =
+	'Secure Node.js execution without a sandbox. V8 isolate-based code execution with full Node.js and npm compatibility.';
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'Secure Exec',
+	applicationCategory: 'DeveloperApplication',
+	operatingSystem: 'Linux, macOS, Windows',
+	description,
+	url: 'https://rivet.dev/secure-exec/',
+	author: {
+		'@type': 'Organization',
+		name: 'Rivet',
+		url: 'https://rivet.dev',
+	},
+	offers: {
+		'@type': 'Offer',
+		price: '0',
+		priceCurrency: 'USD',
+	},
+	keywords:
+		'secure code execution, V8 isolate, Node.js sandbox, untrusted code, npm, sandboxed runtime, developer tools',
+};
+---
+
+<BaseLayout
+	title="Secure Exec — Secure Node.js execution without a sandbox"
+	description={description}
+	canonicalUrl="https://rivet.dev/secure-exec/"
+	ogImage="/images/secure-exec/og.png"
+	ogImageWidth={1280}
+	ogImageHeight={640}
+	keywords={[
+		'secure code execution',
+		'V8 isolate',
+		'Node.js sandbox',
+		'untrusted code',
+		'npm compatibility',
+		'sandboxed runtime',
+		'developer tools',
+	]}
+	pageFamily="site"
+	themeColor="#09090b"
+	darkChrome
+>
+	<Fragment slot="head-fonts">
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+	</Fragment>
+
+	<Header
+		variant="full-width"
+		light={false}
+		showProductBar={true}
+		productId="secure-exec"
+		tabId="overview"
+		initialPathname={Astro.url.pathname}
+		active="product"
+		pageFamily="site"
+		client:load
+	/>
+
+	<script type="application/ld+json" is:inline set:html={jsonLdString(structuredData)} />
+
+	<div class="secure-exec-page min-h-screen overflow-x-clip">
+		<main id="main-content" tabindex="-1">
+			<Hero client:load />
+			<Benchmarks client:visible />
+			<FeatureGrid client:visible />
+			<VirtualOS client:visible />
+			<SecurityModel client:visible />
+			<FAQ client:visible />
+			<FooterCTA client:visible />
+		</main>
+	</div>
+
+	<script>
+		// Chrome border scroll + tilt effects, carried over from secureexec.dev.
+		// Scroll rotates the gradient clockwise and brightens it near the page
+		// center; on mobile, device tilt adds rotation and a brightness shift.
+		// The variables are set on the page wrapper, not the document root, so
+		// they die with the page under view transitions.
+		const K = 0.6;
+		const TWO_PI = Math.PI * 2;
+		const BRIGHT_MIN = 0.35;
+		const BRIGHT_MAX = 1.2;
+
+		function initChrome() {
+			const page = document.querySelector<HTMLElement>('.secure-exec-page');
+			if (!page || page.dataset.chromeReady) return;
+			page.dataset.chromeReady = 'true';
+
+			let scrollDeg = 0;
+			let scrollBright = BRIGHT_MIN;
+			let scrollDivider = 100;
+			let tiltDeg = 0;
+			let tiltBright = 0;
+			let ticking = false;
+
+			const apply = () => {
+				page.style.setProperty('--chrome-scroll-offset', `${scrollDeg + tiltDeg}deg`);
+				page.style.setProperty('--chrome-brightness', `${scrollBright + tiltBright}`);
+				page.style.setProperty('--chrome-divider-offset', `${scrollDivider}%`);
+				ticking = false;
+			};
+
+			const schedule = () => {
+				if (ticking) return;
+				requestAnimationFrame(apply);
+				ticking = true;
+			};
+
+			const onScroll = () => {
+				const pageHeight = document.documentElement.scrollHeight - window.innerHeight;
+				const t = pageHeight > 0 ? window.scrollY / pageHeight : 0;
+				const eased = t + (K * Math.sin(TWO_PI * t)) / TWO_PI;
+				scrollDeg = eased * 360;
+				scrollBright = BRIGHT_MIN + (BRIGHT_MAX - BRIGHT_MIN) * Math.sin(Math.PI * t);
+				scrollDivider = (1 - t) * 100;
+				schedule();
+			};
+
+			// Gamma (left/right) drives rotation, beta (front/back) drives brightness.
+			const onTilt = (e: DeviceOrientationEvent) => {
+				if (e.gamma == null || e.beta == null) return;
+				const gamma = Math.max(-45, Math.min(45, e.gamma));
+				const beta = Math.max(-45, Math.min(45, e.beta));
+				tiltDeg = (gamma / 45) * 60;
+				tiltBright = (1 - Math.abs(beta) / 45) * 0.3;
+				schedule();
+			};
+
+			window.addEventListener('scroll', onScroll, { passive: true });
+			window.addEventListener('deviceorientation', onTilt, { passive: true });
+			document.addEventListener(
+				'astro:before-swap',
+				() => {
+					window.removeEventListener('scroll', onScroll);
+					window.removeEventListener('deviceorientation', onTilt);
+				},
+				{ once: true },
+			);
+			onScroll();
+		}
+
+		initChrome();
+		document.addEventListener('astro:page-load', initChrome);
+	</script>
+</BaseLayout>

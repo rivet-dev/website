@@ -29,7 +29,10 @@ Still routed at `/actors/learn/*`, unreachable from the nav:
 
 | Product | Why |
 | --- | --- |
-| Rivet Cloud (`/cloud`) | Managed platform, not one of the four pillars. `hidden: true` keeps it out of the switcher and the `/docs` index; it is reachable from Pricing and from its own docs |
+| Agents (`/agents/docs`) | **Temporary, until Agents launches.** Built and routed, but `unlaunched: true` in `product-metadata.ts` drops it from every listing: the homepage "there's an Actor for it" plates (the Actors primitive stands in its slot wearing the Agents blue — see `HOMEPAGE_ACTOR_PLATES` in `src/data/actor-types.ts`), the docs tab strip, the Documentation menu, the footer, the registry, and the `/docs/` card grid (commented out in `src/content/docs/docs/index.mdx`). To restore: delete `unlaunched`, delete the stand-in, uncomment the card |
+| Sandboxes (`/agentos/docs`) | **Temporary.** Sandboxes is agentOS as an API, so its Sandboxes tab in the docs strip and its listings link to the agentOS docs at `/agentos/docs/` (`docsHome` in `product-metadata.ts`); it owns no bundle or routes of its own. The plan is to serve the agentOS bundle under `/sandboxes/docs/` (`bundleOf` + `RerootLinks.astro` already support it) once the agentOS pages are ready to move; until then no `/sandboxes/*` path exists |
+| Rivet Cloud | Managed platform, not one of the four pillars. It has no product vertical: its bundle renders inside the Deploy section (`/orchestrate/deploy/{cloud,byoc}/`) and its marketing page is `/pricing/`. `hidden: true` keeps it out of the switcher |
+| Secure Exec (`/secure-exec`) | The isolate runtime underneath agentOS, moved here from secureexec.dev. A library, not one of the four pillars. `hidden: true` keeps it out of the switcher and the `/docs` index; it is reachable from the footer. Its Overview keeps secureexec.dev's own dark design on purpose, scoped under `.secure-exec-page`, with the header and footer forced dark for that page only (`darkChrome`) |
 
 ## TODO pages
 
@@ -40,8 +43,9 @@ Pages that render a TODO callout. These are live and indexed.
 | `/actors/integrations` | this repo — now a card grid, remove once copy lands |
 | `/agentos/integrations` | this repo |
 | `/actors/docs/http-api` | rivet repo |
-| `/agentos/docs/software` | agentos repo |
+| `/agentos/docs/software` (was `/agentos/docs/software`) | agentos repo |
 | `/dynamic-apps/docs`, `/docs/concepts`, `/docs/quickstart` | dynamic-apps repo — whole vertical unwritten |
+| `/secure-exec/docs` | secure-exec repo — docs not ported from secureexec.dev yet. `vendor/secure-exec` is a one-page placeholder bundle, and the Overview's deep docs links still point at `https://secureexec.dev/docs/*` until they land |
 
 ## Content parked, not published
 

@@ -11,10 +11,6 @@ Workers run in **runner** mode here: the pod opens a connection out to the contr
 - Container registry credentials
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -31,8 +27,6 @@ CMD ["node", "server.js"]
 ```
 
 Rivet requires Node 22 or newer. Alpine images need a build toolchain because Rivet's SQLite dependency has no musl prebuilt binary, so the Debian-based image is the smaller working choice. A runner-mode worker listens on no port.
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -130,10 +124,6 @@ Once the pod is ready it appears under **Runners** in the dashboard. Nothing nee
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Autoscaling
 

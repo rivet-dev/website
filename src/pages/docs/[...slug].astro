@@ -1,21 +1,31 @@
 ---
-// Website-owned documentation: /docs/{...slug}. Product documentation keeps
-// its own /{product}/{tab}/{...slug} route.
+// Product-agnostic documentation: /docs/{...slug}.
+//
+//   src/content/docs/docs/index.mdx  ->  /docs/       the docs overview
+//   src/content/docs/docs/mcp.mdx    ->  /docs/mcp/   canonical AI Tools page
+//
+// Product documentation keeps its own /{product}/{tab}/{...slug} route, and
+// the Deploy section has its own routes under /docs/deploy/.
 import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
-import { SITE_DOCS_NAMESPACE } from '@/sitemap/docs-sources';
+import { AI_DOCS_ITEMS } from '@/sitemap/ai';
+import { SITE_DOCS_NAMESPACE, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('docs');
 	const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
 
 	return entries
-		.filter((entry) => entry.id.startsWith(entryPrefix))
+		.filter((entry) => entry.id === SITE_DOCS_NAMESPACE || entry.id.startsWith(entryPrefix))
 		.map((entry) => ({
 			params: {
-				slug: getContentParamSlug(entry.id.slice(entryPrefix.length)),
+				// The glob loader collapses `docs/index.mdx` to the id `docs`.
+				slug:
+					entry.id === SITE_DOCS_NAMESPACE
+						? undefined
+						: getContentParamSlug(entry.id.slice(entryPrefix.length)),
 			},
 			props: { entry },
 		}));
@@ -24,20 +34,25 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const entryPrefix = `${SITE_DOCS_NAMESPACE}/`;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
-const isMcp = entry.id === 'docs/mcp';
+const isOverview = entry.id === SITE_DOCS_NAMESPACE;
+// The AI Tools pages are canonical here and aliased into every product, so the
+// shared record owns their edit link back into the `rivet` bundle.
+const aiItem = AI_DOCS_ITEMS.find((item) => item.contentId === entry.id);
 ---
 
 <DocsArticlePage
 	entry={entry}
-	routePrefix="/docs"
+	routePrefix={SITE_DOCS_ROUTE_PREFIX}
 	entryIdPrefix={entryPrefix}
 	breadcrumbName="Documentation"
-	productId={isMcp ? 'actors' : undefined}
-	tabId={isMcp ? 'docs' : undefined}
-	sectionLabel={isMcp ? undefined : 'Documentation'}
+	sectionLabel="Documentation"
 	seoContextLabel="Rivet documentation"
-	canonicalUrl={isMcp ? 'https://rivet.dev/docs/mcp/' : undefined}
-	editUrlOverride={isMcp ? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx' : undefined}
-	exactTitle={isMcp}
+	canonicalUrl={isOverview ? 'https://rivet.dev/docs/' : undefined}
+	editUrlOverride={
+		isOverview
+			? 'https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/index.mdx'
+			: aiItem?.editUrl
+	}
+	exactTitle={aiItem?.id === 'mcp' || isOverview}
 	robots={robots}
 />

@@ -11,10 +11,6 @@ Vercel is a **serverless** platform: there is no long-lived process, so the cont
 - A Next.js app with the Rivet route handler mounted
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -31,8 +27,6 @@ export const maxDuration = 300;
 
 export const { GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS } = toNextHandler(registry);
 ```
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -70,10 +64,6 @@ Set `drainGracePeriod` alongside it. It defaults to `1800` and must be strictly 
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Preview deployments
 

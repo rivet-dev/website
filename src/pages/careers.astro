@@ -188,8 +188,8 @@ const careersSchema = {
 const productTiles = [
 	{
 		name: 'Actors',
-		body: 'Addressable, long-running processes with SQLite-per-actor, WebSockets, and hibernation.',
-		href: '/actors/',
+		body: 'Addressable, long-running processes with SQLite-per-Actor, WebSockets, and hibernation.',
+		href: '/actors/docs/',
 		logoSrc: productLogos.actors.src,
 	},
 	{
@@ -201,13 +201,13 @@ const productTiles = [
 	{
 		name: 'Workflows',
 		body: 'Durable execution for multi-step operations, queues, and scheduling.',
-		href: '/workflows/',
+		href: '/workflows/docs/',
 		logoSrc: productLogos.workflows.src,
 	},
 	{
 		name: 'Dynamic Apps',
 		body: 'AI-generated app hosting built on Rivet Actors.',
-		href: '/dynamic-apps/',
+		href: '/dynamic-apps/docs/',
 		logoSrc: productLogos['dynamic-apps'].src,
 	},
 	{
@@ -286,7 +286,7 @@ const productTiles = [
 						</p>
 						<p data-site-reveal-child>
 							At the core of Rivet is Actors: a primitive for stateful workloads. It provides addressable,
-							long-running processes, SQLite-per-actor, WebSockets, and hibernation. Actors provide a powerful
+							long-running processes, SQLite-per-Actor, WebSockets, and hibernation. Actors provide a powerful
 							foundation for use cases like agentOS (virtual operating system for agents), Workflows (durable
 							execution engine), and Dynamic Apps (AI-generated app hosting).
 						</p>
@@ -320,7 +320,7 @@ const productTiles = [
 								target={product.name === 'Rivet Cloud' ? '_blank' : undefined}
 								rel={product.name === 'Rivet Cloud' ? 'noreferrer' : undefined}
 								class:list={[
-									'group flex min-h-60 flex-col bg-paper p-7 transition-colors duration-200 motion-reduce:transition-none hover:bg-white/70 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine xl:min-h-72 xl:p-6',
+									'career-product-card group flex min-h-60 flex-col bg-paper p-7 transition-colors duration-200 motion-reduce:transition-none hover:bg-white/70 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine xl:min-h-72 xl:p-6',
 									productIndex === productTiles.length - 1 ? 'sm:col-span-2 xl:col-span-1' : '',
 								]}
 								data-site-reveal-child
@@ -480,14 +480,14 @@ const productTiles = [
 		overflow-wrap: anywhere;
 		--waas-font: 'Manrope', sans-serif;
 		--waas-primary: #D63E00;
-		--waas-bg: #efefef;
-		--waas-bg-subtle: rgb(27 25 22 / 4%);
-		--waas-text: #1b1916;
-		--waas-text-color: #1b1916;
-		--waas-text-secondary: #56524a;
-		--waas-text-tertiary: #8a8478;
-		--waas-border: rgb(27 25 22 / 15%);
-		--waas-border-focus: #2E4034;
+		--waas-bg: rgb(var(--site-paper, 239 239 239));
+		--waas-bg-subtle: rgb(var(--site-ink, 27 25 22) / 4%);
+		--waas-text: rgb(var(--site-ink, 27 25 22));
+		--waas-text-color: var(--waas-text);
+		--waas-text-secondary: rgb(var(--site-ink-soft, 86 82 74));
+		--waas-text-tertiary: rgb(var(--site-ink-faint, 138 132 120));
+		--waas-border: rgb(var(--site-ink, 27 25 22) / 15%);
+		--waas-border-focus: rgb(var(--site-pine, 46 64 52));
 		--waas-radius: 0;
 	}
 </style>

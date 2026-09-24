@@ -10,6 +10,11 @@ import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
 export async function getStaticPaths() {
 	const entries = await getCollection('docs');
 	const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
+	// Website-owned product overviews, keyed by product id. Where one exists it
+	// replaces the bundle's own docs root.
+	const overviews = new Map(
+		(await getCollection('overviews')).map((entry) => [entry.id, entry]),
+	);
 	const paths = [];
 
 	for (const product of products) {
@@ -19,10 +24,14 @@ export async function getStaticPaths() {
 			if (tab.id === 'self-host') continue;
 			// Overview is the product's marketing page, not docs content.
 			if (tab.id === 'overview') continue;
+			// A tab that links out (agentOS's Documentation lands on the Sandboxes
+			// docs) owns no pages here; its old routes redirect.
+			if (!tab.href.startsWith(`/${product.id}/`)) continue;
 			// The glob loader collapses `<dir>/index.mdx` to the directory id, so
 			// the tab's own overview page has the bare tab root as its id.
 			const root = `${product.id}/${tab.id}`;
 			const prefix = `${root}/`;
+			const overview = tab.id === 'docs' ? overviews.get(product.id) : undefined;
 			for (const entry of entries) {
 				const isRoot = entry.id === root;
 				if (!isRoot && !entry.id.startsWith(prefix)) continue;
@@ -33,19 +42,25 @@ export async function getStaticPaths() {
 						slug: isRoot ? undefined : getContentParamSlug(entry.id.slice(prefix.length)),
 					},
 					props: {
-						entry,
+						entry: isRoot && overview ? overview : entry,
 						productId: product.id,
 						tabId: tab.id,
 						productName: product.name,
 						tabTitle: tab.title,
+						// The override's id is the bare product id, which the article
+						// renderer cannot map back to the tab root on its own.
+						routeSlugOverride: isRoot && overview ? '' : undefined,
+						editUrlOverride: isRoot && overview
+							? `https://github.com/rivet-dev/website/edit/main/src/content/overviews/${product.id}.mdx`
+							: undefined,
 					},
 				});
 			}
 
 			// Shared AI documentation stays inside the active product's full docs
-			// shell. Actors already owns the two canonical routes, so only the other
-			// products need contextual aliases.
-			if (tab.id === 'docs' && product.id !== 'actors') {
+			// shell. The canonical routes live in the product-agnostic bundle at
+			// /docs/, so every product gets a contextual alias.
+			if (tab.id === 'docs') {
 				for (const item of AI_DOCS_ITEMS) {
 					const entry = entriesById.get(item.contentId);
 					if (!entry) {

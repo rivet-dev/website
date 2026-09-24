@@ -6,9 +6,12 @@ export interface RouteSeoPolicy {
 	sitemap: boolean;
 }
 
-const hiddenPrefixes = PRODUCTS.flatMap((product) =>
-	(product.hiddenTabs ?? []).map((tab) => `/${product.id}/${tab}/`),
-);
+const hiddenPrefixes = PRODUCTS.flatMap((product) => [
+	...(product.hiddenTabs ?? []).map((tab) => `/${product.id}/${tab}/`),
+	// An unlaunched product's whole vertical is reachable but unlisted, so its
+	// placeholder pages must not be indexed.
+	...(product.unlaunched ? [`/${product.id}/`] : []),
+]);
 
 function pathnameOf(value: string | URL): string {
 	if (value instanceof URL) return value.pathname;
@@ -32,9 +35,6 @@ export function getRouteSeoPolicy(value: string | URL): RouteSeoPolicy {
 		pathname.includes("/api/") ||
 		pathname.includes("/internal/") ||
 		pathname.startsWith("/cookbook/");
-	const isNoncanonicalSelfHost =
-		/^\/[^/]+\/self-host\//.test(pathname) &&
-		!pathname.startsWith("/actors/self-host/");
 	const isContextualAiDocs =
 		/^\/[^/]+\/docs\/ai\/(?:mcp|skills)\/$/.test(pathname);
 
@@ -45,7 +45,7 @@ export function getRouteSeoPolicy(value: string | URL): RouteSeoPolicy {
 	return {
 		index: true,
 		follow: true,
-		sitemap: !isNoncanonicalSelfHost && !isContextualAiDocs,
+		sitemap: !isContextualAiDocs,
 	};
 }
 

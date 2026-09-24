@@ -48,6 +48,22 @@ rivet-engine --config /etc/rivet/base.json --config /etc/rivet/override.json
 
 <EngineConfigSchema />
 
+### Admin token
+
+`auth.admin_token` is the root credential for the control plane. Set it through `RIVET__AUTH__ADMIN_TOKEN`; the control plane will not start without one.
+
+```sh
+openssl rand -hex 32
+```
+
+Clients pass it as a bearer token, or inline in the endpoint URL:
+
+```sh
+export RIVET_ENDPOINT="http://default:$RIVET_ADMIN_TOKEN@localhost:6420"
+```
+
+It grants every operation in every namespace, cannot be scoped, and cannot be revoked without a restart. Keep it on your backend and use it to mint scoped credentials rather than shipping it anywhere else. See [Authentication](/docs/authentication).
+
 ### Envoy load balancing
 
 `pegboard.envoy_load_balancer` selects how actors are assigned to envoys. The `hash` strategy uses a hash ring:

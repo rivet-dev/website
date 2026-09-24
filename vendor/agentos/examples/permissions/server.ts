@@ -1,5 +1,5 @@
-import { agentOS, setup } from "@rivet-dev/agentos";
 import type { Permissions } from "@rivet-dev/agentos";
+import { agentOS, setup } from "@rivet-dev/agentos";
 
 // docs:start grant-network
 // Grant the network, leave everything else at the secure default.
@@ -19,20 +19,26 @@ const denyVault = {
 const allowOneHost = {
 	network: {
 		default: "deny",
-		rules: [{ mode: "allow", operations: ["*"], patterns: ["api.example.com"] }],
+		rules: [
+			{
+				mode: "allow",
+				operations: ["*"],
+				patterns: ["dns://api.example.com", "tcp://api.example.com:*"],
+			},
+		],
 	},
 } satisfies Permissions;
 // docs:end allow-one-host
 
-// docs:start allow-one-binding
-// Deny all bindings by default, allow only the "add" binding by name.
-const allowOneBinding = {
-	binding: {
+// docs:start allow-one-host-function
+// Deny all host functions by default, then allow only "add" by name.
+const allowOneHostFunction = {
+	hostFunction: {
 		default: "deny",
-		rules: [{ mode: "allow", operations: ["*"], patterns: ["add"] }],
+		rules: [{ mode: "allow", operations: ["invoke"], patterns: ["add"] }],
 	},
 } satisfies Permissions;
-// docs:end allow-one-binding
+// docs:end allow-one-host-function
 
 // Combine the policies above and bind them to the VM via `agentOS`.
 const vm = agentOS({
@@ -40,7 +46,7 @@ const vm = agentOS({
 		...grantNetwork,
 		...denyVault,
 		...allowOneHost,
-		...allowOneBinding,
+		...allowOneHostFunction,
 	},
 });
 

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import type { RegistryEntryBase } from "../../../data/registry";
 import type { RegistryIconName } from "../../../data/registry-icons";
 import {
 	INK_PANEL_GHOST_BUTTON_CLASS,
@@ -23,21 +22,29 @@ export interface RegistryCardEntry {
 	slug: string;
 	title: string;
 	description: string;
-	types: RegistryEntryBase["types"];
+	// Widened from the agentOS union so a second catalog can bring its own
+	// taxonomy; agentOS still passes values from `RegistryEntryBase["types"]`.
+	types: readonly string[];
 	status: "available" | "coming-soon" | "docs" | "config" | "external";
 	featured?: boolean;
 	beta?: boolean;
 	icon?: RegistryIconName;
 	image?: string;
-	// Only set for external entries; the row links straight to it.
+	/** Product whose accent tile and mark this entry wears. */
+	productId?: string;
+	// When set, the row links straight to it instead of a detail page.
 	href?: string;
 }
 
-const CATEGORY_ORDER: {
-	type: RegistryCardEntry["types"][number];
+export interface RegistryCategory {
+	/** Matched against each entry's `types`. */
+	type: string;
 	label: string;
 	description: string;
-}[] = [
+}
+
+/** The agentOS taxonomy, and the default when a page supplies none. */
+const CATEGORY_ORDER: RegistryCategory[] = [
 	{
 		type: "agent",
 		label: "Agents",
@@ -90,9 +97,9 @@ const BANNER_SURFACE =
 	SITE_WIDE_CALLOUT_CLASS;
 
 function entryHref(hrefBase: string, entry: RegistryCardEntry) {
-	// External entries (deploy targets) link straight to their guide; there is
-	// no detail page for them.
-	if (entry.status === "external" && entry.href) return entry.href;
+	// Entries with their own page (deploy guides, product docs) link straight
+	// to it; the rest land on a detail page under the catalog.
+	if (entry.href) return canonicalizeInternalHref(entry.href);
 	return canonicalizeInternalHref(`${hrefBase.replace(/\/$/, "")}/${entry.slug}`);
 }
 
@@ -120,9 +127,19 @@ function GetPill({ entry }: { entry: RegistryCardEntry }) {
 			</span>
 		);
 	}
-	const label =
-		entry.status === "docs" ? "Docs" : entry.status === "config" ? "Setup" : "Get";
-	return <span className={`${PILL_BASE} ${PILL_ACTIVE}`}>{label}</span>;
+	if (entry.status === "docs") {
+		return (
+			<span className={`${PILL_BASE} ${PILL_ACTIVE}`}>
+				Docs
+				<ArrowUpRight className="h-3 w-3" />
+			</span>
+		);
+	}
+	return (
+		<span className={`${PILL_BASE} ${PILL_ACTIVE}`}>
+			{entry.status === "config" ? "Setup" : "Get"}
+		</span>
+	);
 }
 
 function AppRow({
@@ -134,7 +151,7 @@ function AppRow({
 	hrefBase: string;
 	tabIndex?: number;
 }) {
-	const external = entry.status === "external";
+	const external = entry.status === "external" || /^https?:/.test(entry.href ?? "");
 	const comingSoon = entry.status === "coming-soon";
 
 	return (
@@ -145,6 +162,7 @@ function AppRow({
 			className="group flex items-center gap-4 rounded-md py-3.5 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
 		>
 			<RegistryIconTile
+				productId={entry.productId}
 				title={entry.title}
 				image={entry.image}
 				icon={entry.icon}
@@ -163,7 +181,7 @@ function AppRow({
 						{entry.title}
 					</h3>
 					{entry.beta && (
-						<span className="shrink-0 rounded-full border border-ink/15 px-1.5 py-0.5 text-xs text-ink-faint">
+						<span className="shrink-0 rounded border border-ink/15 px-1.5 py-px text-[11px] font-medium leading-4 text-ink-faint">
 							Beta
 						</span>
 					)}
@@ -375,6 +393,7 @@ function FeaturedBanner({
 							</span>
 						</div>
 						<RegistryIconTile
+				productId={entry.productId}
 							title={entry.title}
 							image={entry.image}
 							icon={entry.icon}
@@ -417,8 +436,8 @@ function FeaturedBanner({
 								<span
 									className={`h-1.5 rounded-full transition-all duration-300 motion-reduce:transition-none ${
 										candidateIndex === index
-											? "w-5 bg-pine"
-											: "w-1.5 bg-ink/25 group-hover:bg-ink/40"
+											? "w-5 bg-current text-pine"
+											: "w-1.5 bg-current text-ink/25 group-hover:text-ink/40"
 									}`}
 								/>
 							</button>
@@ -467,13 +486,19 @@ function FooterCta() {
 export default function RegistryPageClient({
 	entries,
 	hrefBase = "/registry",
+	categoryOrder = CATEGORY_ORDER,
+	footerCta = true,
 }: {
 	entries: RegistryCardEntry[];
 	hrefBase?: string;
+	/** Shelves, in order. Defaults to the agentOS taxonomy. */
+	categoryOrder?: RegistryCategory[];
+	/** The agentOS-specific closing panel. Off for other catalogs. */
+	footerCta?: boolean;
 }) {
 	const featured = entries.filter((entry) => entry.featured);
 
-	const categories = CATEGORY_ORDER.map(({ type, label, description }) => ({
+	const categories = categoryOrder.map(({ type, label, description }) => ({
 		label,
 		description,
 		entries: entries.filter((entry) => entry.types.includes(type)),
@@ -495,7 +520,7 @@ export default function RegistryPageClient({
 				/>
 			))}
 
-			<FooterCta />
+			{footerCta && <FooterCta />}
 		</>
 	);
 }

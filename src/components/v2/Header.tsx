@@ -8,10 +8,9 @@ import logoTextBlackUrl from "@/images/rivet-logos/icon-text-black.svg";
 import logoIconUrl from "@/images/rivet-logos/icon-white.svg";
 import { cn } from "@rivet-gg/components";
 import { Header as RivetHeader } from "@rivet-gg/components/header";
-import { Icon } from "@rivet-gg/icons";
+import { Icon, type IconProp } from "@rivet-gg/icons";
 import {
 	EYEBROW_CLASS,
-	EYEBROW_ON_INK_CLASS,
 	HEADER_PRIMARY_INK_BUTTON_CLASS,
 	HEADER_SECONDARY_BUTTON_CLASS,
 } from "@/components/marketing/typography";
@@ -24,18 +23,32 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@rivet-gg/components";
-import { faChevronDown } from "@rivet-gg/icons";
+import { faArrowRight, faChevronDown } from "@rivet-gg/icons";
 import { GitHubDropdown } from "./GitHubDropdown";
 import { HeaderSearch } from "./HeaderSearch";
 import { LogoContextMenu } from "./LogoContextMenu";
-import { ProductBar, ProductBadge } from "@/components/ProductBar";
-import { productAccent } from "@/lib/product-accent";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { DocsTabs, ProductBar, ProductBadge } from "@/components/ProductBar";
+import { DOCS_TABS, activeDocsTab } from "@/sitemap/docsTabs";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import {
-	findProductForPath,
-	visibleProducts as productVerticals,
-	visibleTabs,
-} from "@/sitemap/products";
+	DOCS_MENU,
+	SOLUTIONS_MENU,
+	SOLUTIONS_MENU_FOOTER,
+} from "@/data/nav-menus";
+import { findStandaloneProduct, getProduct, visibleTabs } from "@/sitemap/products";
+import { wordmarkMaskStyle } from "@/lib/product-accent";
+
+// Both assets carry the same black badge; only the word color differs.
+// CSS selects the asset before hydration, without inverting the badge.
+function RivetLogo({ className }: { className?: string }) {
+	return (
+		<span className={cn("block w-20 shrink-0", className)}>
+			<img className="rivet-logo-light" src={logoTextBlackUrl.src} width={80} height={27} alt="Rivet logo" />
+			<img className="rivet-logo-dark" src={logoUrl.src} width={80} height={27} alt="Rivet logo" />
+		</span>
+	);
+}
 
 interface TextNavItemProps {
 	href: string;
@@ -68,14 +81,25 @@ function TextNavItem({
 	);
 }
 
-function ProductsDropdown({
+/**
+ * The shared header menu shell: hover-to-open with a close delay, click to pin,
+ * Escape to dismiss, and an invisible bridge across the gap down to the panel.
+ *
+ * Extracted from the Products menu so Solutions and Documentation behave
+ * identically rather than each growing their own timing.
+ */
+function NavDropdown({
+	label,
 	active,
 	lightTheme = false,
 	align = "center",
+	children,
 }: {
+	label: string;
 	active?: boolean;
 	lightTheme?: boolean;
 	align?: "center" | "start";
+	children: ReactNode;
 }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -84,17 +108,6 @@ function ProductsDropdown({
 	const focusFromPointerRef = useRef(false);
 	const pinnedOpenRef = useRef(false);
 	const lightDropdownId = useId();
-
-	// The product verticals, in registry order. Each item opens the product's
-	// overview; its product bar then exposes the documentation and other sections.
-	const products = productVerticals.map((product) => ({
-		id: product.id,
-		label: product.name,
-		href: product.href,
-		description: product.description,
-		accent: productAccent(product.id),
-		product,
-	}));
 
 	const cancelClose = () => {
 		if (closeTimeoutRef.current) {
@@ -107,7 +120,6 @@ function ProductsDropdown({
 		cancelClose();
 		closeTimeoutRef.current = setTimeout(() => {
 			if (
-				lightTheme &&
 				document.activeElement instanceof Node &&
 				lightDropdownRef.current?.contains(document.activeElement)
 			) {
@@ -146,7 +158,7 @@ function ProductsDropdown({
 	}, []);
 
 	useEffect(() => {
-		if (!lightTheme || !isOpen) return;
+		if (!isOpen) return;
 
 		const closeOnOutsidePointer = (event: PointerEvent) => {
 			if (lightDropdownRef.current?.contains(event.target as Node)) return;
@@ -162,243 +174,324 @@ function ProductsDropdown({
 		return () => {
 			document.removeEventListener("pointerdown", closeOnOutsidePointer, true);
 		};
-	}, [isOpen, lightTheme]);
-
-	if (lightTheme) {
-		return (
-			<div
-				ref={lightDropdownRef}
-				className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-				onPointerDownCapture={() => {
-					// Pointer activation focuses the button before `click`. Let `click`
-					// perform the toggle so touch users do not immediately reopen it.
-					focusFromPointerRef.current = true;
-					queueMicrotask(() => {
-						focusFromPointerRef.current = false;
-					});
-				}}
-				onFocusCapture={() => {
-					if (focusFromPointerRef.current) return;
-					cancelClose();
-					setIsOpen(true);
-				}}
-				onBlurCapture={(event) => {
-					if (
-						event.relatedTarget instanceof Node &&
-						event.currentTarget.contains(event.relatedTarget)
-					) {
-						return;
-					}
-					cancelClose();
-					pinnedOpenRef.current = false;
-					setIsOpen(false);
-				}}
-				onKeyDown={(event) => {
-					if (event.key !== "Escape" || !isOpen) return;
-					event.preventDefault();
-					event.stopPropagation();
-					cancelClose();
-					lightTriggerRef.current?.focus();
-					pinnedOpenRef.current = false;
-					setIsOpen(false);
-				}}
-			>
-				<RivetHeader.NavItem asChild>
-					<button
-						ref={lightTriggerRef}
-						type="button"
-						aria-expanded={isOpen}
-						aria-controls={lightDropdownId}
-						className={cn(
-							"cursor-pointer flex items-center gap-1 relative rounded-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
-							"!text-ink-soft hover:!text-ink",
-							active && "!text-ink",
-							// Invisible hover bridge spanning the visual gap down to the
-							// dropdown panel so moving the mouse from the trigger to the
-							// panel does not cross a dead zone and close the menu. Keep
-							// this height >= the panel's gap below (top-[71px] / lg:mt-5).
-							"after:absolute after:left-0 after:right-0 after:top-full after:h-10 after:content-['']",
-						)}
-						onMouseEnter={handleMouseEnter}
-						onClick={() => {
-							cancelClose();
-							pinnedOpenRef.current = !pinnedOpenRef.current;
-							setIsOpen(pinnedOpenRef.current);
-						}}
-					>
-						Products
-						<Icon
-							aria-hidden="true"
-							icon={faChevronDown}
-							className={cn(
-								"h-3 w-3 ml-0.5 transition-transform duration-200",
-								isOpen && "rotate-180",
-							)}
-						/>
-					</button>
-				</RivetHeader.NavItem>
-				<div
-					id={lightDropdownId}
-					inert={!isOpen}
-					aria-hidden={!isOpen}
-					className={cn(
-						// Solid white so page content never shows through the panel,
-						// while keeping the header pill's white tint (not the cooler
-						// `paper`). Opaque overrides the frosted look on purpose: the
-						// dropdown overlays body copy, unlike the pill at the top edge.
-						"z-50 -translate-y-1 overflow-hidden rounded-2xl border border-ink/10 bg-white p-1.5 opacity-0 shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)] backdrop-blur-[18px] backdrop-saturate-[1.4] transition-all duration-150 pointer-events-none",
-						align === "start"
-							? "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-5 lg:translate-x-0"
-							: "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
-						isOpen
-							? "pointer-events-auto translate-y-0 opacity-100"
-							: "pointer-events-none -translate-y-1 opacity-0",
-					)}
-					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
-				>
-					{/* Verb-led premise grid: Orchestrate / Operate on the runtime row,
-					    Automate / Deploy on the outcome row. Order comes from the
-					    registry, which is kept in this lifecycle order. */}
-					<div className="grid gap-1 sm:grid-cols-2">
-						{products.map((product) => (
-							<div key={product.href} className="flex flex-col">
-								{/* The verb sits outside the link so the hover tint colors
-								    only the product lockup, not the category label. */}
-								{product.product.verb && (
-									<div className={`${EYEBROW_CLASS} px-3 pt-3 pb-1`}>
-										{product.product.verb}
-									</div>
-								)}
-								<a
-									href={canonicalizeInternalHref(product.href)}
-									className={cn(
-										"flex items-center gap-3 rounded-xl px-3 py-2.5 text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-inset",
-										product.accent?.tintHover ?? "hover:bg-ink/[0.07]",
-									)}
-								>
-									{/* The product color is the tile, not the mark. */}
-									<ProductBadge product={product.product} className="size-8" />
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center gap-2 text-sm font-medium leading-tight text-ink">
-											{product.label}
-											{product.product.badge && (
-												<span className="shrink-0 rounded-sm border border-ink/10 bg-ink/[0.06] px-1.5 py-px text-[10px] font-medium leading-[1.4] text-ink-soft whitespace-nowrap">
-													{product.product.badge}
-												</span>
-											)}
-										</div>
-										<div className="mt-0.5 text-pretty text-xs leading-snug text-ink-soft">
-											{product.product.premise ?? product.description}
-										</div>
-									</div>
-								</a>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		);
-	}
+	}, [isOpen]);
 
 	return (
 		<div
-			className="px-2.5 py-2"
+			ref={lightDropdownRef}
+			className={cn("group/products px-2.5 py-2", align === "start" && "relative")}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
+			onPointerDownCapture={() => {
+				// Pointer activation focuses the button before `click`. Let `click`
+				// perform the toggle so touch users do not immediately reopen it.
+				focusFromPointerRef.current = true;
+				queueMicrotask(() => {
+					focusFromPointerRef.current = false;
+				});
+			}}
+			onFocusCapture={() => {
+				if (focusFromPointerRef.current) return;
+				cancelClose();
+				setIsOpen(true);
+			}}
+			onBlurCapture={(event) => {
+				if (
+					event.relatedTarget instanceof Node &&
+					event.currentTarget.contains(event.relatedTarget)
+				) {
+					return;
+				}
+				cancelClose();
+				pinnedOpenRef.current = false;
+				setIsOpen(false);
+			}}
+			onKeyDown={(event) => {
+				if (event.key !== "Escape" || !isOpen) return;
+				event.preventDefault();
+				event.stopPropagation();
+				cancelClose();
+				lightTriggerRef.current?.focus();
+				pinnedOpenRef.current = false;
+				setIsOpen(false);
+			}}
 		>
-			<DropdownMenu open={isOpen} onOpenChange={handleOpenChange} modal={false}>
-				<DropdownMenuTrigger asChild>
-					<RivetHeader.NavItem asChild>
-						<button
-							type="button"
-							className={cn(
-								"cursor-pointer flex items-center gap-1 relative transition-colors duration-200",
-								lightTheme ? "!text-ink-soft hover:!text-ink" : "!text-zinc-400 hover:!text-white",
-								active && !lightTheme && "!text-white",
-								"after:absolute after:left-0 after:right-0 after:top-full after:h-4 after:content-['']",
-							)}
-							onPointerDown={handlePointerDown}
-							onMouseEnter={handleMouseEnter}
-						>
-							Products
-							<Icon icon={faChevronDown} className="h-3 w-3 ml-0.5" />
-						</button>
-					</RivetHeader.NavItem>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					align="start"
+			<RivetHeader.NavItem asChild>
+				<button
+					ref={lightTriggerRef}
+					type="button"
+					aria-expanded={isOpen}
+					aria-controls={lightDropdownId}
 					className={cn(
-						"min-w-[280px] p-4 rounded-xl shadow-xl",
+						"cursor-pointer flex items-center gap-1 relative rounded-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
 						lightTheme
-							? "bg-white/95 backdrop-blur-lg border border-ink/10"
-							: "bg-black/95 backdrop-blur-lg border border-white/10",
+							? "focus-visible:ring-pine focus-visible:ring-offset-paper !text-ink-soft hover:!text-ink"
+							: "focus-visible:ring-white/60 focus-visible:ring-offset-neutral-950 !text-zinc-400 hover:!text-white",
+						active && (lightTheme ? "!text-ink" : "!text-white"),
+						// Invisible hover bridge spanning the visual gap down to the
+						// dropdown panel so moving the mouse from the trigger to the
+						// panel does not cross a dead zone and close the menu. Keep
+						// this height >= the panel's gap below (top-[71px] / lg:mt-5).
+						"after:absolute after:left-0 after:right-0 after:top-full after:h-10 after:content-['']",
 					)}
 					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
-					sideOffset={0}
-					alignOffset={0}
-					side="bottom"
+					onClick={() => {
+						cancelClose();
+						pinnedOpenRef.current = !pinnedOpenRef.current;
+						setIsOpen(pinnedOpenRef.current);
+					}}
 				>
-					<div className="flex flex-col gap-1">
-						{products.map((product) => (
-							<React.Fragment key={product.href}>
-								<a
-									href={canonicalizeInternalHref(product.href)}
+					{label}
+					<Icon
+						aria-hidden="true"
+						icon={faChevronDown}
+						className={cn(
+							"h-3 w-3 ml-0.5 transition-transform duration-200",
+							isOpen && "rotate-180",
+						)}
+					/>
+				</button>
+			</RivetHeader.NavItem>
+			<div
+				id={lightDropdownId}
+				inert={!isOpen}
+				aria-hidden={!isOpen}
+				className={cn(
+					// Opaque on purpose, in either theme: the dropdown overlays body
+					// copy, unlike the pill at the top edge, so page content must
+					// never show through it.
+					"z-50 -translate-y-1 overflow-hidden rounded-2xl border p-1.5 opacity-0 backdrop-blur-[18px] backdrop-saturate-[1.4] transition-all duration-150 pointer-events-none",
+					lightTheme
+						? "border-ink/10 bg-white shadow-[0_18px_50px_-32px_rgba(27,25,22,0.42)]"
+						: "border-white/10 bg-neutral-950 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.85)]",
+					align === "start"
+						? "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2 lg:absolute lg:left-0 lg:top-full lg:mt-5 lg:translate-x-0"
+						: "fixed left-1/2 top-[71px] w-[min(720px,calc(100vw-3rem))] -translate-x-1/2",
+					isOpen
+						? "pointer-events-auto translate-y-0 opacity-100"
+						: "pointer-events-none -translate-y-1 opacity-0",
+				)}
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+			>
+				{children}
+			</div>
+		</div>
+	);
+}
+
+/**
+ * The tile at the head of a menu row. Product rows take the product's accent
+ * tile via `ProductBadge`; the rest take a glyph in a quiet outlined tile of
+ * the same size, so both columns of a menu share one rhythm. Drawn with
+ * tokens only so it holds in both themes.
+ */
+/**
+ * The quiet outlined tile at the head of a non-product menu row, sized to the
+ * product tiles beside it so both columns share one rhythm. Drawn with tokens
+ * only so it holds in both themes. Takes either a Font Awesome glyph or a
+ * white-on-transparent mark, which is masked and painted in the tile's text
+ * color.
+ */
+function GlyphTile({
+	lightTheme,
+	className,
+	children,
+}: { lightTheme: boolean; className?: string; children: React.ReactNode }) {
+	return (
+		<span
+			className={cn(
+				"flex shrink-0 items-center justify-center rounded-[34.375%] border",
+				lightTheme
+					? "border-ink/10 bg-paper text-ink-soft group-hover:border-ink/20 group-hover:text-ink"
+					: "border-white/10 bg-white/5 text-zinc-300 group-hover:text-white",
+				className ?? "size-8",
+			)}
+		>
+			{children}
+		</span>
+	);
+}
+
+function MenuGlyph({ icon, lightTheme }: { icon: IconProp; lightTheme: boolean }) {
+	return (
+		<GlyphTile lightTheme={lightTheme}>
+			<Icon icon={icon} aria-hidden="true" className="h-3.5 w-3.5" />
+		</GlyphTile>
+	);
+}
+
+function MenuMark({
+	src,
+	lightTheme,
+	className,
+	markClassName = "size-4",
+}: { src: string; lightTheme: boolean; className?: string; markClassName?: string }) {
+	return (
+		<GlyphTile lightTheme={lightTheme} className={className}>
+			<span
+				aria-hidden="true"
+				style={wordmarkMaskStyle(src)}
+				className={cn("inline-block bg-current", markClassName)}
+			/>
+		</GlyphTile>
+	);
+}
+
+/** Shared row chrome for both menus: full-width link, quiet hover fill. */
+function menuRowClass(lightTheme: boolean) {
+	return cn(
+		"group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
+		lightTheme
+			? "text-ink hover:bg-paper-mid focus-visible:ring-pine"
+			: "text-white hover:bg-white/5 focus-visible:ring-white/60",
+	);
+}
+
+/** The strip along the bottom of a menu: one quiet, arrowed link. */
+function MenuFooter({
+	href,
+	label,
+	lightTheme,
+}: {
+	href: string;
+	label: string;
+	lightTheme: boolean;
+}) {
+	return (
+		<div
+			className={cn(
+				"-mx-1.5 -mb-1.5 mt-1.5 border-t px-4 py-2.5",
+				lightTheme ? "border-ink/10 bg-paper" : "border-white/10 bg-white/[0.03]",
+			)}
+		>
+			<a
+				href={canonicalizeInternalHref(href)}
+				className={cn(
+					"group inline-flex items-center gap-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:underline",
+					lightTheme ? "text-ink-soft hover:text-ink" : "text-zinc-400 hover:text-white",
+				)}
+			>
+				{label}
+				<Icon
+					icon={faArrowRight}
+					aria-hidden="true"
+					className="h-3 w-3 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+				/>
+			</a>
+		</div>
+	);
+}
+
+/**
+ * Solutions: the audiences from the landing page's "Built for every kind of
+ * agent" section. Each row opens the guide for building that kind of agent.
+ */
+function SolutionsDropdown({ lightTheme = false }: { lightTheme?: boolean }) {
+	return (
+		<NavDropdown label="Solutions" lightTheme={lightTheme} align="start">
+			<div className={cn(EYEBROW_CLASS, "px-3 pt-3 pb-1", !lightTheme && "!text-zinc-500")}>
+				Built for every kind of agent
+			</div>
+			<ul className="grid gap-x-1 sm:grid-cols-2">
+				{SOLUTIONS_MENU.map((item) => (
+					<li key={item.id}>
+						<a href={canonicalizeInternalHref(item.href)} className={menuRowClass(lightTheme)}>
+							<MenuGlyph icon={item.icon} lightTheme={lightTheme} />
+							<span className="min-w-0 flex-1">
+								<span className="block truncate font-medium leading-tight">{item.label}</span>
+								<span
 									className={cn(
-										"group flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer",
-										lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
+										"mt-0.5 block truncate text-xs leading-snug",
+										lightTheme ? "text-ink-faint" : "text-zinc-400",
 									)}
 								>
-									<ProductBadge product={product.product} className="size-6" />
-									<div className="flex flex-col">
-										<div className={cn(
-											"font-medium text-sm transition-colors",
-											lightTheme ? "text-ink" : "text-white group-hover:text-white",
-										)}>
-											{product.label}
-										</div>
-										<div className={cn(
-											"text-xs transition-colors leading-relaxed",
-											lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
-										)}>
-											{product.description}
-										</div>
-									</div>
-								</a>
-								{product.subItems?.map((sub) => (
-									<a
-										key={sub.href}
-										href={canonicalizeInternalHref(sub.href)}
-										className={cn(
-											"group flex items-center gap-2.5 py-1.5 pl-12 pr-3 rounded-lg transition-colors cursor-pointer",
-											lightTheme ? "hover:bg-ink/[0.04]" : "hover:bg-white/5",
-										)}
-									>
-										<sub.icon
-											className={cn(
-												"h-3.5 w-3.5 transition-colors",
-												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-500 group-hover:text-zinc-300",
-											)}
-										/>
-										<span
-											className={cn(
-												"text-xs transition-colors",
-												lightTheme ? "text-ink-faint group-hover:text-ink-soft" : "text-zinc-400 group-hover:text-zinc-300",
-											)}
+									{item.description}
+								</span>
+							</span>
+						</a>
+					</li>
+				))}
+			</ul>
+			<MenuFooter
+				href={SOLUTIONS_MENU_FOOTER.href}
+				label={SOLUTIONS_MENU_FOOTER.label}
+				lightTheme={lightTheme}
+			/>
+		</NavDropdown>
+	);
+}
+
+/**
+ * Documentation, in two columns: Orchestration (what runs the workloads) and
+ * Actors (the workloads themselves), split by a hairline. Product rows carry
+ * their `ProductBadge`; orchestration rows carry a glyph tile of the same size.
+ */
+function DocsDropdown({
+	active,
+	lightTheme = false,
+}: {
+	active?: boolean;
+	lightTheme?: boolean;
+}) {
+	return (
+		<NavDropdown
+			label="Documentation"
+			active={active}
+			lightTheme={lightTheme}
+			align="start"
+		>
+			<div
+				className={cn(
+					"grid gap-y-2 sm:grid-cols-2 sm:divide-x",
+					lightTheme ? "divide-ink/10" : "divide-white/10",
+				)}
+			>
+				{DOCS_MENU.map((column, index) => (
+					<div
+						key={column[0].label}
+						className={cn("flex flex-col", index > 0 && "sm:pl-1.5")}
+					>
+						{column.map((group) => (
+							<div key={group.label} className="flex flex-col">
+								<div
+									className={cn(
+										EYEBROW_CLASS,
+										"px-3 pt-3 pb-1",
+										!lightTheme && "!text-zinc-500",
+									)}
+								>
+									{group.label}
+								</div>
+								{group.links.map((link) => {
+									const product = link.productId
+										? getProduct(link.productId)
+										: undefined;
+									return (
+										<a
+											key={link.href}
+											href={canonicalizeInternalHref(link.href)}
+											className={cn(menuRowClass(lightTheme), "font-medium")}
 										>
-											{sub.label}
-										</span>
-									</a>
-								))}
-							</React.Fragment>
+											{product ? (
+												<ProductBadge product={product} className="size-8" />
+											) : link.markSrc ? (
+												<MenuMark src={link.markSrc} lightTheme={lightTheme} />
+											) : link.icon ? (
+												<MenuGlyph icon={link.icon} lightTheme={lightTheme} />
+											) : (
+												<span aria-hidden="true" className="size-8 shrink-0" />
+											)}
+											<span className="min-w-0 flex-1 truncate">{link.label}</span>
+										</a>
+									);
+								})}
+							</div>
 						))}
 					</div>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		</div>
+				))}
+			</div>
+		</NavDropdown>
 	);
 }
 
@@ -459,10 +552,17 @@ export function Header({
 	// stays dark for the Learn section.
 	const isLightTheme = variant === "floating" || light;
 
-	// Inside a product vertical the second header row is the product bar: which
-	// product you are in, a switcher, and that product's three docs tabs.
+	// On docs pages the second header row is the docs tab strip, identical on
+	// every docs page. Standalone subsites (agentOS, Secure Exec) keep their own
+	// product bar instead: the product lockup plus that product's tabs.
+	const standalone =
+		(productId ? getProduct(productId) : undefined) ?? findStandaloneProduct(pathname);
 	const effectiveSubnav = showProductBar ? (
-		<ProductBar initialPathname={pathname} productId={productId} tabId={tabId} sectionLabel={sectionLabel} />
+		standalone?.standalone ? (
+			<ProductBar initialPathname={pathname} productId={standalone.id} tabId={tabId} dark={!isLightTheme} />
+		) : (
+			<DocsTabs initialPathname={pathname} dark={!isLightTheme} />
+		)
 	) : (
 		subnav
 	);
@@ -506,7 +606,7 @@ export function Header({
 					{/* White glass pill: frosted fill with a soft top sheen. The pill's
 						outline is the ink/10 hairline on the parent's ::before, so this
 						layer carries no border of its own. */}
-					<div className="absolute inset-0 -z-[1] overflow-hidden rounded-2xl bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4]" />
+					<div className="site-header-glass absolute inset-0 -z-[1] overflow-hidden rounded-2xl bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-[18px] backdrop-saturate-[1.4]" />
 					<RivetHeader
 						className={headerStyles}
 						logo={
@@ -514,26 +614,14 @@ export function Header({
 								{/* Mobile logo */}
 								<div className="md:hidden ml-1">
 									<a href="/">
-										<img
-											src={logoTextBlackUrl.src}
-											width={80}
-											height={27}
-											className="w-20 shrink-0"
-											alt="Rivet logo"
-										/>
+										<RivetLogo />
 									</a>
 								</div>
 								{/* Desktop logo */}
 								<div className="hidden md:block">
 									<LogoContextMenu>
 										<a href="/">
-											<img
-												src={logoTextBlackUrl.src}
-												width={80}
-												height={27}
-												className="ml-1 w-20 shrink-0"
-												alt="Rivet logo"
-											/>
+											<RivetLogo className="ml-1" />
 										</a>
 									</LogoContextMenu>
 								</div>
@@ -543,10 +631,11 @@ export function Header({
 						support={null}
 						links={
 							<div className="flex flex-row items-center gap-2">
+								<ThemeToggle />
 								<GitHubDropdown className={cn("hidden md:inline-flex", HEADER_SECONDARY_BUTTON_CLASS)} />
 								<a
 									href="https://dashboard.rivet.dev"
-									className={cn("font-v2 subpixel-antialiased", HEADER_PRIMARY_INK_BUTTON_CLASS)}
+									className={cn("site-header-action font-v2 subpixel-antialiased", HEADER_PRIMARY_INK_BUTTON_CLASS)}
 								>
 									Sign In
 								</a>
@@ -568,18 +657,16 @@ export function Header({
 								{/* Same anchored panel the other pages use. The floating header
 								    used to get a full-width centered sheet, which read as a
 								    different component. */}
-								<ProductsDropdown active={active === "product"} lightTheme align="start" />
-								<TextNavItem
-									href="/docs"
-									ariaCurrent={active === "docs" ? "page" : undefined}
-								>
-									Documentation
+								<SolutionsDropdown lightTheme />
+								<DocsDropdown active={active === "docs"} lightTheme />
+								<TextNavItem href="/registry">
+									Registry
 								</TextNavItem>
 								<TextNavItem href="/enterprise">
 									Enterprise
 								</TextNavItem>
 								<TextNavItem
-									href="/cloud"
+									href="/pricing"
 									ariaCurrent={active === "pricing" ? "page" : undefined}
 								>
 									Pricing
@@ -596,7 +683,7 @@ export function Header({
 	return (
 		<RivetHeader
 			className={cn(
-				"sticky top-0 z-50",
+				"site-header-glass sticky top-0 z-50",
 				// Same glass recipe as the floating pill so both headers read as one
 				// material: frosted white fill, soft top sheen, one closing hairline.
 				// bg-paper/90 is the fallback when backdrop-filter is unsupported.
@@ -615,15 +702,7 @@ export function Header({
 				<div className="hidden md:block">
 					<LogoContextMenu>
 						<a href="/">
-							<img
-								src={isLightTheme ? logoTextBlackUrl.src : logoUrl.src}
-								width={80}
-								height={27}
-								className="w-20 shrink-0"
-								alt="Rivet logo"
-								loading="eager"
-								decoding="async"
-							/>
+							<RivetLogo />
 						</a>
 					</LogoContextMenu>
 				</div>
@@ -632,6 +711,7 @@ export function Header({
 			support={<></>}
 			links={
 				<div className="flex flex-row items-center gap-2">
+					{isLightTheme && <ThemeToggle />}
 					{!learnMode && <HeaderSearch light={isLightTheme} />}
 					<GitHubDropdown
 						className={
@@ -643,7 +723,7 @@ export function Header({
 					<a
 						href="https://dashboard.rivet.dev"
 						className={cn(
-							"font-v2 subpixel-antialiased",
+							"site-header-action font-v2 subpixel-antialiased",
 							isLightTheme
 								? HEADER_PRIMARY_INK_BUTTON_CLASS
 								: "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md border border-white/10 bg-white/5 px-3 text-sm font-medium text-white transition-colors hover:border-white/20",
@@ -661,23 +741,23 @@ export function Header({
 					"flex items-center font-v2 subpixel-antialiased",
 					isLightTheme && "[&_a]:!text-ink-soft [&_a:hover]:!text-ink [&_a[aria-current=page]]:!text-ink [&_button]:!text-ink-soft",
 				)}>
-					<ProductsDropdown active={active === "product"} lightTheme={isLightTheme} align="start" />
-					{/* Inside a product the second row carries that product's own
-					    Documentation tab, so the global one is dropped rather than
-					    repeated one line apart with a different destination. */}
-					{!showProductBar && (
-						<TextNavItem
-							href="/docs"
-							ariaCurrent={active === "docs" ? "page" : undefined}
-						>
-							Documentation
-						</TextNavItem>
+					<SolutionsDropdown lightTheme={isLightTheme} />
+					{/* On the main docs pages the second row is the docs tab strip,
+					    which lists the same sections the menu does, so the menu is
+					    dropped rather than repeated one line apart. Standalone
+					    subsites (agentOS, Secure Exec) carry their own product bar
+					    and keep the menu as the way back into the main docs. */}
+					{(!showProductBar || standalone?.standalone) && (
+						<DocsDropdown active={active === "docs"} lightTheme={isLightTheme} />
 					)}
+					<TextNavItem href="/registry">
+						Registry
+					</TextNavItem>
 					<TextNavItem href="/enterprise">
 						Enterprise
 					</TextNavItem>
 					<TextNavItem
-						href="/cloud"
+						href="/pricing"
 						ariaCurrent={active === "pricing" ? "page" : undefined}
 					>
 						Pricing
@@ -702,86 +782,76 @@ function DocsMobileNavigation({
 	tabId?: string;
 }) {
 	const pathname = usePathname() || "";
-	const pathCurrent = findProductForPath(pathname.replace(/\/$/, ""));
-	const explicitProduct = productId
-		? productVerticals.find((product) => product.id === productId)
+	const trimmedPath = pathname.replace(/\/$/, "");
+	const activeTab = activeDocsTab(trimmedPath);
+	// Standalone subsites collapse their own product bar into the sheet.
+	const standalone =
+		(productId ? getProduct(productId) : undefined) ?? findStandaloneProduct(trimmedPath);
+	const standaloneTab = standalone?.standalone
+		? (tabId ?? trimmedPath.split("/")[2] ?? "overview")
 		: undefined;
-	const explicitTab = explicitProduct && tabId
-		? explicitProduct.tabs.find((tab) => tab.id === tabId)
-		: undefined;
-	const current = explicitProduct && explicitTab
-		? { product: explicitProduct, tab: explicitTab }
-		: pathCurrent;
-	const isGlobalDocsPage =
-		pathname.startsWith("/docs/") && Boolean(sidebarData?.length);
+	// A docs page is anything that hands the header a sidebar, plus the shared
+	// integrations root, which has none until a product is chosen.
 	const isDocsPage =
-		Boolean(current) ||
-		pathname.startsWith("/integrations") ||
-		isGlobalDocsPage;
+		Boolean(activeTab) ||
+		Boolean(standaloneTab) ||
+		Boolean(sidebarData?.length) ||
+		pathname.startsWith("/integrations");
 
-	// On mobile the product bar collapses into this sheet. Product entries link
-	// to their overviews; the section dropdown lists the remaining tabs.
-	const sections = current
-		? visibleTabs(current.product).map((tab) => ({
-				id: tab.id,
-				label: tab.title,
-				href: tab.href,
-			}))
-		: isGlobalDocsPage
-			? [{ id: "docs", label: "Documentation", href: "/docs/" }]
-			: [{ id: "integrations", label: "Integrations", href: "/integrations" }];
+	// On mobile the second header row collapses into this sheet's section
+	// dropdown: the docs tab strip, or a standalone product's own tabs.
+	const sections =
+		standalone?.standalone
+			? [
+					{ id: "overview", label: standalone.name, href: standalone.href },
+					...visibleTabs(standalone).map((tab) => ({ id: tab.id, label: tab.title, href: tab.href })),
+				]
+			: DOCS_TABS.map((tab) => ({ id: tab.id, label: tab.title, href: tab.href }));
 
 	const mainLinks = [
-		{ href: "/docs", label: "Documentation" },
+		{ href: "/registry", label: "Registry" },
 		{ href: "/enterprise", label: "Enterprise" },
-		{ href: "/cloud", label: "Pricing" },
+		{ href: "/pricing", label: "Pricing" },
 	];
 
-	const products = productVerticals.map((product) => ({
-		id: product.id,
-		label: product.name,
-		href: product.href,
-		product,
-	}));
-
-	const currentSection = current
-		? sections.find((section) => section.id === current.tab.id)
-		: sections[0];
+	const currentSection = sections.find((section) => section.id === (standaloneTab ?? activeTab));
 
 	if (isLightTheme) {
 		return (
 			<div className="flex flex-col gap-2 font-v2 subpixel-antialiased text-sm">
 				{/* Home logo */}
 				<a href="/" className="py-3 px-2">
-					<img
-						src={logoTextBlackUrl.src}
-						alt="Rivet"
-						width={80}
-						height={27}
-						className="w-20"
-					/>
+					<RivetLogo />
 				</a>
 
-				{/* Products section */}
-				<div className="text-ink-faint py-2 px-2 text-xs uppercase tracking-wide">
-					Products
-				</div>
-				{products.map((product) => (
-					<a
-						key={product.href}
-						href={canonicalizeInternalHref(product.href)}
-						target={product.external ? "_blank" : undefined}
-						rel={product.external ? "noopener noreferrer" : undefined}
-						className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
-					>
-						<ProductBadge product={product.product} className="size-6" />
-						{product.label}
-						{product.product.verb && (
-							<span className={`${EYEBROW_CLASS} ml-auto`}>
-								{product.product.verb}
-							</span>
-						)}
-					</a>
+				{/* Documentation, flattened from the desktop menu's two columns. */}
+				{DOCS_MENU.flat().map((group) => (
+					<div key={group.label}>
+						<div className="text-ink-faint py-2 px-2 text-xs uppercase tracking-wide">
+							{group.label}
+						</div>
+						{group.links.map((link) => {
+							const product = link.productId
+								? getProduct(link.productId)
+								: undefined;
+							return (
+								<a
+									key={link.href}
+									href={canonicalizeInternalHref(link.href)}
+									className="text-ink py-2 px-2 pl-4 hover:bg-ink/5 rounded-sm transition-colors flex items-center gap-2"
+								>
+									{product ? (
+										<ProductBadge product={product} className="size-6" />
+									) : link.markSrc ? (
+										<MenuMark src={link.markSrc} lightTheme className="size-6" markClassName="size-3.5" />
+									) : (
+										<span aria-hidden="true" className="size-6 shrink-0" />
+									)}
+									{link.label}
+								</a>
+							);
+						})}
+					</div>
 				))}
 
 				{/* Main navigation links */}
@@ -823,7 +893,7 @@ function DocsMobileNavigation({
 						{/* Tree/sidebar content */}
 						{tree && <div className="mt-1">{tree}</div>}
 						{!tree && sidebarData && (
-							<SidebarAccentProvider productId={current?.product.id}>
+							<SidebarAccentProvider productId={productId}>
 								<NavigationStateProvider>
 									<div className="mt-1">
 										<Tree pages={sidebarData} />
@@ -867,26 +937,34 @@ function DocsMobileNavigation({
 				/>
 			</a>
 
-			{/* Products section */}
-			<div className="text-zinc-500 py-2 px-2 text-xs uppercase tracking-wide">
-				Products
-			</div>
-			{products.map((product) => (
-				<a
-					key={product.href}
-					href={canonicalizeInternalHref(product.href)}
-					target={product.external ? "_blank" : undefined}
-					rel={product.external ? "noopener noreferrer" : undefined}
-					className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
-				>
-					<ProductBadge product={product.product} className="size-6" />
-					{product.label}
-					{product.product.verb && (
-						<span className={`${EYEBROW_ON_INK_CLASS} ml-auto`}>
-							{product.product.verb}
-						</span>
-					)}
-				</a>
+			{/* Documentation, mirroring the light-theme sheet above. */}
+			{DOCS_MENU.flat().map((group) => (
+				<div key={group.label}>
+					<div className="text-zinc-500 py-2 px-2 text-xs uppercase tracking-wide">
+						{group.label}
+					</div>
+					{group.links.map((link) => {
+						const product = link.productId
+							? getProduct(link.productId)
+							: undefined;
+						return (
+							<a
+								key={link.href}
+								href={canonicalizeInternalHref(link.href)}
+								className="text-white py-2 px-2 pl-4 hover:bg-white/5 rounded-sm transition-colors flex items-center gap-2"
+							>
+								{product ? (
+									<ProductBadge product={product} className="size-6" />
+								) : link.markSrc ? (
+									<MenuMark src={link.markSrc} lightTheme={false} className="size-6" markClassName="size-3.5" />
+								) : (
+									<span aria-hidden="true" className="size-6 shrink-0" />
+								)}
+								{link.label}
+							</a>
+						);
+					})}
+				</div>
 			))}
 
 			{/* Main navigation links */}

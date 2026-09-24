@@ -24,7 +24,7 @@ import { Icon, faDownload } from '@rivet-gg/icons';
 const BRAND_KIT_URL = '/rivet-brand-kit.zip';
 
 const facts = [
-	{ label: 'Category', value: 'Open-source infrastructure for AI agents' },
+	{ label: 'Category', value: 'Open-source orchestrator for agentic workloads' },
 	{ label: 'Company', value: 'Rivet Gaming, Inc.' },
 	{ label: 'Headquarters', value: 'San Francisco, California' },
 	{ label: 'Team', value: 'Distributed worldwide' },
@@ -195,16 +195,25 @@ const inlineLink =
 						<h2 class={SECTION_H2_CLASS}>About Rivet</h2>
 						<div class="mt-6 space-y-5 text-base leading-relaxed text-ink-soft">
 							<p>
-								Rivet is composable, open-source infrastructure for the agentic era. At its core is
-								<a href="/actors/" class={inlineLink}>Actors</a> — a primitive for stateful workloads that gives every agent a durable,
-								addressable process to live in, with SQLite-per-actor, WebSockets, and hibernation.
+								Rivet is an open-source orchestrator for agentic workloads. Everything it runs is an
+								<a href="/actors/docs/" class={inlineLink}>Actor</a>: a long-lived process with its own
+								SQLite database and filesystem that hibernates when idle and wakes on demand, scheduled
+								by one control plane on workers you already run.
 							</p>
 							<p>
-								That foundation carries <a href="/agentos/" class={inlineLink}>agentOS</a>,
-								<a href="/workflows/" class={inlineLink}>Workflows</a>, and
-								<a href="/dynamic-apps/" class={inlineLink}>Dynamic Apps</a>, and
-								<a href="/cloud/" class={inlineLink}>Rivet Cloud</a> runs the whole stack for you. Most of
-								Rivet is Apache 2.0, self-hostable, and can be fully air-gapped in your VPC.
+								<a href="/agents/docs/" class={inlineLink}>Agents</a>,
+								<a href="/workflows/docs/" class={inlineLink}>Workflows</a>,
+								<a href="/agentos/docs/" class={inlineLink}>Sandboxes</a>,
+								<a href="/dynamic-apps/docs/" class={inlineLink}>Dynamic Apps</a>, and
+								<a href="/integrations/" class={inlineLink}>Integrations</a> are Actor types built
+								on that primitive. <a href="/agentos/" class={inlineLink}>agentOS</a> and
+								<a href="/secure-exec/" class={inlineLink}>Secure Exec</a> are libraries that run inside
+								Actors.
+							</p>
+							<p>
+								Most of Rivet is Apache 2.0 and self-hostable.
+								<a href="/docs/deploy/cloud/" class={inlineLink}>Rivet Cloud</a> runs it for you, or
+								<a href="/docs/deploy/byoc/" class={inlineLink}>BYOC</a> runs it inside your own cloud account.
 							</p>
 							<p class="text-ink">
 								Orchestrate agents. Operate their environment. Automate their work. Deploy what they

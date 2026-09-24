@@ -40,14 +40,14 @@ When you create a Rivet Cloud account, we collect your email address, name, orga
 
 ### Billing information
 
-Payments are handled by our payment processor, which receives your payment details directly. We never store full card numbers. We keep your billing contact details, your plan, and usage and metering records (for example, awake actor hours, storage, reads and writes, egress, and compute time) so we can bill you accurately.
+Payments are handled by our payment processor, which receives your payment details directly. We never store full card numbers. We keep your billing contact details, your plan, and usage and metering records (for example, awake Actor hours, storage, reads and writes, egress, and compute time) so we can bill you accurately.
 
 ### Service usage data
 
 When you use Rivet Cloud, we collect operational data about your use of the service itself:
 
 - API request logs, including the identity of the account and credentials making each request.
-- Resource usage measured for metering and billing, such as awake actor hours, state storage, reads and writes to persisted state, egress, and compute time.
+- Resource usage measured for metering and billing, such as awake Actor hours, state storage, reads and writes to persisted state, egress, and compute time.
 - Diagnostic logs that help us detect failures, debug problems, and keep the service running.
 
 This is data about your use of Rivet Cloud. The data your workloads themselves store and process is Customer Content, covered separately below.
@@ -85,7 +85,7 @@ If you are logged in to Rivet Cloud, documentation pages fetch your projects, na
 
 Customers run workers — processes running their own code with the Rivet SDK — on their own infrastructure, while Rivet Cloud hosts the control plane and storage. In that arrangement, Rivet Cloud persists data on the customer's behalf. We call that data "Customer Content". It includes:
 
-- Persisted actor state and per-actor SQLite databases.
+- Persisted Actor state and per-Actor SQLite databases.
 - Messages, schedules, and logs.
 - Container images customers supply for managed container deployment, and the logs those containers produce while running on Rivet-managed infrastructure.
 - agentOS session data, including files, command history, and network activity within an agentOS workload — which may include credentials, such as model-provider API keys, that the customer configures.

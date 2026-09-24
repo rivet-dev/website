@@ -4,11 +4,11 @@ export const AI_DOCS_ITEMS = [
 	{
 		id: "skills",
 		title: "Skills",
-		href: "/actors/docs/general/skill/",
-		contentId: "actors/docs/general/skill",
-		markdownPath: "actors/docs/general/skill",
+		href: "/docs/skill/",
+		contentId: "docs/skill",
+		markdownPath: "docs/skill",
 		editUrl:
-			"https://github.com/rivet-dev/rivet/edit/main/docs/content/docs/general/skill.mdx",
+			"https://github.com/rivet-dev/rivet/edit/main/docs/general/content/skill.mdx",
 		description:
 			"Install Rivet guidance and implementation patterns in supported AI coding assistants.",
 	},
@@ -19,7 +19,7 @@ export const AI_DOCS_ITEMS = [
 		contentId: "docs/mcp",
 		markdownPath: "docs/mcp",
 		editUrl:
-			"https://github.com/rivet-dev/website/edit/main/src/content/docs/docs/mcp.mdx",
+			"https://github.com/rivet-dev/rivet/edit/main/docs/general/content/mcp.mdx",
 		description:
 			"Connect Claude Code, Codex, Cursor, and other AI clients to Rivet.",
 	},
@@ -28,12 +28,12 @@ export const AI_DOCS_ITEMS = [
 export type AiDocsItem = (typeof AI_DOCS_ITEMS)[number];
 
 /**
- * Keep shared AI documentation inside the current product's docs shell. Actors
- * owns the canonical Skills page and is the default shell for the canonical MCP
- * page; every other product gets a noncanonical contextual alias.
+ * Keep shared AI documentation inside the current product's docs shell. Both
+ * canonical pages live in the product-agnostic bundle at `/docs/`; every
+ * product gets a noncanonical contextual alias under its own vertical.
  */
 export function aiDocsHref(item: AiDocsItem, productId?: string): string {
-	if (!productId || productId === "actors") return item.href;
+	if (!productId) return item.href;
 	return `/${productId}/docs/ai/${item.id}/`;
 }
 
@@ -47,22 +47,36 @@ export function aiSidebarSection(productId?: string): SidebarItem {
 	};
 }
 
+/** Group and page titles an imported bundle may still use for these pages. */
+const LEGACY_AI_TITLES: ReadonlySet<string> = new Set([
+	"AI",
+	"AI Tools",
+	"AI Integration",
+]);
+
+const isLegacyAiTitle = (title: string | undefined) =>
+	title !== undefined && LEGACY_AI_TITLES.has(title);
+
 /**
  * Add the site-wide AI links to a rendered Documentation sidebar without
  * making those links part of every product's route-owning sitemap.
+ *
+ * Imported sidebars are synced from the product repositories on their own
+ * schedule, so one may still carry a hand-authored version of this group. Drop
+ * those first; the injected group is the single source of truth.
  */
 export function withAiSidebarSection(
 	sidebar: readonly SidebarItem[],
 	productId?: string,
 ): SidebarItem[] {
 	const normalized = sidebar
-		.filter((item) => item.title !== "AI" && item.title !== "AI Tools")
+		.filter((item) => !isLegacyAiTitle(item.title))
 		.map((item) => {
 			if (!("pages" in item)) return item;
 			return {
 				...item,
 				pages: item.pages.filter(
-					(page) => !("title" in page) || page.title !== "AI Integration",
+					(page) => !("title" in page) || !isLegacyAiTitle(page.title),
 				),
 			};
 		});

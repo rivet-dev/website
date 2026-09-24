@@ -1,11 +1,13 @@
-import { agentOS, setup } from "@rivet-dev/agentos";
 import type { Permissions } from "@rivet-dev/agentos";
+import { agentOS, setup } from "@rivet-dev/agentos";
 
 // Allow the filesystem everywhere, but deny anything under /home/agentos/vault.
 const denyVault = {
 	fs: {
 		default: "allow",
-		rules: [{ mode: "deny", operations: ["*"], paths: ["/home/agentos/vault/**"] }],
+		rules: [
+			{ mode: "deny", operations: ["*"], paths: ["/home/agentos/vault/**"] },
+		],
 	},
 } satisfies Permissions;
 
@@ -13,15 +15,21 @@ const denyVault = {
 const allowOneHost = {
 	network: {
 		default: "deny",
-		rules: [{ mode: "allow", operations: ["*"], patterns: ["api.example.com"] }],
+		rules: [
+			{
+				mode: "allow",
+				operations: ["*"],
+				patterns: ["dns://api.example.com", "tcp://api.example.com:*"],
+			},
+		],
 	},
 } satisfies Permissions;
 
-// Deny all bindings by default, allow only the "add" binding by name.
-const allowOneBinding = {
-	binding: {
+// Deny all host functions by default, then allow only "add" by name.
+const allowOneHostFunction = {
+	hostFunction: {
 		default: "deny",
-		rules: [{ mode: "allow", operations: ["*"], patterns: ["add"] }],
+		rules: [{ mode: "allow", operations: ["invoke"], patterns: ["add"] }],
 	},
 } satisfies Permissions;
 
@@ -29,7 +37,7 @@ const vm = agentOS({
 	permissions: {
 		...denyVault,
 		...allowOneHost,
-		...allowOneBinding,
+		...allowOneHostFunction,
 	},
 });
 

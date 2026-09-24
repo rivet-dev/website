@@ -109,6 +109,71 @@ const CLASSES: Record<string, Omit<ProductAccent, "hex">> = {
 		focusRing: "focus-visible:ring-product-cloud",
 		textHover: "hover:text-product-cloud",
 	},
+	"secure-exec": {
+		text: "text-product-secure-exec",
+		tint: "bg-product-secure-exec-soft",
+		border: "border-product-secure-exec-hairline",
+		fill: "bg-product-secure-exec",
+		underline: "decoration-product-secure-exec",
+		tintHover: "hover:bg-product-secure-exec-soft",
+		activeBorder: "aria-current-page:border-product-secure-exec",
+		borderHover: "hover:border-product-secure-exec-hairline",
+		activeText: "aria-current-page:text-product-secure-exec",
+		activeBorderLeft: "aria-current-page:border-l-product-secure-exec",
+		focusRing: "focus-visible:ring-product-secure-exec",
+		textHover: "hover:text-product-secure-exec",
+	},
+};
+
+// Agents are Actors with a particular shape, but carry their own blue so they
+// read as a distinct entry beside graphite Actors in menus and badges.
+CLASSES.agents = {
+	text: "text-product-agents",
+	tint: "bg-product-agents-soft",
+	border: "border-product-agents-hairline",
+	fill: "bg-product-agents",
+	underline: "decoration-product-agents",
+	tintHover: "hover:bg-product-agents-soft",
+	activeBorder: "aria-current-page:border-product-agents",
+	borderHover: "hover:border-product-agents-hairline",
+	activeText: "aria-current-page:text-product-agents",
+	activeBorderLeft: "aria-current-page:border-l-product-agents",
+	focusRing: "focus-visible:ring-product-agents",
+	textHover: "hover:text-product-agents",
+};
+
+// Sandboxes are the actor type agentOS runs in; they carry their own teal so
+// the tile reads apart from agentOS's red in the tab strip and menus.
+CLASSES.sandboxes = {
+	text: "text-product-sandboxes",
+	tint: "bg-product-sandboxes-soft",
+	border: "border-product-sandboxes-hairline",
+	fill: "bg-product-sandboxes",
+	underline: "decoration-product-sandboxes",
+	tintHover: "hover:bg-product-sandboxes-soft",
+	activeBorder: "aria-current-page:border-product-sandboxes",
+	borderHover: "hover:border-product-sandboxes-hairline",
+	activeText: "aria-current-page:text-product-sandboxes",
+	activeBorderLeft: "aria-current-page:border-l-product-sandboxes",
+	focusRing: "focus-visible:ring-product-sandboxes",
+	textHover: "hover:text-product-sandboxes",
+};
+
+// Integrations is a shared docs section with a gray tile, so it can sit beside
+// the actor types in the tab strip and the Documentation menu.
+CLASSES.integrations = {
+	text: "text-product-integrations",
+	tint: "bg-product-integrations-soft",
+	border: "border-product-integrations-hairline",
+	fill: "bg-product-integrations",
+	underline: "decoration-product-integrations",
+	tintHover: "hover:bg-product-integrations-soft",
+	activeBorder: "aria-current-page:border-product-integrations",
+	borderHover: "hover:border-product-integrations-hairline",
+	activeText: "aria-current-page:text-product-integrations",
+	activeBorderLeft: "aria-current-page:border-l-product-integrations",
+	focusRing: "focus-visible:ring-product-integrations",
+	textHover: "hover:text-product-integrations",
 };
 
 const ACCENTS: Record<string, ProductAccent> = Object.fromEntries(
@@ -134,6 +199,7 @@ export function productAccent(productId?: string): ProductAccent | undefined {
  */
 export function wordmarkMaskStyle(src: string) {
 	return {
+		'--site-surface': '255 255 255',
 		maskImage: `url(${src})`,
 		WebkitMaskImage: `url(${src})`,
 		maskRepeat: "no-repeat",

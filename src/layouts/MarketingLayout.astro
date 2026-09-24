@@ -3,6 +3,8 @@ import type { ComponentProps } from 'react';
 import BaseLayout from './BaseLayout.astro';
 import { Header } from '@/components/v2/Header';
 import { SITE_PAGE_CLASS } from '@/components/marketing/layout';
+import { activeDocsTab } from '@/sitemap/docsTabs';
+import { getProduct } from '@/sitemap/products';
 
 interface Props {
 	title: string;
@@ -17,12 +19,13 @@ interface Props {
 	robots?: string;
 	preconnectAssets?: boolean;
 	/**
-	 * Set on a product's Overview page. Switches from the floating pill header to
-	 * the same two-row header the docs use, so the secondary nav is identical
-	 * whichever tab of a product you are on.
+	 * Set on pages that belong to a docs tab (for example a product registry) or
+	 * to a standalone product subsite. Switches from the floating pill header to
+	 * the same two-row header the docs use, so the subnav stays identical across
+	 * the section. Other pages keep the floating header even when a product is set.
 	 */
 	productId?: string;
-	/** Which tab of the product bar to mark active. Defaults to Overview. */
+	/** Which tab of the product to mark active. Defaults to Overview. */
 	tabId?: string;
 }
 
@@ -42,6 +45,11 @@ const {
 	tabId = 'overview',
 } = Astro.props;
 const pathname = Astro.url.pathname;
+// Standalone subsites (agentOS, Secure Exec) always take the two-row header:
+// their product bar is the subnav on every page of the subsite.
+const showDocsHeader =
+	productId !== undefined &&
+	(getProduct(productId)?.standalone === true || activeDocsTab(pathname) !== undefined);
 ---
 
 <BaseLayout
@@ -57,7 +65,7 @@ const pathname = Astro.url.pathname;
 	preconnectAssets={preconnectAssets}
 	pageFamily="site"
 >
-	{productId ? (
+	{showDocsHeader ? (
 		<Header
 			variant="full-width"
 			light={true}

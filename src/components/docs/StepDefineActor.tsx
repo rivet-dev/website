@@ -4,7 +4,7 @@ import { Code } from '../v2/Code';
 export default function StepDefineActor() {
   return (
     <div className='mb-4'>
-      <p>Define your actor schema and implementation. Create a new file for your actor:</p>
+      <p>Define your Actor schema and implementation. Create a new file for your Actor:</p>
 
       <Code language='typescript' title='actors/counter.ts'>
         <CodeBlock

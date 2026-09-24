@@ -1,0 +1,55 @@
+---
+/**
+ * Rewrites internal links in rendered docs content so they land on live pages
+ * instead of bouncing through a redirect.
+ *
+ * Two passes:
+ *
+ * 1. An optional prefix re-parenting (`from` -> `to`). A product that serves
+ *    another product's docs bundle (`ProductMetadata.bundleOf`) renders MDX
+ *    authored against the source's routes; the pages exist only under the
+ *    serving product, so the links must point there.
+ * 2. The site redirect map. Bundles are authored in their own repositories
+ *    against whatever routes this site had when they were written
+ *    (`/actors/self-host/...`, `/agentos/docs/...`), so after a route move the
+ *    vendored content keeps linking to the old path until upstream catches up.
+ *    Any href that has an entry in `redirects.mjs` is replaced with its target.
+ *
+ * Works on the rendered HTML because the MDX module is compiled once for every
+ * route that renders it (shared bundles are symlinks to one file), so the
+ * remark pipeline cannot know which route it is rendering for.
+ */
+import { redirects } from '../../../redirects.mjs';
+
+interface Props {
+	/** Route prefix as authored, e.g. `/agentos/docs`. */
+	from?: string;
+	/** Route prefix to serve under, e.g. `/agentos/docs`. */
+	to?: string;
+}
+
+const { from, to } = Astro.props;
+const html = await Astro.slots.render('default');
+
+let rerooted = html;
+if (from && to) {
+	// Only whole-prefix matches: `/agentos/docs` followed by a slash, the end of
+	// the URL, a query, or a fragment.
+	const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	rerooted = rerooted.replace(new RegExp(`href="${escaped}(?=["/?#])`, 'g'), `href="${to}`);
+}
+
+const redirectMap = redirects as Record<string, string>;
+rerooted = rerooted.replace(
+	/href="(\/[^"?#]*)([?#][^"]*)?"/g,
+	(match, pathname: string, suffix: string | undefined) => {
+		const bare = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
+		const target = redirectMap[bare];
+		// Internal targets only; external ones (Discord) keep the short link.
+		if (!target || !target.startsWith('/')) return match;
+		return `href="${target}${suffix ?? ''}"`;
+	},
+);
+---
+
+<Fragment set:html={rerooted} />

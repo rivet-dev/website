@@ -12,9 +12,9 @@ export const temporal: CompareEntry = {
 	rivetProductName: 'Rivet Workflows',
 	title: 'Rivet Workflows vs Temporal',
 	description:
-		'Compare Rivet and Temporal: stateful realtime actors with durable workflows in one runtime versus a dedicated durable execution platform for orchestration.',
+		'Compare Rivet and Temporal: stateful realtime Actors with durable workflows in one runtime versus a dedicated durable execution platform for orchestration.',
 	heroSubtitle:
-		'Temporal is a durable execution platform for orchestrating backend workflows behind your API. Rivet combines stateful actors, realtime connections, and durable workflows in one open-source runtime that serves traffic directly.',
+		'Temporal is a durable execution platform for orchestrating backend workflows behind your API. Rivet combines stateful Actors, realtime connections, and durable workflows in one open-source runtime that serves traffic directly.',
 	rivetSummary:
 		'Rivet is an open-source runtime for stateful backends. Rivet Actors hold persistent state, serve HTTP and WebSocket traffic directly, and include durable workflows with steps, timers, and queue waits, so one runtime covers realtime serving and reliable multi-step execution.',
 	competitorSummary:
@@ -156,7 +156,7 @@ export const temporal: CompareEntry = {
 					feature: 'Interactive request latency',
 					rivet: {
 						status: 'yes',
-						text: 'Requests reach in-memory actor state directly',
+						text: 'Requests reach in-memory Actor state directly',
 					},
 					competitor: {
 						status: 'partial',
@@ -171,7 +171,7 @@ export const temporal: CompareEntry = {
 						status: 'yes',
 						text: (
 							<>
-								Each actor owns persistent KV state and an embedded{' '}
+								Each Actor owns persistent KV state and an embedded{' '}
 								<a href="https://rivet.dev/actors/docs/sqlite/">SQLite database</a>
 							</>
 						),
@@ -267,7 +267,7 @@ export const temporal: CompareEntry = {
 					feature: 'Replay debugging and audit trail',
 					rivet: {
 						status: 'partial',
-						text: 'Workflow step progress and actor state are inspectable in the dashboard',
+						text: 'Workflow step progress and Actor state are inspectable in the dashboard',
 					},
 					competitor: {
 						status: 'yes',
@@ -280,7 +280,7 @@ export const temporal: CompareEntry = {
 					feature: 'State inspector',
 					rivet: {
 						status: 'yes',
-						text: 'Built-in tools to view and edit live actor state, connections, and RPCs',
+						text: 'Built-in tools to view and edit live Actor state, connections, and RPCs',
 					},
 					competitor: {
 						status: 'partial',

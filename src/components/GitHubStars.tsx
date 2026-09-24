@@ -16,7 +16,7 @@ function formatNumber(num: number): string {
 }
 
 export function GitHubStars({
-	repo = "rivet-dev/engine",
+	repo = "rivet-dev/rivet",
 	className,
 	...props
 }: GitHubStarsProps) {

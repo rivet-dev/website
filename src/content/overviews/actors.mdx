@@ -1,0 +1,71 @@
+---
+title: "Actors"
+description: "The primitive for agent orchestration, realtime, and per-tenant databases."
+seoTitle: "Rivet Actors: the primitive for agent orchestration"
+seoDescription: "Durable identity, in-memory state, queues, storage, and realtime connections for agents, collaboration, and other stateful workloads."
+---
+
+import { faCloudflare, faLayerGroup, faNextjs, faNodeJs, faReact, faRust } from '@rivet-gg/icons';
+
+One Actor per agent, per session, per user. An Actor is a long-lived process with durable state, a queue, realtime connections, and scheduling, addressed by key and scheduled by the control plane. The same primitive powers realtime apps, multiplayer, and collaborative state, and every other product on this site is built on it.
+
+<CardGroup>
+  <Card title="Node.js & Bun" href="/actors/docs/quickstart/backend" icon={faNodeJs}>
+    Set up actors with Node.js, Bun, and web frameworks.
+  </Card>
+  <Card title="React" href="/actors/docs/quickstart/react" icon={faReact}>
+    Build realtime React applications backed by actors.
+  </Card>
+  <Card title="Next.js" href="/actors/docs/quickstart/next-js" icon={faNextjs}>
+    Server-rendered Next.js experiences backed by actors.
+  </Card>
+  <Card title="Rust" href="/actors/docs/quickstart/rust" icon={faRust}>
+    Build a Rivet Actor in Rust.
+  </Card>
+  <Card title="Effect.ts" href="/actors/docs/quickstart/effect" icon={faLayerGroup}>
+    The Effect SDK with typed Schema actions.
+  </Card>
+  <Card title="Cloudflare Workers" href="/actors/docs/quickstart/cloudflare" icon={faCloudflare}>
+    Run RivetKit on Cloudflare Workers.
+  </Card>
+</CardGroup>
+
+## A first actor
+
+Define an actor with state and actions, register it, and call it from a typed client.
+
+<CodeGroup workspace>
+<CodeSnippet file="examples/docs/actors-quickstart-backend/index.ts" title="index.ts" />
+<CodeSnippet file="examples/docs/actors-quickstart-backend/client.ts" title="client.ts" />
+</CodeGroup>
+
+## One primitive, every stateful workload
+
+- **Agent orchestration.** One Actor per agent preserves identity, state, and session across long-running work. Add [agentOS](/agentos/docs) when the agent also needs files, processes, a shell, and networking.{/* TEMPORARY: Agents is unlaunched (HIDDEN.md). Restore: See [Agents](/agents/docs). */}
+- **Realtime and multiplayer.** WebSockets and [event broadcast](/actors/docs/events) built in. One Actor per room, match, or channel keeps every client in sync without a separate realtime service.
+- **Per-tenant databases.** One Actor per tenant, keyed by tenant ID, owns that tenant's entire dataset. No shared tables and no `tenant_id` filters. See the [per-tenant database guide](/guides/per-tenant-database).
+
+## What comes built in
+
+- [**State**](/actors/docs/state): lives with the Actor for local reads and writes. Persist with [SQLite](/actors/docs/sqlite) or bring a database.
+- [**Lifecycle**](/actors/docs/lifecycle): long-lived while active, sleeps when idle, wakes on the next request with state intact.
+- [**Keys**](/actors/docs/keys): each Actor is independently addressed and scheduled, so one design fans out with demand.
+- [**Events**](/actors/docs/events): realtime bidirectional streaming over WebSockets.
+- [**Queues**](/actors/docs/queues): durable message queues for reliable async processing.
+- [**Scheduling**](/actors/docs/schedule): timers and cron jobs inside the Actor.
+- [**Actor-to-actor calls**](/actors/docs/communicating-between-actors): address another Actor by key and call it as if it were local.
+- [**Edge placement**](/actors/docs/general/edge): configure placement with Rivet Cloud or your own control plane.
+
+## See inside every Actor
+
+The [Actor Inspector](/actors/docs/inspector-tabs) shows live state, connections, queues, workflow history, and SQLite data without building admin tooling. [Rivet MCP](/docs/mcp) lets your AI client find Actors, call actions, and open the same Inspector inline as it debugs your application.
+
+## The foundation the rest of Rivet builds on
+
+- [**agentOS**](/agentos/docs) adds files, processes, a shell, and networking when an agent needs a computer. Every agentOS VM is an Actor.
+- [**Workflows**](/workflows/docs) adds recorded steps, retries, and replay for work that outlives a process. Every workflow is an Actor.
+- [**Dynamic Apps**](/dynamic-apps/docs) deploys the apps your agents build. Every app runs as Actors that scale to zero and wake on demand.
+
+## Develop locally, deploy your way
+
+Run `npm install rivetkit` and start from a [quickstart](/actors/docs/quickstart/backend). Deploy the control plane yourself with the [self-host guides](/docs/deploy/self-host/control-plane), or use [Rivet Cloud](/docs/deploy/cloud).

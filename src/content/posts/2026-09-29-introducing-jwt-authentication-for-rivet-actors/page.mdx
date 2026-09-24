@@ -1,0 +1,176 @@
+---
+author: nathan-flurry
+published: "2026-09-24"
+category: changelog
+image: true
+keywords: ["jwt", "authentication", "auth", "tokens", "scoped access", "clerk", "auth0", "better auth", "websockets", "rivet actors"]
+title: "Introducing JWT Authentication for Rivet Actors"
+description: "Issue short-lived JWTs scoped to specific actors. Plug in Auth0, Clerk, Better Auth, or your own sessions, and let clients connect to actors directly."
+---
+
+Today we're shipping **JWT authentication** for [Rivet Actors](/actors). Your backend issues short-lived tokens scoped to specific actors, and whoever holds the token can reach those actors and nothing else.
+
+Rivet doesn't do sign-in. It plugs into the auth you already have: Auth0, Clerk, Better Auth, Supabase Auth, Firebase Auth, WorkOS, Okta, Cognito, or your own sessions. Once your backend knows who the user is, it mints a Rivet token for that user's actors and hands it to:
+
+- **Your frontend**, so browsers and mobile apps connect to actors directly over HTTP or WebSocket
+- **Your own services**, when a job or worker needs access to a few actors instead of the admin token
+
+## Public or private actors
+
+Until now the only credential was the admin token, so actors sat behind your own API. That still works:
+
+<svg viewBox="0 0 760 100" role="img" aria-label="Private actors: a browser sends requests to your API, which holds the admin token and forwards them to a Rivet Actor." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="jwt-private-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" style="fill:rgb(var(--site-pine, 46 64 52))"/></marker></defs>
+  <g style="stroke:rgb(var(--site-ink, 27 25 22));fill:rgb(var(--site-surface, 255 255 255))" stroke-width="1.4">
+    <rect x="20" y="14" width="180" height="72" rx="7"/>
+    <rect x="560" y="14" width="180" height="72" rx="7"/>
+  </g>
+  <rect x="290" y="14" width="180" height="72" rx="7" stroke-width="1.4" style="fill:rgb(var(--site-paper-mid, 227 227 229));stroke:rgb(var(--site-pine, 46 64 52))"/>
+  <g font-size="14" font-weight="600" text-anchor="middle" style="fill:rgb(var(--site-ink, 27 25 22))">
+    <text x="110" y="55">Browser</text>
+    <text x="380" y="46">Your API</text>
+    <text x="650" y="46">Rivet Actor</text>
+  </g>
+  <text x="380" y="68" text-anchor="middle" font-size="12" style="fill:rgb(var(--site-ink-soft, 86 82 74))">holds the admin token</text>
+  <text x="650" y="69" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" style="fill:rgb(var(--site-ink-soft, 86 82 74))">chat-room-123</text>
+  <g stroke-width="1.4" fill="none" style="stroke:rgb(var(--site-pine, 46 64 52))" marker-end="url(#jwt-private-arrow)">
+    <path d="M202 50 H288"/>
+    <path d="M472 50 H558"/>
+  </g>
+</svg>
+
+With scoped tokens, your backend signs the user in, asks Rivet for a token scoped to the actor, and the client talks to the actor directly:
+
+<svg viewBox="0 0 560 212" role="img" aria-label="Public actors: a browser signs in with your backend. Your backend calls issueToken on the Rivet control plane and receives a JWT scoped to one actor, returns it to the browser, and the browser connects directly to that Rivet Actor with the JWT." style="width:100%;max-width:560px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="jwt-public-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" style="fill:rgb(var(--site-pine, 46 64 52))"/></marker></defs>
+  <rect x="20" y="128" width="180" height="72" rx="7" stroke-width="1.4" style="fill:rgb(var(--site-paper-mid, 227 227 229));stroke:rgb(var(--site-pine, 46 64 52))"/>
+  <g style="stroke:rgb(var(--site-ink, 27 25 22));fill:rgb(var(--site-surface, 255 255 255))" stroke-width="1.4">
+    <rect x="20" y="10" width="180" height="72" rx="7"/>
+    <rect x="360" y="10" width="180" height="72" rx="7"/>
+    <rect x="360" y="128" width="180" height="72" rx="7"/>
+  </g>
+  <g font-size="14" font-weight="600" text-anchor="middle" style="fill:rgb(var(--site-ink, 27 25 22))">
+    <text x="110" y="51">Browser</text>
+    <text x="450" y="42">Rivet Actor</text>
+    <text x="110" y="160">Your backend</text>
+    <text x="450" y="160">Rivet Control Plane</text>
+  </g>
+  <g font-size="12" text-anchor="middle" style="fill:rgb(var(--site-ink-soft, 86 82 74))">
+    <text x="110" y="182">holds the admin token</text>
+    <text x="450" y="182">issues and verifies tokens</text>
+  </g>
+  <text x="450" y="65" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" style="fill:rgb(var(--site-ink-soft, 86 82 74))">chat-room-123</text>
+  <g stroke-width="1.4" fill="none" style="stroke:rgb(var(--site-pine, 46 64 52))" marker-end="url(#jwt-public-arrow)">
+    <path d="M80 84 V126" stroke-dasharray="5 4"/>
+    <path d="M202 154 H358"/>
+    <path d="M358 178 H202" stroke-dasharray="5 4"/>
+    <path d="M140 126 V84" stroke-dasharray="5 4"/>
+    <path d="M202 46 H358"/>
+  </g>
+  <g font-size="12" style="fill:rgb(var(--site-pine, 46 64 52))">
+    <text x="70" y="109" text-anchor="end">1. sign in</text>
+    <text x="280" y="147" text-anchor="middle">2. issueToken()</text>
+    <text x="280" y="196" text-anchor="middle">3. JWT</text>
+    <text x="150" y="109">4. JWT</text>
+    <text x="280" y="38" text-anchor="middle">5. connect with JWT</text>
+  </g>
+</svg>
+
+This removes a layer from your architecture. There's no proxy to write and maintain for every action and WebSocket, no extra round trip through your servers, and requests go straight from the client to the actor in the nearest edge region. Both setups run the same actor code, so you can keep some actors private and expose others.
+
+## How it works
+
+<Steps>
+<Step title="Issue a token from your backend">
+
+Your backend keeps the admin token. After the user signs in, call `issueToken` on the actor they should reach:
+
+```typescript
+// Your backend, after sign-in
+const room = rivet.chatRoom.getOrCreate([roomId]);
+
+const { token } = await room.issueToken({
+  subject: user.id,
+  expiresIn: 300,
+});
+```
+
+</Step>
+<Step title="Pass the token to the client">
+
+The client asks your backend for a token and hands it to RivetKit:
+
+```typescript
+// Your client
+const client = createClient<typeof registry>({
+  endpoint: RIVET_ENDPOINT,
+  namespace: "default",
+  // Called on first use and again automatically whenever the token expires
+  getToken: async () => {
+    const res = await fetch("/api/rivet-token", { credentials: "include" });
+    return (await res.json()).token;
+  },
+});
+```
+
+</Step>
+<Step title="Connect directly to the actor">
+
+Every request now carries the token, and the gateway verifies it before forwarding to the actor:
+
+```typescript
+const room = client.chatRoom.getForId(actorId);
+await room.sendMessage("hello");
+```
+
+</Step>
+</Steps>
+
+Tokens are signed by the control plane and verified at the gateway. The client never sees the admin token, and a leaked token is only good for one actor until it expires.
+
+## Granular permissions
+
+`issueToken` on an actor defaults to connecting to that actor and nothing else. Pass `permissions` to widen it to managing the actor (`actor`) or reading its KV (`actor_kv`), each with `create`, `read`, `update`, `delete`, or `list`:
+
+```typescript
+await room.issueToken({
+  subject: user.id,
+  expiresIn: 300,
+  permissions: {
+    actor_gateway: ["read"],
+    actor: ["read", "delete"],
+  },
+});
+```
+
+For anything beyond a single actor, `client.auth.issueToken` takes an explicit list of grants. One token can cover several actors and other resources, such as letting an internal service connect to a user's actors and create new ones:
+
+```typescript
+await client.auth.issueToken({
+  subject: "billing-worker",
+  expiresIn: 3600,
+  grants: [
+    { resource: "actor_gateway", target: { id: roomId }, operations: ["read"] },
+    { resource: "actor_gateway", target: { id: inboxId }, operations: ["read"] },
+    { resource: "actor", target: "any", operations: ["create", "list"] },
+    { resource: "actor_kv", target: "any", operations: ["read"] },
+  ],
+});
+```
+
+Tokens expire after `expiresIn` seconds, up to 24 hours.
+
+## Unauthenticated access is now off by default
+
+The open source engine now requires the admin token or a JWT on every request. To restore the old behavior while you migrate, set `auth.insecure_allow_unauthenticated: true` in your engine config. Don't run that on anything reachable from the internet.
+
+## Availability
+
+JWT authentication is available in open source today and rolls out to Rivet Cloud on September 25.
+
+## Links
+
+- [JWT authentication docs](/docs/jwt)
+- [Example: Better Auth with per-user actors](https://github.com/rivet-dev/rivet/tree/main/examples/jwt-better-auth)
+- [Example: scoped JWT counter](https://github.com/rivet-dev/rivet/tree/main/examples/jwt-counter)
+- [Discord](https://rivet.dev/discord)

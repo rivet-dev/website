@@ -1,4 +1,5 @@
 import { DeploymentBoundaryDiagram } from "../diagrams/DeploymentBoundaryDiagram";
+import { CloudStrip } from "../orchestration/CloudStrip";
 import { CatalogCard } from "../editorial/CatalogCard";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import {
@@ -57,11 +58,7 @@ export const OnPremSection = () => (
           ))}
         </ul>
 
-        <div
-          className="mx-auto h-full w-full min-w-0 max-w-xl"
-          data-site-reveal=""
-          data-site-reveal-delay="120"
-        >
+        <div className="mx-auto h-full w-full min-w-0 max-w-xl">
           <DeploymentBoundaryDiagram className="h-full" />
         </div>
       </div>
@@ -77,6 +74,8 @@ export const OnPremSection = () => (
           Explore Enterprise
         </a>
       </div>
+
+      <CloudStrip />
     </div>
   </section>
 );

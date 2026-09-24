@@ -347,7 +347,7 @@ export function CareerMap({ locations }: CareerMapProps) {
             height="320"
             loading="lazy"
             decoding="async"
-            className="pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.22] brightness-0"
+            className="career-map-artwork pointer-events-none absolute inset-0 h-full w-full select-none opacity-[0.22] brightness-0"
           />
 
           {normalizedLocations.map((location) => (

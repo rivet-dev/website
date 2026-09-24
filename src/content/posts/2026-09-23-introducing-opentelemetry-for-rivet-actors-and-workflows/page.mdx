@@ -1,0 +1,231 @@
+---
+author: nathan-flurry
+published: "2026-09-23"
+category: changelog
+image: true
+keywords: ["opentelemetry", "otel", "tracing", "observability", "ray id", "span links", "actors", "workflows", "sqlite"]
+title: "Introducing OpenTelemetry for Rivet Actors and Workflows"
+description: "First-class OpenTelemetry tracing for Rivet Actors and Rivet Workflows, with ray IDs and span links that correlate work across actors that live for days."
+---
+
+Today we're shipping first-class **OpenTelemetry** support for [Rivet Actors](/actors) and [Rivet Workflows](/workflows). Point an OTLP collector at your actors and you get automatic spans for everything they do.
+
+- **Long-running actors**: every invocation is traced, even in an actor that has been alive for weeks
+- **Client-to-actor and actor-to-actor requests**: one trace that follows a request through `c.client()` calls
+- **Workflows**: each run is its own trace, linked to the run before it and correlated by ray ID
+- **SQLite queries**: timing for every query, without recording SQL text, bindings, or results
+
+## Quickstart
+
+Set an OTLP exporter on the process that runs your actors, next to `RIVET_ENDPOINT`, and redeploy:
+
+```bash
+OTEL_SERVICE_NAME=my-rad-app
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://collector:4318/v1/traces
+OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
+```
+
+`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` is the feature flag. Once it's set, spans named `{actor}/{action}` show up in your observability platform.
+
+These are plain OTLP spans, so anything that speaks OTLP works: Jaeger, Tempo, Honeycomb, Grafana. There's no Rivet-specific backend to run.
+
+## Actions, HTTP, and SQLite
+
+Every action and raw HTTP handler becomes a span, with the work it did nested underneath: SQLite queries as `rivet.sqlite.*`, queue sends and receives, and scheduled actions. Failures carry `error.type` taken from your own `UserError` code, so you can group failures by business error rather than by stack trace.
+
+<img
+  src="https://assets.rivet.dev/website/blog/2026-09-23-introducing-opentelemetry-for-rivet-actors-and-workflows/trace.png"
+  alt="A trace viewer showing a scheduled arena/finishRound span containing a leaderboard/save client span, its matching server span, and three nested rivet.sqlite.transaction spans. The selected commit span lists tags including rivet.ray.id, rivet.actor.name, and rivet.operation.system."
+  class="w-full rounded-lg"
+/>
+
+SQL text, bindings, results, action arguments, and actor state are never recorded.
+
+## Across actors and time
+
+A trace assumes a discrete, short-lived unit of work. An HTTP request starts, does something, and ends, usually inside a few hundred milliseconds. Actors don't work that way: they're stateful and stay alive for days, handling invocations that have nothing to do with each other. A single span wrapping an actor's lifetime would tell you nothing.
+
+So each invocation is traced on its own, and two things stitch them back together. A call through `c.client()` stays in the caller's trace, so you can see routing, waking the other actor, and retries as separate spans. Work that happens *later* can't do that, because the span that caused it has already ended — a scheduled action or a queued message starts a new trace with a **link** back to the work that caused it, and a **ray ID** ties the whole chain together.
+
+<figure class="not-prose mx-auto my-10 max-w-[880px] overflow-x-auto">
+  <svg viewBox="0 0 880 262" role="img" aria-labelledby="otel-rays-title otel-rays-desc" class="block w-full min-w-[720px]" xmlns="http://www.w3.org/2000/svg">
+    <title id="otel-rays-title">One ray ID spanning three linked traces</title>
+    <desc id="otel-rays-desc">An action, a scheduled action sixty seconds later, and a workflow run two days later are each their own trace with their own spans. Each trace links back to the work that caused it, and all three carry the same ray ID.</desc>
+    <defs>
+      <marker id="otel-rays-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2E4034" /></marker>
+    </defs>
+    <g font-family="system-ui, sans-serif" fill="#1b1916">
+      <rect x="16" y="30" width="848" height="152" rx="10" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6" />
+      <text x="36" y="53" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">RAY ID 4f2c9ab1</text>
+
+      <g>
+        <rect x="30" y="66" width="230" height="102" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="44" y="88" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">TRACE 1 · ACTION</text>
+        <rect x="42" y="96" width="206" height="20" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="52" y="110" font-size="12" font-family="ui-monospace, monospace">chat/sendMessage</text>
+        <rect x="58" y="124" width="178" height="20" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="68" y="138" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">rivet.sqlite.execute</text>
+        <text x="145" y="238" text-anchor="middle" font-size="12" fill="#56524a">t = 0</text>
+      </g>
+
+      <path d="M262 106 H323" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#otel-rays-arrow)" />
+      <text x="292" y="98" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="#2E4034">link</text>
+
+      <g>
+        <rect x="325" y="66" width="230" height="102" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="339" y="88" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">TRACE 2 · SCHEDULED</text>
+        <rect x="337" y="96" width="206" height="20" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="347" y="110" font-size="12" font-family="ui-monospace, monospace">chat/postDigest</text>
+        <rect x="353" y="124" width="178" height="20" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="363" y="138" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">summarizer/summarize</text>
+        <text x="440" y="238" text-anchor="middle" font-size="12" fill="#56524a">+ 60s</text>
+      </g>
+
+      <path d="M557 106 H618" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#otel-rays-arrow)" />
+      <text x="587" y="98" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="#2E4034">link</text>
+
+      <g>
+        <rect x="620" y="66" width="230" height="102" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="634" y="88" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">TRACE 3 · WORKFLOW RUN</text>
+        <rect x="632" y="96" width="206" height="20" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="642" y="110" font-size="12" font-family="ui-monospace, monospace">chat/workflow</text>
+        <rect x="648" y="124" width="178" height="20" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="658" y="138" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">chat/charge-card</text>
+        <text x="735" y="238" text-anchor="middle" font-size="12" fill="#56524a">+ 2 days</text>
+      </g>
+
+      <path d="M30 210 H850" fill="none" stroke="#56524a" stroke-width="1" marker-end="url(#otel-rays-arrow)" />
+    </g>
+  </svg>
+  <figcaption class="mt-2 text-center text-sm text-ink-faint">Each invocation is its own trace. Links point back to the work that caused it, and one ray ID covers the chain.</figcaption>
+</figure>
+
+Rivet assigns a ray ID for you, or you can set your own with the `x-rivet-ray-id` header or OpenTelemetry baggage.
+
+## Logs and traces
+
+Every actor log line carries the actor's identity and its `rayId`, plus `traceId` and `spanId` whenever a span is active. So a suspicious log line takes you straight to the trace it came from, and searching one `rivet.ray.id` pulls up every trace *and* every log for that request. See [actor logs](/actors/docs/general/logging) for the full log shape.
+
+## Workflows
+
+Every workflow run is a separate trace linked back to the previous run, so a workflow that sleeps for a week is still one continuous story. Each step attempt is a span inside its run, and replayed steps aren't traced again.
+
+<figure class="not-prose mx-auto my-10 max-w-[880px] overflow-x-auto">
+  <svg viewBox="0 0 880 250" role="img" aria-labelledby="otel-wf-title otel-wf-desc" class="block w-full min-w-[720px]" xmlns="http://www.w3.org/2000/svg">
+    <title id="otel-wf-title">Three workflow runs, each linked to the run before it</title>
+    <desc id="otel-wf-desc">Run one reserves stock and the actor sleeps. Run two attempts charge-card, which retries after a card decline, and the actor sleeps again. Run three succeeds on the second attempt and completes, with a SQLite span nested under the step. Each run is its own trace linked back to the previous run.</desc>
+    <defs>
+      <marker id="otel-wf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2E4034" /></marker>
+    </defs>
+    <g font-family="system-ui, sans-serif" fill="#1b1916">
+      <g>
+        <rect x="20" y="34" width="230" height="150" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="34" y="56" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">RUN 1</text>
+        <rect x="32" y="64" width="206" height="22" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="42" y="79" font-size="12" font-family="ui-monospace, monospace">orderFlow/workflow</text>
+        <rect x="46" y="94" width="178" height="22" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="56" y="109" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">reserve-stock</text>
+        <text x="34" y="170" font-size="11" font-family="ui-monospace, monospace" fill="#56524a">outcome=sleeping</text>
+      </g>
+
+      <path d="M252 75 H323" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#otel-wf-arrow)" />
+      <text x="287" y="67" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="#2E4034">link</text>
+      <text x="287" y="132" text-anchor="middle" font-size="11" fill="#56524a">asleep</text>
+
+      <g>
+        <rect x="325" y="34" width="230" height="150" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="339" y="56" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">RUN 2</text>
+        <rect x="337" y="64" width="206" height="22" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="347" y="79" font-size="12" font-family="ui-monospace, monospace">orderFlow/workflow</text>
+        <rect x="351" y="94" width="178" height="22" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" stroke-dasharray="4 3" />
+        <text x="361" y="109" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">charge-card · 1</text>
+        <text x="339" y="140" font-size="11" font-family="ui-monospace, monospace" fill="#56524a">error.type=user.card_declined</text>
+        <text x="339" y="170" font-size="11" font-family="ui-monospace, monospace" fill="#56524a">outcome=sleeping</text>
+      </g>
+
+      <path d="M557 75 H628" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#otel-wf-arrow)" />
+      <text x="592" y="67" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="#2E4034">link</text>
+      <text x="592" y="132" text-anchor="middle" font-size="11" fill="#56524a">asleep</text>
+
+      <g>
+        <rect x="630" y="34" width="230" height="150" rx="8" fill="#ffffff" stroke="#1b1916" stroke-width="1.4" />
+        <text x="644" y="56" font-size="10" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.12em" fill="#2E4034">RUN 3</text>
+        <rect x="642" y="64" width="206" height="22" rx="4" fill="#e7ece7" stroke="#2E4034" stroke-width="1.2" />
+        <text x="652" y="79" font-size="12" font-family="ui-monospace, monospace">orderFlow/workflow</text>
+        <rect x="656" y="94" width="178" height="22" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="666" y="109" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">charge-card · 2</text>
+        <rect x="670" y="122" width="164" height="22" rx="4" fill="#ffffff" stroke="#56524a" stroke-width="1" />
+        <text x="680" y="137" font-size="12" font-family="ui-monospace, monospace" fill="#56524a">rivet.sqlite.execute</text>
+        <text x="644" y="170" font-size="11" font-family="ui-monospace, monospace" fill="#56524a">outcome=completed</text>
+      </g>
+
+      <path d="M20 208 H860" fill="none" stroke="#56524a" stroke-width="1" marker-end="url(#otel-wf-arrow)" />
+      <text x="20" y="234" font-size="12" fill="#56524a">workflow started</text>
+      <text x="860" y="234" text-anchor="end" font-size="12" fill="#56524a">days later</text>
+    </g>
+  </svg>
+  <figcaption class="mt-2 text-center text-sm text-ink-faint">Each run is its own trace, linked to the run before it. Step attempts are spans inside their run; the dashed step retried after a decline.</figcaption>
+</figure>
+
+## Your own spans
+
+Spans you create with `@opentelemetry/api` nest inside Rivet's spans automatically.
+
+```ts
+import { trace } from "@opentelemetry/api";
+import { actor } from "rivetkit";
+import { db } from "rivetkit/db";
+
+const tracer = trace.getTracer("counter");
+
+export const counter = actor({
+	state: {},
+	db: db(),
+	actions: {
+		query: async (c) =>
+			tracer.startActiveSpan("counter.query", async (span) => {
+				try {
+					return await c.db.execute("SELECT 1 AS value");
+				} finally {
+					span.end();
+				}
+			}),
+	},
+});
+```
+
+## Sampling per actor
+
+A busy actor can produce a lot of spans. Set a sample rate for an actor and override it per action. Action names are type-checked.
+
+```ts
+import { actor } from "rivetkit";
+
+export const orders = actor({
+	tracing: {
+		sampler: 0.1,
+		actions: {
+			placeOrder: 1,
+			poll: 0,
+		},
+	},
+	actions: {
+		placeOrder: async (c) => {},
+		poll: async (c) => {},
+	},
+});
+```
+
+Actors without a `tracing` config fall back to `OTEL_TRACES_SAMPLER`.
+
+## SDK support
+
+- **Rust** (`tracing`): fully supported
+- **JavaScript** (`@opentelemetry/api`): fully supported
+- **Effect**: coming soon, use [`@effect/opentelemetry`](https://effect.website/docs/observability/tracing/) in the meantime
+
+## More Links
+
+- [OpenTelemetry documentation](/actors/docs/general/tracing)
+- [GitHub](https://github.com/rivet-dev/rivet)
+- [Discord](https://rivet.dev/discord)

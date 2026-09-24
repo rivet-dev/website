@@ -73,8 +73,10 @@ export const PRODUCT_HERO_SECONDARY_BUTTON_CLASS =
 
 // Solid warm-black primary for pages whose single accent ember is spent
 // elsewhere. Same metric as the hero pair.
+// site-primary-ink: theme.css flips it to white-on-ink in dark mode, where a
+// bg-ink fill would vanish against the near-black page.
 export const PRIMARY_INK_BUTTON_CLASS =
-	`${PRODUCT_HERO_BUTTON_BASE} ${PAPER_BUTTON_FOCUS_CLASS} selection-paper bg-ink text-cream hover:bg-ink/85`;
+	`${PRODUCT_HERO_BUTTON_BASE} ${PAPER_BUTTON_FOCUS_CLASS} site-primary-ink selection-paper bg-ink text-cream hover:bg-ink/85`;
 
 // Buttons inside dark ink panels (the closing CTA colophon): light-on-ink
 // primary and its cream ghost companion, per the agentOS closing band.

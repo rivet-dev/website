@@ -11,10 +11,6 @@ Cloud Run is request-driven, so workers run in **serverless** mode: the control 
 - `gcloud` authenticated (`gcloud auth login`) with the project set
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -32,8 +28,6 @@ CMD ["node", "server.js"]
 ```
 
 `RIVET_PORT` is the port RivetKit's listener binds. Cloud Run routes to `8080` by default, and RivetKit does not read Cloud Run's `PORT` variable.
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -84,10 +78,6 @@ Expect `True`. The service then appears as connected in the dashboard.
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling and timeouts
 

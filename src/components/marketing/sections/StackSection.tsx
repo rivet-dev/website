@@ -1,5 +1,5 @@
 import { Icon } from "@rivet-gg/icons";
-import { visibleProducts, type Product } from "@/sitemap/products";
+import { pillarProducts, type Product } from "@/sitemap/products";
 import { productLogos } from "@/sitemap/productLogos";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import {
@@ -7,7 +7,11 @@ import {
   CARD_TITLE_BASE_CLASS,
   SectionHeading,
 } from "../typography";
-import { ProductMotif, type ProductMotifId } from "../ProductMotif";
+import {
+  ProductMotif,
+  productMotifCardClass,
+  type ProductMotifId,
+} from "../ProductMotif";
 import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from "../layout";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 
@@ -16,7 +20,7 @@ import { canonicalizeInternalHref } from "@/lib/internalHref";
 // premise — the same strings the Products menu carries — then one sentence of
 // evidence. Sits directly under the hero so the map of the stack precedes the
 // deep dives.
-const stack = visibleProducts.map((product) => ({
+const stack = pillarProducts.map((product) => ({
   product,
   accent: productAccent(product.id),
   highlight: product.id === "actors",
@@ -69,7 +73,7 @@ export const StackSection = () => (
             key={product.id}
             href={canonicalizeInternalHref(product.href)}
             data-site-reveal-child=""
-            className={`group flex min-w-0 flex-col ${product.id === "workflows" ? "workflow-card focus-visible:outline-none" : product.id === "dynamic-apps" ? "dynamic-apps-card focus-visible:outline-none" : product.id === "agentos" ? "agentos-card focus-visible:outline-none" : product.id === "actors" ? "actors-card" : ""}`}
+            className={`group flex min-w-0 flex-col ${hasProductMotif(product.id) ? productMotifCardClass[product.id] : ""} ${product.id === "workflows" || product.id === "dynamic-apps" || product.id === "agentos" ? "focus-visible:outline-none" : ""}`}
           >
             {/* Accent plate: verb, mark, name, and the premise live on the
                 product color. Each product uses its own quiet background

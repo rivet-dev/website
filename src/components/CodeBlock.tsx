@@ -35,12 +35,12 @@ export async function CodeBlock({
 }: { lang?: shiki.BundledLanguage | string; code: string; className?: string }) {
 	highlighter ??= await shiki.getSingletonHighlighter({
 		langs: LANGS,
-		themes: [theme],
+		themes: [theme, 'github-dark'],
 	});
 
 	const out = highlighter.codeToHtml(code, {
 		lang: (lang as shiki.BundledLanguage) || "text",
-		theme: theme.name,
+		themes: { light: theme.name, dark: 'github-dark' },
 	});
 
 	return (

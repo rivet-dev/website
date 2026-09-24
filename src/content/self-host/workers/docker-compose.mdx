@@ -10,10 +10,6 @@ Workers run in **runner** mode here: the container opens a connection out to the
 - Docker with the Compose plugin
 - A control plane, either [Rivet Cloud](https://dashboard.rivet.dev) or <SelfHostLink to="control-plane">your own</SelfHostLink>
 
-<ProductSlot name="requirements" />
-
-<ProductSlot name="caveats" />
-
 ## Steps
 
 <Steps>
@@ -32,8 +28,6 @@ CMD ["node", "server.js"]
 `CMD` invokes the binary directly rather than `npm start`, so the process receives `SIGTERM` and can drain.
 
 Rivet requires Node 22 or newer. Alpine images need a build toolchain because Rivet's SQLite dependency has no musl prebuilt binary, so the Debian-based image is the smaller working choice.
-
-<ProductSlot name="snippet" />
 
 </Step>
 
@@ -109,10 +103,6 @@ The service should be `running`. It then appears under **Runners** in the dashbo
 </Step>
 
 </Steps>
-
-<ProductSlot name="env" />
-
-<ProductSlot name="verify" />
 
 ## Scaling
 
