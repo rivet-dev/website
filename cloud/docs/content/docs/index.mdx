@@ -24,9 +24,18 @@ Rivet Cloud issues three kinds of token, and mixing them up is the most common s
 | --- | --- | --- | --- |
 | Secret | `sk_` | Engine API at `api.rivet.dev` | `RIVET_ENDPOINT`, server-side only |
 | Publishable | `pk_` | Engine API at `api.rivet.dev` | `RIVET_PUBLIC_ENDPOINT`, safe for browsers |
+| Connection | `ck_` | Engine API at `api.rivet.dev` | A strict subset of publishable: resolve actors and open connections, but not manage them |
 | Cloud API | `cloud_api_` | Cloud API at `cloud-api.rivet.dev` | `rivet deploy`, CI, managed-pool APIs |
 
 A `pk_` token will fail against the Cloud API, and a `cloud_api_` token will fail against the Engine API. They are not interchangeable.
+
+Create them from the dashboard or the CLI:
+
+```sh
+rivet token create --namespace production --kind connection
+```
+
+A publishable or connection token is not a user identity. Anyone can copy it out of your bundle and use it, so it is a namespace-wide permission set rather than a per-user boundary. Use a [JWT](/actors/docs/jwt) when the boundary has to follow the user.
 
 ## In this section
 
