@@ -74,6 +74,11 @@ const explicitRedirects = {
 	// split credentials (Overview, JWTs, ACL) from in-Actor authorization.
 	'/actors/docs/access-control': '/actors/docs/permissions/',
 	'/docs/actors/access-control': '/actors/docs/permissions/',
+	// Credential docs are platform-wide, so they live in the General bundle
+	// rather than the Actors one.
+	'/actors/docs/authentication': '/docs/authentication/',
+	'/docs/actors/authentication': '/docs/authentication/',
+	'/actors/docs/jwt': '/docs/jwt/',
 	'/docs/actors/ephemeral-variables': '/actors/docs/state/',
 	'/docs/actors/persistence': '/actors/docs/state/',
 	'/docs/actors/postgres': '/actors/docs/state/',
