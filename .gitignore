@@ -18,6 +18,8 @@ src/generated/
 # slash matches only directories. With one, git happily tracks the link itself
 # and a developer's local target path ends up committed.
 src/content/docs/actors
+src/content/docs/docs
+src/content/docs/integrations
 src/content/docs/agents
 src/content/docs/agentos
 src/content/docs/cloud

@@ -20,8 +20,9 @@ import {
 	deployWorkersGroup,
 	selfHostGroup,
 } from "./self-host";
+import { SITE_DOCS_NAMESPACE } from "./docs-sources";
 import { CLOUD_BUNDLE_ID } from "./deploy";
-import { rerootLearnHref, SITE_GUIDES_SIDEBAR_GROUP } from "./guides";
+import { rerootLearnHref, SITE_GUIDES_SIDEBAR_GROUPS } from "./guides";
 import { integrationSidebar } from "@/data/integrations";
 import { integrationsHref } from "./integrations";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
@@ -109,6 +110,14 @@ function rerootPrefix<T>(node: T, from: string, to: string): T {
 }
 
 /**
+ * The product-agnostic docs sidebar at `/docs/`. Authored in `rivet-dev/rivet`'s
+ * `docs/general` bundle; see `SITE_DOCS_NAMESPACE`.
+ */
+export function siteDocsSidebar(): SidebarItem[] {
+	return bundleSidebars(SITE_DOCS_NAMESPACE).docs;
+}
+
+/**
  * The Deploy tab's sidebar: the overview, then the four options in the order
  * the overview lists them — Cloud (Rivet Cloud bundle), Deploy Workers,
  * BYOC (bundle), Self-Host. All of it renders under `/docs/deploy/` (see
@@ -132,7 +141,7 @@ export function deploySidebar(): SidebarItem[] {
 export function guidesSidebar(): SidebarItem[] {
 	const actors = bundleSidebars("actors");
 	const learn = actors.learn ?? actors.tutorials ?? [];
-	return [...rerootHrefs(learn), SITE_GUIDES_SIDEBAR_GROUP];
+	return [...rerootHrefs(learn), ...SITE_GUIDES_SIDEBAR_GROUPS];
 }
 
 function rerootHrefs<T>(node: T): T {

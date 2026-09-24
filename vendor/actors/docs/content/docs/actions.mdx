@@ -6,7 +6,7 @@ skill: true
 
 Actions are very lightweight. They can be called thousands of times per second safely. Actions are executed via HTTP requests or via WebSockets if [using `.connect()`](/actors/docs/connections).
 
-For advanced use cases that require direct access to HTTP requests or WebSocket connections, see [raw HTTP and WebSocket handling](/actors/docs/fetch-and-websocket-handler).
+For advanced use cases that require direct access to HTTP requests or WebSocket connections, see [Low-Level HTTP Handler](/actors/docs/request-handler) and [Low-Level WebSocket Handler](/actors/docs/websocket-handler).
 
 By default, actions run in parallel. If you need advanced control over concurrency, use [queues](/actors/docs/queues).
 

@@ -261,9 +261,12 @@ for (const product of products) {
 		const slug = href
 			.slice(`${GUIDES_ROUTE_PREFIX}/`.length)
 			.replace(/\/$/, "");
-		const siteGuide =
-			SITE_GUIDES.some((guide) => guide.slug === slug) &&
-			contentFileExists(GUIDES_CONTENT, slug);
+		// The Guides overview is website-owned; the Actors bundle carries only
+		// the worked examples under it.
+		const siteGuide = slug
+			? SITE_GUIDES.some((guide) => guide.slug === slug) &&
+				contentFileExists(GUIDES_CONTENT, slug)
+			: contentFileExists(GUIDES_CONTENT, "index");
 		if (!siteGuide && !contentFileExists(learnContent, slug)) {
 			errors.push(`Guides sidebar links ${href}, which has no content file`);
 		}

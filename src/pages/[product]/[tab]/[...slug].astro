@@ -58,9 +58,9 @@ export async function getStaticPaths() {
 			}
 
 			// Shared AI documentation stays inside the active product's full docs
-			// shell. Actors already owns the two canonical routes, so only the other
-			// products need contextual aliases.
-			if (tab.id === 'docs' && product.id !== 'actors') {
+			// shell. The canonical routes live in the product-agnostic bundle at
+			// /docs/, so every product gets a contextual alias.
+			if (tab.id === 'docs') {
 				for (const item of AI_DOCS_ITEMS) {
 					const entry = entriesById.get(item.contentId);
 					if (!entry) {

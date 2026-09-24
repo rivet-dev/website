@@ -4,6 +4,9 @@ description: "Build stateful backends with Rivet Actors using durable state, rea
 skill: false
 ---
 
-{/* The Actors overview renders as an icon-grid landing via the DocsLanding
-React component (see src/components/docs/DocsLanding.tsx + docsLandings.ts),
-wired up in src/components/docs/DocsArticlePage.astro. No markdown body here. */}
+{/*
+  The published page at /actors/docs is the website-owned overview in
+  src/content/overviews/actors.mdx, which the product route substitutes for
+  this entry. This file must exist so that route is generated at all; its body
+  is never rendered.
+*/}
