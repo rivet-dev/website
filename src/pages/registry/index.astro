@@ -3,6 +3,7 @@
 // product verticals rather than a tab inside one, because the catalog spans all
 // of them. Shares the agentOS storefront components, with its own taxonomy.
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import RegistryPageClient from '@/components/marketing/registry/RegistryPageClient';
 import type { RegistryCardEntry } from '@/components/marketing/registry/RegistryPageClient';
 import { actorRegistry, ACTOR_REGISTRY_CATEGORIES } from '@/data/actor-registry';
@@ -39,6 +40,7 @@ const entries: RegistryCardEntry[] = actorRegistry
 	title="Actor Registry - Rivet"
 	description="Browse the Actor types that run on Rivet: agents, workflows, sandboxes, dynamic apps, and the frameworks built on top of them."
 	canonicalUrl="https://rivet.dev/registry/"
+	ogImage={ogImageFor('registry')}
 >
 	<main id="main-content" tabindex="-1">
 		<section class={SITE_UTILITY_HERO_CLASS}>

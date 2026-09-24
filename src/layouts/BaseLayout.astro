@@ -12,6 +12,8 @@ import TabsScript from '@/components/TabsScript.astro';
 import MermaidScript from '@/components/MermaidScript.astro';
 import { ScrollObserver } from '@/components/ScrollObserver';
 import { jsonLdString } from '@/lib/jsonLd';
+import { ogImageFor } from '@/lib/ogImage';
+import { organizationSchema } from '@/data/company';
 import { stripSeoMarkup } from '@/lib/seo';
 import ThemeScript from '@/components/ThemeScript.astro';
 
@@ -45,7 +47,7 @@ const {
 	title,
 	description = "Rivet is infrastructure for the agentic era. Orchestrate agents, operate their environment, automate their work, and deploy what they build.",
 	canonicalUrl,
-	ogImage = "https://assets.rivet.dev/website/public/promo/og-agentic-era.png",
+	ogImage = ogImageFor("default"),
 	ogImageAlt,
 	ogType = "website",
 	ogImageWidth = 2400,
@@ -148,28 +150,7 @@ const footerOpenings = await fetchOpeningsCount(AbortSignal.timeout(4000));
 		<script type="application/ld+json" set:html={jsonLdString({
 			"@context": "https://schema.org",
 			"@graph": [
-				{
-					"@type": "Organization",
-					"@id": "https://rivet.dev/#organization",
-					"name": "Rivet",
-					"url": "https://rivet.dev",
-					"logo": {
-						"@type": "ImageObject",
-						"url": "https://assets.rivet.dev/website/public/icons/android-chrome-512x512.png",
-						"width": 512,
-						"height": 512
-					},
-					"sameAs": [
-						"https://x.com/rivet_dev",
-						"https://github.com/rivet-dev",
-						"https://discord.gg/rivet"
-					],
-					"contactPoint": {
-						"@type": "ContactPoint",
-						"contactType": "customer support",
-						"email": "support@rivet.dev"
-					}
-				},
+				organizationSchema(),
 				{
 					"@type": "WebSite",
 					"@id": "https://rivet.dev/#website",

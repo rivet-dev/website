@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import TalkToAnEngineerPageClient from '@/components/marketing/talk-to-an-engineer/TalkToAnEngineerPageClient';
 ---
 
@@ -7,6 +8,7 @@ import TalkToAnEngineerPageClient from '@/components/marketing/talk-to-an-engine
 	title="Talk to an Engineer - Rivet"
 	description="Connect with a Rivet engineer to discuss your technical needs, current stack, and how we can help with your infrastructure challenges"
 	canonicalUrl="https://rivet.dev/talk-to-an-engineer/"
+	ogImage={ogImageFor('talk-to-an-engineer')}
 >
 	<TalkToAnEngineerPageClient client:load />
 </MarketingLayout>

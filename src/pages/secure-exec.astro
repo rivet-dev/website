@@ -14,6 +14,7 @@ import { SecurityModel } from '@/components/marketing/secure-exec/SecurityModel'
 import { FAQ } from '@/components/marketing/secure-exec/FAQ';
 import { FooterCTA } from '@/components/marketing/secure-exec/FooterCTA';
 import { jsonLdString } from '@/lib/jsonLd';
+import { SECURE_EXEC_OVERVIEW_OG_IMAGE } from '@/lib/ogImage';
 import '@/components/marketing/secure-exec/secure-exec.css';
 
 const description =
@@ -46,9 +47,9 @@ const structuredData = {
 	title="Secure Exec — Secure Node.js execution without a sandbox"
 	description={description}
 	canonicalUrl="https://rivet.dev/secure-exec/"
-	ogImage="/images/secure-exec/og.png"
-	ogImageWidth={1280}
-	ogImageHeight={640}
+	ogImage={SECURE_EXEC_OVERVIEW_OG_IMAGE.src}
+	ogImageWidth={SECURE_EXEC_OVERVIEW_OG_IMAGE.width}
+	ogImageHeight={SECURE_EXEC_OVERVIEW_OG_IMAGE.height}
 	keywords={[
 		'secure code execution',
 		'V8 isolate',

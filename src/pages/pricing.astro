@@ -17,6 +17,7 @@ import {
 	PRODUCT_HERO_SUBTITLE_CLASS,
 } from '@/components/marketing/typography';
 import { getProduct } from '@/sitemap/products';
+import { ogImageFor } from '@/lib/ogImage';
 import { cloudFaqs } from '@/data/faqs/cloud';
 
 const cloudProduct = getProduct('cloud');
@@ -36,7 +37,7 @@ const productSchema = {
 		"name": "Rivet"
 	},
 	"url": "https://rivet.dev/pricing/",
-	"image": "https://assets.rivet.dev/website/public/promo/og/cloud.png",
+	"image": `https://rivet.dev${ogImageFor("cloud")}`,
 	"category": "Cloud Computing Platform",
 	"offers": [
 		{
@@ -78,7 +79,7 @@ const productSchema = {
 	title="Rivet Cloud Pricing - Rivet"
 	description="Run Rivet on our managed cloud or inside your own VPC, customer environment, or air-gapped network. Transparent pricing for the agentic era."
 	canonicalUrl="https://rivet.dev/pricing/"
-	ogImage="https://assets.rivet.dev/website/public/promo/og/cloud.png"
+	ogImage={ogImageFor('cloud')}
 >
 	<script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
 	<FaqJsonLd items={cloudFaqs} />

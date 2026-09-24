@@ -10,6 +10,7 @@
 // comes from `deployMatrix`, which also builds the sidebar, so the two cannot
 // disagree about which guides exist. All four groups share one sidebar.
 import { getCollection } from 'astro:content';
+import { ogImageFor } from '@/lib/ogImage';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { createSelfHostLink } from '@/components/docs/SelfHostLink';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
@@ -82,6 +83,7 @@ const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 	routePrefix={DEPLOY_ROUTE_PREFIX}
 	routeSlugOverride={routeSlug}
 	breadcrumbName="Deploy"
+	ogImage={ogImageFor('deploy')}
 	seoContextLabel={seoContextLabel}
 	editUrlOverride={selfHost ? undefined : `https://github.com/rivet-dev/website/edit/main/cloud/docs/content/${bundleFile}`}
 	extraComponents={{

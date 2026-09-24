@@ -1,5 +1,6 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import { ogImageFor } from '@/lib/ogImage';
 import {
 	SITE_CARD_CLASS,
 	SITE_NARROW_RAIL_CLASS,
@@ -20,6 +21,7 @@ import { Icon, faBook, faComments, faEnvelope } from "@rivet-gg/icons";
 	title="Support and Documentation"
 	description="Get help with Rivet via email, Discord community, or documentation. Troubleshoot issues, request features, and connect with our team."
 	canonicalUrl="https://rivet.dev/support/"
+	ogImage={ogImageFor('support')}
 >
 	<main id="main-content" tabindex="-1">
 		<section class={`${SITE_UTILITY_HERO_CLASS} text-center`}>

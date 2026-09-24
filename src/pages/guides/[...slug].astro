@@ -9,6 +9,7 @@
 // The overview is website-owned rather than the bundle's `learn/index.mdx`
 // because it is generated from that sidebar (`GuideCards`).
 import { getCollection } from 'astro:content';
+import { ogImageFor } from '@/lib/ogImage';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { createGuideCards } from '@/components/docs/GuideCards';
 import { getContentParamSlug } from '@/lib/content-path';
@@ -90,6 +91,7 @@ const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 	entryIdPrefix={`${ACTORS_LEARN_CONTENT_PREFIX}/`}
 	routeSlugOverride={routeSlugOverride}
 	breadcrumbName="Guides"
+	ogImage={ogImageFor('guides')}
 	seoContextLabel="Rivet Guides"
 	editUrlOverride={editUrlOverride}
 	extraComponents={descriptions ? {

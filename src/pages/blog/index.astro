@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { ogImageFor } from '@/lib/ogImage';
 import BlogLayout from '@/layouts/BlogLayout.astro';
 import { CATEGORIES } from '@/lib/article';
 import { formatTimestamp } from '@/lib/formatDate';
@@ -73,6 +74,7 @@ for (const entry of changelogPosts) {
 	title="Rivet Engineering Blog & Product Changelog"
 	description="Engineering deep dives, product launches, platform updates, and changelog notes from the team building Rivet infrastructure."
 	ogType="website"
+	ogImage={ogImageFor('blog')}
 >
 	<main id="main-content" tabindex="-1" style="--header-height: 5rem;">
 		<section class={SITE_UTILITY_HERO_CLASS}>
