@@ -34,7 +34,7 @@ Rivet runs agents, workflows, sandboxes, and generated apps as **Actors**: long-
 
 **Run thousands of workloads per server.** An Actor lives inside a worker process you already run, not in its own container or VM. A running Actor adds about 72 KB of memory (RSS increase per Actor, measured on FoundationDB with the Rust rivetkit SDK); a server that held hundreds of pods holds hundreds of thousands of Actors.
 
-**Start in milliseconds, not minutes.** A cold start includes scheduling the Actor, loading its state, and serving the first request: 12.3 ms p50 (27.7 ms p99) for an HTTP round trip waking a hibernated Actor, measured on FoundationDB with the Rust rivetkit SDK using an [experimental Rivet feature](https://github.com/rivet-dev/actors/pull/5772) that will be enabled by default in an upcoming update, against roughly 6 s for a Kubernetes pod. No image pull, no container boot.
+**Start in milliseconds, not minutes.** A cold start includes scheduling the Actor, loading its state, and serving the first request: 12.3 ms p50 (27.7 ms p99) for an HTTP round trip waking a hibernated Actor, measured on FoundationDB with the Rust rivetkit SDK using an [experimental Rivet feature](https://github.com/rivet-dev/rivet/pull/5772) that will be enabled by default in an upcoming update, against roughly 6 s for a Kubernetes pod. No image pull, no container boot.
 
 **Built for scale.** Actors are scheduled independently, so adding capacity means adding machines. The same control plane runs a thousand Actors or a billion.
 

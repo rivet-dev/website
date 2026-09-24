@@ -31,7 +31,7 @@ export const AGENT_SETUP_PROMPTS = {
 		packageName: 'rivetkit',
 		quickstartUrl: 'https://rivet.dev/actors/docs/quickstart/backend/',
 		docsUrl: 'https://rivet.dev/actors/docs/',
-		issuesUrl: 'https://github.com/rivet-dev/actors/issues',
+		issuesUrl: 'https://github.com/rivet-dev/rivet/issues',
 	}),
 	agentos: buildAgentSetupPrompt({
 		product: 'agentOS',
@@ -45,7 +45,7 @@ export const AGENT_SETUP_PROMPTS = {
 		packageName: '@rivet-dev/workflows',
 		quickstartUrl: 'https://rivet.dev/workflows/docs/quickstart/',
 		docsUrl: 'https://rivet.dev/workflows/docs/',
-		issuesUrl: 'https://github.com/rivet-dev/actors/issues',
+		issuesUrl: 'https://github.com/rivet-dev/rivet/issues',
 	}),
 	'dynamic-apps': buildAgentSetupPrompt({
 		product: 'Dynamic Apps',

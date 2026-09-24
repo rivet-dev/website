@@ -26,7 +26,7 @@ export const COLD_START = {
 	 */
 	experimental: {
 		label: 'experimental Rivet feature',
-		href: 'https://github.com/rivet-dev/actors/pull/5772',
+		href: 'https://github.com/rivet-dev/rivet/pull/5772',
 		status: 'will be enabled by default in an upcoming update',
 	},
 	/** Pod scheduled to serving: image pull, runtime setup, container start. */

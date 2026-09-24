@@ -21,7 +21,7 @@ export const homeFaqs: FaqItem[] = [
 	{
 		question: 'Is Rivet open-source?',
 		answerHtml:
-			'Yes. Rivet is open source under the permissive Apache 2.0 license. The source is on <a href="https://github.com/rivet-dev/actors">GitHub</a>.',
+			'Yes. Rivet is open source under the permissive Apache 2.0 license. The source is on <a href="https://github.com/rivet-dev/rivet">GitHub</a>.',
 	},
 	{
 		question: 'How does Rivet compare to Kubernetes?',
@@ -45,7 +45,7 @@ export const homeFaqs: FaqItem[] = [
 	{
 		question: 'Does Rivet support Effect?',
 		answerHtml:
-			'Yes. Rivet Actors work with Effect; see the <a href="https://github.com/rivet-dev/actors/tree/main/examples/ai-agent-effect">Effect agent example</a>.',
+			'Yes. Rivet Actors work with Effect; see the <a href="https://github.com/rivet-dev/rivet/tree/main/examples/ai-agent-effect">Effect agent example</a>.',
 	},
 	{
 		question: 'Is Rivet like Erlang, Akka, or Orleans?',

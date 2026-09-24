@@ -1,5 +1,5 @@
 // Plan tag, ported from the dashboard's `PlanBadge`
-// (frontend/src/app/billing/billing-plan-badge.tsx in rivet-dev/actors) so the
+// (frontend/src/app/billing/billing-plan-badge.tsx in rivet-dev/rivet) so the
 // website's pricing page and the billing UI label plans identically.
 
 export type PlanKey = 'free' | 'hobby' | 'team' | 'enterprise';
