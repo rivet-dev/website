@@ -16,14 +16,18 @@ import {
 } from '@/components/marketing/layout';
 import { Icon, faCloud } from '@rivet-gg/icons';
 import { productLogos } from '@/sitemap/productLogos';
+import { getProduct } from '@/sitemap/products';
 import { wordmarkMaskStyle } from '@/lib/product-accent';
 import { CareerMap } from '@/components/marketing/CareerMap';
 import { careerLocations } from '@/data/career-locations';
 import { fetchJobs, toJobPosting } from '@/lib/careers';
 
-const careersTitle = 'Careers: build open-source AI infrastructure';
+const inlineLink =
+	'rounded-sm font-medium text-pine underline decoration-pine/30 underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper';
+
+const careersTitle = 'Careers: build infrastructure for the agentic era';
 const careersDescription =
-	'Join Rivet and help build open-source infrastructure for AI agents. Explore current roles, our globally distributed team, and how we work.';
+	'Join Rivet and help build the open-source orchestrator for agentic workloads. Explore current roles, our globally distributed team, and how we work.';
 const careersUrl = 'https://rivet.dev/careers/';
 const careersAssetBase = 'https://assets.rivet.dev/website/images/careers';
 const careersOgImage = `${careersAssetBase}/careers-og-1200x630.4989293b8c.webp`;
@@ -185,38 +189,21 @@ const careersSchema = {
 	],
 };
 
-const productTiles = [
-	{
-		name: 'Actors',
-		body: 'Addressable, long-running processes with SQLite-per-Actor, WebSockets, and hibernation.',
-		href: '/actors/docs/',
-		logoSrc: productLogos.actors.src,
-	},
-	{
-		name: 'agentOS',
-		body: 'A virtual operating system for agents with execution, filesystems, and orchestration.',
-		href: '/agentos/',
-		logoSrc: productLogos.agentos.src,
-	},
-	{
-		name: 'Workflows',
-		body: 'Durable execution for multi-step operations, queues, and scheduling.',
-		href: '/workflows/docs/',
-		logoSrc: productLogos.workflows.src,
-	},
-	{
-		name: 'Dynamic Apps',
-		body: 'AI-generated app hosting built on Rivet Actors.',
-		href: '/dynamic-apps/docs/',
-		logoSrc: productLogos['dynamic-apps'].src,
-	},
-	{
-		name: 'Rivet Cloud',
-		body: 'A managed way to run the Rivet stack with edge routing, autoscaling, and observability.',
-		href: 'https://dashboard.rivet.dev',
-		logoSrc: undefined,
-	},
-];
+// The four pillars in site order plus Rivet Cloud. Name, tagline, badge, and
+// landing page come from `product-metadata.ts` so this copy cannot drift from
+// the rest of the site. Rivet Cloud has no wordmark (see Product Marks in
+// CLAUDE.md), so its `logoSrc` is undefined and the tile takes the cloud glyph.
+const productTiles = ['actors', 'agentos', 'workflows', 'dynamic-apps', 'cloud'].map((id) => {
+	const product = getProduct(id);
+	if (!product) throw new Error(`Careers product tile "${id}" has no product`);
+	return {
+		name: product.name,
+		body: product.description,
+		href: product.href,
+		badge: product.badge,
+		logoSrc: productLogos[id]?.src,
+	};
+});
 ---
 
 <MarketingLayout
@@ -240,7 +227,7 @@ const productTiles = [
 							data-site-hero-reveal
 							data-site-reveal-delay="0"
 						>
-							Build the next generation of open-source AI infrastructure with us.
+							Build the open-source orchestrator for agentic workloads with us.
 						</h1>
 						<div
 							class="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
@@ -279,20 +266,28 @@ const productTiles = [
 					<h2 class={SECTION_H2_CLASS} data-site-reveal>About Rivet</h2>
 					<div class="max-w-3xl space-y-5 text-base leading-relaxed text-ink-soft" data-site-reveal-group data-site-reveal-stagger="40">
 						<p data-site-reveal-child>
-							Rivet is composable, open-source infrastructure for modern AI requirements. Everything we do is
-							built with an emphasis on self-hosting, flexibility, and performance. We believe no good
-							engineering happens in a vacuum, so we work closely with customers to make sure Rivet fits their
-							use case and is flexible enough for their roadmap.
+							Rivet is the open-source orchestrator for agentic workloads: infrastructure for the agentic era.
+							Everything it runs is an <a href="/actors/docs/" class={inlineLink}>Actor</a>: a long-lived process
+							with its own SQLite database and filesystem that hibernates when idle and wakes on demand,
+							scheduled by one control plane on workers you already run.
 						</p>
 						<p data-site-reveal-child>
-							At the core of Rivet is Actors: a primitive for stateful workloads. It provides addressable,
-							long-running processes, SQLite-per-Actor, WebSockets, and hibernation. Actors provide a powerful
-							foundation for use cases like agentOS (virtual operating system for agents), Workflows (durable
-							execution engine), and Dynamic Apps (AI-generated app hosting).
+							<a href="/agents/docs/" class={inlineLink}>Agents</a>,
+							<a href="/workflows/docs/" class={inlineLink}>Workflows</a>,
+							<a href="/agentos/docs/" class={inlineLink}>Sandboxes</a>, and
+							<a href="/dynamic-apps/docs/" class={inlineLink}>Dynamic Apps</a> are Actor types built on that
+							primitive. <a href="/agentos/" class={inlineLink}>agentOS</a> and
+							<a href="/secure-exec/" class={inlineLink}>Secure Exec</a> are libraries that run inside Actors.
 						</p>
-						<p data-site-reveal-child>Rivet Cloud provides a managed way to run the Rivet stack.</p>
 						<p data-site-reveal-child>
-							Most of Rivet is open-source (Apache 2.0), self-hostable, and can be fully air-gapped in your VPC.
+							Everything we build emphasizes self-hosting, flexibility, and performance. Most of Rivet is Apache
+							2.0, self-hostable, and can run fully air-gapped in your VPC.
+							<a href="/docs/deploy/cloud/" class={inlineLink}>Rivet Cloud</a> runs it for you, or
+							<a href="/docs/deploy/byoc/" class={inlineLink}>BYOC</a> runs it inside your own cloud account.
+						</p>
+						<p data-site-reveal-child>
+							We believe no good engineering happens in a vacuum, so we work closely with customers to make sure
+							Rivet fits their use case and is flexible enough for their roadmap.
 						</p>
 						<p data-site-reveal-child>
 							Our mission-critical “off-rails” code uses no or limited AI. Our routine “on-rails” SDK and frontend
@@ -300,14 +295,12 @@ const productTiles = [
 						</p>
 						<p data-site-reveal-child>
 							Code is available at
-							<a
-								href="https://github.com/rivet-dev"
-								target="_blank"
-								rel="noreferrer"
-								class="rounded-sm font-medium text-pine underline decoration-pine/30 underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-							>
+							<a href="https://github.com/rivet-dev" target="_blank" rel="noreferrer" class={inlineLink}>
 								github.com/rivet-dev
 							</a>
+						</p>
+						<p class="text-ink" data-site-reveal-child>
+							Orchestrate agents. Operate their environment. Automate their work. Deploy what they build.
 						</p>
 					</div>
 				</div>
@@ -317,15 +310,13 @@ const productTiles = [
 						productTiles.map((product, productIndex) => (
 							<a
 								href={product.href}
-								target={product.name === 'Rivet Cloud' ? '_blank' : undefined}
-								rel={product.name === 'Rivet Cloud' ? 'noreferrer' : undefined}
 								class:list={[
 									'career-product-card group flex min-h-60 flex-col bg-paper p-7 transition-colors duration-200 motion-reduce:transition-none hover:bg-white/70 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine xl:min-h-72 xl:p-6',
 									productIndex === productTiles.length - 1 ? 'sm:col-span-2 xl:col-span-1' : '',
 								]}
 								data-site-reveal-child
 							>
-								<h3 class="flex items-center gap-3 text-xl font-medium tracking-[-0.01em] text-ink md:text-2xl xl:text-xl">
+								<h3 class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xl font-medium tracking-[-0.01em] text-ink md:text-2xl xl:text-xl">
 									{/* Same badge treatment as the product-page hero lockups: an ink
 									    squircle with the mark masked in white. Rivet Cloud has no
 									    wordmark, so it takes the bare glyph in ink — the same treatment
@@ -346,6 +337,13 @@ const productTiles = [
 										}
 									</span>
 									<span class="whitespace-nowrap">{product.name}</span>
+									{
+										product.badge && (
+											<span class="whitespace-nowrap rounded border border-ink/20 px-1.5 py-px text-[11px] font-medium leading-4 text-ink-faint">
+												{product.badge}
+											</span>
+										)
+									}
 								</h3>
 								<p class="mt-3 max-w-md flex-1 text-sm leading-relaxed text-ink-soft">{product.body}</p>
 								<span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-pine">
