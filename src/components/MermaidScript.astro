@@ -82,8 +82,12 @@
 
     // Render each mermaid diagram
     mermaidElements.forEach(async (element, index) => {
-      const code = element.textContent || '';
-      const id = `mermaid-${index}`;
+      // Keep the source so the diagram can be re-rendered when the theme flips.
+      if (element.dataset.mermaidSource === undefined) {
+        element.dataset.mermaidSource = element.textContent || '';
+      }
+      const code = element.dataset.mermaidSource;
+      const id = `mermaid-${index}-${Date.now()}`;
 
       try {
         const { svg } = await mermaid.render(id, code);
@@ -105,6 +109,18 @@
 
   // Re-run on Astro page transitions
   document.addEventListener('astro:page-load', initMermaid);
+
+  // The Mermaid theme is baked into the rendered SVG, so re-render from the
+  // saved source when the site theme toggles (ThemeScript dispatches this).
+  window.addEventListener('theme-change', () => {
+    const rendered = document.querySelectorAll('pre.mermaid-rendered');
+    if (rendered.length === 0) return;
+    rendered.forEach((element) => {
+      element.classList.remove('mermaid-rendered');
+      element.textContent = element.dataset.mermaidSource || '';
+    });
+    initMermaid();
+  });
 </script>
 
 <style is:global>

@@ -21,13 +21,13 @@ Workers always run your code, so you always own them. The options differ in wher
 Rivet Cloud runs the control plane, storage, and your workers on [Rivet Compute](/docs/deploy/cloud/compute). Nothing to operate; deploy from the [Rivet dashboard](https://dashboard.rivet.dev).
 
 <svg viewBox="0 0 760 230" role="img" aria-label="Fully managed architecture: your worker runs on Rivet Compute alongside the control plane and storage, all inside Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
-  <defs><marker id="cloud-managed-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
-  <rect x="20" y="25" width="720" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
-  <rect x="48" y="65" width="214" height="120" rx="8" fill="none" stroke="#2E4034" stroke-width="1" stroke-opacity=".45"/>
-  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034"><text x="42" y="51">RIVET CLOUD</text><text x="66" y="89">RIVET COMPUTE</text></g>
-  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="103" width="170" height="64" rx="7" fill="#ffffff"/><rect x="317" y="103" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="542" y="103" width="170" height="64" rx="7" fill="#ffffff"/></g>
-  <g text-anchor="middle" fill="#1b1916"><text x="155" y="129" font-size="14" font-weight="600">Worker</text><text x="155" y="149" font-size="12" fill="#56524a">(your code)</text><text x="402" y="141" font-size="14" font-weight="600">Control plane</text><text x="627" y="141" font-size="14" font-weight="600">Storage</text></g>
-  <g stroke="#2E4034" stroke-width="1.4"><line x1="263" y1="135" x2="316" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/><line x1="488" y1="135" x2="541" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/></g>
+  <defs><marker id="cloud-managed-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-pine, 46 64 52))"/></marker></defs>
+  <rect x="20" y="25" width="720" height="180" rx="10" fill="rgb(var(--site-paper-mid, 250 248 243))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <rect x="48" y="65" width="214" height="120" rx="8" fill="none" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1" stroke-opacity=".45"/>
+  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))"><text x="42" y="51">RIVET CLOUD</text><text x="66" y="89">RIVET COMPUTE</text></g>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4"><rect x="70" y="103" width="170" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/><rect x="317" y="103" width="170" height="64" rx="7" fill="rgb(var(--site-pine, 46 64 52) / 0.12)"/><rect x="542" y="103" width="170" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/></g>
+  <g text-anchor="middle" fill="rgb(var(--site-ink, 27 25 22))"><text x="155" y="129" font-size="14" font-weight="600">Worker</text><text x="155" y="149" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">(your code)</text><text x="402" y="141" font-size="14" font-weight="600">Control plane</text><text x="627" y="141" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4"><line x1="263" y1="135" x2="316" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/><line x1="488" y1="135" x2="541" y2="135" marker-start="url(#cloud-managed-arrow)" marker-end="url(#cloud-managed-arrow)"/></g>
 </svg>
 
 See the [Cloud overview](/docs/deploy/cloud).
@@ -37,12 +37,12 @@ See the [Cloud overview](/docs/deploy/cloud).
 Rivet Cloud runs the control plane and storage. Your workers run on your own infrastructure and connect outbound, so you keep your code and data next to the rest of your stack.
 
 <svg viewBox="0 0 760 230" role="img" aria-label="Bring your own workers: a worker in your infrastructure connects to the control plane and storage hosted in Rivet Cloud." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
-  <defs><marker id="byoc-cloud-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
-  <rect x="20" y="25" width="230" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/><rect x="290" y="25" width="450" height="180" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
-  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034"><text x="42" y="51">YOUR INFRASTRUCTURE</text><text x="312" y="51">RIVET CLOUD</text></g>
-  <g stroke="#1b1916" stroke-width="1.4"><rect x="50" y="88" width="170" height="64" rx="7" fill="#ffffff"/><rect x="325" y="88" width="160" height="64" rx="7" fill="#e7ece7"/><rect x="550" y="88" width="155" height="64" rx="7" fill="#ffffff"/></g>
-  <g text-anchor="middle" fill="#1b1916"><text x="135" y="114" font-size="14" font-weight="600">Worker</text><text x="135" y="134" font-size="12" fill="#56524a">(your code)</text><text x="405" y="126" font-size="14" font-weight="600">Control plane</text><text x="627" y="126" font-size="14" font-weight="600">Storage</text></g>
-  <g stroke="#2E4034" stroke-width="1.4"><line x1="221" y1="120" x2="324" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/><line x1="486" y1="120" x2="549" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/></g>
+  <defs><marker id="byoc-cloud-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-pine, 46 64 52))"/></marker></defs>
+  <rect x="20" y="25" width="230" height="180" rx="10" fill="rgb(var(--site-paper-mid, 250 248 243))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6"/><rect x="290" y="25" width="450" height="180" rx="10" fill="rgb(var(--site-paper-mid, 250 248 243))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))"><text x="42" y="51">YOUR INFRASTRUCTURE</text><text x="312" y="51">RIVET CLOUD</text></g>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4"><rect x="50" y="88" width="170" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/><rect x="325" y="88" width="160" height="64" rx="7" fill="rgb(var(--site-pine, 46 64 52) / 0.12)"/><rect x="550" y="88" width="155" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/></g>
+  <g text-anchor="middle" fill="rgb(var(--site-ink, 27 25 22))"><text x="135" y="114" font-size="14" font-weight="600">Worker</text><text x="135" y="134" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">(your code)</text><text x="405" y="126" font-size="14" font-weight="600">Control plane</text><text x="627" y="126" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4"><line x1="221" y1="120" x2="324" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/><line x1="486" y1="120" x2="549" y2="120" marker-start="url(#byoc-cloud-arrow)" marker-end="url(#byoc-cloud-arrow)"/></g>
 </svg>
 
 See <SelfHostLink to="workers">Deploy Workers</SelfHostLink>.
@@ -60,12 +60,12 @@ See the [BYOC quickstart](/docs/deploy/byoc/quickstart).
 You run the workers, control plane, and storage. Choose this when you need to operate the stack yourself, including fully air-gapped deployments.
 
 <svg viewBox="0 0 760 210" role="img" aria-label="Self-hosted architecture with a worker, the control plane, and storage connected bidirectionally inside your infrastructure." style="width:100%;max-width:760px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
-  <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker></defs>
-  <rect x="20" y="25" width="720" height="160" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6"/>
-  <text x="42" y="51" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">YOUR INFRASTRUCTURE</text>
-  <g stroke="#1b1916" stroke-width="1.4"><rect x="70" y="82" width="170" height="64" rx="7" fill="#ffffff"/><rect x="295" y="82" width="170" height="64" rx="7" fill="#e7ece7"/><rect x="520" y="82" width="170" height="64" rx="7" fill="#ffffff"/></g>
-  <g text-anchor="middle" fill="#1b1916"><text x="155" y="108" font-size="14" font-weight="600">Worker</text><text x="155" y="128" font-size="12" fill="#56524a">(your code)</text><text x="380" y="120" font-size="14" font-weight="600">Control plane</text><text x="605" y="120" font-size="14" font-weight="600">Storage</text></g>
-  <g stroke="#2E4034" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
+  <defs><marker id="self-host-infra-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-pine, 46 64 52))"/></marker></defs>
+  <rect x="20" y="25" width="720" height="160" rx="10" fill="rgb(var(--site-paper-mid, 250 248 243))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="42" y="51" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))">YOUR INFRASTRUCTURE</text>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4"><rect x="70" y="82" width="170" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/><rect x="295" y="82" width="170" height="64" rx="7" fill="rgb(var(--site-pine, 46 64 52) / 0.12)"/><rect x="520" y="82" width="170" height="64" rx="7" fill="rgb(var(--site-surface, 255 255 255))"/></g>
+  <g text-anchor="middle" fill="rgb(var(--site-ink, 27 25 22))"><text x="155" y="108" font-size="14" font-weight="600">Worker</text><text x="155" y="128" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">(your code)</text><text x="380" y="120" font-size="14" font-weight="600">Control plane</text><text x="605" y="120" font-size="14" font-weight="600">Storage</text></g>
+  <g stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4"><line x1="241" y1="114" x2="294" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/><line x1="466" y1="114" x2="519" y2="114" marker-start="url(#self-host-infra-arrow)" marker-end="url(#self-host-infra-arrow)"/></g>
 </svg>
 
 See <SelfHostLink to="control-plane">Self-Host</SelfHostLink>.

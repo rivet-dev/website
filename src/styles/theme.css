@@ -97,6 +97,69 @@ html[data-theme="dark"]:not([data-fixed-theme]) {
   --runtime-highlight: 211 105 69;
 }
 
+/* Inline SVG diagrams in docs and blog articles. New diagrams draw with
+   `rgb(var(--site-*, fallback))` tokens and retint on their own (see
+   vendor/docs architecture.mdx). Older ones, including everything synced into
+   vendor/ from the product repos, hardcode the light palette as presentation
+   attributes: ink #1b1916, ink-soft #56524a, ink-faint #8a8578, pine #2E4034,
+   white cards, the #faf8f3 region fill and the #e7ece7 sage tint. CSS beats a
+   presentation attribute, so remap each hex to its dark token here. The
+   `:has()` guard keys on ink or pine, which every site-palette diagram uses,
+   so the white and tint remaps never touch a diagram drawn in another palette.
+   Presentation attributes are case-sensitive as written, hence the `i` flag. */
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg {
+  --figure-ink: rgb(var(--site-ink));
+  --figure-ink-soft: rgb(var(--site-ink-soft));
+  --figure-ink-faint: rgb(var(--site-ink-faint));
+  --figure-pine: rgb(var(--site-pine));
+  --figure-card: rgb(var(--site-surface));
+  --figure-region: rgb(var(--site-paper-mid));
+  --figure-tint: rgb(var(--site-pine) / 0.12);
+  --figure-highlight: rgb(var(--runtime-highlight));
+  --figure-highlight-tint: rgb(var(--runtime-highlight) / 0.18);
+}
+
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#1b1916" i] { fill: var(--figure-ink); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [stroke="#1b1916" i] { stroke: var(--figure-ink); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#56524a" i] { fill: var(--figure-ink-soft); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [stroke="#56524a" i] { stroke: var(--figure-ink-soft); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([fill="#8a8578" i], [fill="#94908a" i]) { fill: var(--figure-ink-faint); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([stroke="#8a8578" i], [stroke="#94908a" i]) { stroke: var(--figure-ink-faint); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([fill="#2e4034" i], [fill="#5f7060" i]) { fill: var(--figure-pine); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([stroke="#2e4034" i], [stroke="#5f7060" i]) { stroke: var(--figure-pine); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([fill="#d63e00" i], [fill="#a33000" i]) { fill: var(--figure-highlight); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([stroke="#d63e00" i], [stroke="#a33000" i]) { stroke: var(--figure-highlight); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg :is([fill="#fbeee9" i], [fill="#fbe9e0" i]) { fill: var(--figure-highlight-tint); }
+
+/* Surfaces only inside site-palette diagrams (see the guard above). */
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg:has([fill="#1b1916" i], [stroke="#1b1916" i], [fill="#2e4034" i], [stroke="#2e4034" i]) [fill="#ffffff" i] { fill: var(--figure-card); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg:has([fill="#1b1916" i], [stroke="#1b1916" i], [fill="#2e4034" i], [stroke="#2e4034" i]) :is([fill="#faf8f3" i], [fill="#f4f1e7" i], [fill="#efefef" i]) { fill: var(--figure-region); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg:has([fill="#1b1916" i], [stroke="#1b1916" i], [fill="#2e4034" i], [stroke="#2e4034" i]) [fill="#e7ece7" i] { fill: var(--figure-tint); }
+/* Tracing-page span colors: keep the saturated stroke, thin the pastel fill. */
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#fddcbb" i] { fill: rgb(240 146 59 / 0.22); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#c7e4fb" i] { fill: rgb(61 157 243 / 0.22); }
+
+/* Diagrams drawn in a foreign palette (the agentOS security-model, POSIX
+   syscall and package-resolution figures use Tailwind zinc/slate/indigo) have
+   nothing to remap. Until they are redrawn upstream with tokens, invert them
+   and rotate the hue back so text lands light on dark and accents keep their
+   family. Anything that uses tokens, currentColor or the site palette is
+   excluded so nothing is retinted twice. */
+html[data-theme="dark"]:not([data-fixed-theme]) .docs-article svg[role="img"]:not(:has([fill="#1b1916" i], [stroke="#1b1916" i], [fill="#2e4034" i], [stroke="#2e4034" i], [fill^="rgb(var(" i], [stroke^="rgb(var(" i], [fill="currentColor" i], [stroke="currentColor" i])) {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Raster (Excalidraw PNG) diagrams are exported on an opaque white plate with
+   no dark variant. Same invert-and-rotate treatment: the plate goes near
+   black, labels go light, and the orange/blue box fills keep their family.
+   Vendored docs cannot carry a class, so match the alt text; website-owned
+   figures whose alt does not say "diagram" opt in with .theme-diagram-invert.
+   Dashboard screenshots never match: they are already dark and their alt does
+   not describe a diagram. */
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article img[alt*="diagram" i], .theme-diagram-invert) {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 html[data-theme="dark"]:not([data-fixed-theme]) body {
   background-color: rgb(var(--site-paper));
   color: rgb(var(--site-ink));

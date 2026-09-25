@@ -21,6 +21,10 @@ Run `node scripts/check-theme.mjs` against a dev server to verify the CSS-handle
 | `public/images/vendors/flue.svg`, `public/images/frameworks/flue.svg` | registry, agentOS, Actor types | Self-contained tile (ink `#1B1916` square with white glyph); works on both surfaces. On the Integrations cards and sidebar it takes `theme-monochrome-logo` with the other vendor marks, so it inverts to a white tile there. |
 | `public/images/vendors/eve.svg`, `workflow.svg`, `durable-streams.svg`, `rivet.svg` (ink `#1B1916` on transparent; were `currentColor`, which resolves to black inside `<img>` on both themes) | `docs/IntegrationCards.tsx`, `DocsNavigation.tsx` sidebar icons | `theme-monochrome-logo` inverts them in dark. On the registry and the homepage wayfinder they sit on `registry-logo-plate` and stay ink. |
 | Product wordmarks `src/images/products/*-logo.svg` | `ProductBadge`, `ProductLockup`, `StackSection` | Always white inside an ink or accent tile (AGENTS.md rule). No change needed. |
+| Inline SVG diagrams that hardcode the light palette (`#1b1916`, `#56524a`, `#8a8578`, `#2E4034`, `#ffffff`, `#faf8f3`, `#e7ece7`) as presentation attributes | Vendored docs under `vendor/*/docs` (versions, tracing, dynamic-apps, agentOS architecture, quickstarts) and dated blog posts | `theme.css` remaps each hex to its dark token with `[fill="…" i]` / `[stroke="…" i]` selectors inside `.docs-article` and `.blog-article`; CSS wins over a presentation attribute. Surface remaps are guarded by `svg:has(ink-or-pine)` so they never touch another palette. Website-owned diagrams (`src/components/docs/*Diagram.astro`, `src/content/self-host/**`) were converted to `rgb(var(--site-*, fallback))` tokens instead and need no remap. |
+| Inline SVG diagrams drawn in a foreign palette (agentOS `security-model`, `architecture/posix-syscalls`, `architecture/packages-and-command-resolution` use Tailwind zinc/slate/indigo/emerald) | `vendor/agentos/docs` | `theme.css` applies `invert(1) hue-rotate(180deg)` to any `.docs-article svg[role="img"]` that uses neither tokens, `currentColor`, nor the site palette. |
+| Excalidraw PNG diagrams on an opaque white plate (`assets.rivet.dev/website/docs/general/runtime-modes/*.png`, `endpoints/endpoint-env-vars.png`, `website/learn/act-1/scene-1/*.png`) | `vendor/docs/docs/content/runtime-modes.mdx`, `endpoints.mdx`; `src/content/guides/a-radically-simpler-architecture.mdx` | `theme.css` applies `invert(1) hue-rotate(180deg)` to `.docs-article img[alt*="diagram" i]` and to `.theme-diagram-invert`. Vendored `<img>`s match on their alt text; the two guide figures whose alt lacks "diagram" carry the class. Screenshots never match. |
+| Mermaid fences (`pre.mermaid`, only in `src/content/posts/2026-06-17-introducing-the-rust-sdk/page.mdx` outside the Learn section) | `MermaidScript.astro` | Picks `neutral`/`dark` from the background luminance at render, keeps the source in `data-mermaid-source`, and re-renders on the `theme-change` event so a toggle does not leave a stale light diagram. |
 
 ## Intentionally unchanged
 
@@ -30,6 +34,7 @@ Run `node scripts/check-theme.mjs` against a dev server to verify the CSS-handle
 | Photography (`/startups` YC and Speedrun photos, careers) | Photos are not themed. |
 | Dashboard screenshots (`assets.rivet.dev/.../rivet-actors-inspector-state.png`) | The dashboard is dark already. |
 | Secure Exec overview (`/secure-exec`) and the Learn section | Fixed dark via `data-fixed-theme="dark"`; the toggle is hidden there. |
+| agentOS `javascript-executor-{wakeup-sequence,readiness-state}-dark.svg` (`vendor/agentos/docs/public/images/architecture/`) | Exported on their own dark plate with light text, so they are self-contained on both themes, like a screenshot. Their alt text does not contain "diagram", so the raster invert rule does not touch them. |
 
 ## Still needs a real dark variant
 
@@ -40,6 +45,7 @@ None are blocking. These would look sharper with dedicated files than with a fil
 | `public/images/tools/rust.svg`, `effect.svg`, `agent-logos/pi.svg`, `opencode.svg`, `frameworks/eve.svg` | CSS `invert(1)` | Ship `*-dark.svg` white variants and pick by theme like `RivetLogo`, so anti-aliasing and any non-black detail survive. |
 | `public/images/world-map.svg` | `brightness(0) invert(1)` at 0.4 opacity | A single-color SVG using `currentColor` would remove the filter. |
 | Open Graph images (`ogImage` in `BaseLayout.astro`) | Always light | Not visible in-page; only matters if a dark OG variant is wanted. |
+| Vendored inline SVG diagrams (see the two diagram rows above) | Hex remap / `invert(1) hue-rotate(180deg)` | Redraw upstream in the product repos with `rgb(var(--site-ink, 27 25 22))`-style tokens and `--runtime-highlight`, as `vendor/docs/docs/content/architecture.mdx` and `jwt.mdx` already do. Once a diagram uses tokens it is excluded from both fallbacks automatically. |
 
 ## Rules of thumb for new assets
 

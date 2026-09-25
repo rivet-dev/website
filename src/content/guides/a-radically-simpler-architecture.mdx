@@ -19,7 +19,7 @@ Worse, these are bugs you can't unit test for. They're emergent behaviors that o
 
 Yet it's accepted as _the way things must be_. Nobody got fired for adding Kafka, Redis, and RabbitMQ to the stack. The fact that each one brings its own failure modes is assumed to be the growing pains of any successful business.
 
-<img src="https://assets.rivet.dev/website/learn/act-1/scene-1/old-arch.png" alt="Traditional backend architecture with separate layers for web server, cache, database, and message queue" />
+<img src="https://assets.rivet.dev/website/learn/act-1/scene-1/old-arch.png" alt="Traditional backend architecture with separate layers for web server, cache, database, and message queue" className="theme-diagram-invert" />
 
 ---
 
@@ -53,7 +53,7 @@ They're like mini-servers: they can accept and respond to network requests and e
 
 In addition to performance and complexity benefits, this architecture **eliminates entire categories of bugs by design.** No network to the database means no network partitions. No shared state means no race conditions. No locks means no deadlocks.
 
-<img src="https://assets.rivet.dev/website/learn/act-1/scene-1/actor-arch.png" alt="Actor architecture showing compute and state combined in isolated actors" className="max-h-[500px]" />
+<img src="https://assets.rivet.dev/website/learn/act-1/scene-1/actor-arch.png" alt="Actor architecture showing compute and state combined in isolated actors" className="max-h-[500px] theme-diagram-invert" />
 
 ## The 4 Properties That Eliminate Complexity
 
