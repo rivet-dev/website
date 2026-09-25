@@ -42,6 +42,7 @@ src/content/docs/workflows
 /public/secure-exec/
 /public/workflows/
 /public/metadata/
+/public/.well-known/agent-skills/index.json
 
 # Local manifests for orb service portals.
 /.amp/portals/
