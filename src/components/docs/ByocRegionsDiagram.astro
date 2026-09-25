@@ -3,21 +3,21 @@
     <title id="byoc-regions-title">BYOC across regions</title>
     <desc id="byoc-regions-description">Two regional VPCs connect over a private network. Each region has a Kubernetes cluster running a Rivet operator, Rivet control plane and FoundationDB.</desc>
     <defs>
-      <marker id="byoc-regions-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2E4034" /></marker>
+      <marker id="byoc-regions-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(var(--site-pine, 46 64 52))" /></marker>
     </defs>
-    <g font-family="system-ui, sans-serif" fill="#1b1916">
+    <g font-family="system-ui, sans-serif" fill="rgb(var(--site-ink, 27 25 22))">
       {[{ x: 8, label: 'REGION A · VPC' }, { x: 448, label: 'REGION B · VPC' }].map(({ x, label }) => (
         <g>
-          <rect x={x} y="16" width="264" height="176" rx="10" fill="none" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="7 6" />
-          <text x={x + 16} y="42" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="#2E4034">{label}</text>
-          <rect x={x + 16} y="58" width="232" height="118" rx="8" fill="#faf8f3" stroke="#2E4034" stroke-width="1" />
-          <text x={x + 132} y="82" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.1em" fill="#2E4034">KUBERNETES</text>
+          <rect x={x} y="16" width="264" height="176" rx="10" fill="none" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6" />
+          <text x={x + 16} y="42" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))">{label}</text>
+          <rect x={x + 16} y="58" width="232" height="118" rx="8" fill="rgb(var(--site-paper-mid, 250 248 243))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1" />
+          <text x={x + 132} y="82" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" font-weight="600" letter-spacing="0.1em" fill="rgb(var(--site-pine, 46 64 52))">KUBERNETES</text>
           <text x={x + 132} y="110" text-anchor="middle" font-size="14" font-weight="600">Rivet operator</text>
           <text x={x + 132} y="135" text-anchor="middle" font-size="14">Rivet control plane</text>
           <text x={x + 132} y="160" text-anchor="middle" font-size="14">FoundationDB</text>
         </g>
       ))}
-      <path d="M276 116 H444" fill="none" stroke="#2E4034" stroke-width="1.4" marker-start="url(#byoc-regions-arrow)" marker-end="url(#byoc-regions-arrow)" />
+      <path d="M276 116 H444" fill="none" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" marker-start="url(#byoc-regions-arrow)" marker-end="url(#byoc-regions-arrow)" />
       <text x="360" y="101" text-anchor="middle" font-size="12">Private connectivity</text>
     </g>
   </svg>

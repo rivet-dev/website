@@ -216,6 +216,48 @@ try {
   }
   console.log("PASS: agentOS card fades, monochrome logos, runtime marks, registry indicators and code/CTA panels in both themes");
 
+  // Inline SVG diagrams: token-drawn (BYOC), hex-drawn and remapped by
+  // theme.css (vendored versions page), and foreign-palette inverted
+  // (vendored agentOS security model). Font Awesome icons share role="img"
+  // and must stay untouched.
+  for (const mode of ["dark", "light"]) {
+    const ink = mode === "dark" ? "rgb(255, 255, 255)" : "rgb(27, 25, 22)";
+    const card = mode === "dark" ? "rgb(12, 12, 14)" : "rgb(255, 255, 255)";
+    await page.goto("/docs/deploy/byoc/architecture/");
+    await choose(mode);
+    const byoc = page.locator('svg[aria-labelledby="byoc-diagram-title byoc-diagram-description"]');
+    assert.equal(await css(byoc.getByText("Rivet Cloud", { exact: true }), "fill"), ink);
+    assert.equal(await css(byoc.locator('rect[width="168"]').first(), "fill"), card);
+    assert.equal(await css(byoc, "filter"), "none");
+
+    await page.goto("/docs/versions/");
+    await choose(mode);
+    const versions = page.locator(".docs-article svg[role=img]:not(.svg-inline--fa)").first();
+    assert.equal(await css(versions.locator('[fill="#1b1916"]').first(), "fill"), ink);
+    assert.equal(await css(versions.locator('[fill="#faf8f3"]').first(), "fill"),
+      mode === "dark" ? "rgb(22, 22, 24)" : "rgb(250, 248, 243)");
+    assert.equal(await css(versions.locator('[stroke="#2E4034"]').first(), "stroke"),
+      mode === "dark" ? "rgb(212, 212, 216)" : "rgb(46, 64, 52)");
+    assert.equal(await css(versions, "filter"), "none");
+
+    await page.goto("/agentos/docs/security-model/");
+    await choose(mode);
+    const foreign = page.locator(".docs-article svg[role=img]:not(.svg-inline--fa)").first();
+    assert.equal(await css(foreign, "filter"), mode === "dark" ? "invert(1) hue-rotate(180deg)" : "none");
+    assert.equal(await css(page.locator(".docs-article svg.svg-inline--fa").first(), "filter"), "none");
+
+    const raster = mode === "dark" ? "invert(1) hue-rotate(180deg)" : "none";
+    await page.goto("/docs/runtime-modes/");
+    await choose(mode);
+    assert.equal(await css(page.getByRole("img", { name: "Runner architecture diagram" }), "filter"), raster);
+
+    await page.goto("/guides/a-radically-simpler-architecture/");
+    await choose(mode);
+    assert.equal(await css(page.locator("img.theme-diagram-invert").first(), "filter"), raster);
+    assert.equal(await css(page.getByRole("img", { name: /^Diagram showing actors with isolated state/ }), "filter"), raster);
+  }
+  console.log("PASS: docs diagrams retint in dark mode (tokens, hex remap, foreign-palette inversion, raster inversion) and icons stay untouched");
+
   await page.goto("/actors/docs/quickstart/backend/");
   await choose("dark");
   await page.setViewportSize({ width: 390, height: 844 });
