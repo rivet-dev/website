@@ -120,7 +120,7 @@ export function Hero() {
         <AmbientSparkles />
 
         <div
-          className="flex flex-1 flex-col justify-center px-6"
+          className="relative z-10 flex flex-1 flex-col justify-center px-6"
           style={undefined}
         >
           <div className="mx-auto w-full max-w-4xl text-center">
@@ -151,11 +151,11 @@ export function Hero() {
                 transition={{ duration: 0.6, delay: 0.7 }}
                 className="mx-auto mb-10 max-w-2xl text-lg text-zinc-500 leading-relaxed"
               >
-                <span className="whitespace-nowrap">A lightweight library for secure Node.js execution.</span>
+                <span className="sm:whitespace-nowrap">A lightweight library for secure Node.js execution.</span>
                 <br />
-                <span className="whitespace-nowrap">No containers, no VMs — just npm-compatible sandboxing out of the box.</span>
+                <span className="sm:whitespace-nowrap">No containers, no VMs — just npm-compatible sandboxing out of the box.</span>
 				<br />
-                <span className="whitespace-nowrap"> Powered by the same tech as Cloudflare Workers.</span>
+                <span className="sm:whitespace-nowrap"> Powered by the same tech as Cloudflare Workers.</span>
               </motion.p>
 
               <motion.div
