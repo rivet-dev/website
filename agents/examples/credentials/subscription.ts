@@ -44,7 +44,6 @@ const credentials = actor({
 	},
 });
 
-// docs:start agent
 const agent = pi({
 	model: "anthropic/claude-opus-5-5",
 	// c.key[0] is the user id, so each user has one credentials Actor.
@@ -53,6 +52,5 @@ const agent = pi({
 			.client<Registry<{ credentials: typeof credentials }>>()
 			.credentials.getOrCreate([c.key[0]]),
 });
-// docs:end agent
 
 export const registry = setup({ use: { credentials, agent } });

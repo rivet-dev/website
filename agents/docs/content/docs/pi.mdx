@@ -143,17 +143,3 @@ The Pi Actor accepts every [`actor()`](/actors/docs/actor-configuration) option 
 | `credentials` | Logins your application stores. See [Credentials](/agents/docs/credentials#bring-your-subscription). |
 | `sandbox` | Where Pi's file and shell tools run. See [Sandboxes](/agents/docs/sandboxes). |
 | `settings` | Pi settings for a new session. |
-
-Each run is traced as an `invoke_agent pi` span with [OpenTelemetry GenAI attributes](https://github.com/rivet-dev/rivet/blob/main/integrations/pi/src/tracing.ts), without prompts or tool data. See [Tracing](/agents/docs/tracing).
-
-## Bring your subscription
-
-Your users can run Pi on their own Claude or ChatGPT subscription instead of your API key.
-
-<CodeSnippet file="examples/credentials/subscription.ts" region="agent" title="server.ts" />
-
-See [Credentials](/agents/docs/credentials#bring-your-subscription) for the `credentials` Actor.
-
-<Warning>
-Make sure to protect the `credentials` Actor with [authentication](/docs/authentication), because its actions return provider tokens.
-</Warning>
