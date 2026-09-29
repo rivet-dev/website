@@ -63,6 +63,12 @@
 					"badge": "TODO"
 				},
 				{
+					"title": "MCP Servers",
+					"href": "/agents/docs/mcp-servers",
+					"icon": "faServer",
+					"badge": "TODO"
+				},
+				{
 					"title": "Frontend UI",
 					"href": "/agents/docs/frontend",
 					"icon": "faReact",
