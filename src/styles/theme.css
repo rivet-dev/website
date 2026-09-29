@@ -138,6 +138,7 @@ html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article
 /* Tracing-page span colors: keep the saturated stroke, thin the pastel fill. */
 html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#fddcbb" i] { fill: rgb(240 146 59 / 0.22); }
 html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#c7e4fb" i] { fill: rgb(61 157 243 / 0.22); }
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.docs-article, .blog-article) svg [fill="#fecaca" i] { fill: rgb(239 68 68 / 0.22); }
 
 /* Diagrams drawn in a foreign palette (the agentOS security-model, POSIX
    syscall and package-resolution figures use Tailwind zinc/slate/indigo) have
