@@ -1,6 +1,6 @@
 ---
 title: "Tracing"
-description: "Each agent run is an invoke_agent span with OpenTelemetry GenAI attributes."
+description: "Trace every agent run with OpenTelemetry."
 ---
 
 Each Pi run is traced as an `invoke_agent pi` span, a child of the `prompt` action span, with [OpenTelemetry GenAI attributes](https://opentelemetry.io/docs/specs/semconv/gen-ai/). To export it, [set up OpenTelemetry for your Actors](/docs/tracing).
