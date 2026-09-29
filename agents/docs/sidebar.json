@@ -59,16 +59,14 @@
 					"title": "Slack",
 					"href": "/agents/docs/connectors/slack",
 					"icon": {
-						"src": "/images/vendors/slack.svg",
-						"monochrome": false
+						"src": "/images/vendors/slack.svg"
 					}
 				},
 				{
 					"title": "Linear",
 					"href": "/agents/docs/connectors/linear",
 					"icon": {
-						"src": "/images/vendors/linear.svg",
-						"monochrome": false
+						"src": "/images/vendors/linear.svg"
 					}
 				},
 				{
@@ -82,8 +80,7 @@
 					"title": "Discord",
 					"href": "/agents/docs/connectors/discord",
 					"icon": {
-						"src": "/images/vendors/discord.svg",
-						"monochrome": false
+						"src": "/images/vendors/discord.svg"
 					}
 				}
 			]
