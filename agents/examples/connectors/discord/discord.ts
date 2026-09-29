@@ -37,7 +37,7 @@ discord.post("/interactions", async (c) => {
 		void answer({
 			applicationId: interaction.application_id,
 			token: interaction.token,
-			channelId: interaction.channel_id,
+			channelId: interaction.channel_id ?? interaction.channel?.id,
 			prompt: String(prompt ?? ""),
 		}).catch((error) => console.error("discord reply failed", error));
 		return c.json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });

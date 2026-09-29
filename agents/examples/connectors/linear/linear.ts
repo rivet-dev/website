@@ -24,12 +24,14 @@ linearRoutes.post("/webhook", async (c) => {
 		return c.text("stale webhook", 401);
 	}
 
-	if (payload.type === "Comment" && payload.action === "create" && payload.data.body.includes(trigger)) {
+	// Comments on documents and project updates have no issue, so skip them.
+	const comment = payload.data;
+	if (payload.type === "Comment" && payload.action === "create" && comment.issueId && comment.body.includes(trigger)) {
 		// Reply after acknowledging, because an agent run outlasts the webhook.
 		void replyToComment({
-			issueId: payload.data.issueId,
-			userId: payload.data.userId,
-			text: payload.data.body,
+			issueId: comment.issueId,
+			userId: comment.userId,
+			text: comment.body,
 		}).catch((error) => console.error("linear reply failed", error));
 	}
 	return c.body(null, 200);

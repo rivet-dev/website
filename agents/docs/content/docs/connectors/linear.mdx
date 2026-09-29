@@ -9,7 +9,7 @@ description: "Mention an agent in a Linear issue comment."
 
 <Step title="Create an API key">
 
-Create a Linear user for the agent, or use your own, and a [personal API key](https://linear.app/settings/account/security) for it.
+Create a Linear user for the agent, or use your own, and a [personal API key](https://linear.app/settings/account/security) for it with read and create-comments access.
 
 </Step>
 
@@ -41,7 +41,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 <Step title="Add the webhook">
 
-In Linear's **Settings > API**, create a webhook with the URL `https://<your-worker>/linear/webhook` and the **Comments** resource type. Copy its signing secret. Comment `@agent` on an issue.
+In Linear's **Settings > Administration > API**, which needs admin rights, create a webhook with the URL `https://<your-worker>/linear/webhook` and the **Comments** resource type. Copy its signing secret. Comment `@agent` on an issue.
 
 </Step>
 
