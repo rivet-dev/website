@@ -80,11 +80,10 @@ The working directory is the sandbox's own working directory. A stopped sandbox 
 
 ## How the sandbox is managed
 
-- The provider creates the sandbox the first time the agent needs it. Its id is written to the Actor's SQLite database right away, so a failed first start never loses it. See [Durability](/agents/docs/durability).
-- When the Actor wakes, it reconnects to the same sandbox. If the provider reports that the sandbox no longer exists, the Actor creates a new one and logs a warning. Files from the old sandbox are lost.
-- The stored provider name must match. Switching an existing Actor to a different provider throws instead of silently starting over.
-- Commands run with the sandbox's own environment. Pi does not forward your worker's environment, so provider keys stay out of the sandbox.
-- Paths that resolve outside the sandbox's working directory are rejected.
+- The sandbox is created the first time the agent needs it, and its id is saved right away in the Actor's SQLite database. See [Durability](/agents/docs/durability).
+- On wake, the Actor reconnects to the same sandbox. If it no longer exists, a new one is created and the old files are lost.
+- An existing Actor cannot switch to a different provider.
+- Commands run with the sandbox's environment, not your worker's, and paths outside the working directory are rejected.
 
 ## Write your own provider
 
