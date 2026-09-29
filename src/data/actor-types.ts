@@ -12,10 +12,8 @@ import { getProduct, isListed } from "@/sitemap/products";
  * the ordering, the plate's premise line, and the hover motif it borrows.
  */
 export interface ActorType {
-	/** Product id; also the wordmark (`productLogos`) and, by default, the accent. */
-	id: "actors" | "agents" | "workflows" | "sandboxes" | "dynamic-apps";
-	/** Product whose accent the plate wears, when not its own. */
-	accentId?: "agents";
+	/** Product id; also the wordmark (`productLogos`) and the accent. */
+	id: "agents" | "workflows" | "sandboxes" | "dynamic-apps";
 	name: string;
 	/** One line under the name on the homepage plate. No terminal period. */
 	premise: string;
@@ -31,7 +29,6 @@ const ORDERED: {
 	id: ActorType["id"];
 	premise: string;
 	motifId: ProductMotifId;
-	accentId?: ActorType["accentId"];
 }[] = [
 	{
 		id: "agents",
@@ -71,27 +68,6 @@ function resolve(entry: (typeof ORDERED)[number]): ActorType {
 export const ACTOR_TYPES: readonly ActorType[] = ORDERED.filter((entry) =>
 	isListed(entry.id),
 ).map(resolve);
-
-/**
- * The homepage plates. While Agents is unlaunched, the Actors primitive stands
- * in its slot wearing the Agents blue so the grid keeps its four colors.
- *
- * TEMPORARY: once Agents launches (drop `unlaunched` in product-metadata.ts),
- * delete the stand-in so this is `ACTOR_TYPES` again.
- */
-export const HOMEPAGE_ACTOR_PLATES: readonly ActorType[] = ORDERED.map((entry) =>
-	entry.id === "agents" && !isListed("agents")
-		? {
-				id: "actors" as const,
-				// The product's own premise line, so the copy has one home.
-				premise: getProduct("actors")?.premise ?? "",
-				motifId: "actors" as const,
-				accentId: "agents" as const,
-			}
-		: entry,
-)
-	.filter((entry) => isListed(entry.id))
-	.map(resolve);
 
 /**
  * The two ways past the list, shown after the actor types wherever they are

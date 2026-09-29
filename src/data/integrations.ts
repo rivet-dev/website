@@ -33,8 +33,8 @@ const ACTORS: Integration[] = [
 		category: "Agents",
 		icon: { src: "/images/vendors/flue.svg" },
 		badge: "Beta",
-		exampleUrl: "https://github.com/rivet-dev/agentos/tree/main/examples/flue",
-		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/flue",
+		sourceUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/integrations/flue-runtime",
 	},
 	{
 		title: "Vercel Eve",
@@ -43,9 +43,8 @@ const ACTORS: Integration[] = [
 		category: "Agents",
 		icon: { src: "/images/vendors/eve.svg" },
 		badge: "Beta",
-		exampleUrl:
-			"https://github.com/rivet-dev/agentos/tree/main/examples/vercel-eve",
-		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/eve",
+		sourceUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
 	},
 	{
 		title: "Workflow SDK",
@@ -110,8 +109,8 @@ const AGENTOS: Integration[] = [
 		category: "Frameworks",
 		icon: { src: "/images/vendors/flue.svg" },
 		badge: "Beta",
-		exampleUrl: "https://github.com/rivet-dev/agentos/tree/main/examples/flue",
-		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/flue",
+		sourceUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/integrations/flue-runtime",
 	},
 	{
 		title: "Vercel Eve",
@@ -120,9 +119,8 @@ const AGENTOS: Integration[] = [
 		category: "Frameworks",
 		icon: { src: "/images/vendors/eve.svg" },
 		badge: "Beta",
-		exampleUrl:
-			"https://github.com/rivet-dev/agentos/tree/main/examples/vercel-eve",
-		sourceUrl: "https://github.com/rivet-dev/agentos/tree/main/packages/eve",
+		sourceUrl:
+			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
 	},
 	{
 		title: "Rivet Actors",
@@ -130,10 +128,9 @@ const AGENTOS: Integration[] = [
 		slug: "rivet-actors",
 		category: "Platform",
 		icon: { src: "/images/vendors/rivet.svg" },
-		exampleUrl:
-			"https://github.com/rivet-dev/agentos/tree/main/examples/quickstart-app",
+		exampleUrl: "https://github.com/rivet-dev/rivet/tree/main/examples/agent-os",
 		sourceUrl:
-			"https://github.com/rivet-dev/agentos/tree/main/packages/agentos",
+			"https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/agent-os",
 	},
 ];
 

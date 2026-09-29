@@ -1,0 +1,42 @@
+---
+title: "Tracing"
+description: "Each agent run is an invoke_agent span with OpenTelemetry GenAI attributes."
+---
+
+Each Pi run is traced as an `invoke_agent pi` span. It records the outcome of the run with [OpenTelemetry GenAI attributes](https://opentelemetry.io/docs/specs/semconv/gen-ai/), next to the spans Rivet already records for your Actors.
+
+## Quickstart
+
+Set an OTLP exporter in the process that runs your Actors:
+
+```sh
+OTEL_SERVICE_NAME=my-agents
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://collector:4318/v1/traces
+OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
+```
+
+Setting `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` turns tracing on. See [OpenTelemetry](/docs/tracing) for every exporter option.
+
+## The run span
+
+A run starts when a client calls `prompt`. Its span is a child of that `prompt` action span, in the same trace, so each prompt is one trace.
+
+| Attribute | Value |
+| --- | --- |
+| `gen_ai.operation.name` | `invoke_agent` |
+| `gen_ai.agent.name` | `pi` |
+| `gen_ai.conversation.id` | The Pi session id. |
+| `gen_ai.request.model` | The model id. |
+| `rivet.actor.id` | The Actor's id. |
+
+A model error does not reject `prompt`, so the span is where a failed run shows up:
+
+| Outcome | Span status | `error.type` |
+| --- | --- | --- |
+| The model returns an error | Error, with the model's error message | `model_error` |
+| The run throws | Error | `run_error` |
+| The run completes | Unset | Not set |
+
+Prompt text, tool arguments, and tool results are never recorded. A prompt sent while a run is still streaming is queued into that run and does not start a span of its own.
+
+See [`tracing.ts`](https://github.com/rivet-dev/rivet/blob/main/integrations/pi/src/tracing.ts) for the implementation.

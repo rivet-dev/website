@@ -41,7 +41,7 @@ Define an actor with state and actions, register it, and call it from a typed cl
 
 ## One primitive, every stateful workload
 
-- **Agent orchestration.** One Actor per agent preserves identity, state, and session across long-running work. Add [agentOS](/agentos/docs) when the agent also needs files, processes, a shell, and networking.{/* TEMPORARY: Agents is unlaunched (HIDDEN.md). Restore: See [Agents](/agents/docs). */}
+- **Agent orchestration.** One Actor per agent preserves identity, state, and session across long-running work. Add [agentOS](/agentos/docs) when the agent also needs files, processes, a shell, and networking. See [Agents](/agents/docs).
 - **Realtime and multiplayer.** WebSockets and [event broadcast](/actors/docs/events) built in. One Actor per room, match, or channel keeps every client in sync without a separate realtime service.
 - **Per-tenant databases.** One Actor per tenant, keyed by tenant ID, owns that tenant's entire dataset. No shared tables and no `tenant_id` filters. See the [per-tenant database guide](/guides/per-tenant-database).
 

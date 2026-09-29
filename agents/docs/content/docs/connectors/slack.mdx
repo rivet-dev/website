@@ -1,0 +1,75 @@
+---
+title: "Slack"
+description: "Talk to an agent by mentioning it in a Slack channel or thread."
+---
+
+<Info>
+This connector is in beta. There is no connector package yet, so this page shows how to wire Slack to an agent yourself with a webhook route on your worker.
+</Info>
+
+## Quickstart
+
+<Steps>
+
+<Step title="Create a Slack app">
+
+In [Slack's app settings](https://api.slack.com/apps), create an app, add the `app_mentions:read` and `chat:write` bot token scopes, and install it to your workspace. Copy the bot token and the signing secret.
+
+</Step>
+
+<Step title="Add the route">
+
+```sh
+npm add @rivet-dev/pi @rivet-dev/sandbox-adapter rivetkit hono @slack/web-api
+```
+
+<CodeGroup workspace>
+<CodeSnippet file="examples/connectors/slack/server.ts" title="server.ts" />
+<CodeSnippet file="examples/connectors/slack/slack.ts" title="slack.ts" />
+</CodeGroup>
+
+Run the server with any runtime that serves a fetch handler, for example `npx srvx --import tsx server.ts`. See [HTTP Server](/actors/docs/http-server).
+
+</Step>
+
+<Step title="Set the environment">
+
+```sh
+SLACK_SIGNING_SECRET=...
+SLACK_BOT_TOKEN=xoxb-...
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+</Step>
+
+<Step title="Subscribe to mentions">
+
+Under **Event Subscriptions**, set the request URL to `https://<your-worker>/slack/events` and subscribe to the `app_mention` bot event. Slack sends a challenge, which the route answers. Mention the app in a channel to start a conversation.
+
+</Step>
+
+</Steps>
+
+## How it works
+
+- The route verifies Slack's signature against the raw body and rejects requests older than five minutes.
+- Each Slack thread gets its own agent, keyed by team, channel, and thread. Mentioning the app again in the thread continues the same session.
+- Slack expects a response within three seconds and an agent run takes longer, so the route acknowledges the event first, then prompts the agent and posts the reply in the thread.
+- Slack retries events it thinks timed out. The route ignores retries, because the first delivery is already being answered.
+
+## Configure
+
+| Variable | Purpose |
+| --- | --- |
+| `SLACK_SIGNING_SECRET` | **Required.** Verifies that requests come from Slack. |
+| `SLACK_BOT_TOKEN` | **Required.** Posts replies with the Slack Web API. |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [Credentials](/agents/docs/credentials). |
+
+## Supported events
+
+| Slack surface | Webhook path | What the route does |
+| --- | --- | --- |
+| [Event Subscriptions](https://docs.slack.dev/apis/events-api/), `app_mention` | `/slack/events` | Prompts the thread's agent and replies in the thread. |
+| URL verification | `/slack/events` | Answers Slack's challenge. |
+
+To answer direct messages too, subscribe to `message.im`, add the `im:history` scope, and handle `message` events the same way.

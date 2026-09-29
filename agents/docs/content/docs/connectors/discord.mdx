@@ -1,0 +1,87 @@
+---
+title: "Discord"
+description: "Talk to an agent with a slash command in Discord."
+---
+
+<Info>
+This connector is in beta. There is no connector package yet, so this page shows how to wire Discord to an agent yourself with a webhook route on your worker.
+</Info>
+
+## Quickstart
+
+<Steps>
+
+<Step title="Create a Discord application">
+
+In the [Discord Developer Portal](https://discord.com/developers/applications), create an application. Copy its application ID and public key, and create a bot token.
+
+</Step>
+
+<Step title="Register the command">
+
+Register an `/ask` command with a `prompt` option:
+
+```sh
+curl -X PUT "https://discord.com/api/v10/applications/$DISCORD_APPLICATION_ID/commands" \
+  -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[{"name":"ask","description":"Ask the agent","options":[{"type":3,"name":"prompt","description":"What to ask","required":true}]}]'
+```
+
+Install the application to your server with the `applications.commands` scope.
+
+</Step>
+
+<Step title="Add the route">
+
+```sh
+npm add @rivet-dev/pi @rivet-dev/sandbox-adapter rivetkit hono discord-interactions
+```
+
+<CodeGroup workspace>
+<CodeSnippet file="examples/connectors/discord/server.ts" title="server.ts" />
+<CodeSnippet file="examples/connectors/discord/discord.ts" title="discord.ts" />
+</CodeGroup>
+
+Run the server with any runtime that serves a fetch handler, for example `npx srvx --import tsx server.ts`. See [HTTP Server](/actors/docs/http-server).
+
+</Step>
+
+<Step title="Set the environment">
+
+```sh
+DISCORD_PUBLIC_KEY=...
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+</Step>
+
+<Step title="Set the interactions endpoint">
+
+Under **General Information**, set the interactions endpoint URL to `https://<your-worker>/discord/interactions`. Discord sends a ping, which the route answers. Run `/ask` in a channel.
+
+</Step>
+
+</Steps>
+
+## How it works
+
+- The route verifies Discord's Ed25519 signature against the raw body with the application's public key.
+- Each Discord channel gets its own agent. Every `/ask` in the channel continues the same session.
+- Discord expects a response within three seconds and an agent run takes longer, so the route defers the reply, then prompts the agent and edits the deferred message. Interaction tokens stay valid for 15 minutes, and a message holds up to 2,000 characters.
+
+## Configure
+
+| Variable | Purpose |
+| --- | --- |
+| `DISCORD_PUBLIC_KEY` | **Required.** Verifies that requests come from Discord. |
+| `DISCORD_APPLICATION_ID` | Registers the command. Not needed by the server. |
+| `DISCORD_BOT_TOKEN` | Registers the command. Not needed by the server. |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [Credentials](/agents/docs/credentials). |
+
+## Supported events
+
+| Discord interaction | Webhook path | What the route does |
+| --- | --- | --- |
+| `PING` | `/discord/interactions` | Answers Discord's endpoint check. |
+| [Application command](https://discord.com/developers/docs/interactions/application-commands) `/ask` | `/discord/interactions` | Defers, prompts the channel's agent, and edits the reply. |

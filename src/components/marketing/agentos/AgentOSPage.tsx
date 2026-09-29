@@ -1,16 +1,11 @@
 'use client';
 
-import { useId, useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
 	ArrowRight,
 	Layers,
 	Wrench,
-	Activity,
 	HardDrive,
-	Users,
-	Workflow,
-	ChevronLeft,
-	ChevronRight,
 	Check,
 	ShieldCheck,
 	Package,
@@ -25,10 +20,7 @@ import {
 	Gauge,
 	AppWindow,
 } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import actorsLogoUrl from '@/images/products/actors-logo.svg';
-import workflowsLogoUrl from '@/images/products/workflows-logo.svg';
-import { wordmarkMaskStyle } from '@/lib/product-accent';
+import { motion, useReducedMotion } from 'framer-motion';
 import { canonicalizeInternalHref } from '@/lib/internalHref';
 import { registry } from '@/data/registry';
 import { REGISTRY_ICONS } from '@/data/registry-icons';
@@ -51,7 +43,6 @@ import {
 	CARD_TITLE_CLASS,
 	EYEBROW_CLASS,
 	INK_PANEL_GHOST_BUTTON_CLASS,
-	INK_PANEL_LIGHT_BUTTON_CLASS,
 	PRIMARY_INK_BUTTON_CLASS,
 	PRODUCT_HERO_H1_CLASS,
 	PRODUCT_HERO_INNER_CLASS,
@@ -69,15 +60,7 @@ import {
 import { AgentSessionDemo } from '@/components/marketing/diagrams/AgentSessionDemo';
 import { Reveal } from '@/components/marketing/motion';
 
-interface HeroTabCode {
-	key: string;
-	fileName: string;
-	code: string;
-	highlightedCode: string;
-}
-
 interface AgentOSPageProps {
-	heroTabs: HeroTabCode[];
 	filesystemHighlightedCode: string;
 }
 
@@ -305,177 +288,8 @@ const SetupWithAgent = ({ variant = 'accent' }: { variant?: 'accent' | 'light' }
 	<SetupWithAgentButton prompt={AGENT_SETUP_PROMPTS.agentos} variant={variant} />
 );
 
-// --- Hero Tabs (scrollable with fade + arrows) ---
-interface HeroTabEntry {
-	key: string;
-	icon?: React.ComponentType<{ className?: string }>;
-	iconSrc?: string;
-	label: string;
-	docsHref: string;
-	docsLabel?: string;
-	docsLogo?: string;
-	fileName?: string;
-	code?: string;
-	highlightedCode?: string;
-}
-
-const HeroTabs = ({ tabs, activeTab, onTabChange, idPrefix }: { tabs: HeroTabEntry[]; activeTab: number; onTabChange: (idx: number) => void; idPrefix: string }) => {
-	const scrollRef = useRef<HTMLDivElement>(null);
-	const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-	const [canScrollLeft, setCanScrollLeft] = useState(false);
-	const [canScrollRight, setCanScrollRight] = useState(false);
-	const reduceMotion = useReducedMotion() ?? false;
-	// The page renders more than one tab strip; a per-instance layoutId keeps
-	// each strip's active-pill animation from jumping to the other strip.
-	const indicatorLayoutId = useId();
-
-	const checkOverflow = useCallback(() => {
-		const el = scrollRef.current;
-		if (!el) return;
-		setCanScrollLeft(el.scrollLeft > 2);
-		setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
-	}, []);
-
-	useEffect(() => {
-		const el = scrollRef.current;
-		if (!el) return;
-		checkOverflow();
-		el.addEventListener('scroll', checkOverflow, { passive: true });
-		const ro = new ResizeObserver(checkOverflow);
-		ro.observe(el);
-		return () => {
-			el.removeEventListener('scroll', checkOverflow);
-			ro.disconnect();
-		};
-	}, [checkOverflow]);
-
-	const scroll = (direction: 'left' | 'right') => {
-		const el = scrollRef.current;
-		if (!el) return;
-		const amount = el.clientWidth * 0.5;
-		el.scrollBy({
-			left: direction === 'left' ? -amount : amount,
-			behavior: reduceMotion ? 'auto' : 'smooth',
-		});
-	};
-
-	const activateTab = (index: number) => {
-		if (tabs.length === 0) return;
-		const nextIndex = (index + tabs.length) % tabs.length;
-		onTabChange(nextIndex);
-		tabRefs.current[nextIndex]?.focus();
-		tabRefs.current[nextIndex]?.scrollIntoView({
-			behavior: reduceMotion ? 'auto' : 'smooth',
-			block: 'nearest',
-			inline: 'nearest',
-		});
-	};
-
-	const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-		let nextIndex: number | undefined;
-		switch (event.key) {
-			case 'ArrowLeft':
-				nextIndex = index - 1;
-				break;
-			case 'ArrowRight':
-				nextIndex = index + 1;
-				break;
-			case 'Home':
-				nextIndex = 0;
-				break;
-			case 'End':
-				nextIndex = tabs.length - 1;
-				break;
-			default:
-				return;
-		}
-		event.preventDefault();
-		activateTab(nextIndex);
-	};
-
-	// Fade the tab strip into the porcelain with a content mask rather than a
-	// solid-color overlay. A flat overlay would cover the page grain and read as
-	// an odd lighter band; masking the content lets the grain show through.
-	const maskImage =
-		canScrollLeft || canScrollRight
-			? `linear-gradient(to right, ${canScrollLeft ? 'transparent 0, #000 6rem' : '#000 0'}, ${canScrollRight ? '#000 calc(100% - 6rem), transparent 100%' : '#000 100%'})`
-			: undefined;
-	const maskStyle = maskImage ? { maskImage, WebkitMaskImage: maskImage } : undefined;
-
-	return (
-		<div className='relative mb-5 overflow-hidden rounded-full border border-ink/15 bg-ink/[0.025] p-1.5'>
-			{/* Left fade + arrow */}
-			{canScrollLeft && (
-				<div className='pointer-events-none absolute inset-y-0 left-0 z-20 flex w-12 items-center justify-start'>
-					<button
-						type='button'
-						onClick={() => scroll('left')}
-						className='pointer-events-auto ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-faint ring-1 ring-inset ring-ink/10 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none'
-						aria-label='Scroll tabs left'
-					>
-						<ChevronLeft className='h-4 w-4' />
-					</button>
-				</div>
-			)}
-
-			{/* Scrollable tabs */}
-			<div ref={scrollRef} role='tablist' aria-label='Orchestration patterns' aria-orientation='horizontal' className='scrollbar-hide overflow-x-auto' style={maskStyle}>
-				<div className='flex min-w-max flex-nowrap items-center justify-start gap-1 lg:min-w-0'>
-					{tabs.map((tab, idx) => {
-						const LucideIcon = tab.icon;
-						const selected = activeTab === idx;
-						return (
-							<button
-								key={tab.label}
-								ref={(element) => {
-									tabRefs.current[idx] = element;
-								}}
-								type='button'
-								onClick={() => onTabChange(idx)}
-								onKeyDown={(event) => handleTabKeyDown(event, idx)}
-								id={`${idPrefix}-tab-${tab.key}`}
-								role='tab'
-								aria-selected={selected}
-								aria-controls={`${idPrefix}-panel-${tab.key}`}
-								tabIndex={selected ? 0 : -1}
-								className='relative inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2.5 font-sans text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none lg:flex-1'
-							>
-								{selected && (
-									<motion.div
-										layoutId={indicatorLayoutId}
-										className='absolute inset-0 rounded-full bg-white ring-1 ring-inset ring-ink/15'
-										transition={reduceMotion ? { duration: 0 } : { type: 'spring', bounce: 0.2, duration: 0.4 }}
-									/>
-								)}
-								<span className={`relative z-10 flex items-center gap-2 ${selected ? 'font-medium text-ink' : 'text-ink-faint hover:text-ink'}`}>
-									{tab.iconSrc ? <img src={tab.iconSrc} alt='' aria-hidden='true' className='h-4 w-4 object-contain' /> : LucideIcon ? <LucideIcon className='h-4 w-4' /> : null}
-									{tab.label}
-								</span>
-							</button>
-						);
-					})}
-				</div>
-			</div>
-
-			{/* Right fade + arrow */}
-			{canScrollRight && (
-				<div className='pointer-events-none absolute inset-y-0 right-0 z-20 flex w-12 items-center justify-end'>
-					<button
-						type='button'
-						onClick={() => scroll('right')}
-						className='pointer-events-auto mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-faint ring-1 ring-inset ring-ink/10 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60 motion-reduce:transition-none'
-						aria-label='Scroll tabs right'
-					>
-						<ChevronRight className='h-4 w-4' />
-					</button>
-				</div>
-			)}
-		</div>
-	);
-};
-
-// --- Hero ---
-interface SupportedAgent {
+// --- Frameworks ---
+interface SupportedFramework {
 	src: string;
 	name: string;
 	href: string;
@@ -484,34 +298,9 @@ interface SupportedAgent {
 	comingSoon?: boolean;
 }
 
-const agents: SupportedAgent[] = [
-	{
-		src: '/images/agent-logos/pi.svg',
-		name: 'Pi',
-		monochrome: true,
-		href: '/agentos/docs/agents/pi',
-	},
-	{
-		src: '/images/agent-logos/claude-code.svg',
-		name: 'Claude Code',
-		href: '/agentos/docs/agents/claude',
-	},
-	{
-		src: '/images/agent-logos/codex.svg',
-		name: 'Codex',
-		href: '/agentos/docs/agents/codex',
-	},
-	{
-		src: '/images/agent-logos/opencode.svg',
-		name: 'OpenCode',
-		monochrome: true,
-		href: '/agentos/docs/agents/opencode',
-	},
-];
-
 // Frameworks agentOS works with. Eve's mark is its wordmark, so its chip
 // renders the logo alone; the others use their square mark.
-const frameworks: SupportedAgent[] = [
+const frameworks: SupportedFramework[] = [
 	{
 		src: '/images/frameworks/eve.svg',
 		name: 'Eve',
@@ -531,68 +320,6 @@ const frameworks: SupportedAgent[] = [
 	},
 ];
 
-// Tab metadata for the orchestration code panel, leading with agents
-// coordinating other agents. Filters the highlighted-snippet array passed
-// from index.astro by key. (The execution section renders recorded agent
-// sessions instead; see AgentSessionDemo.)
-interface HeroTabMeta {
-	key: string;
-	icon?: React.ComponentType<{ className?: string }>;
-	iconSrc?: string;
-	label: string;
-	docsHref: string;
-	docsLabel: string;
-	/** Product wordmark rendered as a mini ink tile beside the docs link. */
-	docsLogo?: string;
-}
-
-const orchestrationTabMeta: HeroTabMeta[] = [
-	{
-		key: 'workflows',
-		icon: Workflow,
-		label: 'Durable Workflows',
-		docsHref: '/workflows/docs',
-		docsLabel: 'Workflows docs',
-		docsLogo: workflowsLogoUrl.src,
-	},
-	{
-		key: 'multiplayer',
-		icon: Users,
-		label: 'Multiplayer',
-		docsHref: '/agentos/docs/multiplayer',
-		docsLabel: 'Multiplayer docs',
-	},
-	{
-		key: 'agent-agent',
-		icon: Layers,
-		label: 'Agent-to-Agent',
-		docsHref: '/agentos/docs/agent-to-agent',
-		docsLabel: 'Agent-to-agent docs',
-	},
-	{
-		key: 'cron',
-		icon: CalendarClock,
-		label: 'Loops & Crons',
-		docsHref: '/agentos/docs/cron',
-		docsLabel: 'Cron jobs docs',
-	},
-	{
-		key: 'human-in-the-loop',
-		icon: ShieldCheck,
-		label: 'Human-in-the-loop',
-		docsHref: '/agentos/docs/approvals',
-		docsLabel: 'Approval docs',
-	},
-];
-
-// Joins tab metadata with the highlighted snippets rendered at Astro build
-// time, dropping any tab whose snippet is missing.
-const joinTabs = (meta: HeroTabMeta[], heroTabs: HeroTabCode[]) =>
-	meta.flatMap((tab) => {
-		const snippet = heroTabs.find((heroTab) => heroTab.key === tab.key);
-		return snippet ? [{ ...tab, ...snippet }] : [];
-	});
-
 const HERO_COPY = {
 	heading: 'Give agents an operating system as a library.',
 	primaryDescription: 'Each agent gets files, processes, shell, and networking in one lightweight OS.\nOne package, with WebAssembly isolation instead of a separate microVM fleet.',
@@ -601,7 +328,6 @@ const HERO_COPY = {
 const HERO_INTRO_STAGGER = 0.04;
 
 const Hero = () => {
-	const [autoPlayAgent, setAutoPlayAgent] = useState<SupportedAgent | null>(null);
 	const reduceMotion = useReducedMotion() ?? false;
 	const introMotion = (step: number) =>
 		reduceMotion
@@ -643,44 +369,6 @@ const Hero = () => {
 		},
 	];
 
-	// Auto-cycle through agents starting 2.5s before stroke animation ends
-	useEffect(() => {
-		if (reduceMotion) {
-			setAutoPlayAgent(null);
-			return;
-		}
-
-		const logoAnimationDuration = 800; // Start cycling 2.5s before the 3.3s animation ends
-		const agentDisplayDuration = 400; // Time to show each agent
-		const timers = new Set<ReturnType<typeof setTimeout>>();
-		const schedule = (callback: () => void, delay: number) => {
-			const timer = setTimeout(() => {
-				timers.delete(timer);
-				callback();
-			}, delay);
-			timers.add(timer);
-		};
-
-		schedule(() => {
-			let currentIndex = 0;
-
-			const cycleAgents = () => {
-				if (currentIndex < agents.length) {
-					setAutoPlayAgent(agents[currentIndex]);
-					currentIndex++;
-					schedule(cycleAgents, agentDisplayDuration);
-				} else {
-					// End on OS (null)
-					setAutoPlayAgent(null);
-				}
-			};
-
-			cycleAgents();
-		}, logoAnimationDuration);
-
-		return () => timers.forEach((timer) => clearTimeout(timer));
-	}, [reduceMotion]);
-
 	return (
 		// Keep the hero height tied to the viewport, as on the main landing page,
 		// while preserving enough room below the foundation tiles.
@@ -695,7 +383,7 @@ const Hero = () => {
 						{...introMotion(1)}
 						className='mb-7 flex'
 					>
-						<AnimatedAgentOSLogo className='h-11 w-auto text-ink md:h-12' displayedAgent={autoPlayAgent} />
+						<AnimatedAgentOSLogo className='h-11 w-auto text-ink md:h-12' />
 					</motion.div>
 
 					{/* Headline */}
@@ -737,345 +425,6 @@ const Hero = () => {
 		</section>
 	);
 };
-
-const DiagramNode = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-	<div className={`z-10 flex items-center justify-center rounded-xl border border-ink/10 bg-white text-center ${className}`}>{children}</div>
-);
-
-const OrchestrationVisualization = ({ pattern }: { pattern: string }) => {
-	if (pattern === 'workflows') {
-		return (
-			<div className='flex h-full flex-col items-center justify-center p-5 sm:p-8'>
-				<div className='relative h-64 w-full max-w-2xl'>
-					<svg aria-hidden='true' viewBox='0 0 640 280' preserveAspectRatio='none' className='absolute inset-0 h-full w-full overflow-visible'>
-						<defs>
-							<marker id='workflow-arrow' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='6' markerHeight='6' orient='auto'>
-								<path d='M 0 0 L 10 5 L 0 10 z' fill='rgba(85,83,78,0.55)' />
-							</marker>
-						</defs>
-						<path d='M 134 130 L 166 130' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#workflow-arrow)' />
-						<path d='M 300 130 L 333 130' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#workflow-arrow)' />
-						<path d='M 467 130 C 494 130 488 55 512 55' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#workflow-arrow)' />
-						<path d='M 467 130 C 494 130 488 225 512 225' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#workflow-arrow)' />
-						<path
-							d='M 512 245 C 410 278 70 278 70 174'
-							fill='none'
-							stroke='rgba(85,83,78,0.3)'
-							strokeWidth='1.5'
-							strokeDasharray='5 5'
-							vectorEffect='non-scaling-stroke'
-							markerEnd='url(#workflow-arrow)'
-						/>
-					</svg>
-
-					<DiagramNode className='absolute top-[90px] left-0 h-20 w-[21%] flex-col px-2'>
-						<Code2 className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Write code</span>
-					</DiagramNode>
-					<DiagramNode className='absolute top-[90px] left-[26%] h-20 w-[21%] flex-col px-2'>
-						<ShieldCheck className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Review</span>
-					</DiagramNode>
-					<DiagramNode className='absolute top-[90px] left-[52%] h-20 w-[21%] flex-col px-2'>
-						<GitFork className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Decision</span>
-					</DiagramNode>
-					<DiagramNode className='absolute top-[15px] right-0 h-20 w-[20%] flex-col px-2'>
-						<Check className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Ship</span>
-						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Approved</span>
-					</DiagramNode>
-					<DiagramNode className='absolute right-0 bottom-[15px] h-20 w-[20%] flex-col px-2'>
-						<RefreshCw className='h-4 w-4 text-olive' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Retry</span>
-						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Rejected</span>
-					</DiagramNode>
-				</div>
-				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
-					<RefreshCw className='h-3.5 w-3.5 text-pine' />
-					Workflows records completed operations and the decisions needed to resume.
-				</div>
-			</div>
-		);
-	}
-
-	if (pattern === 'human-in-the-loop') {
-		return (
-			<div className='flex h-full flex-col items-center justify-center p-5 sm:p-8'>
-				<div className='relative h-64 w-full max-w-2xl'>
-					<svg aria-hidden='true' viewBox='0 0 640 280' preserveAspectRatio='none' className='absolute inset-0 h-full w-full overflow-visible'>
-						<defs>
-							<marker id='approval-arrow' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='6' markerHeight='6' orient='auto'>
-								<path d='M 0 0 L 10 5 L 0 10 z' fill='rgba(85,83,78,0.55)' />
-							</marker>
-						</defs>
-						<path d='M 150 140 L 236 140' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#approval-arrow)' />
-						<path d='M 404 140 C 446 140 441 69 482 69' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#approval-arrow)' />
-						<path d='M 404 140 C 446 140 441 211 482 211' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#approval-arrow)' />
-					</svg>
-
-					<DiagramNode className='absolute top-[100px] left-0 h-20 w-[23%] flex-col px-2'>
-						<Activity className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Agent requests</span>
-						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>tool call</span>
-					</DiagramNode>
-					<DiagramNode className='absolute top-[90px] left-[37%] h-24 w-[26%] flex-col px-2'>
-						<ShieldCheck className='h-5 w-5 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Human reviews</span>
-						<span className='mt-1 rounded-full bg-olive/10 px-2 py-0.5 text-[9px] font-medium text-olive sm:text-[10px]'>Agent paused</span>
-					</DiagramNode>
-					<DiagramNode className='absolute top-[29px] right-0 h-20 w-[22%] flex-col px-2'>
-						<Check className='h-4 w-4 text-pine' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Approve</span>
-						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Resume agent</span>
-					</DiagramNode>
-					<DiagramNode className='absolute right-0 bottom-[29px] h-20 w-[22%] flex-col px-2'>
-						<RefreshCw className='h-4 w-4 text-olive' />
-						<span className='mt-2 text-[11px] font-medium text-ink sm:text-sm'>Reject</span>
-						<span className='mt-0.5 text-[9px] text-ink-faint sm:text-[10px]'>Return feedback</span>
-					</DiagramNode>
-				</div>
-				<div className='mt-4 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
-					<Moon className='h-3.5 w-3.5 text-olive' />
-					The session waits durably for a human decision.
-				</div>
-			</div>
-		);
-	}
-
-	if (pattern === 'multiplayer') {
-		return (
-			<div className='grid h-full grid-cols-[0.9fr_4rem_1.1fr] items-center gap-2 p-6 sm:grid-cols-[0.8fr_7rem_1.2fr] sm:p-10'>
-				<div className='space-y-4'>
-					{['You', 'Teammate', 'App'].map((client) => (
-						<DiagramNode key={client} className='h-12 px-3 text-xs font-medium text-ink sm:h-14 sm:text-sm'>
-							{client}
-						</DiagramNode>
-					))}
-				</div>
-				<svg aria-hidden='true' viewBox='0 0 100 220' preserveAspectRatio='none' className='h-56 w-full overflow-visible'>
-					<defs>
-						<marker id='multiplayer-arrow' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='6' markerHeight='6' orient='auto'>
-							<path d='M 0 0 L 10 5 L 0 10 z' fill='rgba(85,83,78,0.55)' />
-						</marker>
-					</defs>
-					<path d='M 0 35 C 42 35 48 110 96 110' fill='none' stroke='rgba(85,83,78,0.35)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#multiplayer-arrow)' />
-					<path d='M 0 110 L 96 110' fill='none' stroke='rgba(85,83,78,0.35)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#multiplayer-arrow)' />
-					<path d='M 0 185 C 42 185 48 110 96 110' fill='none' stroke='rgba(85,83,78,0.35)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#multiplayer-arrow)' />
-				</svg>
-				<DiagramNode className='min-h-40 flex-col px-4 py-6 sm:min-h-48 sm:px-8'>
-					<Users className='h-6 w-6 text-pine' />
-					<span className='mt-4 text-sm font-medium text-ink sm:text-base'>Shared agent session</span>
-					<span className='mt-2 text-xs leading-relaxed text-ink-faint'>
-						One event stream.
-						<br />
-						Many connected clients.
-					</span>
-				</DiagramNode>
-			</div>
-		);
-	}
-
-	if (pattern === 'agent-agent') {
-		return (
-			<div className='flex h-full items-center justify-center p-5 sm:p-8'>
-				<div className='relative h-64 w-full max-w-xl'>
-					<svg aria-hidden='true' viewBox='0 0 560 240' preserveAspectRatio='none' className='absolute inset-0 h-full w-full'>
-						<defs>
-							<marker id='agent-arrow' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='6' markerHeight='6' orient='auto'>
-								<path d='M 0 0 L 10 5 L 0 10 z' fill='rgba(85,83,78,0.55)' />
-							</marker>
-						</defs>
-						<path d='M 138 82 C 230 32 330 32 422 82' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#agent-arrow)' />
-						<path d='M 422 158 C 330 208 230 208 138 158' fill='none' stroke='rgba(85,83,78,0.38)' strokeWidth='1.5' vectorEffect='non-scaling-stroke' markerEnd='url(#agent-arrow)' />
-					</svg>
-					<DiagramNode className='absolute top-1/2 left-0 h-28 w-24 -translate-y-1/2 flex-col px-3 sm:w-32'>
-						<Activity className='h-5 w-5 text-pine' />
-						<span className='mt-3 text-xs font-medium text-ink sm:text-sm'>Writer agent</span>
-					</DiagramNode>
-					<div className='absolute top-1/2 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink/10 bg-paper px-3 py-1.5 text-[10px] font-medium text-ink-soft'>host function</div>
-					<DiagramNode className='absolute top-1/2 right-0 h-28 w-24 -translate-y-1/2 flex-col px-3 sm:w-32'>
-						<ShieldCheck className='h-5 w-5 text-pine' />
-						<span className='mt-3 text-xs font-medium text-ink sm:text-sm'>Reviewer agent</span>
-					</DiagramNode>
-					<span className='absolute top-7 left-1/2 -translate-x-1/2 text-[10px] text-ink-faint sm:text-xs'>file + request</span>
-					<span className='absolute bottom-7 left-1/2 -translate-x-1/2 text-[10px] text-ink-faint sm:text-xs'>review result</span>
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div className='flex h-full flex-col items-center justify-center p-5 sm:p-8'>
-			<div className='inline-flex items-center gap-2 rounded-full border border-pine/20 bg-pine/[0.05] px-4 py-2 font-mono text-xs font-medium text-pine'>
-				<CalendarClock className='h-4 w-4' />
-				*/5 * * * * <span className='font-sans font-normal text-ink-soft'>Every five minutes</span>
-			</div>
-
-			<div className='relative mt-9 w-full max-w-xl'>
-				<div aria-hidden='true' className='absolute top-3 right-[10%] left-[10%] h-px bg-ink/15' />
-				<div className='relative flex justify-between'>
-					{['09:00', '09:05', '09:10'].map((time) => (
-						<div key={time} className='flex w-[30%] max-w-32 flex-col items-center'>
-							<span className='relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-pine/25 bg-white'>
-								<span className='h-2 w-2 rounded-full bg-pine' />
-							</span>
-							<DiagramNode className='mt-4 h-24 w-full flex-col px-2'>
-								<span className='font-mono text-[10px] text-ink-faint sm:text-xs'>{time}</span>
-								<Activity className='mt-2 h-4 w-4 text-pine' />
-								<span className='mt-1.5 text-[11px] font-medium text-ink sm:text-sm'>Run agent</span>
-							</DiagramNode>
-						</div>
-					))}
-				</div>
-			</div>
-
-			<div className='mt-7 flex items-center gap-2 rounded-full border border-ink/15 bg-white/55 px-3 py-1.5 text-xs text-ink-soft'>
-				<Moon className='h-3.5 w-3.5 text-olive' />
-				The agent sleeps between scheduled runs.
-			</div>
-		</div>
-	);
-};
-
-// Each orchestration pattern opens as a visual explanation. Code remains one
-// click away and is generated at build time from the checked examples.
-const CodePanel = ({ tabs }: { tabs: HeroTabEntry[] }) => {
-	const [activeTab, setActiveTab] = useState(0);
-	const [showCode, setShowCode] = useState(false);
-	const tabSetId = useId();
-	const reduceMotion = useReducedMotion() ?? false;
-	const active = tabs[activeTab];
-
-	const selectTab = (index: number) => {
-		setActiveTab(index);
-		setShowCode(false);
-	};
-
-	return (
-		<div>
-			<HeroTabs tabs={tabs} activeTab={activeTab} onTabChange={selectTab} idPrefix={tabSetId} />
-
-			<div
-				id={`${tabSetId}-panel-${active?.key ?? 'empty'}`}
-				role='tabpanel'
-				aria-labelledby={active ? `${tabSetId}-tab-${active.key}` : undefined}
-				tabIndex={0}
-				className='overflow-hidden rounded-xl border border-ink/10 bg-white/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine/60'
-			>
-				<div className='flex items-center gap-2 border-b border-ink/10 px-4 py-3'>
-					<div className='h-3 w-3 rounded-full bg-ink/10' />
-					<div className='h-3 w-3 rounded-full bg-ink/10' />
-					<div className='h-3 w-3 rounded-full bg-ink/10' />
-					<span className={`ml-2 hidden text-xs text-ink sm:inline ${showCode ? 'font-code' : 'font-medium'}`}>{showCode ? (active?.fileName ?? 'index.ts') : (active?.label ?? 'Loops & Crons')}</span>
-					<button
-						type='button'
-						onClick={() => setShowCode((visible) => !visible)}
-						aria-pressed={showCode}
-						className='ml-auto inline-flex h-7 items-center gap-1.5 rounded-md border border-ink/20 bg-ink/[0.06] px-2.5 text-[11px] font-medium text-ink transition-colors hover:border-ink/30 hover:bg-ink/[0.1]'
-					>
-						<Code2 className='h-3.5 w-3.5' />
-						{showCode ? 'Show diagram' : 'Show me the code'}
-					</button>
-				</div>
-				<div className='relative h-[420px] overflow-hidden'>
-					<AnimatePresence mode='wait' initial={false}>
-						{showCode ? (
-							<motion.div
-								key={`code-${activeTab}`}
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: reduceMotion ? 0 : 0.2 }}
-								className='absolute inset-0 overflow-auto p-6 font-code text-sm leading-relaxed text-ink-soft [&_.line]:break-all [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-code [&_.shiki]:text-sm [&_.shiki]:leading-relaxed [&_pre]:whitespace-pre-wrap'
-							>
-								<span
-									className='not-prose code'
-									// biome-ignore lint/security/noDangerouslySetInnerHtml: generated at Astro render time
-									dangerouslySetInnerHTML={{
-										__html: active?.highlightedCode ?? '',
-									}}
-								/>
-							</motion.div>
-						) : (
-							<motion.div
-								key={`visual-${activeTab}`}
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: reduceMotion ? 0 : 0.2 }}
-								className='absolute inset-0'
-							>
-								<OrchestrationVisualization pattern={active?.key ?? 'cron'} />
-							</motion.div>
-						)}
-					</AnimatePresence>
-				</div>
-			</div>
-			{active && (
-				<div className='mt-4 flex justify-end'>
-					<a href={canonicalizeInternalHref(active.docsHref)} className='inline-flex items-center gap-1.5 whitespace-nowrap text-sm text-pine underline underline-offset-2 transition-colors hover:text-ink'>
-						{active.docsLogo ? <ProductMiniMark logoSrc={active.docsLogo} className='size-4' /> : null}
-						{active.docsLabel ?? `${active.label} docs`} <span aria-hidden='true'>→</span>
-					</a>
-				</div>
-			)}
-		</div>
-	);
-};
-
-// Miniature of the product-hero lockup tile: white-masked wordmark on an ink
-// chip, for inline product mentions.
-const ProductMiniMark = ({ logoSrc, className = 'size-4' }: { logoSrc: string; className?: string }) => (
-	<span aria-hidden='true' className={`inline-flex shrink-0 items-center justify-center rounded-[34.375%] bg-ink ${className}`}>
-		<span style={wordmarkMaskStyle(logoSrc)} className='block h-full w-full bg-white' />
-	</span>
-);
-
-const OrchestrationSection = ({ heroTabs }: { heroTabs: HeroTabCode[] }) => (
-	<section id='orchestration' className={`scroll-mt-24 ${SITE_SECTION_CLASS}`}>
-		<div className={SITE_STANDARD_RAIL_CLASS}>
-			<Reveal>
-				<div className='grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16'>
-					<div>
-						<h2 className={SECTION_H2_CLASS}>Coordinate agents. Automate durable work.</h2>
-						<p className={SECTION_LEDE_CLASS}>
-							agentOS owns the agent&apos;s computer: its files, processes, shell, and network. Connect agents and share live sessions here; use{' '}
-							<a href='/workflows/docs/' className='whitespace-nowrap font-medium text-pine underline underline-offset-2'>
-								<ProductMiniMark logoSrc={workflowsLogoUrl.src} className='mr-1 size-4 align-[-3px]' />
-								Workflows
-							</a>{' '}
-							when multi-step work must wait, retry, and resume.
-						</p>
-						<ActorsAttribution />
-					</div>
-					<div className='min-w-0'>
-						<CodePanel tabs={joinTabs(orchestrationTabMeta, heroTabs)} />
-					</div>
-				</div>
-			</Reveal>
-		</div>
-	</section>
-);
-
-const ActorsAttribution = () => (
-	<aside className='mt-7 border-t border-ink/10 pt-5 text-ink'>
-		<div className='flex items-start gap-3'>
-			<ProductMiniMark logoSrc={actorsLogoUrl.src} className='mt-0.5 size-5' />
-			<div>
-				<p className='text-xs font-medium text-ink'>Powered by Rivet Actors</p>
-				<p className='mt-1.5 max-w-sm text-xs leading-relaxed text-ink-soft'>Each agent lives in an Actor with durable identity, state, queues, storage, and realtime connections.</p>
-				<a
-					href='/actors/docs/'
-					className='mt-2 inline-flex items-center gap-1 text-xs font-medium text-ink-soft underline decoration-ink/20 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink/50'
-				>
-					Learn more
-					<ArrowRight className='h-3 w-3' />
-				</a>
-			</div>
-		</div>
-	</aside>
-);
 
 const filesystemConnections = [
 	{
@@ -1296,10 +645,11 @@ const REGISTRY_TYPE_LABELS: Record<string, string> = {
 };
 
 // The landing-page marquee is an ecosystem showcase, not an inventory of
-// Linux utilities. Keep this focused on agents, filesystems, browsers, and
-// recognizable software that demonstrates useful agent workloads.
-const REGISTRY_ROW_A = ['pi', 'claude-code', 'codex', 'opencode', 's3', 'google-drive', 'host-dir', 'memory'];
-const REGISTRY_ROW_B = ['browserbase', 'git', 'vim', 'duckdb', 'sqlite3', 'ripgrep', 'jq', 'codex-cli'];
+// Linux utilities. Keep this focused on filesystems, browsers, and
+// recognizable software that demonstrates useful agent workloads. Agents are
+// not listed: they run in Actors, and agentOS is their sandbox.
+const REGISTRY_ROW_A = ['s3', 'google-drive', 'host-dir', 'memory', 'git', 'curl', 'ssh', 'wget'];
+const REGISTRY_ROW_B = ['browserbase', 'vim', 'duckdb', 'sqlite3', 'ripgrep', 'jq', 'coreutils', 'tar'];
 const pickRegistry = (slugs: string[]) => slugs.map((slug) => registry.find((entry) => entry.slug === slug)).filter((entry): entry is (typeof registry)[number] => entry !== undefined);
 const registryRowA = pickRegistry(REGISTRY_ROW_A);
 const registryRowB = pickRegistry(REGISTRY_ROW_B);
@@ -1421,7 +771,7 @@ const RegistrySection = () => {
 				<Reveal>
 					<div className='mx-auto max-w-5xl text-center'>
 						<h2 className={SECTION_H2_CLASS}>Whatever the workload, there&apos;s a package for it.</h2>
-						<p className={SECTION_LEDE_CENTERED_CLASS}>Extend agentOS with agents, filesystems, browsers, and software from one registry.</p>
+						<p className={SECTION_LEDE_CENTERED_CLASS}>Extend agentOS with filesystems, browsers, and software from one registry.</p>
 					</div>
 				</Reveal>
 
@@ -1465,7 +815,7 @@ const RegistrySection = () => {
 };
 
 // --- Floating foundation map ---
-// Execution, filesystem, and orchestration split evenly across the section.
+// Execution and filesystem split evenly across the section.
 // The bubbles name recognizable integrations and patterns without turning the
 // section into an inventory.
 interface FoundationBubble {
@@ -1573,53 +923,6 @@ const foundationCards: FoundationCardData[] = [
 			},
 		],
 	},
-	{
-		title: 'Coordination',
-		description: 'Connect agents in code; hand durable multi-step work to Workflows.',
-		href: '#orchestration',
-		bubbles: [
-			{
-				label: 'Loops',
-				icon: RefreshCw,
-				left: '9%',
-				top: '10%',
-				size: 76,
-				delay: 0.1,
-				duration: 7.4,
-				rotation: -7,
-			},
-			{
-				label: 'Multiplayer',
-				icon: Users,
-				left: '62%',
-				top: '8%',
-				size: 84,
-				delay: 0.7,
-				duration: 8.1,
-				rotation: 7,
-			},
-			{
-				label: 'Workflows',
-				icon: Workflow,
-				left: '32%',
-				top: '36%',
-				size: 92,
-				delay: 1.2,
-				duration: 7.8,
-				rotation: -4,
-			},
-			{
-				label: 'Agent-to-Agent',
-				icon: Layers,
-				left: '72%',
-				top: '45%',
-				size: 76,
-				delay: 1.7,
-				duration: 6.9,
-				rotation: 8,
-			},
-		],
-	},
 ];
 
 const scrollToFoundationSection = (event: React.MouseEvent<HTMLAnchorElement>, href: string, reduceMotion: boolean) => {
@@ -1707,7 +1010,7 @@ const FloatingFoundation = () => {
 
 	return (
 		<div>
-			<div className='grid gap-4 lg:grid-cols-3'>
+			<div className='grid gap-4 lg:grid-cols-2'>
 				{foundationCards.map((card, index) => (
 					<FloatingFoundationCard key={card.title} card={card} delay={HERO_INTRO_STAGGER * (index + 6)} />
 				))}
@@ -1734,6 +1037,8 @@ const FloatingFoundation = () => {
 	);
 };
 
+// agentOS is the sandbox. Agents themselves run in Actors (see /agents/docs),
+// so this section lists the frameworks that use agentOS as their sandbox.
 const AgentCompatibilitySection = () => {
 	const reduceMotion = useReducedMotion() ?? false;
 
@@ -1742,53 +1047,27 @@ const AgentCompatibilitySection = () => {
 			<div className={SITE_STANDARD_RAIL_CLASS}>
 				<Reveal>
 					<div className='mx-auto max-w-4xl text-center'>
-						<h2 className={SECTION_H2_CLASS}>Bring any agent or framework.</h2>
-						<p className={SECTION_LEDE_CENTERED_CLASS}>Pi, Claude Code, Codex, and OpenCode on the same virtual operating system—with native Rivet coordination and integrations for Eve and Flue.</p>
+						<h2 className={SECTION_H2_CLASS}>The sandbox for your agent framework.</h2>
+						<p className={SECTION_LEDE_CENTERED_CLASS}>
+							Eve, Flue, and Rivet Actors run their tools in agentOS. To run a coding agent such as Pi, see{' '}
+							<a href='/agents/docs/' className='font-medium text-pine underline underline-offset-2'>
+								Agents
+							</a>
+							.
+						</p>
 					</div>
 				</Reveal>
 
 				<Reveal>
 					<div className='mx-auto mt-10 flex flex-wrap items-center justify-center gap-4 md:mt-12'>
-						{/* Casually rotated agent cards spread out and straighten on hover. */}
-						<motion.div className='flex items-center pl-2' initial='rest' whileHover={reduceMotion ? undefined : 'spread'} animate='rest'>
-							{agents.map((agent, i) => {
-								const tilt = [-16, -8, 0, 9, 17][i] ?? 0;
-								return (
-									<motion.a
-										key={agent.name}
-									href={canonicalizeInternalHref(agent.href)}
-										aria-label={agent.name}
-										variants={{
-											rest: { rotate: tilt, marginLeft: i === 0 ? 0 : -18 },
-											spread: reduceMotion ? { rotate: tilt, marginLeft: i === 0 ? 0 : -18 } : { rotate: 0, marginLeft: i === 0 ? 0 : 7 },
-										}}
-										transition={{
-											duration: reduceMotion ? 0 : 0.3,
-											ease: [0.22, 1, 0.36, 1],
-										}}
-										style={{ zIndex: i }}
-										className='group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl border border-ink/10 bg-white md:h-16 md:w-16'
-									>
-										<img src={agent.src} alt='' aria-hidden='true' className={`h-8 w-8 object-contain md:h-9 md:w-9 ${agent.monochrome ? 'theme-monochrome-logo' : ''}`} />
-										<span className='pointer-events-none absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-soft opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100'>
-											{agent.name}
-										</span>
-									</motion.a>
-								);
-							})}
-						</motion.div>
-
-						<span aria-hidden='true' className='inline-flex h-14 shrink-0 items-center text-base text-ink-faint md:h-16 md:text-lg'>
-							&amp;
-						</span>
-
+						{/* Casually rotated framework cards spread out and straighten on hover. */}
 						<motion.div className='flex items-center pl-2' initial='rest' whileHover={reduceMotion ? undefined : 'spread'} animate='rest'>
 							{frameworks.map((framework, i) => {
 								const tilt = [-12, 0, 12][i] ?? 0;
 								return (
 									<motion.a
 										key={framework.name}
-									href={canonicalizeInternalHref(framework.href)}
+										href={canonicalizeInternalHref(framework.href)}
 										aria-label={framework.comingSoon ? `${framework.name} (coming soon)` : framework.name}
 										variants={{
 											rest: { rotate: tilt, marginLeft: i === 0 ? 0 : -10 },
@@ -1824,8 +1103,8 @@ const AgentCompatibilitySection = () => {
 							})}
 						</motion.div>
 					</div>
-					<a href='/agentos/docs/agents/custom/' className='mx-auto mt-9 flex w-fit items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
-						Or build your own agent
+					<a href='/agents/docs/' className='mx-auto mt-9 flex w-fit items-center gap-1.5 text-sm text-ink-faint transition-colors hover:text-ink'>
+						Run an agent with Rivet
 						<ArrowRight className='h-3.5 w-3.5' />
 					</a>
 				</Reveal>
@@ -2229,8 +1508,8 @@ const secondaryFeatures = [
 	{
 		icon: RefreshCw,
 		title: 'Durable agents',
-		description: 'Persist sessions and transcripts so fault-tolerant agents can pause and resume across restarts.',
-		docsHref: '/agentos/docs/persistence',
+		description: 'Agents run in Actors that keep their session and sandbox across sleep and restarts.',
+		docsHref: '/agents/docs/durability',
 	},
 	{
 		icon: Moon,
@@ -2277,7 +1556,7 @@ const secondaryFeatures = [
 	{
 		icon: CalendarClock,
 		title: 'Cron jobs',
-		description: 'Schedule commands or agent sessions while agents sleep between runs.',
+		description: 'Schedule commands in the VM while it sleeps between runs.',
 		docsHref: '/agentos/docs/cron',
 	},
 	{
@@ -2295,7 +1574,7 @@ const secondaryFeatures = [
 	{
 		icon: Layers,
 		title: 'Built on standards',
-		description: 'ACP and A2A at the agent boundary. WebAssembly and POSIX underneath.',
+		description: 'POSIX and WebAssembly underneath, so standard tools run unchanged.',
 		docsHref: '/agentos/docs/architecture',
 	},
 ];
@@ -2306,7 +1585,7 @@ const SecondaryFeaturesSection = () => (
 			<Reveal>
 				<div className='mx-auto max-w-4xl text-center'>
 					<h2 className={SECTION_H2_CLASS}>Built for flexible agent workloads.</h2>
-					<p className={SECTION_LEDE_CENTERED_CLASS}>Persist agent state, expose backend functions, review tool calls, route models, and attach a full sandbox only when a workload needs one.</p>
+					<p className={SECTION_LEDE_CENTERED_CLASS}>Expose backend functions, review tool calls, preview running services, and attach a full sandbox only when a workload needs one.</p>
 				</div>
 			</Reveal>
 
@@ -2385,7 +1664,7 @@ const ClosingCta = () => (
 );
 
 // --- Main Page ---
-export default function AgentOSPage({ heroTabs, filesystemHighlightedCode }: AgentOSPageProps) {
+export default function AgentOSPage({ filesystemHighlightedCode }: AgentOSPageProps) {
 	return (
 		<main id='main-content' tabIndex={-1}>
 			<Hero />
@@ -2397,8 +1676,6 @@ export default function AgentOSPage({ heroTabs, filesystemHighlightedCode }: Age
 			<ExecutionSection />
 			<SectionRule />
 			<FilesystemSection highlightedCode={filesystemHighlightedCode} />
-			<SectionRule />
-			<OrchestrationSection heroTabs={heroTabs} />
 			<SectionRule />
 			<RegistrySection />
 			<SectionRule />

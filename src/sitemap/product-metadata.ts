@@ -141,9 +141,8 @@ export const PRODUCTS: ProductMetadata[] = [
 	},
 	{
 		// Agents are Actors with a particular shape rather than a separate
-		// library, so their docs are thin and website-owned: an overview that
-		// points into the Actors docs and guides. Shaped like a product bundle so
-		// the docs can move to a repo of their own later.
+		// library. Their docs are website-owned for now, shaped like a product
+		// bundle so they can move to a repo of their own later.
 		id: "agents",
 		name: "Agents",
 		tagline: "A durable process per agent, with memory that survives restarts",
@@ -154,9 +153,6 @@ export const PRODUCTS: ProductMetadata[] = [
 		optionalTabs: [],
 		tabs: ["docs"],
 		hidden: true,
-		// TEMPORARY: not launched yet. Everything is built and `/agents/docs/`
-		// still resolves; drop this line to list Agents again everywhere.
-		unlaunched: true,
 	},
 	{
 		// Sandboxes are agentOS as an API: the actor type that hosts it. They

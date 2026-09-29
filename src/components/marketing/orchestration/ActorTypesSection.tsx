@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import { productLogos } from "@/sitemap/productLogos";
-import { ACTOR_WAYFINDERS, HOMEPAGE_ACTOR_PLATES } from "@/data/actor-types";
+import { ACTOR_TYPES, ACTOR_WAYFINDERS } from "@/data/actor-types";
 import {
 	BODY_CLASS,
 	CARD_TITLE_BASE_CLASS,
@@ -53,8 +53,8 @@ export const ActorTypesSection = () => (
 				data-site-reveal-group=""
 				className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3"
 			>
-				{HOMEPAGE_ACTOR_PLATES.map((plate) => {
-					const accent = productAccent(plate.accentId ?? plate.id);
+				{ACTOR_TYPES.map((plate) => {
+					const accent = productAccent(plate.id);
 					const logo = productLogos[plate.id];
 					return (
 						<a

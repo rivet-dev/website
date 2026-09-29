@@ -1,6 +1,21 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 type Href = string;
+
+/**
+ * A vendor logo in place of a Font Awesome icon, as `{ "src": "/images/..." }`
+ * in a bundle's `sidebar.json` or `src/data/integrations.ts`. Page `icon`s are
+ * typed as `IconDefinition`; the renderer tells the two apart by `prefix`.
+ */
+export type SidebarLogo = {
+	/** `public/` path to the SVG. */
+	src: string;
+	/**
+	 * Defaults to true: an ink-on-transparent mark that inverts on the dark
+	 * theme. Set false for multi-color brand marks that read on both themes.
+	 */
+	monochrome?: boolean;
+};
 type Page = {
 	title?: string;
 	href: Href;

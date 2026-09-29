@@ -2,7 +2,7 @@ import { ActiveLink, SsrPathnameContext } from "@/components/ActiveLink";
 import { CollapsibleSidebarItem } from "@/components/CollapsibleSidebarItem";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import routes from "@/generated/routes.json";
-import type { SidebarItem } from "@/lib/sitemap";
+import type { SidebarItem, SidebarLogo } from "@/lib/sitemap";
 import { type ProductAccent, productAccent } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
 import { Icon, faArrowUpRight } from "@rivet-gg/icons";
@@ -157,11 +157,19 @@ function TreeItem({
 				) : item.icon && "prefix" in item.icon ? (
 					<Icon icon={item.icon} className="size-3.5 flex-shrink-0" />
 				) : item.icon ? (
-					// Vendor marks from `src/data/integrations.ts`: ink-on-transparent
-					// SVGs, so they invert to white on the dark theme.
+					// Vendor marks from `src/data/integrations.ts` or a bundle's
+					// `sidebar.json`. Ink-on-transparent marks invert to white on the
+					// dark theme; multi-color brand marks set `monochrome: false` so
+					// they keep their colors.
 					<img
-						src={(item.icon as { src: string }).src}
-						className="theme-monochrome-logo h-3.5 w-auto max-w-8 flex-shrink-0"
+						src={(item.icon as SidebarLogo).src}
+						className={clsx(
+							// Font Awesome's fixed 1.25em icon box, so every label lines up
+							// with its icon neighbors whatever the mark's aspect ratio.
+							"h-3.5 w-[1.25em] flex-shrink-0 object-contain",
+							(item.icon as SidebarLogo).monochrome !== false &&
+								"theme-monochrome-logo",
+						)}
 						alt=""
 					/>
 				) : null}

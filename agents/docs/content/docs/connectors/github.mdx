@@ -1,0 +1,76 @@
+---
+title: "GitHub"
+description: "Mention an agent in a GitHub issue or pull request comment."
+---
+
+<Info>
+This connector is in beta. There is no connector package yet, so this page shows how to wire GitHub to an agent yourself with a webhook route on your worker.
+</Info>
+
+## Quickstart
+
+<Steps>
+
+<Step title="Create a bot account and token">
+
+Create a GitHub account for the agent, or use your own, and a [fine-grained personal access token](https://github.com/settings/personal-access-tokens) with read and write access to issues and pull requests on the repository.
+
+</Step>
+
+<Step title="Add the route">
+
+```sh
+npm add @rivet-dev/pi @rivet-dev/sandbox-adapter rivetkit hono @octokit/rest @octokit/webhooks-methods
+```
+
+<CodeGroup workspace>
+<CodeSnippet file="examples/connectors/github/server.ts" title="server.ts" />
+<CodeSnippet file="examples/connectors/github/github.ts" title="github.ts" />
+</CodeGroup>
+
+Run the server with any runtime that serves a fetch handler, for example `npx srvx --import tsx server.ts`. See [HTTP Server](/actors/docs/http-server).
+
+</Step>
+
+<Step title="Set the environment">
+
+```sh
+GITHUB_WEBHOOK_SECRET=...
+GITHUB_TOKEN=github_pat_...
+GITHUB_BOT_LOGIN=my-agent
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+</Step>
+
+<Step title="Add the webhook">
+
+In the repository's **Settings > Webhooks**, add a webhook with the payload URL `https://<your-worker>/github/webhook`, content type `application/json`, your secret, and the **Issue comments** event. Comment `@my-agent` on an issue or pull request.
+
+</Step>
+
+</Steps>
+
+## How it works
+
+- The route verifies GitHub's `X-Hub-Signature-256` signature against the raw body.
+- Each issue or pull request gets its own agent, keyed by owner, repository, and number. Every mention in the thread continues the same session.
+- The route only answers new comments that mention the bot, and never the bot's own comments, so replies do not loop.
+- GitHub times out a delivery after ten seconds, so the route acknowledges first, then prompts the agent and posts the reply as a comment.
+
+## Configure
+
+| Variable | Purpose |
+| --- | --- |
+| `GITHUB_WEBHOOK_SECRET` | **Required.** Verifies that deliveries come from GitHub. |
+| `GITHUB_TOKEN` | **Required.** Posts replies as the bot account. |
+| `GITHUB_BOT_LOGIN` | **Required.** The bot's username. Comments that mention it start a reply. |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [Credentials](/agents/docs/credentials). |
+
+## Supported events
+
+| GitHub event | Webhook path | What the route does |
+| --- | --- | --- |
+| [`issue_comment`](https://docs.github.com/en/webhooks/webhook-events-and-payloads#issue_comment), `created` | `/github/webhook` | Prompts the issue's agent and replies with a comment. Covers pull request conversations too. |
+
+To let the agent read or change code, give it a [sandbox](/agents/docs/sandboxes) and ask it to clone the repository.

@@ -1,0 +1,74 @@
+---
+title: "Linear"
+description: "Mention an agent in a Linear issue comment."
+---
+
+<Info>
+This connector is in beta. There is no connector package yet, so this page shows how to wire Linear to an agent yourself with a webhook route on your worker.
+</Info>
+
+## Quickstart
+
+<Steps>
+
+<Step title="Create an API key">
+
+Create a Linear user for the agent, or use your own, and a [personal API key](https://linear.app/settings/account/security) for it.
+
+</Step>
+
+<Step title="Add the route">
+
+```sh
+npm add @rivet-dev/pi @rivet-dev/sandbox-adapter rivetkit hono @linear/sdk
+```
+
+<CodeGroup workspace>
+<CodeSnippet file="examples/connectors/linear/server.ts" title="server.ts" />
+<CodeSnippet file="examples/connectors/linear/linear.ts" title="linear.ts" />
+</CodeGroup>
+
+Run the server with any runtime that serves a fetch handler, for example `npx srvx --import tsx server.ts`. See [HTTP Server](/actors/docs/http-server).
+
+</Step>
+
+<Step title="Set the environment">
+
+```sh
+LINEAR_WEBHOOK_SECRET=lin_wh_...
+LINEAR_API_KEY=lin_api_...
+LINEAR_TRIGGER=@agent
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+</Step>
+
+<Step title="Add the webhook">
+
+In Linear's **Settings > API**, create a webhook with the URL `https://<your-worker>/linear/webhook` and the **Comments** resource type. Copy its signing secret. Comment `@agent` on an issue.
+
+</Step>
+
+</Steps>
+
+## How it works
+
+- The route verifies the `Linear-Signature` HMAC against the raw body and rejects deliveries older than a minute.
+- Each Linear issue gets its own agent. Every comment with the trigger continues the same session.
+- The route never answers the agent's own comments, so replies do not loop.
+- The route acknowledges the webhook first, then prompts the agent and posts the reply as a comment on the issue.
+
+## Configure
+
+| Variable | Purpose |
+| --- | --- |
+| `LINEAR_WEBHOOK_SECRET` | **Required.** Verifies that deliveries come from Linear. |
+| `LINEAR_API_KEY` | **Required.** Posts replies as the agent's Linear user. |
+| `LINEAR_TRIGGER` | Text that makes a comment start a reply. Defaults to `@agent`. |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [Credentials](/agents/docs/credentials). |
+
+## Supported events
+
+| Linear event | Webhook path | What the route does |
+| --- | --- | --- |
+| [`Comment`](https://linear.app/developers/webhooks), `create` | `/linear/webhook` | Prompts the issue's agent and replies with a comment. |
