@@ -23,6 +23,11 @@
 			"title": "Concepts",
 			"pages": [
 				{
+					"title": "Durability",
+					"href": "/agents/docs/durability",
+					"icon": "faFloppyDisk"
+				},
+				{
 					"title": "Sandboxes",
 					"href": "/agents/docs/sandboxes",
 					"icon": "faHardDrive"
@@ -31,11 +36,6 @@
 					"title": "Credentials",
 					"href": "/agents/docs/credentials",
 					"icon": "faKey"
-				},
-				{
-					"title": "Durability",
-					"href": "/agents/docs/durability",
-					"icon": "faFloppyDisk"
 				},
 				{
 					"title": "Tracing",
@@ -56,10 +56,10 @@
 					}
 				},
 				{
-					"title": "Discord",
-					"href": "/agents/docs/connectors/discord",
+					"title": "Linear",
+					"href": "/agents/docs/connectors/linear",
 					"icon": {
-						"src": "/images/vendors/discord.svg",
+						"src": "/images/vendors/linear.svg",
 						"monochrome": false
 					}
 				},
@@ -71,10 +71,10 @@
 					}
 				},
 				{
-					"title": "Linear",
-					"href": "/agents/docs/connectors/linear",
+					"title": "Discord",
+					"href": "/agents/docs/connectors/discord",
 					"icon": {
-						"src": "/images/vendors/linear.svg",
+						"src": "/images/vendors/discord.svg",
 						"monochrome": false
 					}
 				}
