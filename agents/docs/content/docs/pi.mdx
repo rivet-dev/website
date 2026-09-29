@@ -4,10 +4,6 @@ description: "Run the Pi coding agent as a durable Rivet Actor."
 skill: false
 ---
 
-<Info>
-This agent is in beta. APIs may change between releases.
-</Info>
-
 `@rivet-dev/pi` runs the [Pi](https://github.com/earendil-works/pi) coding agent in a Rivet Actor. The agent loop runs in the Actor. Pi's file and shell tools run in a separate sandbox.
 
 Each Actor holds one Pi session and saves it in its SQLite database, so a conversation survives sleep and restarts.
