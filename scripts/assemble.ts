@@ -31,7 +31,11 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { PRODUCTS, ownsDocsBundle } from "../src/sitemap/product-metadata";
-import { DOCS_SOURCES, SITE_DOCS_NAMESPACE } from "../src/sitemap/docs-sources";
+import {
+	DOCS_SOURCES,
+	SITE_DOCS_NAMESPACE,
+	SITE_DOCS_NAMESPACES,
+} from "../src/sitemap/docs-sources";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -61,16 +65,19 @@ const BUNDLES = Object.fromEntries(
 	}),
 );
 
-// The product-agnostic docs at `/docs/` are not a product vertical, so they are
-// not in PRODUCTS, but they are a bundle in a product repo like any other. The
-// namespace has no tab dimension, so its bundle content is flat and links in
+// The site-wide sections (the product-agnostic docs at `/docs/`, the HTTP API
+// reference at `/docs/api/`) are not product verticals, so they are not in
+// PRODUCTS, but each is a bundle in a product repo like any other. These
+// namespaces have no tab dimension, so their bundle content is flat and links in
 // exactly like a product's does.
-BUNDLES[SITE_DOCS_NAMESPACE] = {
-	sourceId: SITE_DOCS_NAMESPACE,
-	repo: DOCS_SOURCES[SITE_DOCS_NAMESPACE].repo,
-	localBundle: DOCS_SOURCES[SITE_DOCS_NAMESPACE].localBundle,
-	bundlePath: DOCS_SOURCES[SITE_DOCS_NAMESPACE].bundlePath ?? "docs",
-};
+for (const namespace of SITE_DOCS_NAMESPACES) {
+	BUNDLES[namespace] = {
+		sourceId: namespace,
+		repo: DOCS_SOURCES[namespace].repo,
+		localBundle: DOCS_SOURCES[namespace].localBundle,
+		bundlePath: DOCS_SOURCES[namespace].bundlePath ?? "docs",
+	};
+}
 
 const force = process.argv.includes("--force");
 
@@ -230,22 +237,31 @@ console.log(`generated sidebars.json and sidebar-icons.ts (${sorted.length} icon
 // rather than committed here. Components import them from src/generated because
 // a static relative import cannot reach a path that moves with the checkout.
 // ---------------------------------------------------------------------------
+// `from` is relative to the product repo root by default. Paths inside the docs
+// bundle itself use `bundle:` so they resolve the same way whether the bundle
+// is a sibling checkout (`<repo>/docs/api/`) or vendored (`vendor/api/docs/`).
 const ARTIFACTS: Array<[product: string, from: string, to: string]> = [
 	["actors", "rivetkit-typescript/artifacts/actor-config.json", "actor-config.json"],
 	["actors", "rivetkit-typescript/artifacts/registry-config.json", "registry-config.json"],
 	// Control-plane config, so it ships with the product-agnostic bundle.
 	[SITE_DOCS_NAMESPACE, "engine/artifacts/config-schema.json", "engine-config-schema.json"],
 	// agentOS software catalog, generated in that repo by scripts/gen-registry.mjs.
-	["agentos", "docs/registry.json", "registry.json"],
+	["agentos", "bundle:registry.json", "registry.json"],
+	// Error codes for the HTTP API reference, generated in the Rivet repo by
+	// scripts/docs/gen-api-reference.mjs from its compile-time error artifacts.
+	["api", "bundle:error-registry.json", "error-registry.json"],
 ];
+
+// The bundle directory behind a bundle link: the link points at `<bundle>/content`.
+const bundleDir = (productId: string) =>
+	path.resolve(realpathSync(path.join(CONTENT_BASE, productId)), "..");
 
 // The repo root behind a bundle link. The link points at `<root>/<bundle>/content`,
 // so walk back out by however many segments the bundle path has. A vendored
 // bundle is always normalized to `vendor/<product>/docs`, whatever the product's
 // own bundle path is, so it walks back one.
 const productRoot = (productId: string) => {
-	const contentDir = realpathSync(path.join(CONTENT_BASE, productId));
-	const bundleRoot = path.resolve(contentDir, "..");
+	const bundleRoot = bundleDir(productId);
 	const vendorRoot = path.resolve(bundleRoot, "..");
 	if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId)) return vendorRoot;
 	const depth = (BUNDLES[productId]?.bundlePath ?? "docs").split("/").length;
@@ -256,8 +272,8 @@ const artifactsDir = path.join(GENERATED, "artifacts");
 mkdirSync(artifactsDir, { recursive: true });
 
 for (const [productId, from, to] of ARTIFACTS) {
-	const root = productRoot(productId);
-	const src = path.join(root, from);
+	const root = from.startsWith("bundle:") ? bundleDir(productId) : productRoot(productId);
+	const src = path.join(root, from.replace(/^bundle:/, ""));
 	if (!existsSync(src)) {
 		console.error(
 			`\nassemble failed:\n  - missing ${from} in the ${productId} repo (${root}). ` +

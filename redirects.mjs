@@ -57,7 +57,9 @@ const explicitRedirects = {
 	'/docs/deploy/cli': '/actors/docs/cli/',
 	'/docs/actors/queue': '/actors/docs/queues/',
 	'/docs/actors/websockets': '/actors/docs/websocket-handler/',
-	'/docs/actors/http': '/actors/docs/http-api/',
+	'/docs/actors/http': '/docs/api/',
+	// The HTTP API moved from the Actors docs to the site-wide API tab.
+	'/actors/docs/http-api': '/docs/api/',
 	'/docs/actors/run': '/actors/docs/lifecycle/',
 	'/docs/actors/scheduling': '/actors/docs/schedule/',
 	'/docs/actors/external-sql': '/actors/docs/state/',

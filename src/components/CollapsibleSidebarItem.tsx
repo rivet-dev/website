@@ -15,6 +15,7 @@ interface CollapsibleSidebarItemProps {
 	children?: ReactNode;
 	level?: number;
 	parentPath?: string;
+	leadingColumn?: boolean;
 }
 
 export function CollapsibleSidebarItem({
@@ -22,6 +23,7 @@ export function CollapsibleSidebarItem({
 	children,
 	level = 0,
 	parentPath = "",
+	leadingColumn = false,
 }: CollapsibleSidebarItemProps) {
 	const pathname = usePathname(useContext(SsrPathnameContext)) || "";
 	const { isOpen, setIsOpen, toggleOpen } = useNavigationState();
@@ -123,7 +125,15 @@ export function CollapsibleSidebarItem({
 				}}
 			>
 				<div className="flex items-center truncate gap-2">
-					{item.icon ? (
+					{leadingColumn ? (
+						// Sibling rows carry method pills in this column; reserve it
+						// so the section title lines up with their titles.
+						<span className="flex w-9 shrink-0 items-center justify-center">
+							{item.icon ? (
+								<Icon icon={item.icon} className="size-3.5" />
+							) : null}
+						</span>
+					) : item.icon ? (
 						<Icon
 							icon={item.icon}
 							className="size-3.5 flex-shrink-0"

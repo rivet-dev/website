@@ -20,7 +20,7 @@ import {
 	deployWorkersGroup,
 	selfHostGroup,
 } from "./self-host";
-import { SITE_DOCS_NAMESPACE } from "./docs-sources";
+import { API_DOCS_NAMESPACE, SITE_DOCS_NAMESPACE } from "./docs-sources";
 import { CLOUD_BUNDLE_ID } from "./deploy";
 import { rerootLearnHref, SITE_GUIDES_SIDEBAR_GROUPS } from "./guides";
 import { integrationSidebar } from "@/data/integrations";
@@ -115,6 +115,14 @@ function rerootPrefix<T>(node: T, from: string, to: string): T {
  */
 export function siteDocsSidebar(): SidebarItem[] {
 	return bundleSidebars(SITE_DOCS_NAMESPACE).docs;
+}
+
+/**
+ * The HTTP API reference sidebar at `/docs/api/`. Authored (mostly generated)
+ * in `rivet-dev/rivet`'s `docs/api` bundle; see `API_DOCS_NAMESPACE`.
+ */
+export function apiDocsSidebar(): SidebarItem[] {
+	return bundleSidebars(API_DOCS_NAMESPACE).docs;
 }
 
 /**

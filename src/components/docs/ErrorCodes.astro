@@ -1,0 +1,90 @@
+---
+// Error code tables for /docs/api/error-codes. The data is the registry the
+// Rivet repo generates from its compile-time error artifacts
+// (scripts/docs/gen-api-reference.mjs writes docs/api/error-registry.json);
+// assemble.ts copies it into src/generated/artifacts. The page prose around
+// this component is hand-written in that repo's docs/api/content.
+import registry from "@/generated/artifacts/error-registry.json";
+
+interface ErrorStatus {
+	status: number;
+	surfaces: string[];
+}
+
+interface ErrorEntry {
+	code: string;
+	message: string;
+	statuses: ErrorStatus[];
+}
+
+interface ErrorGroup {
+	name: string;
+	description: string | null;
+	errors: ErrorEntry[];
+}
+
+const groups = registry.groups as ErrorGroup[];
+
+// Group descriptions are one line of markdown with inline code only, so a
+// backtick split is enough to render them.
+const inlineCode = (text: string) =>
+	text.split("`").map((part, i) => ({ text: part, code: i % 2 === 1 }));
+
+// Headings rendered from a component are invisible to the page's table of
+// contents, which is built from the MDX headings, so the groups get their own
+// index at the top.
+const anchor = (name: string) => `group-${name}`;
+---
+
+<p class="not-prose flex flex-wrap gap-x-3 gap-y-1 font-mono text-sm">
+	{groups.map((group) => (
+		<a href={`#${anchor(group.name)}`} class="text-ink-soft hover:text-ink underline-offset-4 hover:underline">
+			{group.name}
+		</a>
+	))}
+</p>
+
+{
+	groups.map((group) => (
+		<section>
+			<h2 id={anchor(group.name)}>{group.name}</h2>
+			{group.description ? (
+				<p>
+					{inlineCode(group.description).map((part) =>
+						part.code ? <code>{part.text}</code> : part.text,
+					)}
+				</p>
+			) : null}
+			{group.errors.length > 0 ? (
+				<table>
+					<thead>
+						<tr>
+							<th>Code</th>
+							<th>Status</th>
+							<th>Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						{group.errors.map((error) => (
+							<tr>
+								<td>
+									<code>{`${group.name}.${error.code}`}</code>
+								</td>
+								<td class="whitespace-nowrap">
+									{error.statuses.map((entry, i) => (
+										<>
+											{i > 0 ? ", " : ""}
+											<code>{entry.status}</code>
+											{error.statuses.length > 1 ? ` (${entry.surfaces.join(", ")})` : ""}
+										</>
+									))}
+								</td>
+								<td>{error.message}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			) : null}
+		</section>
+	))
+}

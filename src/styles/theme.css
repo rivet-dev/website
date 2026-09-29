@@ -234,3 +234,51 @@ html[data-theme="dark"]:not([data-fixed-theme])
   color: var(--shiki-dark) !important;
   background-color: transparent !important;
 }
+
+/* HTTP method pills in the API reference sidebar (DocsNavigation.tsx). Soft
+   tint of the method color on a 15% wash; the dark theme lifts the text so it
+   reads against the near-black page. */
+.method-nav-pill {
+  --method-rgb: 113 113 122;
+  background-color: rgb(var(--method-rgb) / 0.14);
+  color: rgb(var(--method-rgb));
+}
+.method-nav-pill[data-method="get"] {
+  --method-rgb: 22 163 74;
+}
+.method-nav-pill[data-method="post"] {
+  --method-rgb: 37 99 235;
+}
+.method-nav-pill[data-method="put"],
+.method-nav-pill[data-method="patch"] {
+  --method-rgb: 217 119 6;
+}
+.method-nav-pill[data-method="delete"] {
+  --method-rgb: 220 38 38;
+}
+.method-nav-pill[data-method="ws"] {
+  --method-rgb: 124 58 237;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill {
+  background-color: rgb(var(--method-rgb) / 0.2);
+  color: rgb(var(--method-rgb-dark, var(--method-rgb)));
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="get"] {
+  --method-rgb-dark: 74 222 128;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="post"] {
+  --method-rgb-dark: 96 165 250;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="put"],
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="patch"] {
+  --method-rgb-dark: 251 191 36;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="delete"] {
+  --method-rgb-dark: 248 113 113;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="ws"] {
+  --method-rgb-dark: 167 139 250;
+}
+html[data-theme="dark"]:not([data-fixed-theme]) .method-nav-pill[data-method="any"] {
+  --method-rgb-dark: 161 161 170;
+}

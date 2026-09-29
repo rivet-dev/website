@@ -44,9 +44,38 @@ interface TreeItemProps {
 	item: SidebarItem;
 	level?: number;
 	parentPath?: string;
+	// True when a sibling renders a method pill, so this row reserves the same
+	// leading column and every title in the group starts at the same x.
+	leadingColumn?: boolean;
 }
 
-function TreeItem({ index, item, level = 0, parentPath = "" }: TreeItemProps) {
+// HTTP API reference pages carry their method as a badge. Those render as a
+// small tinted pill in a fixed-width column left of the title, the way
+// Mintlify and Stripe lay out API references. Colors live in
+// src/styles/theme.css under `.method-nav-pill` so the dark theme can
+// override them. Any other badge text ("Enterprise", "Preview") keeps the
+// neutral pill on the right.
+const METHOD_BADGES: Record<string, string> = {
+	GET: "GET",
+	POST: "POST",
+	PUT: "PUT",
+	PATCH: "PATCH",
+	DELETE: "DEL",
+	ANY: "ANY",
+	WS: "WS",
+};
+
+function isMethodBadge(item: SidebarItem): boolean {
+	return "badge" in item && !!item.badge && item.badge in METHOD_BADGES;
+}
+
+function TreeItem({
+	index,
+	item,
+	level = 0,
+	parentPath = "",
+	leadingColumn = false,
+}: TreeItemProps) {
 	if (
 		"collapsible" in item &&
 		"title" in item &&
@@ -61,6 +90,7 @@ function TreeItem({ index, item, level = 0, parentPath = "" }: TreeItemProps) {
 				item={item}
 				level={level}
 				parentPath={parentPath}
+				leadingColumn={leadingColumn}
 			>
 				<Tree
 					pages={item.pages}
@@ -102,10 +132,29 @@ function TreeItem({ index, item, level = 0, parentPath = "" }: TreeItemProps) {
 		);
 	}
 
+	const methodBadge =
+		"badge" in item && item.badge ? METHOD_BADGES[item.badge] : undefined;
+
 	return (
 		<NavLink href={item.href} external={item.external} level={level}>
 			<span className="flex items-center truncate gap-2">
-				{item.icon && "prefix" in item.icon ? (
+				{methodBadge ? (
+					<span className="flex w-9 shrink-0 items-center">
+						<span
+							className="method-nav-pill rounded px-1.5 py-px text-[9px] font-semibold leading-[13px] tracking-wide"
+							data-method={item.badge?.toLowerCase()}
+						>
+							{methodBadge}
+						</span>
+					</span>
+				) : null}
+				{!methodBadge && leadingColumn ? (
+					<span className="flex w-9 shrink-0 items-center justify-center">
+						{item.icon && "prefix" in item.icon ? (
+							<Icon icon={item.icon} className="size-3.5" />
+						) : null}
+					</span>
+				) : item.icon && "prefix" in item.icon ? (
 					<Icon icon={item.icon} className="size-3.5 flex-shrink-0" />
 				) : item.icon ? (
 					// Vendor marks from `src/data/integrations.ts`: ink-on-transparent
@@ -120,7 +169,7 @@ function TreeItem({ index, item, level = 0, parentPath = "" }: TreeItemProps) {
 					{item.title ?? routes.pages[getAliasedHref(item.href)]?.title}
 				</span>
 			</span>
-			{"badge" in item && item.badge ? (
+			{"badge" in item && item.badge && !methodBadge ? (
 				<span className="ml-2 px-[6px] py-0 text-[10px] font-medium bg-ink/[0.06] border border-ink/10 text-ink-soft rounded-sm whitespace-nowrap">
 					{item.badge}
 				</span>
@@ -145,6 +194,7 @@ export function Tree({
 	level = 0,
 	parentPath = "",
 }: TreeProps) {
+	const leadingColumn = pages.some(isMethodBadge);
 	return (
 		<ul className={cn(className)}>
 			{pages.map((item, index) => (
@@ -157,6 +207,7 @@ export function Tree({
 						item={item}
 						level={level}
 						parentPath={parentPath}
+						leadingColumn={leadingColumn}
 					/>
 				</li>
 			))}

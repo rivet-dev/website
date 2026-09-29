@@ -4,17 +4,18 @@
  * comes from the sidebar and the page itself.
  *
  * The strip has two groups, split by a hairline: the orchestration docs
- * (Overview, Guides, Deploy), then the actor types and what runs on them.
+ * (Overview, Guides, Deploy, API), then the actor types and what runs on them.
  * Actor-type tabs and Integrations carry the product's mark inline.
  *
- * Overview, Guides, and Deploy are site-wide sections owned by no product
- * (`/docs/`, `/guides/`, `/docs/deploy/`, `/integrations/`). Integrations
+ * Overview, Guides, Deploy, and API are site-wide sections owned by no product
+ * (`/docs/`, `/guides/`, `/docs/deploy/`, `/docs/api/`, `/integrations/`). Integrations
  * stays highlighted on every product's own copy too (`/agentos/integrations/`)
  * so switching products inside the section does not lose the tab. Standalone
  * subsites (`Product.standalone`) are excluded: they keep their own second
  * header row, so their tab here links out and never lights up.
  */
 import { DEPLOY_ROUTE_PREFIX, SELF_HOST_ROUTE_PREFIX } from "./deploy";
+import { API_DOCS_ROUTE_PREFIX } from "./docs-sources";
 import { GUIDES_ROUTE_PREFIX } from "./guides";
 import { INTEGRATIONS_ROUTE_PREFIX } from "./integrations";
 import { PRODUCTS } from "./product-metadata";
@@ -27,6 +28,7 @@ export type DocsTabId =
 	| "overview"
 	| "guides"
 	| "deploy"
+	| "api"
 	| "actors"
 	| "agents"
 	| "workflows"
@@ -65,6 +67,12 @@ export const DOCS_TABS: readonly DocsTab[] = (
 			id: "deploy",
 			title: "Deploy",
 			href: `${DEPLOY_ROUTE_PREFIX}/`,
+			group: "orchestration",
+		},
+		{
+			id: "api",
+			title: "API",
+			href: `${API_DOCS_ROUTE_PREFIX}/`,
 			group: "orchestration",
 		},
 		{
@@ -137,6 +145,14 @@ export function activeDocsTab(pathname: string): DocsTabId | undefined {
 		trimmed.startsWith(`${DEPLOY_ROUTE_PREFIX}/`)
 	) {
 		return "deploy";
+	}
+	// The HTTP API reference nests under `/docs/` like Deploy does, so it must
+	// be claimed before the catch-all below hands it to Overview.
+	if (
+		trimmed === API_DOCS_ROUTE_PREFIX ||
+		trimmed.startsWith(`${API_DOCS_ROUTE_PREFIX}/`)
+	) {
+		return "api";
 	}
 	// Everything under `/docs/` is the product-agnostic overview, including the
 	// canonical AI Tools pages. Each product carries its own contextual alias

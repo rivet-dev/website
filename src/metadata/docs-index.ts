@@ -18,6 +18,7 @@ import { DOCS_SOURCES } from "../sitemap/docs-sources";
 import { docsRoot } from "../sitemap/docs-sources.node.ts";
 import { getProductMetadata } from "../sitemap/product-metadata";
 import { deploySlugForContentId } from "../sitemap/deploy";
+import { apiSlugForContentId } from "../sitemap/docs-sources";
 import { GUIDES_ROUTE_PREFIX, guidesSlugForContentId, SITE_GUIDES } from "../sitemap/guides";
 import { listSnippetFiles, mdxToMarkdown } from "./mdx-to-markdown";
 import { isRoutedDocsContentId, normalizeSlug, PROJECT_ROOT } from "./shared";
@@ -74,15 +75,19 @@ export function listDocPages(): DocPage[] {
 		}
 
 		// Most bundles are served at their content id; the Rivet Cloud bundle
-		// renders inside the Deploy section and the Actors `learn` section as
-		// the Guides tab instead.
+		// renders inside the Deploy section, the HTTP API bundle under
+		// `/docs/api`, and the Actors `learn` section as the Guides tab instead.
 		const contentId = normalizeSlug(file.replace(/\.mdx$/, ""));
 		// Shared bundles (agentOS -> Sandboxes) are walked twice; only the
 		// product that routes them gets a Markdown mirror and search entries.
 		if (!isRoutedDocsContentId(contentId)) continue;
 		pages.push({
 			product,
-			slug: deploySlugForContentId(contentId) ?? guidesSlugForContentId(contentId) ?? contentId,
+			slug:
+				deploySlugForContentId(contentId) ??
+				apiSlugForContentId(contentId) ??
+				guidesSlugForContentId(contentId) ??
+				contentId,
 			title,
 			description: description ?? "",
 			sourcePath,

@@ -67,14 +67,47 @@ const SITE_DOCS_SOURCE: DocsSource = {
 	bundlePath: "docs/general",
 };
 
+/**
+ * The HTTP API reference at `/docs/api/`: how to drive Rivet over plain HTTP,
+ * with the TypeScript equivalent beside every call. It ships from
+ * `rivet-dev/rivet`'s `docs/api` bundle, where most endpoint pages are generated
+ * from the OpenAPI specs (`scripts/docs/gen-api-reference.mjs`). Like the
+ * general bundle it has no tab dimension, so its content is flat:
+ * `content/<group>/<slug>.mdx` renders at `/docs/api/<group>/<slug>`.
+ */
+export const API_DOCS_NAMESPACE = "api";
+
+/** Where the API bundle renders. Nested under `/docs/` like Deploy is. */
+export const API_DOCS_ROUTE_PREFIX = "/docs/api";
+
+const API_DOCS_SOURCE: DocsSource = {
+	repo: "rivet",
+	bundlePath: "docs/api",
+};
+
+/**
+ * Re-roots an API bundle content id (`api`, `api/actors/create`) onto its site
+ * path without the leading slash (`docs/api`, `docs/api/actors/create`), or
+ * `undefined` for ids outside the bundle. The Markdown mirror, llms.txt, and the
+ * metadata API derive URLs from content ids, and this bundle is the one
+ * namespace that does not render at its own id.
+ */
+export function apiSlugForContentId(contentId: string): string | undefined {
+	if (contentId === API_DOCS_NAMESPACE) return API_DOCS_ROUTE_PREFIX.slice(1);
+	if (!contentId.startsWith(`${API_DOCS_NAMESPACE}/`)) return undefined;
+	return `${API_DOCS_ROUTE_PREFIX.slice(1)}/${contentId.slice(API_DOCS_NAMESPACE.length + 1)}`;
+}
+
 /** Namespaces whose content lives in this repository rather than a product bundle. */
 export const SITE_DOCS_NAMESPACES: ReadonlySet<string> = new Set([
 	SITE_DOCS_NAMESPACE,
+	API_DOCS_NAMESPACE,
 ]);
 
 export const DOCS_SOURCES: Record<string, DocsSource> = {
 	...PRODUCT_DOCS_SOURCES,
 	[SITE_DOCS_NAMESPACE]: SITE_DOCS_SOURCE,
+	[API_DOCS_NAMESPACE]: API_DOCS_SOURCE,
 };
 
 export const DOCS_PRODUCT_IDS = Object.keys(DOCS_SOURCES);

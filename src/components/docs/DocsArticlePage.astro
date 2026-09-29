@@ -18,7 +18,7 @@ import { getContentSlugPath } from '@/lib/content-path';
 import { productAccent } from '@/lib/product-accent';
 import { getProductMetadata } from '@/sitemap/product-metadata';
 import { integrationFor } from '@/data/integrations';
-import { SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
+import { API_DOCS_ROUTE_PREFIX, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
 import {
 	INTEGRATIONS_ROUTE_PREFIX,
 	SITE_INTEGRATIONS_CONTENT_PREFIX,
@@ -106,10 +106,13 @@ const discovered = findActiveTab(fullPath, sitemap);
 // a product tab, because its AI Tools pages are injected into the sidebar below
 // rather than authored into it, so page lookup alone cannot find their tab.
 const isSiteDocsSection = routePrefix === SITE_DOCS_ROUTE_PREFIX;
+// The API reference is resolved by route for the same reason: the Overview
+// sidebar links into it, so a page lookup alone could hand it to Overview.
+const isApiDocsSection = routePrefix === API_DOCS_ROUTE_PREFIX;
 const routeOwnedTab = productId && tabId
 	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
-	: isSiteDocsSection
-		? sitemap.find((tab) => tab.href.replace(/\/$/, '') === SITE_DOCS_ROUTE_PREFIX)
+	: isSiteDocsSection || isApiDocsSection
+		? sitemap.find((tab) => tab.href.replace(/\/$/, '') === routePrefix)
 		: undefined;
 const activeTab = routeOwnedTab ?? discovered?.tab;
 const sourceSidebar = activeTab?.sidebar ?? [];

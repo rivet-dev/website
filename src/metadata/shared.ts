@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { deploySlugForContentId } from "../sitemap/deploy";
+import { apiSlugForContentId } from "../sitemap/docs-sources";
 import { guidesSlugForContentId } from "../sitemap/guides";
 import { integrationsSlugForContentId } from "../sitemap/integrations";
 import { PRODUCTS } from "../sitemap/product-metadata";
@@ -11,12 +12,14 @@ export const PROJECT_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 // Docs slugs are product-scoped (`actors/docs/state`, `agentos/tutorials`),
 // so the collection slug is already the site path. The exceptions are the
-// Rivet Cloud bundle, which renders inside the Deploy section, and the Actors
-// `learn` and `integrations` sections, which render as the site's Guides and
-// Integrations sections.
+// Rivet Cloud bundle, which renders inside the Deploy section, the HTTP API
+// bundle, which renders under `/docs/api`, and the Actors `learn` and
+// `integrations` sections, which render as the site's Guides and Integrations
+// sections.
 export function getDocsPath(slug: string) {
 	const rerooted =
 		deploySlugForContentId(slug) ??
+		apiSlugForContentId(slug) ??
 		guidesSlugForContentId(slug) ??
 		integrationsSlugForContentId(slug);
 	if (rerooted) return `/${rerooted}`;
