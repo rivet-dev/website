@@ -42,14 +42,22 @@ Each Actor holds one Pi session and saves it in its SQLite database, so a conver
 
   <g id="pi-arch-row">
     <rect x="226" y="54" width="180" height="60" rx="8" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
-    <rect x="532" y="60" width="160" height="48" rx="7" fill="#fddcbb" stroke="#f0923b" stroke-width="2"/>
+    <rect x="532" y="60" width="160" height="48" rx="7" stroke-width="2" style="stroke:color-mix(in srgb, #9C3A3F, white calc(var(--site-product-lighten, 0%) * 0.6));fill:color-mix(in srgb, #9C3A3F 20%, transparent)"/>
     <g text-anchor="middle" font-size="15" font-weight="600" fill="#1b1916">
       <text x="316" y="81">Pi Actor</text>
       <text x="612" y="89">Shell + files</text>
     </g>
     <text x="316" y="100" text-anchor="middle" font-size="12" fill="#56524a">agent loop + SQLite</text>
   </g>
-  <use href="#pi-arch-row" y="92"/>
+  <g transform="translate(0 92)">
+    <rect x="226" y="54" width="180" height="60" rx="8" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+    <rect x="532" y="60" width="160" height="48" rx="7" stroke-width="2" style="stroke:color-mix(in srgb, #9C3A3F, white calc(var(--site-product-lighten, 0%) * 0.6));fill:color-mix(in srgb, #9C3A3F 20%, transparent)"/>
+    <g text-anchor="middle" font-size="15" font-weight="600" fill="#1b1916">
+      <text x="316" y="81">Pi Actor</text>
+      <text x="612" y="89">Shell + files</text>
+    </g>
+    <text x="316" y="100" text-anchor="middle" font-size="12" fill="#56524a">agent loop + SQLite</text>
+  </g>
   <g style="fill:rgb(var(--site-paper-mid, 255 255 255))">
     <rect x="226" y="238" width="180" height="60" rx="8"/>
     <rect x="532" y="244" width="160" height="48" rx="7"/>
