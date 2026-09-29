@@ -9,12 +9,20 @@
 					"icon": "faSquareInfo"
 				},
 				{
+					"title": "Quickstart",
+					"href": "/agents/docs/quickstart",
+					"icon": "faForwardFast"
+				}
+			]
+		},
+		{
+			"title": "Agents",
+			"pages": [
+				{
 					"title": "Pi",
 					"href": "/agents/docs/pi",
-					"badge": "Beta",
 					"icon": {
-						"src": "/images/vendors/pi.svg",
-						"monochrome": false
+						"src": "/images/vendors/pi.svg"
 					}
 				}
 			]

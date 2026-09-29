@@ -1,0 +1,61 @@
+---
+title: "Quickstart"
+description: "Run your first agent: Pi in a Rivet Actor, with its tools in a sandbox."
+---
+
+import { Hosting } from "@/components/docs/Hosting";
+
+<Steps>
+
+<Step title="Install">
+
+```sh
+npm add @rivet-dev/pi rivetkit
+```
+
+</Step>
+
+<Step title="Define the Actor">
+
+<CodeSnippet file="examples/pi/server.ts" title="server.ts" />
+
+Set the key for your model provider, such as `ANTHROPIC_API_KEY`.
+
+</Step>
+
+<Step title="Add a sandbox">
+
+Pi's file and shell tools run in a sandbox. Without one they are disabled.
+
+```sh
+npm add @rivet-dev/sandbox-adapter
+```
+
+<CodeSnippet file="examples/sandboxes/agentos.ts" title="server.ts" />
+
+To use another provider, install its SDK and pass its provider instead. Provider credentials never enter the sandbox.
+
+| Provider | Import from `@rivet-dev/sandbox-adapter` | SDK |
+| --- | --- | --- |
+| [E2B](https://e2b.dev) | `e2bProvider` from `/e2b` | `e2b` |
+| [Daytona](https://daytona.io) | `daytonaProvider` from `/daytona` | `@daytonaio/sdk` |
+
+agentOS runs only on Linux. On macOS, use E2B or Daytona. For another provider, implement [`SandboxProvider`](https://github.com/rivet-dev/rivet/blob/main/shared/typescript/sandbox-adapter/src/index.ts). See [Sandboxes](/agents/docs/sandboxes).
+
+</Step>
+
+<Step title="Send a prompt">
+
+<CodeSnippet file="examples/pi/client.ts" title="client.ts" />
+
+The client waits for Pi to finish, then reads the full reply with `getLastAssistantText()`.
+
+</Step>
+
+<Step title="Deploy">
+
+<Hosting />
+
+</Step>
+
+</Steps>
