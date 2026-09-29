@@ -49,6 +49,65 @@
 					"title": "Tracing",
 					"href": "/agents/docs/tracing",
 					"icon": "faChartLine"
+				},
+				{
+					"title": "Prompt Lifecycle",
+					"href": "/agents/docs/prompt-lifecycle",
+					"icon": "faArrowsRotate",
+					"badge": "TODO"
+				}
+			]
+		},
+		{
+			"title": "Patterns",
+			"pages": [
+				{
+					"title": "Memory",
+					"href": "/agents/docs/memory",
+					"icon": "faBrain",
+					"badge": "TODO"
+				},
+				{
+					"title": "Tenant Credentials",
+					"href": "/agents/docs/multi-tenant-credentials",
+					"icon": "faBuilding",
+					"badge": "TODO"
+				},
+				{
+					"title": "Approvals",
+					"href": "/agents/docs/approvals",
+					"icon": "faCheck",
+					"badge": "TODO"
+				},
+				{
+					"title": "Model Routing",
+					"href": "/agents/docs/model-routing",
+					"icon": "faRoute",
+					"badge": "TODO"
+				},
+				{
+					"title": "Self-Modifying Agents",
+					"href": "/agents/docs/self-modifying-agents",
+					"icon": "faWandMagicSparkles",
+					"badge": "TODO"
+				},
+				{
+					"title": "Evals",
+					"href": "/agents/docs/evals",
+					"icon": "faClipboardCheck",
+					"badge": "TODO"
+				},
+				{
+					"title": "Browser Automation",
+					"href": "/agents/docs/browser-automation",
+					"icon": "faWindowMaximize",
+					"badge": "TODO"
+				},
+				{
+					"title": "Cost & Token Budgets",
+					"href": "/agents/docs/budgets",
+					"icon": "faCoins",
+					"badge": "TODO"
 				}
 			]
 		},
@@ -82,6 +141,17 @@
 					"icon": {
 						"src": "/images/vendors/discord.svg"
 					}
+				}
+			]
+		},
+		{
+			"title": "Reference",
+			"pages": [
+				{
+					"title": "Configuration",
+					"href": "/agents/docs/configuration",
+					"icon": "faSliders",
+					"badge": "TODO"
 				}
 			]
 		}
