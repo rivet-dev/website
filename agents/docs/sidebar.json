@@ -55,6 +55,53 @@
 					"href": "/agents/docs/prompt-lifecycle",
 					"icon": "faArrowsRotate",
 					"badge": "TODO"
+				},
+				{
+					"title": "Tools",
+					"href": "/agents/docs/tools",
+					"icon": "faWrench",
+					"badge": "TODO"
+				},
+				{
+					"title": "Frontend UI",
+					"href": "/agents/docs/frontend",
+					"icon": "faReact",
+					"badge": "TODO"
+				},
+				{
+					"title": "Connectors",
+					"collapsible": true,
+					"icon": "faPlug",
+					"pages": [
+						{
+							"title": "Slack",
+							"href": "/agents/docs/connectors/slack",
+							"icon": {
+								"src": "/images/vendors/slack.svg"
+							}
+						},
+						{
+							"title": "Linear",
+							"href": "/agents/docs/connectors/linear",
+							"icon": {
+								"src": "/images/vendors/linear.svg"
+							}
+						},
+						{
+							"title": "GitHub",
+							"href": "/agents/docs/connectors/github",
+							"icon": {
+								"src": "/images/vendors/github.svg"
+							}
+						},
+						{
+							"title": "Discord",
+							"href": "/agents/docs/connectors/discord",
+							"icon": {
+								"src": "/images/vendors/discord.svg"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -108,39 +155,12 @@
 					"href": "/agents/docs/budgets",
 					"icon": "faCoins",
 					"badge": "TODO"
-				}
-			]
-		},
-		{
-			"title": "Connectors",
-			"pages": [
-				{
-					"title": "Slack",
-					"href": "/agents/docs/connectors/slack",
-					"icon": {
-						"src": "/images/vendors/slack.svg"
-					}
 				},
 				{
-					"title": "Linear",
-					"href": "/agents/docs/connectors/linear",
-					"icon": {
-						"src": "/images/vendors/linear.svg"
-					}
-				},
-				{
-					"title": "GitHub",
-					"href": "/agents/docs/connectors/github",
-					"icon": {
-						"src": "/images/vendors/github.svg"
-					}
-				},
-				{
-					"title": "Discord",
-					"href": "/agents/docs/connectors/discord",
-					"icon": {
-						"src": "/images/vendors/discord.svg"
-					}
+					"title": "Schedules",
+					"href": "/agents/docs/schedules",
+					"icon": "faClock",
+					"badge": "TODO"
 				}
 			]
 		},
