@@ -49,6 +49,17 @@ const explicitRedirects = {
 	'/cookbook/per-tenant-database': '/guides/per-tenant-database/',
 	// Documentation restructure
 	'/docs/setup': '/actors/docs/',
+	// The docs overview absorbed the product-agnostic quickstart chooser, and
+	// Troubleshooting moved out of the Actors bundle because it covers control
+	// plane statuses rather than the SDK.
+	'/docs/quickstart': '/docs/',
+	'/actors/docs/troubleshooting': '/docs/troubleshooting/',
+	// Containers moved from the product-agnostic docs to Integrations.
+	'/docs/container-runner': '/integrations/containers/',
+	// Endpoints was rewritten as the shorter Connect page; Runtime Modes folded
+	// into Workers & Pools.
+	'/docs/endpoints': '/docs/connect/',
+	'/docs/runtime-modes': '/docs/workers/',
 	// Dead links inside dated changelog posts. Neither target ever existed, so
 	// these point at the nearest real page rather than being rewritten in the
 	// posts, which are historical records.
@@ -91,8 +102,8 @@ const explicitRedirects = {
 	'/docs/connect/registry-configuration': '/actors/docs/general/registry-configuration/',
 	// Quickstart index merged into the Actors introduction
 	'/docs/actors/quickstart': '/actors/docs/',
-	// Connect tab renamed to Deploy
-	'/docs/connect': '/docs/deploy/self-host/workers/',
+	// Connect tab renamed to Deploy. The bare `/docs/connect` URL is now the
+	// Connect page in docs/general, so only the platform sub-pages redirect.
 	'/docs/connect/aws-ecs': '/docs/deploy/self-host/workers/',
 	'/docs/connect/aws-lambda': '/docs/deploy/self-host/workers/',
 	'/docs/connect/cloudflare': '/docs/deploy/self-host/workers/',
@@ -358,14 +369,14 @@ function bundleSplitRedirects() {
 	// Old slug under `/actors/docs/` -> new path.
 	const MOVED = {
 		cli: '/docs/cli/',
-		'container-runner': '/docs/container-runner/',
+		'container-runner': '/integrations/containers/',
 		statuses: '/docs/statuses/',
 		versions: '/docs/versions/',
 		'general/edge': '/docs/regions/',
-		'general/endpoints': '/docs/endpoints/',
+		'general/endpoints': '/docs/connect/',
 		'general/environment-variables': '/docs/environment-variables/',
 		'general/pool-configuration': '/docs/pool-configuration/',
-		'general/runtime-modes': '/docs/runtime-modes/',
+		'general/runtime-modes': '/docs/workers/',
 		'general/skill': '/docs/skill/',
 		'general/tracing': '/docs/tracing/',
 	};

@@ -17,7 +17,7 @@ export function ConfigurationOptions() {
 				<a href="/actors/docs/general/logging/">Logging</a>: Configure logging output for debugging and monitoring.
 			</li>
 			<li>
-				<a href="/actors/docs/general/runtime-modes/">Runtime Modes</a>: Serverless vs runners for different deployment scenarios.
+				<a href="/docs/workers/">Workers &amp; Pools</a>: Serverless vs long-running workers for different deployment scenarios.
 			</li>
 		</ul>
 	);
