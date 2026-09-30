@@ -53,11 +53,25 @@ Start with the [Quickstart](/agents/docs/quickstart).
 
 ## Why Rivet
 
+### Stateful agents on any infrastructure
+
+- **A live process per agent.** Each agent is an Actor with its own memory and SQLite database. It keeps the session loaded between prompts and runs one prompt at a time, so two servers never race on the same agent. Nothing is rebuilt from a database or replayed from an event log on each request.
+- **No cloud lock-in.** Rivet is open source under Apache 2.0. Use [Rivet Cloud](https://dashboard.rivet.dev), [bring your own compute](/docs/deploy/self-host/workers), or [self-host](/docs/deploy/self-host/control-plane) everything. Workers run on Kubernetes, AWS ECS, Railway, Render, Vercel, Google Cloud Run, AWS Lambda, or any VM.
+- **Your backend holds the agent.** The agent loop, session history, and credentials live in your own servers, next to your database, auth, and private APIs, not on a vendor's platform.
+
+### Any harness, any model
+
+- **Bring your harness.** Rivet runs existing agent harnesses, starting with Pi, instead of asking you to rewrite your agent for a new framework.
+- **Bring your model and keys.** Use any provider the harness supports, your own API keys, or your users' own subscriptions through [Credentials](/agents/docs/credentials).
+
+### Built for scale and realtime
+
 - **Lightweight.** A running Actor adds about 72 KB of memory on top of the agent's session, and a sleeping agent uses none. Give every user, task, or thread its own agent.
 - **Wakes in milliseconds.** A sleeping agent wakes on its next prompt in about 12 ms, instead of the seconds it takes to boot a container.
-- **Separate from the sandbox.** A sandbox crash does not take the session or retries with it. Swap agentOS, E2B, Daytona, or your own provider without changing the agent. A tool call adds about 10 ms in the same datacenter.
-- **Runs in your backend.** RivetKit is a library, so agents run in your own server next to your database, auth, and code. Tools call your private APIs directly, with no separate agent platform to operate.
-- **Deploy anywhere.** Use [Rivet Cloud](https://dashboard.rivet.dev), [bring your own compute](/docs/deploy/self-host/workers), or [self-host](/docs/deploy/self-host/control-plane) the open-source engine. Workers run on Kubernetes, AWS ECS, Railway, Render, Vercel, Google Cloud Run, AWS Lambda, or any VM.
+- **Realtime and multiplayer.** Clients connect over WebSockets and stream events as the agent works. Many users can watch and steer the same session.
+- **Deploys without replay.** After a deploy, the agent wakes on the new code with its session loaded from SQLite, so long sessions stay fast to resume.
+- **One primitive for your backend.** Agents are Actors, like the rest of your Rivet app, so they call other agents and Actors directly and use the same schedules, queues, and workflows.
+- **Swappable sandboxes.** Use agentOS, E2B, Daytona, or your own provider. A sandbox crash does not lose the session, and a tool call adds about 10 ms in the same datacenter.
 
 ## Agents
 
