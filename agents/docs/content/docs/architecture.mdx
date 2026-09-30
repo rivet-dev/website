@@ -8,7 +8,77 @@ TODO
 {/* Planned outline:
 - Components: the agent Actor, the harness running inside it, the sandbox adapter, and the sandbox.
 - A prompt end to end: client, gateway, Actor, model call, tool call into the sandbox, events back to clients.
-- State: what lives in memory, what lives in the Actor's SQLite database, and what lives in the sandbox.
-- Lifecycle: create, sleep, wake, crash recovery, and deploys.
 - Where each piece can run: Rivet Cloud, your own compute, or fully self-hosted.
 */}
+
+## Durability
+
+An agent keeps nothing important in memory. Its session and the id of its sandbox live in the Actor's own [SQLite database](/actors/docs/sqlite), so the agent can sleep while idle, and a crash or deploy does not lose the conversation.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 560 300" role="img" aria-label="An agent Actor runs the agent loop in memory and appends each session entry to its SQLite database. On wake, the loop is restored from SQLite. SQLite also holds the sandbox id, so the Actor reconnects to the same sandbox, where its tool calls run. Sleep or a crash clears memory, and SQLite is kept." style="width:100%;min-width:480px;max-width:560px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="durability-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+    <marker id="durability-arrow-hl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--runtime-highlight, 183 75 35))"/></marker>
+  </defs>
+
+  <rect x="10" y="10" width="370" height="280" rx="8" fill="rgb(var(--site-paper-mid, 227 227 229))" stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4"/>
+  <text x="30" y="40" font-size="14" font-weight="600" fill="rgb(var(--site-ink, 27 25 22))">Agent Actor</text>
+  <text x="30" y="58" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">one per key</text>
+
+  <rect x="30" y="76" width="170" height="56" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="30" y="196" width="170" height="56" rx="7" fill="#fddcbb" stroke="#f0923b" stroke-width="2"/>
+  <g text-anchor="middle">
+    <text x="115" y="100" font-size="14" font-weight="600" fill="rgb(var(--site-ink, 27 25 22))">Agent loop</text>
+    <text x="115" y="118" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">in memory</text>
+    <text x="115" y="220" font-size="14" font-weight="600" fill="rgb(var(--site-ink, 27 25 22))">SQLite</text>
+    <text x="115" y="238" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">session, sandbox id</text>
+  </g>
+
+  <line x1="95" y1="134" x2="95" y2="193" stroke="rgb(var(--runtime-highlight, 183 75 35))" stroke-width="1.4" marker-end="url(#durability-arrow-hl)"/>
+  <line x1="135" y1="194" x2="135" y2="135" stroke="rgb(var(--runtime-highlight, 183 75 35))" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#durability-arrow-hl)"/>
+  <text x="156" y="160" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">append each entry</text>
+  <text x="156" y="178" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">restore on wake</text>
+
+  <text x="30" y="276" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">Sleep or a crash clears memory. SQLite is kept.</text>
+
+  <rect x="430" y="76" width="120" height="56" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <g text-anchor="middle">
+    <text x="490" y="100" font-size="14" font-weight="600" fill="rgb(var(--site-ink, 27 25 22))">Sandbox</text>
+    <text x="490" y="118" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">files and shell</text>
+  </g>
+  <text x="315" y="96" text-anchor="middle" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">tool calls</text>
+  <line x1="201" y1="104" x2="428" y2="104" stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" marker-end="url(#durability-arrow)"/>
+  <text x="315" y="122" text-anchor="middle" font-size="12" fill="rgb(var(--site-ink-soft, 86 82 74))">reconnect by id</text>
+</svg>
+</div>
+
+### What is stored
+
+Pi stores its state in three tables:
+
+| Table | Contents | Written |
+| --- | --- | --- |
+| `pi_session` | The session id, working directory, session header, and Pi settings. | When the session is first created, and when settings change. |
+| `pi_entry` | One row per session entry, as Pi's own JSON, in order. | As Pi appends each entry: every message, tool call, and tool result. |
+| `pi_sandbox` | The sandbox provider's name and the sandbox id. | As soon as the provider creates the sandbox. |
+
+`pi()` owns the Actor's database and creates these tables itself, so it rejects a `db` option.
+
+### On wake
+
+The first action after the Actor wakes opens the session:
+
+1. It reads the session and every entry from SQLite and rebuilds Pi's session from them. Pi migrates entries written by older versions itself.
+2. It reconnects to the stored sandbox by id. If the provider reports that the sandbox is gone, it creates a new one. See [Sandboxes](/agents/docs/sandboxes#how-the-sandbox-is-managed).
+3. It restores the saved settings and the saved model, if that model is still allowed. Otherwise it falls back to the configured `model`.
+
+Clients do not have to do anything. Calling any action on the same key resumes the same conversation.
+
+### On sleep and destroy
+
+- **Sleep.** The Actor aborts a run in progress, closes the session, and asks the provider to suspend the sandbox. Every entry written before the abort is kept.
+- **Crash.** Entries are written as they happen, so the session reopens from the last entry written before the crash.
+- **Destroy.** The Actor closes the session and asks the provider to delete the sandbox.
+
+Pi actions such as `prompt`, `waitForIdle`, and `compact` can run for a long time, so the Actor's default action timeout is ten minutes instead of one. Set `options.actionTimeout` to change it.

@@ -1,0 +1,22 @@
+---
+title: "User Subscriptions"
+description: "Let your users run agents on their own Claude or ChatGPT subscription."
+---
+
+Your users can run the agent on their own Claude or ChatGPT subscription, or their own API key, instead of yours.
+
+Store each user's logins in a `credentials` Actor and pass it to `pi({ credentials })`. Your application owns login, storage, and refresh:
+
+- `list` returns the providers the user has a credential for, without the secrets.
+- `read` returns a provider's credential. A subscription login never includes its refresh token.
+- `refresh` returns a refreshed credential. Pi calls it when a subscription token expires within five minutes, so the result must stay valid for longer than that.
+
+<CodeSnippet file="examples/credentials/subscription.ts" title="server.ts" />
+
+The agent Actor never receives a refresh token and never writes credentials back. Errors from the `credentials` Actor reject the model call that needed the credential, so keep secrets out of their messages.
+
+See the [complete example](https://github.com/rivet-dev/rivet/tree/main/examples/pi-credentials), including a script that runs Pi's headless login in the terminal. Your app needs its own login flow, such as a settings page, that saves the result with the `credentials` Actor's `save` action.
+
+<Warning>
+Make sure to protect the `credentials` Actor with [authentication](/docs/authentication), because its actions return provider tokens.
+</Warning>

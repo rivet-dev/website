@@ -47,12 +47,6 @@
 					"icon": "faKey"
 				},
 				{
-					"title": "Secrets",
-					"href": "/agents/docs/secrets",
-					"icon": "faUserSecret",
-					"badge": "TODO"
-				},
-				{
 					"title": "Tracing",
 					"href": "/agents/docs/tracing",
 					"icon": "faChartLine"
@@ -80,6 +74,11 @@
 						{
 							"title": "MCP Servers",
 							"href": "/agents/docs/mcp-servers",
+							"badge": "TODO"
+						},
+						{
+							"title": "Secrets",
+							"href": "/agents/docs/secrets",
 							"badge": "TODO"
 						},
 						{
@@ -154,10 +153,14 @@
 					]
 				},
 				{
-					"title": "Production",
+					"title": "Models",
 					"collapsible": true,
 					"icon": "faRocket",
 					"pages": [
+						{
+							"title": "User Subscriptions",
+							"href": "/agents/docs/user-subscriptions"
+						},
 						{
 							"title": "Model Routing",
 							"href": "/agents/docs/model-routing",
@@ -218,24 +221,16 @@
 				{
 					"title": "Architecture",
 					"href": "/agents/docs/architecture",
-					"icon": "faLayerGroup",
 					"badge": "TODO"
-				},
-				{
-					"title": "Durability",
-					"href": "/agents/docs/durability",
-					"icon": "faFloppyDisk"
 				},
 				{
 					"title": "Security Model",
 					"href": "/agents/docs/security-model",
-					"badge": "TODO",
-					"icon": "faShieldHalved"
+					"badge": "TODO"
 				},
 				{
 					"title": "Configuration",
 					"href": "/agents/docs/configuration",
-					"icon": "faSliders",
 					"badge": "TODO"
 				}
 			]
