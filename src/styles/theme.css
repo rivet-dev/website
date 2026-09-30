@@ -234,7 +234,7 @@ html[data-theme="dark"]:not([data-fixed-theme]) [data-mobile-menu-trigger] {
   background-color: transparent;
 }
 
-html[data-theme="dark"]:not([data-fixed-theme]) .site-rule {
+html[data-theme="dark"]:not([data-fixed-theme]) :is(.site-rule, .site-hero-plate) {
   --rule-line: rgb(255 255 255 / 0.1);
   --rule-mark: rgb(255 255 255 / 0.3);
 }

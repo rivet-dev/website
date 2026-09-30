@@ -292,6 +292,68 @@ function HeroStats() {
   );
 }
 
+/**
+ * The blueprint frame around the hero row: hairlines along its top and bottom
+ * edges, guides closing the sides at the rail's guide position, a registration
+ * cross at each corner, and guide stubs fading away above and below so the
+ * frame reads as one drafted line with the <SectionRule /> that follows. Pure
+ * decoration, drawn by .site-hero-plate in main.css.
+ */
+function HeroPlateMarks() {
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-rule site-hero-plate-rule-top"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-rule site-hero-plate-rule-bottom"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-guide site-hero-plate-guide-left"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-guide site-hero-plate-guide-right"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-cross site-hero-plate-cross-top site-hero-plate-cross-left"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-cross site-hero-plate-cross-top site-hero-plate-cross-right"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-cross site-hero-plate-cross-bottom site-hero-plate-cross-left"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-cross site-hero-plate-cross-bottom site-hero-plate-cross-right"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-dash site-hero-plate-dash-left site-hero-plate-dash-up"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-dash site-hero-plate-dash-right site-hero-plate-dash-up"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-dash site-hero-plate-dash-left site-hero-plate-dash-down"
+      />
+      <span
+        aria-hidden="true"
+        className="site-hero-plate-dash site-hero-plate-dash-right site-hero-plate-dash-down"
+      />
+    </>
+  );
+}
+
 export const RedesignedHero = ({
   latestPost,
   thinkingImages,
@@ -302,8 +364,15 @@ export const RedesignedHero = ({
         className={`${SITE_UTILITY_HERO_CLASS} flex min-h-[100svh] flex-col justify-center`}
         style={{ background: "none" }}
       >
-        <div className={`relative ${SITE_STANDARD_RAIL_CLASS}`}>
-          <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64">
+        <div className="site-hero-plate">
+          <HeroPlateMarks />
+          {/* md:py-10 is --rule-outset (2.5rem): the plate's guides stand that
+              far outside the rail, so the same inset above and below gives the
+              copy and the artwork an even margin from the frame on all four
+              sides. */}
+          <div
+            className={`relative flex flex-col gap-12 md:py-10 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64 ${SITE_STANDARD_RAIL_CLASS}`}
+          >
             <div className="max-w-2xl">
               <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>
                 The orchestrator for <br />
@@ -338,15 +407,8 @@ export const RedesignedHero = ({
 
             <div
               {...settledHeroReveal(120)}
-              className="relative hidden flex-shrink-0 lg:block"
+              className="relative flex-shrink-0 self-center lg:self-auto"
             >
-              <ThinkingImageCycler images={thinkingImages} />
-            </div>
-          </div>
-
-          {/* Mobile: Image */}
-          <div {...settledHeroReveal(120)} className="mb-10 mt-12 lg:hidden">
-            <div className="flex justify-center">
               <ThinkingImageCycler images={thinkingImages} />
             </div>
           </div>

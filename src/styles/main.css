@@ -206,27 +206,34 @@
 	   The guide tracks the max-w-7xl rail edge but stands --rule-outset
 	   outside it so the crosses breathe instead of hugging the content;
 	   --rule-min keeps them clear of the viewport edge when the rail's
-	   SITE_SECTION_CLASS gutter is all the room there is. */
-	.site-rule {
+	   SITE_SECTION_CLASS gutter is all the room there is. The same tokens
+	   drive the hero plate below so the two never drift. */
+	.site-rule,
+	.site-hero-plate {
 		--rule-min: 1rem;
 		--rule-outset: 2.5rem;
 		--rule-guide: max(var(--rule-min), calc((100% - 80rem) / 2 - var(--rule-outset)));
 		--rule-cross: 1.25rem;
 		--rule-gap: 0.4375rem;
 		--rule-reach: calc(var(--rule-cross) / 2 + var(--rule-gap));
+		--rule-dash: 2.5rem;
 		--rule-line: rgba(27, 25, 22, 0.12);
 		--rule-mark: rgba(27, 25, 22, 0.34);
+	}
+	.site-rule {
 		position: relative;
 		z-index: 1;
 		height: 0;
 	}
 	@media (min-width: 768px) {
-		.site-rule {
+		.site-rule,
+		.site-hero-plate {
 			--rule-min: 1.5rem;
 		}
 	}
 	@media (min-width: 1681px) {
-		.site-rule {
+		.site-rule,
+		.site-hero-plate {
 			--rule-min: 1.75rem;
 		}
 	}
@@ -263,18 +270,22 @@
 		right: calc(var(--rule-guide) - var(--rule-cross) / 2);
 	}
 	.site-rule-cross::before,
-	.site-rule-cross::after {
+	.site-rule-cross::after,
+	.site-hero-plate-cross::before,
+	.site-hero-plate-cross::after {
 		content: '';
 		position: absolute;
 		background: var(--rule-mark);
 	}
-	.site-rule-cross::before {
+	.site-rule-cross::before,
+	.site-hero-plate-cross::before {
 		left: 0;
 		right: 0;
 		top: calc(50% - 0.5px);
 		height: 1px;
 	}
-	.site-rule-cross::after {
+	.site-rule-cross::after,
+	.site-hero-plate-cross::after {
 		top: 0;
 		bottom: 0;
 		left: calc(50% - 0.5px);
@@ -282,7 +293,7 @@
 	}
 	.site-rule-dash {
 		width: 1px;
-		height: 2.5rem;
+		height: var(--rule-dash);
 	}
 	.site-rule-dash-left {
 		left: calc(var(--rule-guide) - 0.5px);
@@ -296,6 +307,103 @@
 	}
 	.site-rule-dash-down {
 		top: var(--rule-reach);
+		background: linear-gradient(to bottom, var(--rule-line), transparent);
+	}
+
+	/* Blueprint hero plate: the homepage hero row drawn as a drafted
+	   rectangle in the same vocabulary as .site-rule. Hairlines trace the
+	   row's top and bottom edges (so the headline gets a ceiling and the
+	   artwork registers to the frame), vertical guides close the sides at
+	   the rail's guide position, a registration cross marks each corner,
+	   and short guide stubs fade away above and below toward the header and
+	   the first <SectionRule />. The plate wraps the standard rail inside
+	   the hero section's gutter, so --rule-guide is re-derived here against
+	   the plate's own width: the guide sits --site-gutter further out than
+	   the plate's edge, which is why it can go negative. --site-gutter must
+	   track SITE_UTILITY_HERO_CLASS's horizontal padding. Hidden below md,
+	   where the guide would land on the content edge itself. */
+	.site-hero-plate {
+		--site-gutter: 1rem;
+		--rule-guide: calc(
+			max(
+				var(--rule-min),
+				(100% + 2 * var(--site-gutter) - 80rem) / 2 - var(--rule-outset)
+			) - var(--site-gutter)
+		);
+		position: relative;
+	}
+	@media (min-width: 768px) {
+		.site-hero-plate {
+			--site-gutter: 3rem;
+		}
+	}
+	@media (min-width: 1681px) {
+		.site-hero-plate {
+			--site-gutter: 3.5rem;
+		}
+	}
+	.site-hero-plate > span {
+		display: none;
+		position: absolute;
+		pointer-events: none;
+	}
+	@media (min-width: 768px) {
+		.site-hero-plate > span {
+			display: block;
+		}
+	}
+	.site-hero-plate-rule {
+		left: calc(var(--rule-guide) + var(--rule-reach));
+		right: calc(var(--rule-guide) + var(--rule-reach));
+		height: 1px;
+		background: var(--rule-line);
+	}
+	.site-hero-plate-rule-top {
+		top: -0.5px;
+	}
+	.site-hero-plate-rule-bottom {
+		bottom: -0.5px;
+	}
+	.site-hero-plate-guide {
+		top: var(--rule-reach);
+		bottom: var(--rule-reach);
+		width: 1px;
+		background: var(--rule-line);
+	}
+	.site-hero-plate-guide-left,
+	.site-hero-plate-dash-left {
+		left: calc(var(--rule-guide) - 0.5px);
+	}
+	.site-hero-plate-guide-right,
+	.site-hero-plate-dash-right {
+		right: calc(var(--rule-guide) - 0.5px);
+	}
+	.site-hero-plate-cross {
+		width: var(--rule-cross);
+		height: var(--rule-cross);
+	}
+	.site-hero-plate-cross-top {
+		top: calc(var(--rule-cross) / -2);
+	}
+	.site-hero-plate-cross-bottom {
+		bottom: calc(var(--rule-cross) / -2);
+	}
+	.site-hero-plate-cross-left {
+		left: calc(var(--rule-guide) - var(--rule-cross) / 2);
+	}
+	.site-hero-plate-cross-right {
+		right: calc(var(--rule-guide) - var(--rule-cross) / 2);
+	}
+	.site-hero-plate-dash {
+		width: 1px;
+		height: var(--rule-dash);
+	}
+	.site-hero-plate-dash-up {
+		bottom: calc(100% + var(--rule-reach));
+		background: linear-gradient(to top, var(--rule-line), transparent);
+	}
+	.site-hero-plate-dash-down {
+		top: calc(100% + var(--rule-reach));
 		background: linear-gradient(to bottom, var(--rule-line), transparent);
 	}
 
