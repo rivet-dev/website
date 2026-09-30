@@ -37,35 +37,10 @@
 					"badge": "TODO"
 				},
 				{
-					"title": "Sandboxes",
-					"href": "/agents/docs/sandboxes",
-					"icon": "faHardDrive"
-				},
-				{
-					"title": "LLM Credentials",
-					"href": "/agents/docs/llm-credentials",
-					"icon": "faKey"
-				},
-				{
-					"title": "Tracing",
-					"href": "/agents/docs/tracing",
-					"icon": "faChartLine"
-				}
-			]
-		},
-		{
-			"title": "Concepts",
-			"pages": [
-				{
-					"title": "Build",
+					"title": "Tools",
 					"collapsible": true,
-					"icon": "faHammer",
+					"icon": "faToolbox",
 					"pages": [
-						{
-							"title": "Instructions",
-							"href": "/agents/docs/instructions",
-							"badge": "TODO"
-						},
 						{
 							"title": "Tools",
 							"href": "/agents/docs/tools",
@@ -82,6 +57,73 @@
 							"badge": "TODO"
 						},
 						{
+							"title": "OAuth Connections",
+							"href": "/agents/docs/oauth-connections",
+							"badge": "TODO"
+						},
+						{
+							"title": "Browser Automation",
+							"href": "/agents/docs/browser-automation",
+							"badge": "TODO"
+						}
+					]
+				},
+				{
+					"title": "Sandboxes",
+					"href": "/agents/docs/sandboxes",
+					"icon": "faHardDrive"
+				},
+				{
+					"title": "Models",
+					"collapsible": true,
+					"icon": "faBrain",
+					"pages": [
+						{
+							"title": "LLM Credentials",
+							"href": "/agents/docs/llm-credentials"
+						},
+						{
+							"title": "User Subscriptions",
+							"href": "/agents/docs/user-subscriptions"
+						},
+						{
+							"title": "Model Routing",
+							"href": "/agents/docs/model-routing",
+							"badge": "TODO"
+						},
+						{
+							"title": "Cost & Token Budgets",
+							"href": "/agents/docs/budgets",
+							"badge": "TODO"
+						}
+					]
+				},
+				{
+					"title": "Tracing",
+					"href": "/agents/docs/tracing",
+					"icon": "faChartLine"
+				}
+			]
+		},
+		{
+			"title": "Concepts",
+			"pages": [
+				{
+					"title": "Agent",
+					"collapsible": true,
+					"icon": "faRobot",
+					"pages": [
+						{
+							"title": "Instructions",
+							"href": "/agents/docs/instructions",
+							"badge": "TODO"
+						},
+						{
+							"title": "Dynamic Configuration",
+							"href": "/agents/docs/dynamic-configuration",
+							"badge": "TODO"
+						},
+						{
 							"title": "Skills",
 							"href": "/agents/docs/skills",
 							"badge": "TODO"
@@ -89,11 +131,6 @@
 						{
 							"title": "Memory",
 							"href": "/agents/docs/memory",
-							"badge": "TODO"
-						},
-						{
-							"title": "Browser Automation",
-							"href": "/agents/docs/browser-automation",
 							"badge": "TODO"
 						},
 						{
@@ -131,44 +168,6 @@
 						{
 							"title": "Approvals",
 							"href": "/agents/docs/approvals",
-							"badge": "TODO"
-						}
-					]
-				},
-				{
-					"title": "Security",
-					"collapsible": true,
-					"icon": "faLock",
-					"pages": [
-						{
-							"title": "Tenant Credentials",
-							"href": "/agents/docs/multi-tenant-credentials",
-							"badge": "TODO"
-						},
-						{
-							"title": "OAuth Connections",
-							"href": "/agents/docs/oauth-connections",
-							"badge": "TODO"
-						}
-					]
-				},
-				{
-					"title": "Models",
-					"collapsible": true,
-					"icon": "faRocket",
-					"pages": [
-						{
-							"title": "User Subscriptions",
-							"href": "/agents/docs/user-subscriptions"
-						},
-						{
-							"title": "Model Routing",
-							"href": "/agents/docs/model-routing",
-							"badge": "TODO"
-						},
-						{
-							"title": "Cost & Token Budgets",
-							"href": "/agents/docs/budgets",
 							"badge": "TODO"
 						}
 					]
@@ -226,11 +225,6 @@
 				{
 					"title": "Security Model",
 					"href": "/agents/docs/security-model",
-					"badge": "TODO"
-				},
-				{
-					"title": "Configuration",
-					"href": "/agents/docs/configuration",
 					"badge": "TODO"
 				}
 			]
