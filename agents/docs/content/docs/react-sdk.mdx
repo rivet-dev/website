@@ -5,25 +5,39 @@ description: "Build a chat UI for an agent with React."
 
 TODO
 
-Build a chat UI for an agent with `@rivetkit/react`.
+Build a chat UI for an agent with `@rivetkit/react`. The example keeps the agent logic in one hook and the UI in small components.
 
-<CodeSnippet file="examples/react-sdk/App.tsx" title="App.tsx" />
+<CodeGroup>
+<CodeSnippet file="examples/react-sdk/Chat.tsx" title="Chat.tsx" />
+<CodeSnippet file="examples/react-sdk/useAgentChat.ts" title="useAgentChat.ts" />
+<CodeSnippet file="examples/react-sdk/MessageList.tsx" title="MessageList.tsx" />
+<CodeSnippet file="examples/react-sdk/Composer.tsx" title="Composer.tsx" />
+<CodeSnippet file="examples/react-sdk/rivet.ts" title="rivet.ts" />
+</CodeGroup>
 
-## How it works
+## rivet.ts
 
-- `createRivetKit` creates hooks typed by your registry. `useActor` connects to the agent with that name and key. Components that use the same name and key share one connection.
-- Once `agent.connection` exists, the effect loads the conversation with `getMessages`.
-- `useEvent` listens to the agent's events while the component is mounted:
-  - `message_update` streams the reply as text deltas.
-  - `message_end` adds each finished message. Your own prompt arrives this way too, so every open tab shows the same conversation.
-  - `tool_execution_start` and `tool_execution_end` show which tool is running.
-  - `agent_start` and `agent_settled` track whether the agent is working.
-- The form calls `prompt` to start a run. While a run is in progress, it calls `steer` instead, and Stop calls `abort`.
-- The alert shows a rejected action or a model error. See [Client SDK](/agents/docs/client-sdk).
-- `connStatus` is `connecting` until the connection opens, and `disconnected` while it reconnects.
+`createRivetKit` creates a `useActor` hook typed by your registry. Components that call it with the same name and key share one connection.
+
+## useAgentChat.ts
+
+The hook connects to the agent and turns its events into a list of messages and tool calls.
+
+- Once `agent.connection` exists, it loads the conversation with `getMessages`. Tool calls in the history show as done or failed, based on their results.
+- `message_update` streams the reply as text deltas. `message_end` adds each finished message, including your own prompt, so every open tab shows the same conversation.
+- `tool_execution_start` adds a running tool call, and `tool_execution_end` marks it done or failed.
+- `agent_start` and `agent_settled` track whether the agent is working.
+- `send` calls `prompt` to start a run, or `steer` while a run is in progress. `stop` calls `abort`.
+- A rejected action or a model error sets `error`. See [Client SDK](/agents/docs/client-sdk).
+
+## Chat.tsx, MessageList.tsx, and Composer.tsx
+
+- `Chat` passes the hook's state to the components, and shows the connection status until it's `connected`.
+- `MessageList` renders messages, tool calls, and the reply that's still streaming.
+- `Composer` switches from Send to Steer while the agent works, and shows Stop.
 
 ## Things to know
 
-- A message that only calls tools has no text, so the list skips it.
+- A message that only calls tools has no text, so it shows as its tool calls.
 - To send a login token, add `params` to `useActor`.
 - To switch models from the UI, call `setModel` on the connection. See [Dynamic Configuration](/agents/docs/dynamic-configuration).
