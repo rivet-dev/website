@@ -46,7 +46,6 @@ const credentials = actor({
 
 const agent = pi({
 	model: "anthropic/claude-opus-5-5",
-	// c.key[0] is the user id, so each user has one credentials Actor.
 	credentials: (c) =>
 		c
 			.client<Registry<{ credentials: typeof credentials }>>()

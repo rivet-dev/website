@@ -10,7 +10,6 @@ const getOrder = defineTool({
 	description: "Look up an order's status by its id.",
 	parameters: Type.Object({ orderId: Type.String() }),
 	async execute(_toolCallId, { orderId }) {
-		// Runs in your backend, where the worker's environment is available.
 		const response = await fetch(
 			`https://api.example.com/orders/${encodeURIComponent(orderId)}`,
 			{ headers: { authorization: `Bearer ${process.env.ORDERS_API_TOKEN}` } },
@@ -22,7 +21,6 @@ const getOrder = defineTool({
 			};
 		}
 		const order = (await response.json()) as { status: string; total: number };
-		// Only this text reaches the model.
 		return {
 			content: [{ type: "text", text: `Status: ${order.status}. Total: $${order.total}.` }],
 			details: undefined,

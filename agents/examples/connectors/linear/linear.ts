@@ -11,7 +11,6 @@ const client = createClient<typeof registry>();
 
 export const linearRoutes = new Hono();
 
-// Webhook URL: https://<your-worker>/linear/webhook
 linearRoutes.post("/webhook", async (c) => {
 	const body = await c.req.text();
 	if (!verifyLinearSignature(body, c.req.header("linear-signature") ?? "")) {
@@ -19,15 +18,12 @@ linearRoutes.post("/webhook", async (c) => {
 	}
 
 	const payload = JSON.parse(body);
-	// Reject deliveries older than a minute to prevent replays.
 	if (Math.abs(Date.now() - payload.webhookTimestamp) > 60 * 1000) {
 		return c.text("stale webhook", 401);
 	}
 
-	// Comments on documents and project updates have no issue, so skip them.
 	const comment = payload.data;
 	if (payload.type === "Comment" && payload.action === "create" && comment.issueId && comment.body.includes(trigger)) {
-		// Reply after acknowledging, because an agent run outlasts the webhook.
 		void replyToComment({
 			issueId: comment.issueId,
 			userId: comment.userId,
@@ -42,11 +38,9 @@ async function replyToComment(comment: {
 	userId: string;
 	text: string;
 }): Promise<void> {
-	// Never answer the agent's own comments.
 	const viewer = await linear.viewer;
 	if (comment.userId === viewer.id) return;
 
-	// One agent per Linear issue.
 	const agent = client.agent.getOrCreate(["linear", comment.issueId]);
 	await agent.prompt(comment.text);
 	const reply = await agent.getLastAssistantText();

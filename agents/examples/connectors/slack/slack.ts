@@ -10,7 +10,6 @@ const client = createClient<typeof registry>();
 
 export const slack = new Hono();
 
-// Event Subscriptions request URL: https://<your-worker>/slack/events
 slack.post("/events", async (c) => {
 	const body = await c.req.text();
 	const timestamp = c.req.header("x-slack-request-timestamp") ?? "";
@@ -21,19 +20,14 @@ slack.post("/events", async (c) => {
 
 	const payload = JSON.parse(body);
 
-	// Slack checks the request URL once when you save it.
 	if (payload.type === "url_verification") {
 		return c.json({ challenge: payload.challenge });
 	}
 
-	// Slack retries events it thinks timed out. The first delivery is already
-	// being handled, so ignore the retry.
 	if (c.req.header("x-slack-retry-num")) return c.body(null, 200);
 
 	const event = payload.event;
 	if (payload.type === "event_callback" && event?.type === "app_mention") {
-		// Slack expects a response within three seconds, and an agent run takes
-		// longer, so reply after acknowledging the event.
 		void replyInThread({
 			teamId: payload.team_id,
 			channel: event.channel,
@@ -50,7 +44,6 @@ async function replyInThread(thread: {
 	threadTs: string;
 	text: string;
 }): Promise<void> {
-	// One agent per Slack thread. Follow-up mentions in the thread resume the same session.
 	const agent = client.agent.getOrCreate([thread.teamId, thread.channel, thread.threadTs]);
 	await agent.prompt(thread.text);
 	const reply = await agent.getLastAssistantText();
@@ -62,7 +55,6 @@ async function replyInThread(thread: {
 }
 
 function verifySlackSignature(body: string, timestamp: string, signature: string): boolean {
-	// Reject requests older than five minutes to prevent replays.
 	if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 60 * 5) return false;
 	const expected = `v0=${createHmac("sha256", signingSecret).update(`v0:${timestamp}:${body}`).digest("hex")}`;
 	return (

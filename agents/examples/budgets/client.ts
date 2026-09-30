@@ -11,13 +11,11 @@ const client = createClient<typeof registry>(
 async function promptWithBudget(key: string[], text: string) {
 	const conn = client.agent.getOrCreate(key).connect();
 	try {
-		// Cost so far, across the whole session.
 		const session = await conn.getSessionStats();
 		if (session.cost >= SESSION_BUDGET_USD) {
 			throw new Error(`Session budget reached: $${session.cost.toFixed(2)}`);
 		}
 
-		// Each model response reports its own usage. Add it up for this run.
 		let runCost = 0;
 		conn.on("event", (event) => {
 			if (event.type !== "turn_end" || event.message.role !== "assistant") return;

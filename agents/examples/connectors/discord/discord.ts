@@ -12,7 +12,6 @@ const client = createClient<typeof registry>();
 
 export const discord = new Hono();
 
-// Interactions endpoint URL: https://<your-worker>/discord/interactions
 discord.post("/interactions", async (c) => {
 	const body = await c.req.text();
 	const signature = c.req.header("x-signature-ed25519") ?? "";
@@ -23,7 +22,6 @@ discord.post("/interactions", async (c) => {
 
 	const interaction = JSON.parse(body);
 
-	// Discord pings the endpoint when you save it.
 	if (interaction.type === InteractionType.PING) {
 		return c.json({ type: InteractionResponseType.PONG });
 	}
@@ -32,8 +30,6 @@ discord.post("/interactions", async (c) => {
 		const prompt = interaction.data.options?.find(
 			(option: { name: string }) => option.name === "prompt",
 		)?.value;
-		// Discord expects a response within three seconds. Defer, then edit the
-		// reply when the agent finishes.
 		void answer({
 			applicationId: interaction.application_id,
 			token: interaction.token,
@@ -52,7 +48,6 @@ async function answer(command: {
 	channelId: string;
 	prompt: string;
 }): Promise<void> {
-	// One agent per Discord channel.
 	const agent = client.agent.getOrCreate(["discord", command.channelId]);
 	await agent.prompt(command.prompt);
 	const reply = (await agent.getLastAssistantText()) || "I finished without a reply.";

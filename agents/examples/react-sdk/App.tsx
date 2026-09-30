@@ -16,7 +16,6 @@ export function Chat({ userId }: { userId: string }) {
 	const [error, setError] = useState<string | null>(null);
 	const [input, setInput] = useState("");
 
-	// Load the conversation once the connection is open.
 	useEffect(() => {
 		agent.connection?.getMessages().then((history) => {
 			setMessages(history.filter(isChatMessage));
@@ -63,7 +62,6 @@ export function Chat({ userId }: { userId: string }) {
 		if (!text || !agent.connection) return;
 		setInput("");
 		try {
-			// While a run is in progress, new input steers it.
 			if (running) await agent.connection.steer(text);
 			else await agent.connection.prompt(text);
 		} catch (err) {

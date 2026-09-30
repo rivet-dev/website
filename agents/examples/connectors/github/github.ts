@@ -11,7 +11,6 @@ const client = createClient<typeof registry>();
 
 export const github = new Hono();
 
-// Webhook payload URL: https://<your-worker>/github/webhook
 github.post("/webhook", async (c) => {
 	const body = await c.req.text();
 	const signature = c.req.header("x-hub-signature-256") ?? "";
@@ -22,13 +21,11 @@ github.post("/webhook", async (c) => {
 
 	const payload = JSON.parse(body);
 	const comment = payload.comment;
-	// Answer new comments that mention the bot, and never the bot's own comments.
 	if (
 		payload.action === "created" &&
 		comment.user.login !== botLogin &&
 		comment.body.includes(`@${botLogin}`)
 	) {
-		// GitHub times out after ten seconds, so reply after acknowledging.
 		void replyToComment({
 			owner: payload.repository.owner.login,
 			repo: payload.repository.name,
@@ -45,7 +42,6 @@ async function replyToComment(comment: {
 	issueNumber: number;
 	text: string;
 }): Promise<void> {
-	// One agent per issue or pull request.
 	const agent = client.agent.getOrCreate([comment.owner, comment.repo, String(comment.issueNumber)]);
 	await agent.prompt(comment.text);
 	const reply = await agent.getLastAssistantText();
