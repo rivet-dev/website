@@ -1,12 +1,81 @@
 ---
 title: "Tools"
-description: "Give agents built-in, sandbox, and custom tools, plus MCP servers."
+description: "What an agent can do, where each tool runs, and what it can reach."
 ---
 
 TODO
 
-{/* Planned outline:
-- Pi's built-in tools and how they run in the sandbox.
-- Custom tools (`customTools`) that run in your backend with access to private APIs and credentials.
-- Turning tools on or off per agent. For MCP, see MCP Servers.
-*/}
+<Note>
+Draft outline. Nothing below is final.
+</Note>
+
+## Page shape
+
+Organize tools by where they run, since that decides what a tool can reach and whether a secret is safe.
+
+| Where it runs | Examples | Can reach |
+| --- | --- | --- |
+| Sandbox (agentOS VM) | Files, shell, running code, installing software, previews | Only the VM |
+| Your backend | Custom tools, other Actors, databases | Private APIs and secrets |
+| External | MCP servers | Whatever the server exposes |
+
+## Built-in file and shell tools
+
+- Read, write, edit, search, list, and run commands in the VM.
+- Paths are confined to the working directory. Your worker's environment never reaches them.
+
+## Running code without a shell
+
+- agentOS runs JavaScript, TypeScript, and Python directly, and can type-check a project.
+- Enables small tools such as "type-check this project" or "run this snippet".
+
+## Installing software at runtime
+
+- The agent installs packages mid-session. Packages are verified by digest and cached across VMs, so repeat installs and VM starts are fast.
+- Runtime installs versus software preinstalled in the VM's config.
+
+## Background processes and terminals
+
+- Start a dev server and keep it running, write to its stdin, and run interactive programs in a terminal.
+- Links to long-running commands in Session Lifecycle.
+
+## Previews
+
+- The agent starts a dev server and gives the user an expiring signed URL for that port.
+- Likely the most demo-friendly tool on this page.
+
+## Network access
+
+- What the VM can fetch, and how to restrict it.
+- Ties to the network section planned for Security Model.
+
+## Files in bulk and export
+
+- Read or write many files in one call.
+- Export the workspace for download or a snapshot.
+
+## Limits
+
+- agentOS sets bounded defaults for resources, output, network, and packages.
+- A warning event fires as a VM nears a limit. How the agent should react.
+
+## Custom tools in your backend
+
+- Call private APIs, databases, and other Actors with credentials the model never sees.
+- The main argument for splitting trusted and untrusted work.
+
+## Controlling tools
+
+- Turn tools on or off per agent, tenant, or session.
+- Gate risky tools behind approvals.
+- Timeouts, and how large output is truncated.
+
+## Frontend access to the VM
+
+- A backend issues a short-lived token scoped to one VM, so a file browser or terminal UI can talk to that VM directly.
+- Belongs in React SDK, linked from here.
+
+## Open questions
+
+- agentOS 0.4's API depends on two unmerged services PRs (#20 and #21), so the list of VM capabilities may still change. Describe capabilities, not action names, until they merge.
+- Which capabilities become tools by default, and which are opt-in.

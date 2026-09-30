@@ -1,15 +1,80 @@
 ---
 title: "Session Lifecycle"
-description: "How a session starts, streams, compacts, and how to cancel, interrupt, and hook into a prompt."
+description: "How a session starts, streams, compacts, sleeps, and ends, and how to steer or cancel a turn."
 ---
 
 TODO
 
-{/* Planned outline:
-- Sessions: one session per Actor key, creating and resuming a session, reading history with `getMessages`.
-- A prompt from `prompt` to the end of the run: model calls, tool calls, retries.
-- Streaming: subscribing to Pi's events from a connection (tokens, tool calls, status) and multiple clients watching one session.
-- Cancel and interrupt: `abort`, `steer`, `followUp`, and queued prompts.
-- Compaction: `compact` to summarize long sessions, and when it runs automatically.
-- Hooks for lifecycle and stream events (see Eve hooks and Flue agent hooks).
-*/}
+<Note>
+Draft outline. Nothing below is final.
+</Note>
+
+## Page shape
+
+One diagram of the session's states, then one section per transition. Show the agent and its sandbox side by side, since each has its own lifecycle.
+
+```text
+ AGENT (Actor)                          SANDBOX (agentOS VM)
+ +------+ prompt +---------+            +----------+
+ | Idle |------->| Running |--tool call>| Process  |  output kept on the VM
+ +--+---+<-------+----+----+            +----------+
+    |    done/abort   | context full
+    |                 v
+    |           +------------+
+    |           | Compacting |
+    |           +------------+
+    | idle                               VM sleeps on its own when idle
+    v
+ +----------+  next prompt: wake, reload the session, reconnect to the VM
+ | Sleeping |
+ +----------+
+```
+
+## What a session is
+
+- One session per agent key.
+- Clients connect, disconnect, and reconnect freely. Several clients can watch the same session.
+
+## A turn
+
+- Prompt, model call, tool calls into the sandbox, tool results, reply.
+- Every step streams as an event to all connected clients.
+
+## Steering a running turn
+
+- **Steer:** add input to the turn in progress.
+- **Follow up:** queue a message for after the turn ends.
+- **Cancel:** stop the turn. A command running in the sandbox is killed, not left behind.
+- **Timeouts:** per tool command.
+
+## Long-running commands
+
+- agentOS keeps process and terminal output on the VM, so a build or test run survives the client, or even the agent, disconnecting.
+- Readers page back through the output with a cursor. Replay is capped by default (1,024 events or 1 MiB per process).
+
+## Compaction
+
+- Manual, or automatic when the context fills.
+- What is summarized, and what stays in the stored history.
+
+## Errors and retries
+
+- A model error ends the turn without losing the session.
+- Automatic retries.
+- After a crash, the session reopens from its last saved entry.
+
+## Sleep and wake
+
+- The agent sleeps when idle. The VM sleeps on its own.
+- Waking reloads the session and reconnects to the same VM, with its files intact.
+- A config or software change that needs a VM restart shows up in the VM's status.
+
+## Ending a session
+
+- Starting fresh on the same agent versus destroying the agent.
+- What happens to the VM and its files, which matters when deleting a user's data.
+
+## Hooks (planned)
+
+- Turn start, tool call, tool result, and turn end.
+- Uses: approvals, audit logs, metrics. See Eve hooks and Flue agent hooks for reference.
