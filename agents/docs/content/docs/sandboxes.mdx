@@ -80,7 +80,7 @@ The working directory is the sandbox's own working directory. A stopped sandbox 
 
 ## How the sandbox is managed
 
-- The sandbox is created the first time the agent needs it, and its id is saved right away in the Actor's SQLite database. See [Durability](/agents/docs/durability).
+- The sandbox is created the first time the agent needs it, and its id is saved right away in the Actor's SQLite database.
 - On wake, the Actor reconnects to the same sandbox. If it no longer exists, a new one is created and the old files are lost.
 - An existing Actor cannot switch to a different provider.
 - Commands run with the sandbox's environment, not your worker's, and paths outside the working directory are rejected.
