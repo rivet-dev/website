@@ -103,8 +103,8 @@
 							"badge": "TODO"
 						},
 						{
-							"title": "Sharing with JWTs",
-							"href": "/agents/docs/sharing-with-jwts",
+							"title": "Scoped Access with JWTs",
+							"href": "/agents/docs/scoped-access",
 							"badge": "TODO"
 						},
 						{

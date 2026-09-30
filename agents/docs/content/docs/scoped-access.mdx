@@ -1,5 +1,5 @@
 ---
-title: "Sharing with JWTs"
+title: "Scoped Access with JWTs"
 description: "Let a tool publish a result and share it through a link that reaches one Actor and expires."
 ---
 
@@ -8,8 +8,8 @@ TODO
 A tool can publish its work to an Actor and hand out a short-lived token for it. Whoever opens the link can read that one Actor, and nothing else.
 
 <CodeGroup>
-<CodeSnippet file="examples/sharing-with-jwts/server.ts" title="server.ts" />
-<CodeSnippet file="examples/sharing-with-jwts/viewer.ts" title="viewer.ts" />
+<CodeSnippet file="examples/scoped-access/server.ts" title="server.ts" />
+<CodeSnippet file="examples/scoped-access/viewer.ts" title="viewer.ts" />
 </CodeGroup>
 
 - `share_report` saves the report to a new `report` Actor, one per report.
