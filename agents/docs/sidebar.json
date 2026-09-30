@@ -50,6 +50,22 @@
 					"title": "Tracing",
 					"href": "/agents/docs/tracing",
 					"icon": "faChartLine"
+				},
+				{
+					"title": "Architecture",
+					"href": "/agents/docs/architecture",
+					"icon": "faLayerGroup"
+				},
+				{
+					"title": "Security Model",
+					"href": "/agents/docs/security-model",
+					"icon": "faShieldHalved"
+				},
+				{
+					"title": "Planned",
+					"href": "/agents/docs/planned",
+					"icon": "faListCheck",
+					"badge": "TODO"
 				}
 			]
 		},
@@ -162,24 +178,6 @@
 							"href": "/agents/docs/connectors/discord"
 						}
 					]
-				}
-			]
-		},
-		{
-			"title": "Reference",
-			"pages": [
-				{
-					"title": "Architecture",
-					"href": "/agents/docs/architecture"
-				},
-				{
-					"title": "Security Model",
-					"href": "/agents/docs/security-model"
-				},
-				{
-					"title": "Planned",
-					"href": "/agents/docs/planned",
-					"badge": "TODO"
 				}
 			]
 		}
