@@ -12,6 +12,7 @@ Each Actor holds one Pi session and saves it in its SQLite database, so a conver
 <svg viewBox="0 0 724 340" role="img" aria-label="Your backend runs the Pi Actors. Two working Pi Actors each run the agent loop, store their session in SQLite, send model calls to the model provider, and send tool calls to their own sandbox with a shell and files. A third Pi Actor is asleep, and its sandbox is paused." style="display:block;width:100%;min-width:560px;max-width:724px;height:auto;margin:2.5rem auto;font-family:system-ui,sans-serif" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="pi-arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" style="fill:rgb(var(--site-pine, 46 64 52))"/></marker>
+    <filter id="pi-arch-ghost" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="0.8"/></filter>
   </defs>
   <g style="fill:rgb(var(--site-paper-mid, 250 248 243));stroke:rgb(var(--site-pine, 46 64 52));stroke-width:1.4;stroke-dasharray:7 6">
     <rect x="196" y="12" width="240" height="316" rx="10"/>
@@ -34,7 +35,7 @@ Each Actor holds one Pi session and saves it in its SQLite database, so a conver
     <path d="M226 176 H190 Q178 176 178 164 V142 Q178 130 166 130"/>
   </g>
 
-  <g id="pi-arch-row">
+  <g>
     <rect x="226" y="54" width="180" height="60" rx="8" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
     <rect x="532" y="60" width="160" height="48" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
     <g text-anchor="middle" font-size="15" font-weight="600" fill="#1b1916">
@@ -56,7 +57,19 @@ Each Actor holds one Pi session and saves it in its SQLite database, so a conver
     <rect x="226" y="238" width="180" height="60" rx="8"/>
     <rect x="532" y="244" width="160" height="48" rx="7"/>
   </g>
-  <use href="#pi-arch-row" y="184" opacity="0.35"/>
+  <g transform="translate(0 184)">
+    <g opacity="0.35">
+      <rect x="226" y="54" width="180" height="60" rx="8" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+      <rect x="532" y="60" width="160" height="48" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+    </g>
+    <g opacity="0.12" filter="url(#pi-arch-ghost)">
+      <g text-anchor="middle" font-size="15" font-weight="600" fill="#1b1916">
+        <text x="316" y="81">Pi Actor</text>
+        <text x="612" y="89">Shell + files</text>
+      </g>
+      <text x="316" y="100" text-anchor="middle" font-size="12" fill="#56524a">agent loop + SQLite</text>
+    </g>
+  </g>
 
   <g text-anchor="middle" font-size="15" font-weight="600" style="fill:rgb(var(--site-ink, 27 25 22))">
     <text x="316" y="273">Sleeping</text>
