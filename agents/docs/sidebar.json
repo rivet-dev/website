@@ -81,11 +81,6 @@
 							"href": "/agents/docs/instructions"
 						},
 						{
-							"title": "Dynamic Configuration",
-							"href": "/agents/docs/dynamic-configuration",
-							"badge": "TODO"
-						},
-						{
 							"title": "Cost & Token Budgets",
 							"href": "/agents/docs/budgets",
 							"badge": "TODO"

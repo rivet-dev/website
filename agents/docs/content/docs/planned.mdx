@@ -51,12 +51,15 @@ TODO
 - Falling back to another provider on errors, rate limits, and outages.
 - Routers and gateways, with keys kept in your backend.
 
-{/* Provider fallback doesn't exist. A model per tenant or task is covered in Dynamic Configuration. */}
+{/* Provider fallback doesn't exist. */}
 
 ## Self-Modifying Agents
 
 - An agent writing new tools or code and loading them without a redeploy, for example with Dynamic Apps.
+- Changing an agent's model, tools, and instructions at runtime, per session or tenant.
 - Reviewing changes before they go live.
+
+{/* Today only the model and thinking level can change at runtime (setModel, setThinkingLevel), and tools reset when the agent sleeps. */}
 
 ## Evals
 
