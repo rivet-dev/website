@@ -90,7 +90,7 @@ agentOS is hosted by Rivet, so it needs no separate provider account. The agent 
 ## Data at rest and in traces
 
 - **The session is stored in full.** Every message, tool call, and tool result is written to the Actor's SQLite database. See [Durability](/agents/docs/architecture#durability).
-- **Traces leave content out.** Agent spans record the run's model and outcome, never prompt text, tool arguments, or tool results. See [Tracing](/agents/docs/tracing).
+- **Traces leave content out.** Agent spans record the run's model and outcome, never prompt text, tool arguments, or tool results. See [Observability](/agents/docs/observability).
 
 {/* Still planned:
 - Permissions and approvals enforced in the backend, where the agent cannot work around them.

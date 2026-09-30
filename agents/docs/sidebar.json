@@ -31,11 +31,6 @@
 			"title": "Core",
 			"pages": [
 				{
-					"title": "Tracing",
-					"href": "/agents/docs/tracing",
-					"icon": "faChartLine"
-				},
-				{
 					"title": "Sandboxes",
 					"href": "/agents/docs/sandboxes",
 					"icon": "faHardDrive"
@@ -44,6 +39,11 @@
 					"title": "Architecture",
 					"href": "/agents/docs/architecture",
 					"icon": "faLayerGroup"
+				},
+				{
+					"title": "Observability",
+					"href": "/agents/docs/observability",
+					"icon": "faChartLine"
 				},
 				{
 					"title": "Built-in Tools",
