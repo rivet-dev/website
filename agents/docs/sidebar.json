@@ -33,8 +33,7 @@
 				{
 					"title": "Session Lifecycle",
 					"href": "/agents/docs/session-lifecycle",
-					"icon": "faArrowsRotate",
-					"badge": "TODO"
+					"icon": "faArrowsRotate"
 				},
 				{
 					"title": "Tools",
@@ -64,8 +63,7 @@
 					"pages": [
 						{
 							"title": "Instructions",
-							"href": "/agents/docs/instructions",
-							"badge": "TODO"
+							"href": "/agents/docs/instructions"
 						},
 						{
 							"title": "Dynamic Configuration",
@@ -93,18 +91,15 @@
 					"pages": [
 						{
 							"title": "Subagents",
-							"href": "/agents/docs/subagents",
-							"badge": "TODO"
+							"href": "/agents/docs/subagents"
 						},
 						{
 							"title": "Workflows",
-							"href": "/agents/docs/workflows",
-							"badge": "TODO"
+							"href": "/agents/docs/workflows"
 						},
 						{
 							"title": "Schedules",
-							"href": "/agents/docs/schedules",
-							"badge": "TODO"
+							"href": "/agents/docs/schedules"
 						}
 					]
 				},

@@ -3,8 +3,6 @@ title: "Session Lifecycle"
 description: "How a session runs, streams, compacts, and sleeps, and how to steer or cancel a turn."
 ---
 
-TODO
-
 <div style="overflow-x:auto">
 <svg viewBox="0 0 660 276" role="img" aria-label="Agent states: Idle goes to Running on a prompt and back to Idle when the turn is done or cancelled. Running goes to Compacting when the context is full and back when compaction is done. Idle goes to Sleeping when idle, and Sleeping wakes to Idle on the next prompt, with its state kept in SQLite. Running sends tool calls to a process in the agentOS VM, which sleeps on its own when idle." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
