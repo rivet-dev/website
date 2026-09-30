@@ -78,3 +78,15 @@ TODO
 - A backend issuing a short-lived token scoped to one VM, so a file browser or terminal in your UI talks to the VM directly.
 
 {/* JWT access to the VM is untested. */}
+
+## Long-Running Tools
+
+- A tool that starts a workflow and returns right away. The workflow prompts the agent with the result when it finishes.
+
+{/* Blocked: a tool doesn't receive the agent's key, so the workflow can't find the agent to prompt. Needs customTools as a function of the Actor context. */}
+
+## Scheduled Tools
+
+- A tool that lets the agent schedule its own follow-up, such as checking a deploy in 30 minutes.
+
+{/* Blocked for the same reason: the scheduling Actor needs the agent's key. */}

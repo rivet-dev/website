@@ -1,0 +1,17 @@
+---
+title: "Tools That Call Actors"
+description: "Let tools share state and coordinate agents through other Actors."
+---
+
+TODO
+
+A tool can call any Actor in your registry. Give each thing agents share its own Actor, and agents coordinate through it.
+
+<CodeSnippet file="examples/tools-and-actors/server.ts" title="server.ts" />
+
+- There's one `ticket` Actor per ticket, keyed by the ticket id. Its state is just the owner.
+- `claim` is synchronous, so two claims on the same ticket can't interleave. The first agent to claim wins, and every later claim returns that agent's id.
+- The tool identifies the agent by its session id, from `ctx.sessionManager`. Each agent Actor keeps the same session id for life.
+- The tool reaches the `ticket` Actor through a client, like any other code in your backend.
+
+The same shape works for anything agents share: a lock per repository so only one deploy runs at a time, or a rate limiter per API key. See [Design Patterns](/actors/docs/design-patterns) for more ways to split work across Actors.

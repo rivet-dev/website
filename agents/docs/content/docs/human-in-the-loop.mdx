@@ -1,0 +1,20 @@
+---
+title: "Human in the Loop"
+description: "Have an agent ask for approval before it acts, and continue when someone answers."
+---
+
+TODO
+
+An agent can ask a person before it acts. The tool records the request and returns, the agent waits, and your UI sends the answer as the next prompt.
+
+<CodeGroup>
+<CodeSnippet file="examples/human-in-the-loop/Approval.tsx" title="Approval.tsx" />
+<CodeSnippet file="examples/human-in-the-loop/server.ts" title="server.ts" />
+</CodeGroup>
+
+- `request_approval` returns right away. Its description tells the model to end its turn and wait for a reply.
+- The agent doesn't hold anything open while it waits. It can sleep, and the request stays in the session.
+- `Approval` connects to the same agent and shows Approve and Reject when the tool is called.
+- Each button prompts the agent with the answer. `streamingBehavior: "followUp"` queues the answer if the agent hasn't finished its turn yet.
+
+To show a pending request after a reload, look for a `request_approval` call with no answer after it in `getMessages`. See [React SDK](/agents/docs/react-sdk) for the rest of a chat UI.

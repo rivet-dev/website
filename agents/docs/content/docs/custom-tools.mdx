@@ -1,0 +1,28 @@
+---
+title: "Custom Tools"
+description: "Give an agent tools that run in your backend, with access to your APIs and secrets."
+---
+
+TODO
+
+A custom tool is a function the model can call. It runs in the agent Actor on your worker, next to your server code, so it can use your APIs and secrets.
+
+<CodeSnippet file="examples/custom-tools/server.ts" title="server.ts" />
+
+- `defineTool` takes a name and description for the model, and parameters as a TypeBox schema. `execute` receives the parsed arguments.
+- The returned `content` is the result the model reads. `details` travels with the result to clients, for your UI.
+- A thrown error becomes an error result. The model reads its message and can try something else.
+- `signal` aborts when the run is cancelled. Pass it to `fetch` so a Stop from the client cancels the request.
+
+## Secrets
+
+`execute` reads `ORDERS_API_TOKEN` from the worker's environment, so the token never leaves your backend:
+
+| | Sees the token |
+| --- | --- |
+| Your tool code | Yes, from `process.env` on the worker. |
+| The model | No. It sees the tool's name, description, parameters, and results. |
+| The session and connected clients | No. They store and receive tool arguments and results. |
+| The sandbox | No. Commands run with the sandbox's own environment. |
+
+Tool results and error messages are stored in the session and sent to every connected client, so keep secrets out of both. Model keys work differently. See [API Keys](/agents/docs/api-keys).

@@ -1,0 +1,27 @@
+---
+title: "Built-in Tools"
+description: "The file and shell tools every agent gets, where they run, and how to limit them."
+---
+
+TODO
+
+With a sandbox, an agent gets seven built-in tools that run in the sandbox, not on your worker.
+
+| Tool | What it does |
+| --- | --- |
+| `read`, `write`, `edit` | Read, create, and change files. |
+| `grep`, `find`, `ls` | Search files and list directories. |
+| `bash` | Run a shell command. |
+
+<CodeGroup>
+<CodeSnippet file="examples/built-in-tools/server.ts" title="server.ts" />
+<CodeSnippet file="examples/built-in-tools/client.ts" title="client.ts" />
+</CodeGroup>
+
+- `excludeTools` turns tools off by name. This reviewer can read and search files, but can't run commands or change files. `tools` does the opposite and enables only the tools you list.
+- `executeBash` runs a command in the agent's sandbox from your backend, without the model. Here it checks out the branch before the review, even though the reviewer can't run `bash` itself. `excludeFromContext` keeps the output out of the conversation.
+- File tools only reach paths inside the sandbox's working directory.
+- `bash` accepts a timeout, and long output is truncated before it reaches the model.
+- Without a sandbox, the agent has no built-in tools. See [Sandboxes](/agents/docs/sandboxes).
+
+To give an agent your own tools, see [Custom Tools](/agents/docs/custom-tools).

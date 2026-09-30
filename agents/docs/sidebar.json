@@ -36,8 +36,8 @@
 					"icon": "faArrowsRotate"
 				},
 				{
-					"title": "Tools",
-					"href": "/agents/docs/tools",
+					"title": "Built-in Tools",
+					"href": "/agents/docs/built-in-tools",
 					"badge": "TODO",
 					"icon": "faWrench"
 				},
@@ -99,8 +99,23 @@
 					"icon": "faToolbox",
 					"pages": [
 						{
-							"title": "Secrets",
-							"href": "/agents/docs/secrets",
+							"title": "Custom Tools",
+							"href": "/agents/docs/custom-tools",
+							"badge": "TODO"
+						},
+						{
+							"title": "Tools That Call Actors",
+							"href": "/agents/docs/tools-and-actors",
+							"badge": "TODO"
+						},
+						{
+							"title": "Sharing with JWTs",
+							"href": "/agents/docs/sharing-with-jwts",
+							"badge": "TODO"
+						},
+						{
+							"title": "Human in the Loop",
+							"href": "/agents/docs/human-in-the-loop",
 							"badge": "TODO"
 						}
 					]

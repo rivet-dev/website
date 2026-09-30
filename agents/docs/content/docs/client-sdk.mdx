@@ -42,9 +42,19 @@ Every event arrives as `event`, with a `type`:
 - `prompt` rejects with an `ActorError` when the action itself fails. For example, another prompt is already running (use `steer` or `followUp` instead), the model has no credential (`model_unavailable`), or the run passes the ten-minute action timeout (`action_timed_out`).
 - A model error doesn't reject. The run ends with an assistant message whose `stopReason` is `"error"`, and `errorMessage` explains why.
 
-## Authentication
+## Browsers
 
-Pass credentials as connection params, with `params` or, for tokens that refresh, `getParams` in `getOrCreate`. Check them on the agent with `onBeforeConnect` or `createConnState`, which `pi()` accepts like any Actor. See [Authentication](/docs/authentication).
+A browser shouldn't hold your Rivet credentials. Your backend checks who the user is, then mints a short-lived token that reaches only their agent.
+
+<CodeGroup>
+<CodeSnippet file="examples/client-sdk/browser.ts" title="browser.ts" />
+<CodeSnippet file="examples/client-sdk/token.ts" title="token.ts" />
+</CodeGroup>
+
+- `token.ts` resolves the user's agent and calls `issueToken`, which returns a token for that one agent that expires in 15 minutes.
+- `browser.ts` connects with `getForId`. `getToken` fetches a new token whenever the old one expires, so the connection stays up.
+
+See [JWTs](/docs/jwt) and [Authentication](/docs/authentication).
 
 The same actions work over HTTP. See the curl tab in the [Quickstart](/agents/docs/quickstart).
 

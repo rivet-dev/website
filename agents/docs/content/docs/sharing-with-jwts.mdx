@@ -1,0 +1,21 @@
+---
+title: "Sharing with JWTs"
+description: "Let a tool publish a result and share it through a link that reaches one Actor and expires."
+---
+
+TODO
+
+A tool can publish its work to an Actor and hand out a short-lived token for it. Whoever opens the link can read that one Actor, and nothing else.
+
+<CodeGroup>
+<CodeSnippet file="examples/sharing-with-jwts/server.ts" title="server.ts" />
+<CodeSnippet file="examples/sharing-with-jwts/viewer.ts" title="viewer.ts" />
+</CodeGroup>
+
+- `share_report` saves the report to a new `report` Actor, one per report.
+- The tool runs in your backend, where the admin client lives. `issueToken` mints a token that can reach only this report, and it expires after an hour.
+- The link puts the token in the URL fragment, which browsers don't send to your server.
+- `viewer.ts` runs in the browser. It connects with the token and reads the report with `getForId`. A request to any other Actor is rejected before it reaches your code.
+- The link is part of the tool result, so the model and connected clients see it. That's the point: the agent can pass it on.
+
+Tokens can't be revoked, so keep them short. See [JWTs](/docs/jwt) for grants and expiration.
