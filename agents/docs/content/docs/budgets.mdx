@@ -1,12 +1,14 @@
 ---
 title: "Cost & Token Budgets"
-description: "Track spend and cap tokens per agent or tenant."
+description: "Track tokens and cost per run and session, and stop an agent that goes over budget."
 ---
 
 TODO
 
-{/* Planned outline:
-- Token and cost accounting per run, session, agent, and tenant.
-- Budgets that pause or stop an agent when exceeded.
-- Sandbox time alongside model spend.
-*/}
+Each session tracks its tokens and cost. Check them from your backend to stop an agent that goes over budget.
+
+<CodeSnippet file="examples/budgets/client.ts" title="client.ts" />
+
+- `getSessionStats` returns the session's token counts and its total cost.
+- Before prompting, the backend checks the session's cost. After each turn, it checks again and calls `abort` once the session is over budget.
+- For a single run, compare the stats from before and after the prompt.

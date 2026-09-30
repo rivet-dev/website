@@ -5,10 +5,13 @@ description: "Run agents as steps in durable, multi-step workflows."
 
 TODO
 
-{/* Planned outline:
-- Calling an agent from a Rivet workflow step, with retries and sleeps between steps.
-- Fan-out and fan-in across multiple agents.
-- Waiting on human input or external events mid-workflow (see Approvals).
-- When to use a workflow versus a single long-running agent session.
-- Link to the Actors workflows docs.
-*/}
+Run an agent as a workflow step to get retries, and durable waits between steps.
+
+<CodeSnippet file="examples/workflows/server.ts" title="server.ts" />
+
+- Each `ctx.step` prompts the agent. `maxRetries` retries a step that fails, and `timeout` gives the agent up to ten minutes per step.
+- `ctx.sleep` waits ten minutes without anything running. The workflow resumes on time, even after a crash or deploy.
+- Both steps use the same agent key, so the second prompt continues the first conversation.
+- Use a workflow when the work has fixed steps, waits, or retries. Use a single agent session when the agent should decide the steps itself.
+
+See [Workflows](/workflows/docs) for steps, sleeps, and retries.

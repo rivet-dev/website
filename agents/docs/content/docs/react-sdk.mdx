@@ -5,9 +5,12 @@ description: "Build a chat UI for an agent with React."
 
 TODO
 
-{/* Planned outline:
-- Connecting to an agent from React with `@rivetkit/react` (`useActor`).
-- Streaming Pi's events into a chat view: messages, tool calls, and status.
-- Sending prompts, cancelling, and switching models from the UI.
-- Built on the Client SDK; see Client SDK for non-React apps.
-*/}
+Connect to an agent from React with `@rivetkit/react`.
+
+<CodeSnippet file="examples/react-sdk/App.tsx" title="App.tsx" />
+
+- `createRivetKit` creates hooks for your registry. `useActor` connects to the agent by name and key.
+- `useEvent` subscribes to the agent's events. The component clears the reply on `agent_start`, appends each text delta, and re-enables the input on `agent_end`.
+- `agent.connection` calls the agent's actions: `prompt` sends a message, and `abort` stops the run.
+- To switch models from the UI, call `setModel` on the connection. See [Dynamic Configuration](/agents/docs/dynamic-configuration).
+- The hooks are built on the [Client SDK](/agents/docs/client-sdk).

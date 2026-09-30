@@ -1,0 +1,78 @@
+---
+title: "Planned"
+description: "Pages we plan to add soon, with what each will cover."
+---
+
+## Skills
+
+- A skill is a `SKILL.md` with instructions, loaded when a task matches it.
+- Skill sets per agent or tenant.
+- Commands a skill asks for run in the sandbox.
+
+{/* Blocked: skills load from the worker's disk, but the agent opens them with its sandboxed read tool, which can't see the worker's files. */}
+
+## Memory
+
+- A tool that saves and recalls facts through an external store, scoped per user.
+
+{/* Blocked: custom tools can't read the agent's key, so a tool can't tell which user it serves. */}
+
+## MCP Servers
+
+- Connecting local and remote MCP servers to an agent.
+- MCP servers run in your backend, and their credentials stay out of the model and the sandbox.
+- Choosing which MCP tools each agent can use.
+
+{/* The agent has no MCP support. */}
+
+## OAuth Connections
+
+- Connecting a user's GitHub, Google, Slack, or Linear account, and storing the tokens per user or tenant.
+- Refreshing tokens and handling revoked access.
+- Exposing connected accounts to the agent as tools in your backend.
+
+## Browser Automation
+
+- A browser exposed to the agent as tools, for example with Browserbase.
+- Screenshots, sessions, and cookies.
+
+{/* agentOS has no browser. Its browser page says to package a browser CLI as software yourself. */}
+
+## Approvals
+
+- Pausing sensitive tool calls until a person approves them, enforced in your backend.
+- Waiting durably for a decision from a client or a connector.
+- Recording approvals for audit.
+
+## Model Routing
+
+- Falling back to another provider on errors, rate limits, and outages.
+- Routers and gateways, with keys kept in your backend.
+
+{/* Provider fallback doesn't exist. A model per tenant or task is covered in Dynamic Configuration. */}
+
+## Self-Modifying Agents
+
+- An agent writing new tools or code and loading them without a redeploy, for example with Dynamic Apps.
+- Reviewing changes before they go live.
+
+## Evals
+
+- Eval cases and scorers, run locally and in CI.
+- Evaluating against real sandboxes and recorded sessions.
+
+## Hooks
+
+- Running code at turn start, on each tool call and result, and at turn end, for approvals, audit logs, and metrics.
+
+## More Sandbox Tools
+
+- Running JavaScript, TypeScript, and Python in the VM without a shell.
+- Installing software at runtime.
+- Previews: sharing an expiring URL for a port in the VM.
+
+## Frontend Access to the VM
+
+- A backend issuing a short-lived token scoped to one VM, so a file browser or terminal in your UI talks to the VM directly.
+
+{/* JWT access to the VM is untested. */}

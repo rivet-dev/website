@@ -1,14 +1,15 @@
 ---
 title: "Subagents"
-description: "Let an agent delegate work to other agents, each in its own Actor."
+description: "Let an agent hand work to other agents, each in its own Actor."
 ---
 
 TODO
 
-{/* Planned outline:
-- A subagent is another agent Actor, called by key from the parent's tools.
-- Spawning subagents in parallel and collecting their results.
-- Sharing or isolating sandboxes between parent and subagents.
-- Agent-to-agent messaging routed through your backend instead of sandbox-to-sandbox.
-- Limits: depth, fan-out, and budgets (see Cost & Token Budgets).
-*/}
+A subagent is another agent. A tool on the lead agent calls it by key, like any other Actor.
+
+<CodeSnippet file="examples/subagents/server.ts" title="server.ts" />
+
+- `researcher` and `lead` are both agents in the same registry. `lead` gets a `research` tool.
+- The tool gives each question its own researcher, with a new key, and prompts them all at once. Each researcher has its own session.
+- The tool waits for every researcher to finish, then returns their answers to the lead as the tool result.
+- The client points at a local Rivet endpoint. Replace it with your deployment's.

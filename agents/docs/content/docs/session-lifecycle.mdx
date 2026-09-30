@@ -1,12 +1,12 @@
 ---
 title: "Session Lifecycle"
-description: "How a session starts, streams, compacts, sleeps, and ends, and how to steer or cancel a turn."
+description: "How a session runs, streams, compacts, and sleeps, and how to steer or cancel a turn."
 ---
 
 TODO
 
 <div style="overflow-x:auto">
-<svg viewBox="0 0 660 276" role="img" aria-label="Agent states: Idle goes to Running on a prompt and back to Idle when the turn is done or cancelled. Running goes to Compacting when the context is full and back when compaction is done. Idle goes to Sleeping when idle, and Sleeping wakes to Idle on the next prompt, with its state kept in SQLite. Running sends tool calls to a process in the agentOS VM, which keeps its output on the VM and sleeps on its own when idle." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+<svg viewBox="0 0 660 276" role="img" aria-label="Agent states: Idle goes to Running on a prompt and back to Idle when the turn is done or cancelled. Running goes to Compacting when the context is full and back when compaction is done. Idle goes to Sleeping when idle, and Sleeping wakes to Idle on the next prompt, with its state kept in SQLite. Running sends tool calls to a process in the agentOS VM, which sleeps on its own when idle." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
     <marker id="lifecycle-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
   </defs>
@@ -50,56 +50,21 @@ TODO
     <text x="124" y="158">next prompt</text>
     <text x="436" y="86" text-anchor="middle">tool call</text>
     <text x="100" y="256" text-anchor="middle">state kept in SQLite</text>
-    <text x="560" y="146" text-anchor="middle">output kept on the VM</text>
-    <text x="560" y="164" text-anchor="middle">sleeps on its own when idle</text>
+    <text x="560" y="150" text-anchor="middle">sleeps on its own when idle</text>
   </g>
 </svg>
 </div>
 
-## Sessions
+<CodeSnippet file="examples/session-lifecycle/client.ts" title="client.ts" />
 
-- Each agent key has one session.
-- Clients can connect, disconnect, and reconnect at any time, and several clients can watch the same session.
+- Each agent key has one session. Clients can connect and disconnect at any time, and every connected client receives the session's events.
+- `prompt` starts a turn: model calls and tool calls until the agent replies. It resolves when the turn ends.
+- `steer` adds input to the turn in progress. Here it runs after the first tool call. `followUp` queues a message for after the turn ends.
+- `abort` cancels the turn and kills any command still running in the sandbox. Here it runs if the turn takes longer than five minutes.
 
-## Turns
+## Compaction, errors, and sleep
 
-- A turn takes a prompt through model calls and tool calls in the sandbox until the agent replies.
-- Every step streams as an event to all connected clients.
-
-## Steering a turn
-
-- **Steer:** add input to the turn in progress.
-- **Follow up:** queue a message to send after the turn ends.
-- **Cancel:** stop the turn and kill any command still running in the sandbox.
-- **Timeouts:** limit how long each tool command can run.
-
-## Long-running commands
-
-- agentOS keeps process and terminal output on the VM, so a build or test run keeps going if the client or the agent disconnects.
-- Output can be read back from any point. By default, the VM keeps up to 1,024 events or 1 MiB per process.
-
-## Compaction
-
-- The agent summarizes older messages when the context fills, or when you ask it to.
-- The stored history keeps every entry.
-
-## Errors and retries
-
-- A model error ends the turn but keeps the session.
-- Failed model calls are retried automatically.
-- After a crash, the session reopens from its last saved entry.
-
-## Sleep and wake
-
-- An idle agent sleeps and frees its memory. The VM sleeps on its own.
-- The next prompt wakes the agent, reloads the session, and reconnects to the same VM with its files intact.
-- If a config or software change needs a VM restart, the VM's status reports it.
-
-## Ending a session
-
-- Start a new session on the same agent, or destroy the agent.
-- Destroying an agent does not delete its VM or files.
-
-## Hooks (planned)
-
-- Run code at turn start, on each tool call and result, and at turn end, for approvals, audit logs, and metrics.
+- When the context fills up, the agent summarizes older messages and keeps going. Call `compact` to do it yourself.
+- A model error ends the turn without losing the session, and failed model calls are retried automatically.
+- An idle agent sleeps and frees its memory. The next action wakes it, reloads the session, and reconnects to the same sandbox. After a crash or deploy, the session reopens from its last saved step.
+- Destroying an agent does not delete its agentOS VM or the VM's files.

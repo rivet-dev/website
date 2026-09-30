@@ -5,10 +5,13 @@ description: "Call an agent from your backend, scripts, or any JavaScript runtim
 
 TODO
 
-{/* Planned outline:
-- Creating a client with `createClient` from `rivetkit/client` and getting an agent by key.
-- Stateless calls with a handle versus a live connection with `connect()`.
-- Sending prompts, reading messages, and subscribing to events.
-- Calling the same actions over HTTP (see the curl tabs in the Quickstart and the gateway API reference).
-- Authentication and connection params.
-*/}
+Call an agent from any JavaScript runtime with `rivetkit/client`.
+
+<CodeSnippet file="examples/client-sdk/client.ts" title="client.ts" />
+
+- `getOrCreate` finds the agent by key and creates it on first use.
+- `connect()` opens a live connection. Each step of a run arrives as an `event`, such as a text delta or the start of a tool call.
+- `prompt` resolves when the run ends.
+- Calling an action on the handle without connecting sends a single request, like `getMessages` here.
+- The same actions work over HTTP. See the curl tab in the [Quickstart](/agents/docs/quickstart).
+- Protect agents with [authentication](/docs/authentication).

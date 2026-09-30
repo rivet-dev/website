@@ -1,0 +1,44 @@
+import { pi } from "@rivet-dev/pi";
+import { agentOSProvider } from "@rivet-dev/sandbox-adapter/agentos";
+import { actor, type Registry, setup } from "rivetkit";
+import { workflow } from "rivetkit/workflow";
+
+const agent = pi({
+	model: "anthropic/claude-opus-5-5",
+	sandbox: agentOSProvider(),
+});
+
+type Agents = Registry<{ agent: typeof agent }>;
+
+const flakyTest = actor({
+	state: { report: null as string | null },
+	run: workflow(async (ctx) => {
+		await ctx.step({
+			name: "first-run",
+			timeout: 10 * 60_000,
+			maxRetries: 3,
+			run: async (step) => {
+				const fixer = step.client<Agents>().agent.getOrCreate([step.actorId]);
+				await fixer.prompt("Run the test suite and note any failing tests.");
+			},
+		});
+
+		await ctx.sleep("wait-before-rerun", 10 * 60_000);
+
+		await ctx.step({
+			name: "second-run",
+			timeout: 10 * 60_000,
+			maxRetries: 3,
+			run: async (step) => {
+				const fixer = step.client<Agents>().agent.getOrCreate([step.actorId]);
+				await fixer.prompt("Run the suite again. Which failures happened both times?");
+				step.state.report = (await fixer.getLastAssistantText()) ?? null;
+			},
+		});
+	}),
+	actions: {
+		getReport: (c) => c.state.report,
+	},
+});
+
+export const registry = setup({ use: { agent, flakyTest } });

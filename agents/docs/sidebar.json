@@ -76,26 +76,6 @@
 							"title": "Dynamic Configuration",
 							"href": "/agents/docs/dynamic-configuration",
 							"badge": "TODO"
-						},
-						{
-							"title": "Skills",
-							"href": "/agents/docs/skills",
-							"badge": "TODO"
-						},
-						{
-							"title": "Memory",
-							"href": "/agents/docs/memory",
-							"badge": "TODO"
-						},
-						{
-							"title": "Self-Modifying Agents",
-							"href": "/agents/docs/self-modifying-agents",
-							"badge": "TODO"
-						},
-						{
-							"title": "Evals",
-							"href": "/agents/docs/evals",
-							"badge": "TODO"
 						}
 					]
 				},
@@ -105,23 +85,8 @@
 					"icon": "faToolbox",
 					"pages": [
 						{
-							"title": "MCP Servers",
-							"href": "/agents/docs/mcp-servers",
-							"badge": "TODO"
-						},
-						{
 							"title": "Secrets",
 							"href": "/agents/docs/secrets",
-							"badge": "TODO"
-						},
-						{
-							"title": "OAuth Connections",
-							"href": "/agents/docs/oauth-connections",
-							"badge": "TODO"
-						},
-						{
-							"title": "Browser Automation",
-							"href": "/agents/docs/browser-automation",
 							"badge": "TODO"
 						}
 					]
@@ -145,11 +110,6 @@
 							"title": "Schedules",
 							"href": "/agents/docs/schedules",
 							"badge": "TODO"
-						},
-						{
-							"title": "Approvals",
-							"href": "/agents/docs/approvals",
-							"badge": "TODO"
 						}
 					]
 				},
@@ -161,11 +121,6 @@
 						{
 							"title": "User Subscriptions",
 							"href": "/agents/docs/user-subscriptions"
-						},
-						{
-							"title": "Model Routing",
-							"href": "/agents/docs/model-routing",
-							"badge": "TODO"
 						},
 						{
 							"title": "Cost & Token Budgets",
@@ -227,6 +182,10 @@
 				{
 					"title": "Security Model",
 					"href": "/agents/docs/security-model"
+				},
+				{
+					"title": "Planned",
+					"href": "/agents/docs/planned"
 				}
 			]
 		}

@@ -1,13 +1,19 @@
 ---
 title: "Instructions"
-description: "Set an agent's system prompt and project instructions."
+description: "Set an agent's system prompt, and add context to a single prompt."
 ---
 
 TODO
 
-{/* Planned outline:
-- Setting the system prompt when defining the agent.
-- Project instruction files such as `AGENTS.md` read from the sandbox.
-- Per-session and per-tenant instructions resolved at runtime (see Dynamic Configuration).
-- Appending context to a single prompt without changing the system prompt.
-*/}
+An agent's instructions come from a resource loader you pass when you define it.
+
+<CodeSnippet file="examples/instructions/server.ts" title="server.ts" />
+
+- `appendSystemPrompt` adds your instructions to the default system prompt, which describes the agent's tools. `systemPrompt` replaces the default prompt entirely.
+- The `no*` options stop the loader from reading anything else. Without a loader of your own, the agent reads no context files, skills, or extensions.
+- Remove `noContextFiles` to load `AGENTS.md` and other context files. The loader reads them from the worker's disk, starting at `cwd`, never from the sandbox.
+- `reload()` reads the loader's files. Call it once before defining the agent.
+
+## Context for one prompt
+
+To add context to a single prompt, put it in the prompt text, or attach images with `prompt(text, { images })`. The system prompt stays the same.

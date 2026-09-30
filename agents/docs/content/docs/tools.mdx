@@ -5,64 +5,17 @@ description: "What an agent can do, where each tool runs, and what it can reach.
 
 TODO
 
-Where a tool runs decides what it can reach.
+Built-in file and shell tools run in the agent's sandbox. Tools you write run in your backend.
 
-| Where it runs | Examples | Can reach |
+| Where it runs | Tools | Can reach |
 | --- | --- | --- |
-| Sandbox (agentOS VM) | Files, shell, running code, installing software, previews | Only the VM |
-| Your backend | Custom tools, other Actors, databases | Private APIs and secrets |
-| External | MCP servers | Whatever the server exposes |
+| Sandbox | `read`, `write`, `edit`, `grep`, `find`, `ls`, `bash` | Only the sandbox |
+| Your backend | Custom tools | Your APIs, databases, and secrets |
 
-## File and shell tools
+<CodeSnippet file="examples/tools/server.ts" title="server.ts" />
 
-- Read, write, edit, search, and list files, and run commands in the VM.
-- Paths stay inside the working directory, and your worker's environment is never passed in.
-
-## Running code
-
-- Run JavaScript, TypeScript, and Python directly in the VM, and type-check a project, without a shell.
-
-## Installing software
-
-- The agent can install packages during a session. Packages are checked against their digest and cached, so repeat installs and VM starts are fast.
-- Software can also be preinstalled in the VM's configuration.
-
-## Background processes and terminals
-
-- Keep a dev server running, write to a process's input, and run interactive programs in a terminal.
-- See [long-running commands](/agents/docs/session-lifecycle#long-running-commands).
-
-## Previews
-
-- The agent starts a dev server and shares an expiring signed URL for its port.
-
-## Network access
-
-- What the VM can reach on the network.
-
-## Bulk file operations
-
-- Read or write many files in one call, and export the workspace.
-
-## Limits
-
-- agentOS sets default limits on resources, output, network, and packages, and sends a warning event as a VM nears one.
-
-## Custom tools
-
-- Tools you write run in your backend, so they can call private APIs, databases, and other Actors with credentials the model never sees.
-
-## Controlling tools
-
-- Turn tools on or off per agent, tenant, or session.
-- Require approval before risky tools run.
-- Set timeouts and limits on tool output.
-
-## Frontend access to the VM
-
-- Your backend can issue a short-lived token scoped to one VM, so a file browser or terminal in your UI talks to the VM directly.
-
-{/* Open questions:
-- agentOS 0.4's API depends on unmerged services PRs #20 and #21. Describe capabilities, not action names, until they merge.
-- Which capabilities become tools by default, and which are opt-in.
-*/}
+- With `sandbox` set, the built-in tools run in an agentOS VM. Without a sandbox, the agent has no file or shell tools.
+- `excludeTools` turns tools off by name. This reviewer can read and search files, but can't run commands or change files.
+- File tools only reach paths inside the sandbox's working directory.
+- `bash` accepts a timeout, and long output is truncated before it reaches the model.
+- To add your own tools, pass `customTools`. See [Secrets](/agents/docs/secrets) for a tool that calls an API.
