@@ -45,7 +45,7 @@ agentOS is hosted by Rivet, so there is no SDK to install and nothing else to ad
 
 | Option | Description |
 | --- | --- |
-| `software` | Packages installed when the VM is created. Each is an `.aospkg` file at an HTTPS `url`, checked against its optional `digest`. The agent's commands run through `sh`, which comes from coreutils. |
+| `software` | Packages to install, as `{ url, digest }`. Include coreutils, which provides `sh`. |
 | `cwd` | Working directory inside the VM. Defaults to `/workspace`. |
 
 ### E2B
