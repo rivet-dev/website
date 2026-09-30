@@ -69,6 +69,11 @@
 							"title": "Dynamic Configuration",
 							"href": "/agents/docs/dynamic-configuration",
 							"badge": "TODO"
+						},
+						{
+							"title": "Cost & Token Budgets",
+							"href": "/agents/docs/budgets",
+							"badge": "TODO"
 						}
 					]
 				},
@@ -81,6 +86,10 @@
 							"title": "Secrets",
 							"href": "/agents/docs/secrets",
 							"badge": "TODO"
+						},
+						{
+							"title": "Subagents",
+							"href": "/agents/docs/subagents"
 						}
 					]
 				},
@@ -89,10 +98,6 @@
 					"collapsible": true,
 					"icon": "faCircleNodes",
 					"pages": [
-						{
-							"title": "Subagents",
-							"href": "/agents/docs/subagents"
-						},
 						{
 							"title": "Workflows",
 							"href": "/agents/docs/workflows"
@@ -115,11 +120,6 @@
 						{
 							"title": "User Subscriptions",
 							"href": "/agents/docs/user-subscriptions"
-						},
-						{
-							"title": "Cost & Token Budgets",
-							"href": "/agents/docs/budgets",
-							"badge": "TODO"
 						}
 					]
 				},
