@@ -28,8 +28,14 @@
 			]
 		},
 		{
-			"title": "Concepts",
+			"title": "Core",
 			"pages": [
+				{
+					"title": "Session Lifecycle",
+					"href": "/agents/docs/session-lifecycle",
+					"icon": "faArrowsRotate",
+					"badge": "TODO"
+				},
 				{
 					"title": "Durability",
 					"href": "/agents/docs/durability",
@@ -49,54 +55,160 @@
 					"title": "Tracing",
 					"href": "/agents/docs/tracing",
 					"icon": "faChartLine"
+				}
+			]
+		},
+		{
+			"title": "Features",
+			"pages": [
+				{
+					"title": "Build",
+					"collapsible": true,
+					"icon": "faHammer",
+					"pages": [
+						{
+							"title": "Instructions",
+							"href": "/agents/docs/instructions",
+							"icon": "faScroll",
+							"badge": "TODO"
+						},
+						{
+							"title": "Tools",
+							"href": "/agents/docs/tools",
+							"icon": "faWrench",
+							"badge": "TODO"
+						},
+						{
+							"title": "MCP Servers",
+							"href": "/agents/docs/mcp-servers",
+							"icon": "faServer",
+							"badge": "TODO"
+						},
+						{
+							"title": "Skills",
+							"href": "/agents/docs/skills",
+							"icon": "faGraduationCap",
+							"badge": "TODO"
+						},
+						{
+							"title": "Memory",
+							"href": "/agents/docs/memory",
+							"icon": "faBrain",
+							"badge": "TODO"
+						},
+						{
+							"title": "Browser Automation",
+							"href": "/agents/docs/browser-automation",
+							"icon": "faWindowMaximize",
+							"badge": "TODO"
+						},
+						{
+							"title": "Self-Modifying Agents",
+							"href": "/agents/docs/self-modifying-agents",
+							"icon": "faWandMagicSparkles",
+							"badge": "TODO"
+						}
+					]
 				},
 				{
-					"title": "Session Lifecycle",
-					"href": "/agents/docs/session-lifecycle",
-					"icon": "faArrowsRotate",
-					"badge": "TODO"
+					"title": "Orchestrate",
+					"collapsible": true,
+					"icon": "faCircleNodes",
+					"pages": [
+						{
+							"title": "Subagents",
+							"href": "/agents/docs/subagents",
+							"icon": "faSitemap",
+							"badge": "TODO"
+						},
+						{
+							"title": "Workflows",
+							"href": "/agents/docs/workflows",
+							"icon": "faDiagramProject",
+							"badge": "TODO"
+						},
+						{
+							"title": "Schedules",
+							"href": "/agents/docs/schedules",
+							"icon": "faClock",
+							"badge": "TODO"
+						},
+						{
+							"title": "Approvals",
+							"href": "/agents/docs/approvals",
+							"icon": "faCheck",
+							"badge": "TODO"
+						}
+					]
 				},
 				{
-					"title": "Instructions",
-					"href": "/agents/docs/instructions",
-					"icon": "faScroll",
-					"badge": "TODO"
+					"title": "Security",
+					"collapsible": true,
+					"icon": "faLock",
+					"pages": [
+						{
+							"title": "Tenant Credentials",
+							"href": "/agents/docs/multi-tenant-credentials",
+							"icon": "faBuilding",
+							"badge": "TODO"
+						},
+						{
+							"title": "OAuth Connections",
+							"href": "/agents/docs/oauth-connections",
+							"icon": "faLink",
+							"badge": "TODO"
+						},
+						{
+							"title": "Security Model",
+							"href": "/agents/docs/security-model",
+							"icon": "faShieldHalved",
+							"badge": "TODO"
+						}
+					]
 				},
 				{
-					"title": "Tools",
-					"href": "/agents/docs/tools",
-					"icon": "faWrench",
-					"badge": "TODO"
+					"title": "Production",
+					"collapsible": true,
+					"icon": "faRocket",
+					"pages": [
+						{
+							"title": "Model Routing",
+							"href": "/agents/docs/model-routing",
+							"icon": "faRoute",
+							"badge": "TODO"
+						},
+						{
+							"title": "Evals",
+							"href": "/agents/docs/evals",
+							"icon": "faClipboardCheck",
+							"badge": "TODO"
+						},
+						{
+							"title": "Cost & Token Budgets",
+							"href": "/agents/docs/budgets",
+							"icon": "faCoins",
+							"badge": "TODO"
+						}
+					]
 				},
 				{
-					"title": "MCP Servers",
-					"href": "/agents/docs/mcp-servers",
-					"icon": "faServer",
-					"badge": "TODO"
-				},
-				{
-					"title": "Skills",
-					"href": "/agents/docs/skills",
-					"icon": "faGraduationCap",
-					"badge": "TODO"
-				},
-				{
-					"title": "Subagents",
-					"href": "/agents/docs/subagents",
-					"icon": "faSitemap",
-					"badge": "TODO"
-				},
-				{
-					"title": "OAuth Connections",
-					"href": "/agents/docs/oauth-connections",
-					"icon": "faLink",
-					"badge": "TODO"
-				},
-				{
-					"title": "Security Model",
-					"href": "/agents/docs/security-model",
-					"icon": "faShieldHalved",
-					"badge": "TODO"
+					"title": "Clients",
+					"collapsible": true,
+					"icon": "faLaptopCode",
+					"pages": [
+						{
+							"title": "Client SDK",
+							"href": "/agents/docs/client-sdk",
+							"icon": "faCode",
+							"badge": "TODO"
+						},
+						{
+							"title": "React SDK",
+							"href": "/agents/docs/react-sdk",
+							"icon": "faReact",
+							"badge": "TODO"
+						}
+					]
 				},
 				{
 					"title": "Connectors",
@@ -132,88 +244,6 @@
 							}
 						}
 					]
-				}
-			]
-		},
-		{
-			"title": "Clients",
-			"pages": [
-				{
-					"title": "Client SDK",
-					"href": "/agents/docs/client-sdk",
-					"icon": "faCode",
-					"badge": "TODO"
-				},
-				{
-					"title": "React SDK",
-					"href": "/agents/docs/react-sdk",
-					"icon": "faReact",
-					"badge": "TODO"
-				}
-			]
-		},
-		{
-			"title": "Patterns",
-			"pages": [
-				{
-					"title": "Memory",
-					"href": "/agents/docs/memory",
-					"icon": "faBrain",
-					"badge": "TODO"
-				},
-				{
-					"title": "Tenant Credentials",
-					"href": "/agents/docs/multi-tenant-credentials",
-					"icon": "faBuilding",
-					"badge": "TODO"
-				},
-				{
-					"title": "Approvals",
-					"href": "/agents/docs/approvals",
-					"icon": "faCheck",
-					"badge": "TODO"
-				},
-				{
-					"title": "Model Routing",
-					"href": "/agents/docs/model-routing",
-					"icon": "faRoute",
-					"badge": "TODO"
-				},
-				{
-					"title": "Self-Modifying Agents",
-					"href": "/agents/docs/self-modifying-agents",
-					"icon": "faWandMagicSparkles",
-					"badge": "TODO"
-				},
-				{
-					"title": "Evals",
-					"href": "/agents/docs/evals",
-					"icon": "faClipboardCheck",
-					"badge": "TODO"
-				},
-				{
-					"title": "Browser Automation",
-					"href": "/agents/docs/browser-automation",
-					"icon": "faWindowMaximize",
-					"badge": "TODO"
-				},
-				{
-					"title": "Cost & Token Budgets",
-					"href": "/agents/docs/budgets",
-					"icon": "faCoins",
-					"badge": "TODO"
-				},
-				{
-					"title": "Schedules",
-					"href": "/agents/docs/schedules",
-					"icon": "faClock",
-					"badge": "TODO"
-				},
-				{
-					"title": "Workflows",
-					"href": "/agents/docs/workflows",
-					"icon": "faDiagramProject",
-					"badge": "TODO"
 				}
 			]
 		},
