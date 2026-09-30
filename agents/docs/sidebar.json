@@ -31,14 +31,9 @@
 			"title": "Core",
 			"pages": [
 				{
-					"title": "Session Lifecycle",
-					"href": "/agents/docs/session-lifecycle",
-					"icon": "faArrowsRotate"
-				},
-				{
-					"title": "Built-in Tools",
-					"href": "/agents/docs/built-in-tools",
-					"icon": "faWrench"
+					"title": "Tracing",
+					"href": "/agents/docs/tracing",
+					"icon": "faChartLine"
 				},
 				{
 					"title": "Sandboxes",
@@ -46,19 +41,24 @@
 					"icon": "faHardDrive"
 				},
 				{
-					"title": "Tracing",
-					"href": "/agents/docs/tracing",
-					"icon": "faChartLine"
-				},
-				{
 					"title": "Architecture",
 					"href": "/agents/docs/architecture",
 					"icon": "faLayerGroup"
 				},
 				{
+					"title": "Built-in Tools",
+					"href": "/agents/docs/built-in-tools",
+					"icon": "faWrench"
+				},
+				{
 					"title": "Security Model",
 					"href": "/agents/docs/security-model",
 					"icon": "faShieldHalved"
+				},
+				{
+					"title": "Session Lifecycle",
+					"href": "/agents/docs/session-lifecycle",
+					"icon": "faArrowsRotate"
 				},
 				{
 					"title": "Planned",
