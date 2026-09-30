@@ -86,10 +86,6 @@
 							"title": "Secrets",
 							"href": "/agents/docs/secrets",
 							"badge": "TODO"
-						},
-						{
-							"title": "Subagents",
-							"href": "/agents/docs/subagents"
 						}
 					]
 				},
@@ -98,6 +94,10 @@
 					"collapsible": true,
 					"icon": "faCircleNodes",
 					"pages": [
+						{
+							"title": "Subagents",
+							"href": "/agents/docs/subagents"
+						},
 						{
 							"title": "Workflows",
 							"href": "/agents/docs/workflows"
