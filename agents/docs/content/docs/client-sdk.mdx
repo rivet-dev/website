@@ -8,17 +8,11 @@ TODO
 Call an agent from your backend, a script, or any JavaScript runtime with `rivetkit/client`.
 
 <CodeGroup>
-<CodeSnippet file="examples/client-sdk/main.ts" title="main.ts" />
-<CodeSnippet file="examples/client-sdk/events.ts" title="events.ts" />
 <CodeSnippet file="examples/client-sdk/client.ts" title="client.ts" />
-<CodeSnippet file="examples/client-sdk/actors.ts" title="actors.ts" />
 <CodeSnippet file="examples/client-sdk/server.ts" title="server.ts" />
 </CodeGroup>
 
-- `actors.ts` defines the agent and the registry, and `server.ts` starts it.
-- `client.ts` creates one client for your app, typed by the registry. It reads the endpoint from `RIVET_ENDPOINT`.
-- `events.ts` prints the reply as it streams, along with tool calls and retries.
-- `main.ts` reads the history, connects, sends a prompt, and handles both kinds of error.
+`server.ts` defines the agent. `client.ts` reads the history, connects, streams the reply, and handles both kinds of error.
 
 ## Handles and connections
 

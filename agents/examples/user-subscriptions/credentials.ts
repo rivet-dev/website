@@ -3,18 +3,10 @@ import {
 	InMemoryCredentialStore,
 } from "@earendil-works/pi-ai";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
-import { type PiProviderCredential, pi } from "@rivet-dev/pi";
-import { actor, type Registry, setup } from "rivetkit";
+import type { PiProviderCredential } from "@rivet-dev/pi";
+import { actor } from "rivetkit";
 
-function withoutRefreshToken(
-	credential: Credential | undefined,
-): PiProviderCredential | undefined {
-	if (credential?.type !== "oauth") return credential;
-	const { refresh: _refresh, ...rest } = credential;
-	return rest;
-}
-
-const credentials = actor({
+export const credentials = actor({
 	state: { saved: {} as Record<string, Credential> },
 	actions: {
 		save: (c, provider: string, credential: Credential) => {
@@ -44,12 +36,10 @@ const credentials = actor({
 	},
 });
 
-const agent = pi({
-	model: "anthropic/claude-opus-5-5",
-	credentials: (c) =>
-		c
-			.client<Registry<{ credentials: typeof credentials }>>()
-			.credentials.getOrCreate([c.key[0]]),
-});
-
-export const registry = setup({ use: { credentials, agent } });
+function withoutRefreshToken(
+	credential: Credential | undefined,
+): PiProviderCredential | undefined {
+	if (credential?.type !== "oauth") return credential;
+	const { refresh: _refresh, ...rest } = credential;
+	return rest;
+}

@@ -1,6 +1,9 @@
 import type { AssistantMessage, ToolResultMessage, UserMessage } from "@earendil-works/pi-ai";
+import { createRivetKit } from "@rivetkit/react";
 import { useEffect, useState } from "react";
-import { useActor } from "./rivet";
+import type { registry } from "../pi/server";
+
+const { useActor } = createRivetKit<typeof registry>("http://localhost:6420");
 
 export type ChatItem =
 	| { kind: "message"; id: string; role: "user" | "assistant"; text: string }

@@ -11,7 +11,10 @@ Store each user's logins in a `credentials` Actor and pass it to `pi({ credentia
 - `read` returns a provider's credential. A subscription login never includes its refresh token.
 - `refresh` returns a refreshed credential. Pi calls it when a subscription token expires within five minutes, so the result must stay valid for longer than that.
 
-<CodeSnippet file="examples/credentials/subscription.ts" title="server.ts" />
+<CodeGroup>
+<CodeSnippet file="examples/user-subscriptions/server.ts" title="server.ts" />
+<CodeSnippet file="examples/user-subscriptions/credentials.ts" title="credentials.ts" />
+</CodeGroup>
 
 The agent Actor never receives a refresh token and never writes credentials back. Errors from the `credentials` Actor reject the model call that needed the credential, so keep secrets out of their messages.
 
