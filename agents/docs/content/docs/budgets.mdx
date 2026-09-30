@@ -1,14 +1,26 @@
 ---
 title: "Cost & Token Budgets"
-description: "Track tokens and cost per run and session, and stop an agent that goes over budget."
+description: "Track tokens and cost per run and per session, and stop an agent that goes over budget."
 ---
 
 TODO
 
-Each session tracks its tokens and cost. Check them from your backend to stop an agent that goes over budget.
+Agents don't enforce a budget on their own. Each session tracks its tokens and cost, and each model response reports its own usage, so your backend can stop an agent that spends too much.
 
 <CodeSnippet file="examples/budgets/client.ts" title="client.ts" />
 
-- `getSessionStats` returns the session's token counts and its total cost.
-- Before prompting, the backend checks the session's cost. After each turn, it checks again and calls `abort` once the session is over budget.
-- For a single run, compare the stats from before and after the prompt.
+## How it works
+
+- `getSessionStats` returns the session's tokens (`input`, `output`, `cacheRead`, `cacheWrite`, and `total`) and its `cost`, from the first message on. The backend refuses to start a run once the session is over budget.
+- Each `turn_end` event carries the model response's `usage`. Adding up `usage.cost.total` gives the cost of the run so far. When the run or the session passes its budget, the backend calls `abort`.
+- The check runs after each response, so the response that crosses the budget still finishes. Set budgets a little below your real limit.
+
+## What the cost covers
+
+- Cost is in US dollars, calculated from each model's per-million-token prices for input, output, and cached tokens. Models from a custom provider need their own prices.
+- It covers model calls only, including the summaries made during compaction. Sandbox and hosting costs aren't included.
+- Session stats include messages that were later compacted, so the total covers the whole session.
+
+## Budgets per tenant
+
+To cap spending across all of a tenant's agents, record each run's cost in your own database by tenant, and check the total before prompting.

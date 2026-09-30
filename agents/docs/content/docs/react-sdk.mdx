@@ -5,12 +5,25 @@ description: "Build a chat UI for an agent with React."
 
 TODO
 
-Connect to an agent from React with `@rivetkit/react`.
+Build a chat UI for an agent with `@rivetkit/react`.
 
 <CodeSnippet file="examples/react-sdk/App.tsx" title="App.tsx" />
 
-- `createRivetKit` creates hooks for your registry. `useActor` connects to the agent by name and key.
-- `useEvent` subscribes to the agent's events. The component clears the reply on `agent_start`, appends each text delta, and re-enables the input on `agent_end`.
-- `agent.connection` calls the agent's actions: `prompt` sends a message, and `abort` stops the run.
+## How it works
+
+- `createRivetKit` creates hooks typed by your registry. `useActor` connects to the agent with that name and key. Components that use the same name and key share one connection.
+- Once `agent.connection` exists, the effect loads the conversation with `getMessages`.
+- `useEvent` listens to the agent's events while the component is mounted:
+  - `message_update` streams the reply as text deltas.
+  - `message_end` adds each finished message. Your own prompt arrives this way too, so every open tab shows the same conversation.
+  - `tool_execution_start` and `tool_execution_end` show which tool is running.
+  - `agent_start` and `agent_settled` track whether the agent is working.
+- The form calls `prompt` to start a run. While a run is in progress, it calls `steer` instead, and Stop calls `abort`.
+- The alert shows a rejected action or a model error. See [Client SDK](/agents/docs/client-sdk).
+- `connStatus` is `connecting` until the connection opens, and `disconnected` while it reconnects.
+
+## Things to know
+
+- A message that only calls tools has no text, so the list skips it.
+- To send a login token, add `params` to `useActor`.
 - To switch models from the UI, call `setModel` on the connection. See [Dynamic Configuration](/agents/docs/dynamic-configuration).
-- The hooks are built on the [Client SDK](/agents/docs/client-sdk).

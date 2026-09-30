@@ -1,19 +1,27 @@
 ---
 title: "Instructions"
-description: "Set an agent's system prompt, and add context to a single prompt."
+description: "Set an agent's system prompt and project context, and add context to a single prompt."
 ---
 
 TODO
 
-An agent's instructions come from a resource loader you pass when you define it.
+An agent's system prompt combines the default prompt, your instructions, and project context files. Set them with a resource loader when you define the agent.
 
 <CodeSnippet file="examples/instructions/server.ts" title="server.ts" />
 
-- `appendSystemPrompt` adds your instructions to the default system prompt, which describes the agent's tools. `systemPrompt` replaces the default prompt entirely.
-- The `no*` options stop the loader from reading anything else. Without a loader of your own, the agent reads no context files, skills, or extensions.
-- Remove `noContextFiles` to load `AGENTS.md` and other context files. The loader reads them from the worker's disk, starting at `cwd`, never from the sandbox.
-- `reload()` reads the loader's files. Call it once before defining the agent.
+## How it works
+
+- `appendSystemPrompt` adds your instructions after the default system prompt, which describes the agent's tools. Each entry is text, or a path to a file on the worker. `systemPrompt` replaces the default prompt entirely, tool descriptions included.
+- Context files such as `AGENTS.md` hold project rules. `noContextFiles: true` stops the loader from searching for them, and `agentsFilesOverride` supplies one inline.
+- Remove `noContextFiles` to load `AGENTS.md` and `CLAUDE.md` files from disk: from the Pi agent directory, and from `cwd` and each of its parent folders.
+- The other `no*` options stop the loader from reading extensions, skills, prompt templates, and themes from disk.
+- Call `reload()` before passing the loader. The agent uses it as it is.
+- The loader reads from the worker's disk, never from the sandbox. Every session of this agent gets the same instructions.
+
+## Without a loader
+
+The agent uses the default system prompt and loads no context files, skills, extensions, prompt templates, or themes. It still reads `SYSTEM.md`, which replaces the default prompt, and `APPEND_SYSTEM.md`, which adds to it, from the Pi agent directory on the worker if they exist. The directory is `~/.pi/agent`, or the path in `PI_CODING_AGENT_DIR`.
 
 ## Context for one prompt
 
-To add context to a single prompt, put it in the prompt text, or attach images with `prompt(text, { images })`. The system prompt stays the same.
+Put context for a single turn in the prompt text, or attach images with `prompt(text, { images })`. Each image is `{ type: "image", data, mimeType }`, with the image base64-encoded in `data`. The system prompt stays the same.

@@ -1,17 +1,44 @@
 ---
 title: "Client SDK"
-description: "Call an agent from your backend, scripts, or any JavaScript runtime."
+description: "Call an agent from your backend, scripts, or any JavaScript runtime, and stream its events."
 ---
 
 TODO
 
-Call an agent from any JavaScript runtime with `rivetkit/client`.
+Call an agent from your backend, a script, or any JavaScript runtime with `rivetkit/client`.
 
 <CodeSnippet file="examples/client-sdk/client.ts" title="client.ts" />
 
-- `getOrCreate` finds the agent by key and creates it on first use.
-- `connect()` opens a live connection. Each step of a run arrives as an `event`, such as a text delta or the start of a tool call.
-- `prompt` resolves when the run ends.
-- Calling an action on the handle without connecting sends a single request, like `getMessages` here.
-- The same actions work over HTTP. See the curl tab in the [Quickstart](/agents/docs/quickstart).
-- Protect agents with [authentication](/docs/authentication).
+## Handles and connections
+
+- `getOrCreate` returns a handle to the agent with that key, and creates the agent on first use. Actions called on the handle, like `getMessages`, are single requests.
+- `connect()` opens a live connection that receives the session's events. Actions called before it opens wait until it does.
+- A dropped connection reconnects on its own. `onStatusChange` reports `connecting`, `connected`, and `disconnected`, and `dispose()` closes the connection for good.
+
+## Events
+
+Every event arrives as `event`, with a `type`:
+
+| Type | When it fires |
+| --- | --- |
+| `agent_start`, `agent_end` | A run starts or ends. `agent_settled` follows once the agent is fully idle, after any retry. |
+| `message_update` | The model streams output. `assistantMessageEvent.type` is `text_delta`, `thinking_delta`, or a tool call update. |
+| `message_end` | A message is complete: your prompt, a model reply, or a tool result. |
+| `tool_execution_start`, `tool_execution_end` | A tool starts or finishes. `isError` marks a failure. |
+| `turn_end` | A model response and its tool calls are done. `message.usage` holds its tokens and cost. |
+| `auto_retry_start`, `auto_retry_end` | A failed model call is retried. |
+| `compaction_start`, `compaction_end` | Older messages are summarized to free up context. |
+
+`on` returns a function that removes the listener.
+
+## Results and errors
+
+- `prompt` resolves when the run ends. Read the reply with `getLastAssistantText` or `getMessages`.
+- `prompt` rejects with an `ActorError` when the action itself fails. For example, another prompt is already running (use `steer` or `followUp` instead), the model has no credential (`model_unavailable`), or the run passes the ten-minute action timeout (`action_timed_out`).
+- A model error doesn't reject. The run ends with an assistant message whose `stopReason` is `"error"`, and `errorMessage` explains why.
+
+## Authentication
+
+Pass credentials as connection params, with `params` or, for tokens that refresh, `getParams` in `getOrCreate`. Check them on the agent with `onBeforeConnect` or `createConnState`, which `pi()` accepts like any Actor. See [Authentication](/docs/authentication).
+
+The same actions work over HTTP. See the curl tab in the [Quickstart](/agents/docs/quickstart).
