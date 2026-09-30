@@ -31,6 +31,11 @@
 			"title": "Core",
 			"pages": [
 				{
+					"title": "Session Lifecycle",
+					"href": "/agents/docs/session-lifecycle",
+					"icon": "faArrowsRotate"
+				},
+				{
 					"title": "Sandboxes",
 					"href": "/agents/docs/sandboxes",
 					"icon": "faHardDrive"
@@ -54,11 +59,6 @@
 					"title": "Security Model",
 					"href": "/agents/docs/security-model",
 					"icon": "faShieldHalved"
-				},
-				{
-					"title": "Session Lifecycle",
-					"href": "/agents/docs/session-lifecycle",
-					"icon": "faArrowsRotate"
 				},
 				{
 					"title": "Planned",
