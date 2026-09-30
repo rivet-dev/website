@@ -67,6 +67,6 @@ Clients do not have to do anything. Calling any action on the same key resumes t
 
 ### On sleep and destroy
 
-- **Sleep.** The Actor aborts a run in progress, closes the session, and asks the provider to suspend the sandbox. Every entry written before the abort is kept.
+- **Sleep.** The Actor aborts a run in progress, closes the session, and asks the provider to suspend the sandbox, if the provider supports it. An agentOS VM sleeps on its own instead. Every entry written before the abort is kept.
 - **Crash.** Entries are written as they happen, so the session reopens from the last entry written before the crash.
-- **Destroy.** The Actor closes the session and asks the provider to delete the sandbox.
+- **Destroy.** The Actor closes the session and asks the provider to delete the sandbox, if the provider supports it. An agentOS VM and its files are left in place.

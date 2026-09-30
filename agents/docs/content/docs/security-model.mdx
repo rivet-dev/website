@@ -76,7 +76,7 @@ An agent runs in two places. The agent loop runs in an Actor on your backend, an
 
 ## agentOS
 
-agentOS runs on Rivet, locally and on Rivet Cloud, so it needs no provider account or key.
+agentOS is hosted by Rivet, so it needs no separate provider account. The agent reaches its VM with the same Rivet credentials as your other Actors.
 
 - **One VM per agent.** Each agent's VM is its own agentOS Actor, keyed by the agent's Actor id, and the agent reaches it through Rivet like any other Actor.
 - **Files are durable.** The VM stores its files in its own Actor storage, so they survive sleep. The VM sleeps on its own when idle.

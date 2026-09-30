@@ -38,7 +38,6 @@
 				{
 					"title": "Built-in Tools",
 					"href": "/agents/docs/built-in-tools",
-					"badge": "TODO",
 					"icon": "faWrench"
 				},
 				{
@@ -161,13 +160,11 @@
 					"pages": [
 						{
 							"title": "Client SDK",
-							"href": "/agents/docs/client-sdk",
-							"badge": "TODO"
+							"href": "/agents/docs/client-sdk"
 						},
 						{
 							"title": "React SDK",
-							"href": "/agents/docs/react-sdk",
-							"badge": "TODO"
+							"href": "/agents/docs/react-sdk"
 						}
 					]
 				},
