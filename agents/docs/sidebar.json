@@ -38,35 +38,9 @@
 				},
 				{
 					"title": "Tools",
-					"collapsible": true,
-					"icon": "faToolbox",
-					"pages": [
-						{
-							"title": "Tools",
-							"href": "/agents/docs/tools",
-							"badge": "TODO"
-						},
-						{
-							"title": "MCP Servers",
-							"href": "/agents/docs/mcp-servers",
-							"badge": "TODO"
-						},
-						{
-							"title": "Secrets",
-							"href": "/agents/docs/secrets",
-							"badge": "TODO"
-						},
-						{
-							"title": "OAuth Connections",
-							"href": "/agents/docs/oauth-connections",
-							"badge": "TODO"
-						},
-						{
-							"title": "Browser Automation",
-							"href": "/agents/docs/browser-automation",
-							"badge": "TODO"
-						}
-					]
+					"href": "/agents/docs/tools",
+					"badge": "TODO",
+					"icon": "faWrench"
 				},
 				{
 					"title": "Sandboxes",
@@ -74,29 +48,9 @@
 					"icon": "faHardDrive"
 				},
 				{
-					"title": "Models",
-					"collapsible": true,
-					"icon": "faBrain",
-					"pages": [
-						{
-							"title": "LLM Credentials",
-							"href": "/agents/docs/llm-credentials"
-						},
-						{
-							"title": "User Subscriptions",
-							"href": "/agents/docs/user-subscriptions"
-						},
-						{
-							"title": "Model Routing",
-							"href": "/agents/docs/model-routing",
-							"badge": "TODO"
-						},
-						{
-							"title": "Cost & Token Budgets",
-							"href": "/agents/docs/budgets",
-							"badge": "TODO"
-						}
-					]
+					"title": "LLM Credentials",
+					"href": "/agents/docs/llm-credentials",
+					"icon": "faKey"
 				},
 				{
 					"title": "Tracing",
@@ -146,6 +100,33 @@
 					]
 				},
 				{
+					"title": "Tools",
+					"collapsible": true,
+					"icon": "faToolbox",
+					"pages": [
+						{
+							"title": "MCP Servers",
+							"href": "/agents/docs/mcp-servers",
+							"badge": "TODO"
+						},
+						{
+							"title": "Secrets",
+							"href": "/agents/docs/secrets",
+							"badge": "TODO"
+						},
+						{
+							"title": "OAuth Connections",
+							"href": "/agents/docs/oauth-connections",
+							"badge": "TODO"
+						},
+						{
+							"title": "Browser Automation",
+							"href": "/agents/docs/browser-automation",
+							"badge": "TODO"
+						}
+					]
+				},
+				{
 					"title": "Orchestrate",
 					"collapsible": true,
 					"icon": "faCircleNodes",
@@ -168,6 +149,27 @@
 						{
 							"title": "Approvals",
 							"href": "/agents/docs/approvals",
+							"badge": "TODO"
+						}
+					]
+				},
+				{
+					"title": "Models",
+					"collapsible": true,
+					"icon": "faBrain",
+					"pages": [
+						{
+							"title": "User Subscriptions",
+							"href": "/agents/docs/user-subscriptions"
+						},
+						{
+							"title": "Model Routing",
+							"href": "/agents/docs/model-routing",
+							"badge": "TODO"
+						},
+						{
+							"title": "Cost & Token Budgets",
+							"href": "/agents/docs/budgets",
 							"badge": "TODO"
 						}
 					]
