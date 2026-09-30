@@ -226,8 +226,7 @@
 				},
 				{
 					"title": "Security Model",
-					"href": "/agents/docs/security-model",
-					"badge": "TODO"
+					"href": "/agents/docs/security-model"
 				}
 			]
 		}

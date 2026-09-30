@@ -55,23 +55,21 @@ An agent keeps nothing important in memory. Its session and the id of its sandbo
 
 ### What is stored
 
-Pi stores its state in three tables:
+The Actor's SQLite database holds three things:
 
-| Table | Contents | Written |
+| What | Contents | Written |
 | --- | --- | --- |
-| `pi_session` | The session id, working directory, session header, and Pi settings. | When the session is first created, and when settings change. |
-| `pi_entry` | One row per session entry, as Pi's own JSON, in order. | As Pi appends each entry: every message, tool call, and tool result. |
-| `pi_sandbox` | The sandbox provider's name and the sandbox id. | As soon as the provider creates the sandbox. |
-
-`pi()` owns the Actor's database and creates these tables itself, so it rejects a `db` option.
+| Session | The session id, working directory, and settings. | When the session is first created, and when settings change. |
+| Entries | One row per session entry, in order. | As the agent appends each entry: every message, tool call, and tool result. |
+| Sandbox | The sandbox provider's name and the sandbox id. | As soon as the provider creates the sandbox. |
 
 ### On wake
 
 The first action after the Actor wakes opens the session:
 
-1. It reads the session and every entry from SQLite and rebuilds Pi's session from them. Pi migrates entries written by older versions itself.
+1. It reads the session and every entry from SQLite and rebuilds the session from them.
 2. It reconnects to the stored sandbox by id. If the provider reports that the sandbox is gone, it creates a new one. See [Sandboxes](/agents/docs/sandboxes#how-the-sandbox-is-managed).
-3. It restores the saved settings and the saved model, if that model is still allowed. Otherwise it falls back to the configured `model`.
+3. It restores the saved settings and the saved model, if that model is still allowed. Otherwise it falls back to the agent's configured model.
 
 Clients do not have to do anything. Calling any action on the same key resumes the same conversation.
 
@@ -80,5 +78,3 @@ Clients do not have to do anything. Calling any action on the same key resumes t
 - **Sleep.** The Actor aborts a run in progress, closes the session, and asks the provider to suspend the sandbox. Every entry written before the abort is kept.
 - **Crash.** Entries are written as they happen, so the session reopens from the last entry written before the crash.
 - **Destroy.** The Actor closes the session and asks the provider to delete the sandbox.
-
-Pi actions such as `prompt`, `waitForIdle`, and `compact` can run for a long time, so the Actor's default action timeout is ten minutes instead of one. Set `options.actionTimeout` to change it.
