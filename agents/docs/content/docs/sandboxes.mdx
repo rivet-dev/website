@@ -29,11 +29,11 @@ Without a sandbox, Pi's built-in file and shell tools are turned off and the age
 
 ## Providers
 
-| Provider | Import | SDK | While the Actor sleeps | When the Actor is destroyed |
-| --- | --- | --- | --- | --- |
-| agentOS | `agentOSProvider` from `@rivet-dev/sandbox-adapter/agentos` | None | Sleeps on its own | Left in place |
-| [E2B](https://e2b.dev) | `e2bProvider` from `@rivet-dev/sandbox-adapter/e2b` | `e2b` | Paused | Deleted |
-| [Daytona](https://daytona.io) | `daytonaProvider` from `@rivet-dev/sandbox-adapter/daytona` | `@daytonaio/sdk` | Stopped | Deleted |
+| Provider | SDK | While the Actor sleeps | When the Actor is destroyed |
+| --- | --- | --- | --- |
+| agentOS | None | Sleeps on its own | Left in place |
+| [E2B](https://e2b.dev) | `e2b` | Paused | Deleted |
+| [Daytona](https://daytona.io) | `@daytonaio/sdk` | Stopped | Deleted |
 
 Install the provider's SDK next to the adapter. Its credentials stay on your worker and never enter the sandbox.
 
