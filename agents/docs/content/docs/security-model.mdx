@@ -69,7 +69,7 @@ An agent runs in two places. The agent loop runs in an Actor on your backend, an
 
 ## Where secrets live
 
-- **Model keys stay on your worker.** The agent reads them from the environment, from keys set in code, or from a `credentials` Actor, and uses them only for model calls from the Actor. See [LLM Credentials](/agents/docs/llm-credentials).
+- **Model keys stay on your worker.** The agent reads them from the environment, from keys set in code, or from a `credentials` Actor, and uses them only for model calls from the Actor. See [API Keys](/agents/docs/api-keys).
 - **Local login files are ignored.** The agent never reads a harness's local login or model files on the worker.
 - **Sandbox provider keys stay on your worker.** E2B and Daytona clients run on the worker, and their keys never enter the sandbox.
 - **Subscription logins stay with your application.** With [User Subscriptions](/agents/docs/user-subscriptions), the agent never receives a refresh token and never writes credentials back. Errors from the `credentials` Actor reject the model call that needed them, so keep secrets out of their messages.

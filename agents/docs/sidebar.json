@@ -48,11 +48,6 @@
 					"icon": "faHardDrive"
 				},
 				{
-					"title": "LLM Credentials",
-					"href": "/agents/docs/llm-credentials",
-					"icon": "faKey"
-				},
-				{
 					"title": "Tracing",
 					"href": "/agents/docs/tracing",
 					"icon": "faChartLine"
@@ -118,6 +113,10 @@
 					"collapsible": true,
 					"icon": "faBrain",
 					"pages": [
+						{
+							"title": "API Keys",
+							"href": "/agents/docs/api-keys"
+						},
 						{
 							"title": "User Subscriptions",
 							"href": "/agents/docs/user-subscriptions"

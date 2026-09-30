@@ -5,7 +5,7 @@ description: "Let your users run agents on their own Claude or ChatGPT subscript
 
 Your users can run the agent on their own Claude or ChatGPT subscription, or their own API key, instead of yours.
 
-Store each user's logins in a `credentials` Actor and pass it to `pi({ credentials })`. Your application owns login, storage, and refresh:
+Store each user's logins in a `credentials` Actor and pass it to `pi({ credentials })`. The agent checks it after `apiKeys` and before the environment, as described in [API Keys](/agents/docs/api-keys). Your application owns login, storage, and refresh:
 
 - `list` returns the providers the user has a credential for, without the secrets.
 - `read` returns a provider's credential. A subscription login never includes its refresh token.

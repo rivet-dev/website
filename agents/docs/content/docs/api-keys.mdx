@@ -1,12 +1,12 @@
 ---
-title: "LLM Credentials"
-description: "Give agents model access with environment variables, API keys, or your users' own subscriptions."
+title: "API Keys"
+description: "Give agents model access with your own provider keys, from the environment or in code."
 ---
 
-An agent calls the model from your worker, so its credentials stay in your backend and never enter the sandbox. It looks for a credential in this order:
+An agent calls the model from your worker, so its keys stay in your backend and never enter the sandbox. It looks for a key in this order:
 
 1. `apiKeys` passed to `pi()`.
-2. The `credentials` Actor, when you [bring your users' subscriptions](/agents/docs/user-subscriptions).
+2. The `credentials` Actor, when your users [bring their own subscriptions](/agents/docs/user-subscriptions).
 3. The worker's environment.
 
 <div style="overflow-x:auto">
@@ -54,7 +54,7 @@ An agent calls the model from your worker, so its credentials stay in your backe
 
 The agent never reads Pi's local `~/.pi/agent/auth.json` or `models.json`.
 
-## Quickstart
+## Environment variables
 
 Set the key for your model provider in the environment of the process that runs your Actors:
 
@@ -64,14 +64,12 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 Pi reads the provider-named variable, such as `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `OPENROUTER_API_KEY`. See Pi's [provider list](https://github.com/earendil-works/pi) for the rest.
 
-## API keys
+## Keys in code
 
 Pass `apiKeys` to set keys by provider id in code, for example when they come from a secret manager or differ per deployment. They stay in the Actor's memory and win over every other source.
 
 <CodeSnippet file="examples/credentials/api-keys.ts" title="server.ts" />
 
+## Custom providers
+
 To use a provider Pi does not know, register it with `providers`, in the shape of Pi's `models.json`, and give it a key the same way.
-
-## Bring your subscription
-
-Your users can run the agent on their own Claude or ChatGPT subscription, or their own API key, through a `credentials` Actor. See [User Subscriptions](/agents/docs/user-subscriptions).
