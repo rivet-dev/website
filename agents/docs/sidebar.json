@@ -185,7 +185,8 @@
 				},
 				{
 					"title": "Planned",
-					"href": "/agents/docs/planned"
+					"href": "/agents/docs/planned",
+					"badge": "TODO"
 				}
 			]
 		}
