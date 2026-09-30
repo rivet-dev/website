@@ -1,0 +1,15 @@
+---
+title: "Session Lifecycle"
+description: "How a session starts, streams, compacts, and how to cancel, interrupt, and hook into a prompt."
+---
+
+TODO
+
+{/* Planned outline:
+- Sessions: one session per Actor key, creating and resuming a session, reading history with `getMessages`.
+- A prompt from `prompt` to the end of the run: model calls, tool calls, retries.
+- Streaming: subscribing to Pi's events from a connection (tokens, tool calls, status) and multiple clients watching one session.
+- Cancel and interrupt: `abort`, `steer`, `followUp`, and queued prompts.
+- Compaction: `compact` to summarize long sessions, and when it runs automatically.
+- Hooks for lifecycle and stream events (see Eve hooks and Flue agent hooks).
+*/}

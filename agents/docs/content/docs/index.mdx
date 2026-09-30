@@ -51,6 +51,14 @@ Each agent on Rivet is one [Rivet Actor](/actors/docs). You define the agent onc
 
 Start with the [Quickstart](/agents/docs/quickstart).
 
+## Why Rivet
+
+- **Lightweight.** A running Actor adds about 72 KB of memory on top of the agent's session, and a sleeping agent uses none. Give every user, task, or thread its own agent.
+- **Wakes in milliseconds.** A sleeping agent wakes on its next prompt in about 12 ms, instead of the seconds it takes to boot a container.
+- **Separate from the sandbox.** A sandbox crash does not take the session or retries with it. Swap agentOS, E2B, Daytona, or your own provider without changing the agent. A tool call adds about 10 ms in the same datacenter.
+- **Runs in your backend.** RivetKit is a library, so agents run in your own server next to your database, auth, and code. Tools call your private APIs directly, with no separate agent platform to operate.
+- **Deploy anywhere.** Use [Rivet Cloud](https://dashboard.rivet.dev), [bring your own compute](/docs/deploy/self-host/workers), or [self-host](/docs/deploy/self-host/control-plane) the open-source engine. Workers run on Kubernetes, AWS ECS, Railway, Render, Vercel, Google Cloud Run, AWS Lambda, or any VM.
+
 ## Agents
 
 <CardGroup>

@@ -46,9 +46,33 @@ agentOS runs only on Linux. On macOS, use E2B or Daytona. For another provider, 
 
 <Step title="Send a prompt">
 
+<Tabs>
+<Tab title="TypeScript">
+
 <CodeSnippet file="examples/pi/client.ts" title="client.ts" />
 
-The client waits for Pi to finish, then reads the full reply with `getLastAssistantText()`.
+</Tab>
+<Tab title="curl">
+
+```sh
+URL="http://localhost:6420/gateway/agent/action"
+AGENT="rvt-namespace=default&rvt-method=getOrCreate&rvt-key=support,customer-123&rvt-pool=default"
+
+curl -X POST "$URL/prompt?$AGENT" \
+  -H "Content-Type: application/json" \
+  -d '{"args": ["Inspect the project and summarize its test failures."]}'
+
+curl -X POST "$URL/getLastAssistantText?$AGENT" \
+  -H "Content-Type: application/json" \
+  -d '{"args": []}'
+```
+
+Each action is a `POST` to the gateway with its arguments in `args`. See [Call Action](/docs/api/gateway/call-action).
+
+</Tab>
+</Tabs>
+
+`prompt` waits for Pi to finish, then `getLastAssistantText` reads the full reply.
 
 </Step>
 
