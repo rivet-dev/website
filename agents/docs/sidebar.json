@@ -176,8 +176,7 @@
 			"pages": [
 				{
 					"title": "Architecture",
-					"href": "/agents/docs/architecture",
-					"badge": "TODO"
+					"href": "/agents/docs/architecture"
 				},
 				{
 					"title": "Security Model",
