@@ -101,6 +101,11 @@
 							"title": "Self-Modifying Agents",
 							"href": "/agents/docs/self-modifying-agents",
 							"badge": "TODO"
+						},
+						{
+							"title": "Evals",
+							"href": "/agents/docs/evals",
+							"badge": "TODO"
 						}
 					]
 				},
@@ -156,11 +161,6 @@
 						{
 							"title": "Model Routing",
 							"href": "/agents/docs/model-routing",
-							"badge": "TODO"
-						},
-						{
-							"title": "Evals",
-							"href": "/agents/docs/evals",
 							"badge": "TODO"
 						},
 						{
