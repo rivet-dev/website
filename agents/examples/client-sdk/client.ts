@@ -1,47 +1,6 @@
-import { ActorError, createClient } from "rivetkit/client";
-import type { registry } from "../pi/server";
+import { createClient } from "rivetkit/client";
+import type { registry } from "./actors";
 
-const client = createClient<typeof registry>(
-	process.env.RIVET_ENDPOINT ?? "http://localhost:6420",
-);
-const agent = client.agent.getOrCreate(["support", "customer-123"]);
-
-const history = await agent.getMessages();
-console.log(`${history.length} messages so far`);
-
-const conn = agent.connect();
-conn.onStatusChange((status) => console.log(`[connection ${status}]`));
-
-const unsubscribe = conn.on("event", (event) => {
-	switch (event.type) {
-		case "message_update":
-			if (event.assistantMessageEvent.type === "text_delta") {
-				process.stdout.write(event.assistantMessageEvent.delta);
-			}
-			break;
-		case "tool_execution_start":
-			console.log(`\n> ${event.toolName}`);
-			break;
-		case "tool_execution_end":
-			console.log(event.isError ? "  failed" : "  done");
-			break;
-		case "auto_retry_start":
-			console.log(`\nRetrying (${event.attempt}/${event.maxAttempts}): ${event.errorMessage}`);
-			break;
-	}
+export const client = createClient<typeof registry>({
+	endpoint: process.env.RIVET_ENDPOINT ?? "http://localhost:6420",
 });
-
-try {
-	await conn.prompt("Summarize the README.");
-} catch (error) {
-	if (error instanceof ActorError) console.error(`\n${error.group}.${error.code}: ${error.message}`);
-	else throw error;
-}
-
-const last = (await conn.getMessages()).at(-1);
-if (last?.role === "assistant" && last.stopReason === "error") {
-	console.error(`\nModel error: ${last.errorMessage}`);
-}
-
-unsubscribe();
-await conn.dispose();
