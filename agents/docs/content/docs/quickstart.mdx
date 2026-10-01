@@ -59,7 +59,7 @@ Pi's file and shell tools run in a sandbox. Without one they are disabled.
 npm add @rivet-dev/sandbox-adapter
 ```
 
-<CodeSnippet file="examples/sandboxes/agentos.ts" title="server.ts" />
+<CodeSnippet file="examples/quickstart/server.ts" title="server.ts" />
 
 To use another provider, install its SDK and pass its provider instead. Provider credentials never enter the sandbox.
 
@@ -77,7 +77,7 @@ The agentOS VM gets coreutils, which provides `sh` and the basic commands the ag
 <Tabs>
 <Tab title="TypeScript">
 
-<CodeSnippet file="examples/pi/client.ts" title="client.ts" />
+<CodeSnippet file="examples/quickstart/client.ts" title="client.ts" />
 
 </Tab>
 <Tab title="curl">
@@ -111,3 +111,7 @@ Each action is a `POST` to the gateway with its arguments in `args`. See [Call A
 </Step>
 
 </Steps>
+
+The rest of the Core pages build on this agent.
+
+**Next:** [Session Lifecycle](/agents/docs/session-lifecycle), what happens while the agent answers a prompt.

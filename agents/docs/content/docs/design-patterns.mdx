@@ -1,16 +1,220 @@
 ---
 title: "Design Patterns"
-description: "How to structure an agent app on Rivet: keys, tools, clients, and the Actors around an agent."
+description: "Patterns for agent keys, subagents, agent-to-agent messages, workflows, schedules, and shared credentials."
 ---
 
-TODO
+Each agent is an Actor, so agent apps use the same building blocks as the rest of Rivet: keys pick the agent, and agents call other Actors. These patterns build on the [Quickstart](/agents/docs/quickstart) agent.
 
-{/* Outline:
-- Choosing agent keys: one agent per user, per thread, per task, or per repository. What each key means for sessions, sandboxes, and cost.
-- The backend route in front of agents: authenticate the user, pick the agent key, and apply budgets before prompting.
-- Where each piece of state lives: the session in the agent, shared state in its own Actor, and files in the sandbox.
-- Tools that call Actors: agent-to-agent messages, locks, approvals, and published results.
-- Long work: schedules, workflows, and subagents, and when to use each.
-- Clients: streaming events to a UI, reconnecting, and reading history on load.
-- Cleaning up: destroying agents you no longer need, and what happens to their sandboxes.
-*/}
+## One Agent per Key
+
+The key decides which conversation a prompt continues. Pick it from what the agent should remember:
+
+- **Per user:** one agent remembers everything a user has asked.
+- **Per thread:** each conversation, such as a Slack thread, gets its own session.
+- **Per task:** each job starts fresh. To delete the agent afterwards, give it an action that calls `c.destroy()`, like the researchers below.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 220" role="img" aria-label="Each key reaches its own agent: one for a user, one for a thread, and one for a task." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-keys-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="20" width="180" height="48" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="320" y="20" width="170" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="20" y="86" width="180" height="48" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="320" y="86" width="170" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="20" y="152" width="180" height="48" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="320" y="152" width="170" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M201 44 L318 44" marker-end="url(#dp-keys-arrow)"/>
+    <path d="M201 110 L318 110" marker-end="url(#dp-keys-arrow)"/>
+    <path d="M201 176 L318 176" marker-end="url(#dp-keys-arrow)"/>
+  </g>
+  <text x="110" y="49" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;user&quot;, id]</text>
+  <text x="405" y="41" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="405" y="58" text-anchor="middle" font-size="12" fill="#56524a">remembers the user</text>
+  <text x="259.5" y="37" text-anchor="middle" font-size="12" fill="#56524a">getOrCreate</text>
+  <text x="110" y="115" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;thread&quot;, id]</text>
+  <text x="405" y="107" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="405" y="124" text-anchor="middle" font-size="12" fill="#56524a">one conversation</text>
+  <text x="259.5" y="103" text-anchor="middle" font-size="12" fill="#56524a">getOrCreate</text>
+  <text x="110" y="181" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;task&quot;, id]</text>
+  <text x="405" y="173" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="405" y="190" text-anchor="middle" font-size="12" fill="#56524a">one job</text>
+  <text x="259.5" y="169" text-anchor="middle" font-size="12" fill="#56524a">getOrCreate</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/agent-per-key.ts" title="keys.ts" />
+
+Each key also gets its own sandbox, so files don't leak between users, threads, or tasks.
+
+## Lead Agent with Subagents
+
+A lead agent splits a question into parts and gives each part to a new agent, then waits for their answers. Each researcher is destroyed once its answer is read.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 200" role="img" aria-label="The lead agent&#x27;s tool prompts several researcher agents at once, reads each answer, and destroys each researcher." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-subagents-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="72" width="150" height="56" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="16" width="150" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="78" width="150" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="140" width="150" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M171 100 L260 100 L260 38 L328 38" marker-end="url(#dp-subagents-arrow)"/>
+    <path d="M171 100 L328 100" marker-end="url(#dp-subagents-arrow)"/>
+    <path d="M171 100 L260 100 L260 162 L328 162" marker-end="url(#dp-subagents-arrow)"/>
+  </g>
+  <text x="95" y="105" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Lead agent</text>
+  <text x="405" y="43" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="405" y="105" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="405" y="167" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="215" y="93" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+  <text x="496" y="96" text-anchor="start" font-size="12" fill="#56524a">answer, finish()</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/subagents.ts" title="ask.ts" />
+
+See [Subagents](/agents/docs/subagents) for the full example.
+
+## Agents Messaging Each Other
+
+When an agent hands work off and doesn't need the answer, it sends a message instead of waiting. The receiving agent schedules its own prompt, so the message survives the sender going away.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 130" role="img" aria-label="The coder agent calls requestReview on the reviewer agent for the repository and returns right away." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-messaging-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="40" width="150" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="380" y="40" width="190" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M171 66 L378 66" marker-end="url(#dp-messaging-arrow)"/>
+  </g>
+  <text x="95" y="71" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Coder agent</text>
+  <text x="475" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Reviewer agent</text>
+  <text x="475" y="80" text-anchor="middle" font-size="12" fill="#56524a">key: repository</text>
+  <text x="274.5" y="59" text-anchor="middle" font-size="12" fill="#56524a">requestReview()</text>
+  <text x="274.5" y="82" text-anchor="middle" font-size="12" fill="#56524a">returns right away</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/messaging.ts" title="reviewer.ts" />
+
+See [Agent-to-Agent Messages](/agents/docs/agent-to-agent).
+
+## Agent as a Workflow Step
+
+When the work has fixed steps, waits, or retries, let a workflow drive the agent. Each step calls `abort` first, so a retried step doesn't collide with a run the previous attempt left going.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 130" role="img" aria-label="A workflow step prompts an agent. The workflow retries the step if it throws." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-workflow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="40" width="170" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="380" y="40" width="150" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M191 66 L378 66" marker-end="url(#dp-workflow-arrow)"/>
+  </g>
+  <text x="105" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Workflow step</text>
+  <text x="105" y="80" text-anchor="middle" font-size="12" fill="#56524a">triage</text>
+  <text x="455" y="71" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="284.5" y="59" text-anchor="middle" font-size="12" fill="#56524a">abort, prompt</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/workflow.ts" title="workflow.ts" />
+
+See [Workflows](/agents/docs/workflows).
+
+## Scheduled Agents
+
+An agent can wake itself on a schedule and sleep between runs.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 130" role="img" aria-label="A cron schedule on the agent calls its prompt action every morning." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-schedule-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="40" width="170" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="380" y="40" width="150" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M191 66 L378 66" marker-end="url(#dp-schedule-arrow)"/>
+  </g>
+  <text x="105" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Cron</text>
+  <text x="105" y="80" text-anchor="middle" font-size="12" fill="#56524a">0 9 * * *</text>
+  <text x="455" y="63" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="455" y="80" text-anchor="middle" font-size="12" fill="#56524a">asleep between runs</text>
+  <text x="284.5" y="59" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/schedule.ts" title="server.ts" />
+
+See [Schedules](/agents/docs/schedules).
+
+## Credentials Shared per Tenant
+
+Start agent keys with the tenant id, and pick the `credentials` Actor from it. Every agent in a tenant shares one set of model logins, and never sees another tenant's.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 600 220" role="img" aria-label="Agents keyed acme/alice and acme/bob share the acme credentials Actor. The agent keyed globex/carol uses the globex credentials Actor." style="width:100%;min-width:520px;max-width:600px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="dp-tenant-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="20" width="170" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="20" y="84" width="170" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="20" y="156" width="170" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="370" y="52" width="200" height="44" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="370" y="156" width="200" height="44" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M191 42 L300 42 L300 74 L368 74" marker-end="url(#dp-tenant-arrow)"/>
+    <path d="M191 106 L300 106 L300 74"/>
+    <path d="M191 178 L368 178" marker-end="url(#dp-tenant-arrow)"/>
+  </g>
+  <text x="105" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;acme&quot;, &quot;alice&quot;]</text>
+  <text x="105" y="111" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;acme&quot;, &quot;bob&quot;]</text>
+  <text x="105" y="183" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916" font-family="ui-monospace,monospace">[&quot;globex&quot;, &quot;carol&quot;]</text>
+  <text x="470" y="79" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">credentials acme</text>
+  <text x="470" y="183" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">credentials globex</text>
+</svg>
+</div>
+
+<CodeSnippet file="examples/design-patterns/tenant-credentials.ts" title="server.ts" />
+
+See [User Subscriptions](/agents/docs/user-subscriptions).
+
+## Anti-Patterns
+
+### One Agent for Every User
+
+An agent runs one prompt at a time. With a single key for everyone, a prompt from one user throws while another user's prompt is running, and every user shares one session.
+
+<CodeSnippet file="examples/design-patterns/one-agent.ts" title="answer.ts" />
+
+**Solution:** Key the agent by user, thread, or task.
+
+### A New Key per Request
+
+A new key creates a new agent with an empty session, so the agent forgets the conversation after every message and leaves an Actor behind.
+
+<CodeSnippet file="examples/design-patterns/key-per-request.ts" title="answer.ts" />
+
+**Solution:** Reuse the key of the conversation the message belongs to.
+
+## Where to Go Next
+
+| Goal | Read |
+| --- | --- |
+| Give the agent your own APIs | [Custom Tools](/agents/docs/custom-tools) |
+| Let the agent run commands and edit files | [Sandboxes](/agents/docs/sandboxes), then [Built-in Tools](/agents/docs/built-in-tools) |
+| Run agents on your users' own subscriptions | [User Subscriptions](/agents/docs/user-subscriptions) |
+| Wait for a person before a risky action | [Human in the Loop](/agents/docs/human-in-the-loop) |
+| Share a result through a link | [Scoped Access with JWTs](/agents/docs/scoped-access) |
+| Talk to users in Slack, Linear, GitHub, or Discord | [Slack](/agents/docs/connectors/slack) and the other connectors |
+| Build a chat UI | [React SDK](/agents/docs/react-sdk) |
+| Cap what agents spend | [Cost & Token Budgets](/agents/docs/budgets) |
+| Secure and deploy agents | [Security Model](/agents/docs/security-model), then [Deploy](/docs/deploy) |

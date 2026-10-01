@@ -12,52 +12,61 @@ A session is one agent's conversation. Each agent key has exactly one session, a
 - Survives sleep, crashes, and deploys. See [Architecture](/agents/docs/architecture).
 
 <div style="overflow-x:auto">
-<svg viewBox="0 0 670 384" role="img" aria-label="One prompt in order: 1, the client sends prompt. 2, the agent emits turn_start. 3, message_update events stream text deltas. 4, a tool runs in the sandbox, between tool_execution_start and tool_execution_end. 5, turn_end carries the response&#x27;s usage. Steps 2 to 5 repeat for each model response. 6, agent_end ends the run." style="width:100%;min-width:520px;max-width:670px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+<svg viewBox="0 0 640 456" role="img" aria-label="One prompt in order. 1, the client calls prompt. Then the agent sends events to the client: 2, turn_start. 3, message_update with text deltas. 4, tool_execution_start. The agent runs the tool in the sandbox. 5, tool_execution_end. 6, turn_end. 7, agent_end. Steps 2 to 6 repeat for each model response. When the context fills up, compaction_start and compaction_end arrive before the next turn." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
     <marker id="session-events-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
   </defs>
-  <rect x="70" y="20" width="120" height="44" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <rect x="310" y="20" width="140" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
-  <rect x="530" y="20" width="120" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
-  <circle cx="34" cy="100" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <circle cx="34" cy="140" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <circle cx="34" cy="180" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <circle cx="34" cy="220" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <circle cx="34" cy="260" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <circle cx="34" cy="310" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="40" y="20" width="120" height="44" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="290" y="20" width="140" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="500" y="20" width="120" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
   <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
-    <path d="M130 66 L130 332" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M380 66 L380 332" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M590 66 L590 332" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M131 100 L378 100" marker-end="url(#session-events-arrow)"/>
-    <path d="M379 140 L132 140" marker-end="url(#session-events-arrow)"/>
-    <path d="M379 180 L132 180" marker-end="url(#session-events-arrow)"/>
-    <path d="M379 220 L132 220" marker-end="url(#session-events-arrow)"/>
-    <path d="M379 260 L132 260" marker-end="url(#session-events-arrow)"/>
-    <path d="M379 310 L132 310" marker-end="url(#session-events-arrow)"/>
-    <path d="M381 220 L588 220" marker-end="url(#session-events-arrow)"/>
-    <path d="M14 134 L8 134 L8 266 L14 266" stroke-width="1"/>
+    <path d="M100 66 L100 440" stroke-dasharray="5 4" stroke-width="1"/>
+    <path d="M360 66 L360 440" stroke-dasharray="5 4" stroke-width="1"/>
+    <path d="M560 66 L560 440" stroke-dasharray="5 4" stroke-width="1"/>
+    <path d="M101 100 L358 100" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 140 L102 140" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 180 L102 180" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 220 L102 220" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 300 L102 300" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 340 L102 340" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 424 L102 424" marker-end="url(#session-events-arrow)"/>
+    <path d="M361 260 L558 260" marker-end="url(#session-events-arrow)"/>
+    <path d="M359 382 L102 382" marker-end="url(#session-events-arrow)" stroke-dasharray="5 4"/>
+    <path d="M78 134 L72 134 L72 346 L78 346" stroke-width="1"/>
   </g>
-  <text x="130" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
-  <text x="380" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
-  <text x="590" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox</text>
-  <text x="255" y="93" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">prompt</text>
-  <text x="34" y="104" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">1</text>
-  <text x="255" y="133" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_start</text>
-  <text x="34" y="144" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">2</text>
-  <text x="255" y="173" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">message_update: text deltas</text>
-  <text x="34" y="184" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">3</text>
-  <text x="255" y="213" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">tool_execution_start, _end</text>
-  <text x="34" y="224" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">4</text>
-  <text x="255" y="253" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_end: usage</text>
-  <text x="34" y="264" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">5</text>
-  <text x="255" y="303" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">agent_end</text>
-  <text x="34" y="314" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">6</text>
-  <text x="485" y="213" text-anchor="middle" font-size="12" fill="#56524a">run the tool</text>
-  <text x="20" y="360" text-anchor="start" font-size="11" fill="#56524a">Steps 2 to 5 repeat for each model response. When the context fills up, compaction_start</text>
-  <text x="20" y="376" text-anchor="start" font-size="11" fill="#56524a">and compaction_end wrap a summary of older messages, and the run continues.</text>
+  <text x="100" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
+  <text x="360" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="560" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox</text>
+  <text x="242" y="93" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">prompt</text>
+  <circle cx="134" cy="100" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="104" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">1</text>
+  <text x="242" y="133" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_start</text>
+  <circle cx="134" cy="140" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="144" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">2</text>
+  <text x="242" y="173" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">message_update: deltas</text>
+  <circle cx="134" cy="180" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="184" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">3</text>
+  <text x="242" y="213" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">tool_execution_start</text>
+  <circle cx="134" cy="220" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="224" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">4</text>
+  <text x="242" y="293" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">tool_execution_end</text>
+  <circle cx="134" cy="300" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="304" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">5</text>
+  <text x="242" y="333" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_end</text>
+  <circle cx="134" cy="340" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="344" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">6</text>
+  <text x="242" y="417" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">agent_end</text>
+  <circle cx="134" cy="424" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <text x="134" y="428" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">7</text>
+  <text x="460" y="253" text-anchor="middle" font-size="12" fill="#56524a">run the tool</text>
+  <text x="242" y="375" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">compaction_start, _end</text>
+  <text x="372" y="386" text-anchor="start" font-size="11" fill="#56524a">when the context fills up</text>
+  <text x="64" y="236" text-anchor="end" font-size="11" fill="#56524a">2 to 6</text>
+  <text x="64" y="250" text-anchor="end" font-size="11" fill="#56524a">per turn</text>
 </svg>
 </div>
+
+This client connects to the [Quickstart](/agents/docs/quickstart) agent, sends one prompt, and prints the events it receives:
 
 <CodeSnippet file="examples/session-lifecycle/client.ts" title="client.ts" />
 
@@ -93,3 +102,5 @@ While a run is in progress:
 
 - When the context fills up, the agent summarizes older messages and keeps going. Call `compact` to do it yourself. It cancels the run in progress first.
 - A failed model call is retried automatically. If it keeps failing, the run ends with an assistant message whose `stopReason` is `"error"`, and the session is kept.
+
+**Next:** [Sandboxes](/agents/docs/sandboxes), where the agent's tool calls run.

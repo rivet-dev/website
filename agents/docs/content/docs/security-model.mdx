@@ -1,9 +1,7 @@
 ---
 title: "Security Model"
-description: "What runs where, what the agent can reach, and where secrets live."
+description: "What reaches the sandbox, where secrets live, and who can connect to an agent."
 ---
-
-An agent runs in two places. The agent loop runs in an Actor on your backend, and the commands the model chooses run in a sandbox. Everything that needs a secret stays on the backend side.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 644 272" role="img" aria-label="Authenticated clients call the agent Actor in your trusted backend. The Actor holds the agent loop and model keys, stores the session in SQLite, and calls the model provider. It sends tool calls to an untrusted sandbox with a shell and files, and no secrets cross into the sandbox." style="width:100%;min-width:520px;max-width:644px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -53,47 +51,25 @@ An agent runs in two places. The agent loop runs in an Actor on your backend, an
 </svg>
 </div>
 
-## Trust boundaries
-
-- **Your backend is trusted.** The agent loop, model calls, credentials, and the session live in the agent's Actor on your workers. Custom tools you give the agent run here too, so they can reach private APIs and databases with credentials the model never sees.
-- **The sandbox is untrusted.** The model's file and shell tools run in the sandbox. Nothing the model runs executes on your worker.
-- **Clients must be authenticated.** A client that can connect to an agent can prompt it and read its session. See [Clients and access](#clients-and-access).
+The agent loop runs in an Actor on your backend, and the commands the model chooses run in a sandbox. Everything that needs a secret stays in your backend.
 
 ## What reaches the sandbox
 
-- **Only tool calls.** The sandbox receives commands to run and files to read or write. Each agent has its own sandbox, and agents never share one.
-- **No environment from your worker.** Commands run with the sandbox's own environment. Your worker's environment variables, which hold your provider keys, are never forwarded.
-- **Paths stay in the working directory.** File tools resolve paths against the sandbox's working directory and reject paths that escape it. Shell commands can reach anything inside the sandbox, so the sandbox itself is the boundary.
-- **No sandbox, no file or shell tools.** Without a sandbox, the agent only has the custom tools you pass. It never falls back to running file or shell tools on your worker.
-- **Nothing loaded from your worker's disk.** The agent does not load plugins, skills, prompt templates, or instruction files from the worker unless you configure them.
+- Only tool calls: commands to run, and files to read or write. Each agent has its own sandbox.
+- Not your worker's environment. Commands run with the sandbox's own environment.
+- File tools reject paths outside the working directory. Shell commands can reach anything inside the sandbox, so the sandbox itself is the boundary.
+- Without a sandbox, the agent has no file or shell tools. They never fall back to running on your worker.
+- An agentOS VM keeps its files after the agent is destroyed, so delete them with the rest of a user's data.
 
 ## Where secrets live
 
-- **Model keys stay on your worker.** The agent reads them from the environment, from keys set in code, or from a `credentials` Actor, and uses them only for model calls from the Actor. See [API Keys](/agents/docs/api-keys).
-- **Local login files are ignored.** The agent never reads a harness's local login or model files on the worker.
-- **Sandbox provider keys stay on your worker.** E2B and Daytona clients run on the worker, and their keys never enter the sandbox.
-- **Subscription logins stay with your application.** With [User Subscriptions](/agents/docs/user-subscriptions), the agent never receives a refresh token and never writes credentials back. Errors from the `credentials` Actor reject the model call that needed them, so keep secrets out of their messages.
+- Model keys, sandbox provider keys, and the secrets your [custom tools](/agents/docs/custom-tools) use stay on your worker. The model and the sandbox never see them.
+- [User subscription](/agents/docs/user-subscriptions) logins stay in your `credentials` Actor. The agent never receives a refresh token.
+- The session stores every message and tool result, and connected clients receive them, so keep secrets out of tool results and error messages.
+- [Traces](/agents/docs/observability) never record prompt text, tool arguments, or tool results.
 
-## agentOS
+## Who can connect
 
-agentOS is hosted by Rivet, so it needs no separate provider account. The agent reaches its VM with the same Rivet credentials as your other Actors.
-
-- **One VM per agent.** Each agent's VM is its own agentOS Actor, keyed by the agent's Actor id, and the agent reaches it through Rivet like any other Actor.
-- **Files are durable.** The VM stores its files in its own Actor storage, so they survive sleep. The VM sleeps on its own when idle.
-- **Destroying an agent keeps its VM.** The VM and its files stay in place after the agent is destroyed, so account for them when you delete a user's data.
-
-## Clients and access
-
-- **Protect agent Actors.** Anyone who can connect to an agent can call its actions and receives every session event, including tool output. Add [authentication](/docs/authentication) and check that the caller may use the agent's key. Actor keys are not secret.
-- **Protect the `credentials` Actor.** Its actions return provider tokens, so it needs authentication as well.
-
-## Data at rest and in traces
-
-- **The session is stored in full.** Every message, tool call, and tool result is written to the Actor's SQLite database. See [Durability](/agents/docs/architecture#durability).
-- **Traces leave content out.** Agent spans record the run's model and outcome, never prompt text, tool arguments, or tool results. See [Observability](/agents/docs/observability).
-
-{/* Still planned:
-- Permissions and approvals enforced in the backend, where the agent cannot work around them.
-- Audit logs written from outside the sandbox.
-- Network access from the sandbox.
-*/}
+- Anyone who can connect to an agent can prompt it and read its whole session. Add [authentication](/docs/authentication) and check that the caller may use the agent's key. Keys aren't secret.
+- Protect the `credentials` Actor the same way, because its actions return provider tokens.
+- Give a browser a short-lived token for one agent instead of your Rivet credentials. See [Client SDK](/agents/docs/client-sdk#browsers).

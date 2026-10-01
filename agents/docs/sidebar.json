@@ -53,8 +53,7 @@
 				{
 					"title": "Design Patterns",
 					"href": "/agents/docs/design-patterns",
-					"icon": "faDiagramProject",
-					"badge": "TODO"
+					"icon": "faDiagramProject"
 				}
 			]
 		},

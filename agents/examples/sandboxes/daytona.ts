@@ -8,3 +8,5 @@ const agent = pi({
 });
 
 export const registry = setup({ use: { agent } });
+
+registry.start();

@@ -66,10 +66,12 @@ Pi reads the provider-named variable, such as `ANTHROPIC_API_KEY`, `OPENAI_API_K
 
 ## Keys in code
 
-Pass `apiKeys` to set keys by provider id in code, for example when they come from a secret manager or differ per deployment. They stay in the Actor's memory and win over every other source.
+Pass `apiKeys` to set keys by provider id in code, for example when they come from a secret manager or differ per deployment. Here it's added to the [Quickstart](/agents/docs/quickstart) agent. The keys stay in the Actor's memory and win over every other source.
 
 <CodeSnippet file="examples/credentials/api-keys.ts" title="server.ts" />
 
 ## Custom providers
 
 To use a provider Pi does not know, register it with `providers`, in the shape of Pi's `models.json`, and give it a key the same way.
+
+**Next:** [Custom Tools](/agents/docs/custom-tools), tools that run in your backend.

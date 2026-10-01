@@ -3,7 +3,7 @@ title: "Custom Tools"
 description: "Give an agent tools that run in your backend, with access to your APIs and secrets."
 ---
 
-A custom tool is a function the model can call. It runs in the agent Actor on your worker, next to your server code, so it can use your APIs and secrets.
+A custom tool is a function the model can call. It runs in the agent Actor on your worker, next to your server code, so it can use your APIs and secrets. This page adds a tool to the [Quickstart](/agents/docs/quickstart) agent.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 660 206" role="img" aria-label="The model calls get_order. The tool runs in the agent Actor on your backend, calls the orders API with a token from the worker&#x27;s environment, and returns the result to the model." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -32,7 +32,10 @@ A custom tool is a function the model can call. It runs in the agent Actor on yo
 </svg>
 </div>
 
+<CodeGroup>
+<CodeSnippet file="examples/custom-tools/get-order.ts" title="get-order.ts" />
 <CodeSnippet file="examples/custom-tools/server.ts" title="server.ts" />
+</CodeGroup>
 
 The model reads the tool's `description` and calls it with arguments that match `parameters`. It reads `content` as the result, while `details` goes to clients for your UI. A thrown error, like the 404 in `fetchOrder`, becomes an error result: the model reads the message and can try something else. `signal` aborts when the run is cancelled, so a Stop from the client also cancels the request.
 
@@ -49,4 +52,6 @@ The model reads the tool's `description` and calls it with arguments that match 
 
 Tool results and error messages are stored in the session and sent to every connected client, so keep secrets out of both. Model keys work differently. See [API Keys](/agents/docs/api-keys).
 
-Custom tools work with or without a sandbox. To let the model run commands and edit files too, see [Sandboxes](/agents/docs/sandboxes) and [Built-in Tools](/agents/docs/built-in-tools).
+The agent keeps its sandbox, so the model can call `get_order` next to the [built-in tools](/agents/docs/built-in-tools). Custom tools also work without a sandbox.
+
+**Next:** [Design Patterns](/agents/docs/design-patterns), how to combine agents with other Actors.
