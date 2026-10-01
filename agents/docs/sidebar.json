@@ -74,11 +74,6 @@
 							"href": "/agents/docs/user-subscriptions"
 						},
 						{
-							"title": "Cost & Token Budgets",
-							"href": "/agents/docs/budgets",
-							"badge": "TODO"
-						},
-						{
 							"title": "Observability",
 							"href": "/agents/docs/observability"
 						},
