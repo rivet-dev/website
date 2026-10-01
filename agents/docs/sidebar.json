@@ -78,6 +78,18 @@
 							"title": "Cost & Token Budgets",
 							"href": "/agents/docs/budgets",
 							"badge": "TODO"
+						},
+						{
+							"title": "Observability",
+							"href": "/agents/docs/observability"
+						},
+						{
+							"title": "Architecture",
+							"href": "/agents/docs/architecture"
+						},
+						{
+							"title": "Security Model",
+							"href": "/agents/docs/security-model"
 						}
 					]
 				},
@@ -160,23 +172,6 @@
 							"href": "/agents/docs/connectors/discord"
 						}
 					]
-				}
-			]
-		},
-		{
-			"title": "Reference",
-			"pages": [
-				{
-					"title": "Observability",
-					"href": "/agents/docs/observability"
-				},
-				{
-					"title": "Architecture",
-					"href": "/agents/docs/architecture"
-				},
-				{
-					"title": "Security Model",
-					"href": "/agents/docs/security-model"
 				}
 			]
 		}
