@@ -12,57 +12,29 @@ A session is one agent's conversation. Each agent key has exactly one session, a
 - Survives sleep, crashes, and deploys. See [Architecture](/agents/docs/architecture).
 
 <div style="overflow-x:auto">
-<svg viewBox="0 0 640 456" role="img" aria-label="One prompt in order. 1, the client calls prompt. Then the agent sends events to the client: 2, turn_start. 3, message_update with text deltas. 4, tool_execution_start. The agent runs the tool in the sandbox. 5, tool_execution_end. 6, turn_end. 7, agent_end. Steps 2 to 6 repeat for each model response. When the context fills up, compaction_start and compaction_end arrive before the next turn." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+<svg viewBox="0 0 640 132" role="img" aria-label="A client sends a prompt to the agent&#x27;s session. The agent calls the model, runs the tools it asks for in the sandbox, and repeats until the model stops calling tools. Events stream back to the client the whole time." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
     <marker id="session-events-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
   </defs>
-  <rect x="40" y="20" width="120" height="44" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <rect x="290" y="20" width="140" height="44" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
-  <rect x="500" y="20" width="120" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <rect x="20" y="20" width="120" height="56" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="250" y="20" width="150" height="56" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="500" y="20" width="120" height="56" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
   <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
-    <path d="M100 66 L100 440" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M360 66 L360 440" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M560 66 L560 440" stroke-dasharray="5 4" stroke-width="1"/>
-    <path d="M101 100 L358 100" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 140 L102 140" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 180 L102 180" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 220 L102 220" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 300 L102 300" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 340 L102 340" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 424 L102 424" marker-end="url(#session-events-arrow)"/>
-    <path d="M361 260 L558 260" marker-end="url(#session-events-arrow)"/>
-    <path d="M359 382 L102 382" marker-end="url(#session-events-arrow)" stroke-dasharray="5 4"/>
-    <path d="M78 134 L72 134 L72 346 L78 346" stroke-width="1"/>
+    <path d="M141 36 L248 36" marker-end="url(#session-events-arrow)"/>
+    <path d="M249 60 L142 60" marker-end="url(#session-events-arrow)" stroke-dasharray="5 4"/>
+    <path d="M401 36 L498 36" marker-end="url(#session-events-arrow)"/>
+    <path d="M499 60 L402 60" marker-end="url(#session-events-arrow)"/>
   </g>
-  <text x="100" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
-  <text x="360" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
-  <text x="560" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox</text>
-  <text x="242" y="93" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">prompt</text>
-  <circle cx="134" cy="100" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="104" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">1</text>
-  <text x="242" y="133" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_start</text>
-  <circle cx="134" cy="140" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="144" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">2</text>
-  <text x="242" y="173" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">message_update: deltas</text>
-  <circle cx="134" cy="180" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="184" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">3</text>
-  <text x="242" y="213" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">tool_execution_start</text>
-  <circle cx="134" cy="220" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="224" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">4</text>
-  <text x="242" y="293" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">tool_execution_end</text>
-  <circle cx="134" cy="300" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="304" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">5</text>
-  <text x="242" y="333" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">turn_end</text>
-  <circle cx="134" cy="340" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="344" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">6</text>
-  <text x="242" y="417" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">agent_end</text>
-  <circle cx="134" cy="424" r="10" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
-  <text x="134" y="428" text-anchor="middle" font-size="11" fill="#1b1916" font-weight="700">7</text>
-  <text x="460" y="253" text-anchor="middle" font-size="12" fill="#56524a">run the tool</text>
-  <text x="242" y="375" text-anchor="middle" font-size="12" fill="#56524a" font-family="ui-monospace,monospace">compaction_start, _end</text>
-  <text x="372" y="386" text-anchor="start" font-size="11" fill="#56524a">when the context fills up</text>
-  <text x="64" y="236" text-anchor="end" font-size="11" fill="#56524a">2 to 6</text>
-  <text x="64" y="250" text-anchor="end" font-size="11" fill="#56524a">per turn</text>
+  <text x="80" y="53" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
+  <text x="325" y="45" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent</text>
+  <text x="325" y="62" text-anchor="middle" font-size="12" fill="#56524a">calls the model</text>
+  <text x="560" y="45" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox</text>
+  <text x="560" y="62" text-anchor="middle" font-size="12" fill="#56524a">runs tools</text>
+  <text x="194.5" y="29" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+  <text x="195.5" y="76" text-anchor="middle" font-size="12" fill="#56524a">events</text>
+  <text x="449.5" y="29" text-anchor="middle" font-size="12" fill="#56524a">tool call</text>
+  <text x="450.5" y="76" text-anchor="middle" font-size="12" fill="#56524a">result</text>
+  <text x="325" y="116" text-anchor="middle" font-size="12" fill="#56524a">repeats until the model stops calling tools</text>
 </svg>
 </div>
 
