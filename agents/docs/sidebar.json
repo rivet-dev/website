@@ -100,8 +100,7 @@
 						},
 						{
 							"title": "Human in the Loop",
-							"href": "/agents/docs/human-in-the-loop",
-							"badge": "TODO"
+							"href": "/agents/docs/human-in-the-loop"
 						}
 					]
 				},
