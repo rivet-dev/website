@@ -1,9 +1,7 @@
 import { createClient } from "rivetkit/client";
 import type { registry } from "./server";
 
-const client = createClient<typeof registry>({
-	endpoint: process.env.RIVET_ENDPOINT ?? "http://localhost:6420",
-});
+const client = createClient<typeof registry>();
 const reviewer = client.reviewer.getOrCreate(["pr-123"]);
 
 const checkout = await reviewer.executeBash(

@@ -2,11 +2,7 @@ import { Hono } from "hono";
 import { createClient } from "rivetkit/client";
 import type { registry } from "./server";
 
-const admin = createClient<typeof registry>({
-	endpoint: process.env.RIVET_ENDPOINT,
-	namespace: process.env.RIVET_NAMESPACE,
-	token: process.env.RIVET_ADMIN_TOKEN,
-});
+const admin = createClient<typeof registry>();
 
 async function authenticateUser(request: Request): Promise<string | null> {
 	return request.headers.get("x-user-id");

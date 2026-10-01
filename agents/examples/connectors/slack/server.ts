@@ -1,17 +1,20 @@
 import { pi } from "@rivet-dev/pi";
-import { agentOSProvider } from "@rivet-dev/sandbox-adapter/agentos";
 import { Hono } from "hono";
 import { setup } from "rivetkit";
-import { slack } from "./slack";
-
-const coreutils = {
-	url: "https://unpkg.com/@agentos-software/coreutils@0.3.5/dist/package.aospkg",
-	digest: "sha256:a291a48ce90b0ad12d3937e771d9aaec37b289c1f5b047fe3d1d61151dbeee51",
-};
+import { postReply, slack, type SlackThread } from "./slack";
 
 const agent = pi({
 	model: "anthropic/claude-opus-5-5",
-	sandbox: agentOSProvider({ software: [coreutils] }),
+	actions: {
+		receive: async (c, thread: SlackThread) => {
+			await c.schedule.after(0, "reply", thread);
+		},
+		reply: async (c, thread: SlackThread): Promise<void> => {
+			const self = c.client<typeof registry>().agent.getForId(c.actorId);
+			await self.prompt(thread.text);
+			await postReply(thread, await self.getLastAssistantText());
+		},
+	},
 });
 
 export const registry = setup({ use: { agent } });

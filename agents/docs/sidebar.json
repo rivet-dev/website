@@ -41,29 +41,19 @@
 					"icon": "faHardDrive"
 				},
 				{
-					"title": "Architecture",
-					"href": "/agents/docs/architecture",
-					"icon": "faLayerGroup"
+					"title": "API Keys",
+					"href": "/agents/docs/api-keys",
+					"icon": "faKey"
 				},
 				{
-					"title": "Observability",
-					"href": "/agents/docs/observability",
-					"icon": "faChartLine"
-				},
-				{
-					"title": "Built-in Tools",
-					"href": "/agents/docs/built-in-tools",
+					"title": "Custom Tools",
+					"href": "/agents/docs/custom-tools",
 					"icon": "faWrench"
 				},
 				{
-					"title": "Security Model",
-					"href": "/agents/docs/security-model",
-					"icon": "faShieldHalved"
-				},
-				{
-					"title": "Planned",
-					"href": "/agents/docs/planned",
-					"icon": "faListCheck",
+					"title": "Design Patterns",
+					"href": "/agents/docs/design-patterns",
+					"icon": "faDiagramProject",
 					"badge": "TODO"
 				}
 			]
@@ -81,6 +71,10 @@
 							"href": "/agents/docs/instructions"
 						},
 						{
+							"title": "User Subscriptions",
+							"href": "/agents/docs/user-subscriptions"
+						},
+						{
 							"title": "Cost & Token Budgets",
 							"href": "/agents/docs/budgets",
 							"badge": "TODO"
@@ -93,19 +87,16 @@
 					"icon": "faToolbox",
 					"pages": [
 						{
-							"title": "Custom Tools",
-							"href": "/agents/docs/custom-tools",
-							"badge": "TODO"
+							"title": "Built-in Tools",
+							"href": "/agents/docs/built-in-tools"
 						},
 						{
-							"title": "Tools That Call Actors",
-							"href": "/agents/docs/tools-and-actors",
-							"badge": "TODO"
+							"title": "Agent-to-Agent Messages",
+							"href": "/agents/docs/agent-to-agent"
 						},
 						{
 							"title": "Scoped Access with JWTs",
-							"href": "/agents/docs/scoped-access",
-							"badge": "TODO"
+							"href": "/agents/docs/scoped-access"
 						},
 						{
 							"title": "Human in the Loop",
@@ -130,21 +121,6 @@
 						{
 							"title": "Schedules",
 							"href": "/agents/docs/schedules"
-						}
-					]
-				},
-				{
-					"title": "Models",
-					"collapsible": true,
-					"icon": "faBrain",
-					"pages": [
-						{
-							"title": "API Keys",
-							"href": "/agents/docs/api-keys"
-						},
-						{
-							"title": "User Subscriptions",
-							"href": "/agents/docs/user-subscriptions"
 						}
 					]
 				},
@@ -185,6 +161,23 @@
 							"href": "/agents/docs/connectors/discord"
 						}
 					]
+				}
+			]
+		},
+		{
+			"title": "Reference",
+			"pages": [
+				{
+					"title": "Observability",
+					"href": "/agents/docs/observability"
+				},
+				{
+					"title": "Architecture",
+					"href": "/agents/docs/architecture"
+				},
+				{
+					"title": "Security Model",
+					"href": "/agents/docs/security-model"
 				}
 			]
 		}

@@ -24,7 +24,7 @@
 		"check:sitemap": "tsx ./scripts/check-sitemap.ts",
 		"check:seo": "tsx ./scripts/check-seo.ts",
 		"assemble": "tsx ./scripts/assemble.ts",
-		"predev": "pnpm assemble"
+		"predev": "pnpm assemble && pnpm gen:markdown"
 	},
 	"browserslist": "defaults, not ie <= 11",
 	"dependencies": {

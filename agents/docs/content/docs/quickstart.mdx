@@ -5,6 +5,34 @@ description: "Run your first agent: Pi in a Rivet Actor, with its tools in a san
 
 import { Hosting } from "@/components/docs/Hosting";
 
+An agent is a Rivet Actor in your backend. Its file and shell tools run in a sandbox, and clients prompt it like any other Actor.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 620 236" role="img" aria-label="The client sends a prompt to the agent Actor. The agent sends model calls to the model provider and tool calls to its agentOS VM." style="width:100%;min-width:520px;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="quickstart-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="60" width="120" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="230" y="60" width="150" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="470" y="60" width="130" height="52" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <rect x="230" y="164" width="150" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M141 86 L228 86" marker-end="url(#quickstart-arrow)"/>
+    <path d="M381 86 L468 86" marker-end="url(#quickstart-arrow)"/>
+    <path d="M305 113 L305 162" marker-end="url(#quickstart-arrow)"/>
+  </g>
+  <text x="80" y="83" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
+  <text x="80" y="100" text-anchor="middle" font-size="12" fill="#56524a">client.ts</text>
+  <text x="305" y="83" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
+  <text x="305" y="100" text-anchor="middle" font-size="12" fill="#56524a">server.ts</text>
+  <text x="535" y="91" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">agentOS VM</text>
+  <text x="305" y="195" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Model provider</text>
+  <text x="184.5" y="79" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+  <text x="424.5" y="79" text-anchor="middle" font-size="12" fill="#56524a">tool calls</text>
+  <text x="313" y="141.5" text-anchor="start" font-size="12" fill="#56524a">model calls</text>
+</svg>
+</div>
+
 <Steps>
 
 <Step title="Install">

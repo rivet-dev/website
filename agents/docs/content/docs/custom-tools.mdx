@@ -3,20 +3,42 @@ title: "Custom Tools"
 description: "Give an agent tools that run in your backend, with access to your APIs and secrets."
 ---
 
-TODO
-
 A custom tool is a function the model can call. It runs in the agent Actor on your worker, next to your server code, so it can use your APIs and secrets.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 660 206" role="img" aria-label="The model calls get_order. The tool runs in the agent Actor on your backend, calls the orders API with a token from the worker&#x27;s environment, and returns the result to the model." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="custom-tools-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <g fill="rgb(var(--site-paper-mid, 227 227 229))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6">
+    <rect x="240" y="40" width="180" height="146" rx="10"/>
+  </g>
+  <rect x="20" y="86" width="120" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="256" y="76" width="148" height="72" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="520" y="86" width="120" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M141 100 L254 100" marker-end="url(#custom-tools-arrow)"/>
+    <path d="M255 124 L142 124" marker-end="url(#custom-tools-arrow)" stroke-dasharray="5 4"/>
+    <path d="M405 112 L518 112" marker-end="url(#custom-tools-arrow)"/>
+  </g>
+  <text x="240" y="28" font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))">YOUR BACKEND</text>
+  <text x="80" y="117" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Model</text>
+  <text x="330" y="109" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
+  <text x="330" y="126" text-anchor="middle" font-size="12" fill="#56524a">runs get_order</text>
+  <text x="580" y="117" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Orders API</text>
+  <text x="197.5" y="93" text-anchor="middle" font-size="12" fill="#56524a">get_order</text>
+  <text x="198.5" y="140" text-anchor="middle" font-size="12" fill="#56524a">result</text>
+  <text x="461.5" y="105" text-anchor="middle" font-size="12" fill="#56524a">API token</text>
+</svg>
+</div>
 
 <CodeSnippet file="examples/custom-tools/server.ts" title="server.ts" />
 
-- `defineTool` takes a name and description for the model, and parameters as a TypeBox schema. `execute` receives the parsed arguments.
-- The returned `content` is the result the model reads. `details` travels with the result to clients, for your UI.
-- A thrown error becomes an error result. The model reads its message and can try something else.
-- `signal` aborts when the run is cancelled. Pass it to `fetch` so a Stop from the client cancels the request.
+The model reads the tool's `description` and calls it with arguments that match `parameters`. It reads `content` as the result, while `details` goes to clients for your UI. A thrown error, like the 404 in `fetchOrder`, becomes an error result: the model reads the message and can try something else. `signal` aborts when the run is cancelled, so a Stop from the client also cancels the request.
 
 ## Secrets
 
-`execute` reads `ORDERS_API_TOKEN` from the worker's environment, so the token never leaves your backend:
+`fetchOrder` reads `ORDERS_API_TOKEN` from the worker's environment, so the token never leaves your backend:
 
 | | Sees the token |
 | --- | --- |
@@ -26,3 +48,5 @@ A custom tool is a function the model can call. It runs in the agent Actor on yo
 | The sandbox | No. Commands run with the sandbox's own environment. |
 
 Tool results and error messages are stored in the session and sent to every connected client, so keep secrets out of both. Model keys work differently. See [API Keys](/agents/docs/api-keys).
+
+Custom tools work with or without a sandbox. To let the model run commands and edit files too, see [Sandboxes](/agents/docs/sandboxes) and [Built-in Tools](/agents/docs/built-in-tools).

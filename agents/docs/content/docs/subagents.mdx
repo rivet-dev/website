@@ -5,9 +5,32 @@ description: "Let an agent hand work to other agents, each in its own Actor."
 
 A subagent is another agent. A tool on the lead agent calls it by key, like any other Actor.
 
+<div style="overflow-x:auto">
+<svg viewBox="0 0 620 260" role="img" aria-label="The lead agent&#x27;s research tool prompts one researcher agent per question at the same time, reads each answer, and destroys each researcher." style="width:100%;min-width:520px;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="subagents-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="102" width="150" height="56" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="30" width="150" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="106" width="150" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="330" y="182" width="150" height="48" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M171 130 L260 130 L260 54 L328 54" marker-end="url(#subagents-arrow)"/>
+    <path d="M171 130 L328 130" marker-end="url(#subagents-arrow)"/>
+    <path d="M171 130 L260 130 L260 206 L328 206" marker-end="url(#subagents-arrow)"/>
+  </g>
+  <text x="95" y="127" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Lead agent</text>
+  <text x="95" y="144" text-anchor="middle" font-size="12" fill="#56524a">research tool</text>
+  <text x="405" y="59" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="405" y="135" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="405" y="211" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Researcher</text>
+  <text x="215" y="123" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+  <text x="500" y="126" text-anchor="start" font-size="12" fill="#56524a">answer,</text>
+  <text x="500" y="142" text-anchor="start" font-size="12" fill="#56524a">then finish()</text>
+</svg>
+</div>
+
 <CodeSnippet file="examples/subagents/server.ts" title="server.ts" />
 
-- `researcher` and `lead` are both agents in the same registry. `lead` gets a `research` tool.
-- The tool gives each question its own researcher, with a new key, and prompts them all at once. Each researcher has its own session.
-- The tool waits for every researcher to finish, then returns their answers to the lead as the tool result.
-- The client points at a local Rivet endpoint. Replace it with your deployment's.
+- `research` gives each question its own researcher, with a new key, and prompts them all at once. It returns their answers to the lead as the tool result.
+- After reading an answer, `askResearcher` calls `finish`, which destroys the researcher and its session. Otherwise every question would leave an Actor behind.

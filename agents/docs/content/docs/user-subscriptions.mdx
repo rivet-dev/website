@@ -5,6 +5,32 @@ description: "Let your users run agents on their own Claude or ChatGPT subscript
 
 Your users can run the agent on their own Claude or ChatGPT subscription, or their own API key, instead of yours.
 
+<div style="overflow-x:auto">
+<svg viewBox="0 0 660 250" role="img" aria-label="Your app saves each user&#x27;s login in their credentials Actor. The agent reads and refreshes the credential there, then calls the model provider with the user&#x27;s own login." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="user-subscriptions-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="36" width="150" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="250" y="36" width="170" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="250" y="166" width="170" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="510" y="166" width="130" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M171 62 L248 62" marker-end="url(#user-subscriptions-arrow)"/>
+    <path d="M335 165 L335 90" marker-end="url(#user-subscriptions-arrow)"/>
+    <path d="M421 192 L508 192" marker-end="url(#user-subscriptions-arrow)"/>
+  </g>
+  <text x="95" y="59" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Your app</text>
+  <text x="95" y="76" text-anchor="middle" font-size="12" fill="#56524a">login flow</text>
+  <text x="335" y="59" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">credentials Actor</text>
+  <text x="335" y="76" text-anchor="middle" font-size="12" fill="#56524a">one per user</text>
+  <text x="335" y="197" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
+  <text x="575" y="197" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Model provider</text>
+  <text x="209.5" y="55" text-anchor="middle" font-size="12" fill="#56524a">save</text>
+  <text x="343" y="131.5" text-anchor="start" font-size="12" fill="#56524a">read, refresh</text>
+  <text x="464.5" y="185" text-anchor="middle" font-size="12" fill="#56524a">user&#x27;s login</text>
+</svg>
+</div>
+
 Store each user's logins in a `credentials` Actor and pass it to `pi({ credentials })`. The agent checks it after `apiKeys` and before the environment, as described in [API Keys](/agents/docs/api-keys). Your application owns login, storage, and refresh:
 
 - `list` returns the providers the user has a credential for, without the secrets.

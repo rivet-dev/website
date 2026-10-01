@@ -1,7 +1,7 @@
 import { createClient } from "rivetkit/client";
 import type { registry } from "./server";
 
-const client = createClient<typeof registry>("http://localhost:6420");
+const client = createClient<typeof registry>();
 const agent = client.agent.getOrCreate(["support", "customer-123"]);
 
 const conn = agent.connect();

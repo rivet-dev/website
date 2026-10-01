@@ -3,7 +3,7 @@ import { createRivetKit } from "@rivetkit/react";
 import { useEffect, useState } from "react";
 import type { registry } from "../pi/server";
 
-const { useActor } = createRivetKit<typeof registry>("http://localhost:6420");
+const { useActor } = createRivetKit<typeof registry>();
 
 export type ChatMessage = { id: string; role: "user" | "assistant"; text: string };
 

@@ -34,40 +34,29 @@ export function DocsPageDropdown({
 	currentUrl,
 }: DocsPageDropdownProps) {
 	const [isOpen, setIsOpen] = useState(false);
-	const [markdownContent, setMarkdownContent] = useState<string>("");
+	const [markdown, setMarkdown] = useState<{ path: string; content: string } | null>(null);
 
-	// Load markdown content when component mounts (still needed for copy functionality)
+	// Prefetch so the copy usually needs no network round trip.
 	useEffect(() => {
-		const loadMarkdown = async () => {
-			try {
-				const response = await fetch(`/${markdownPath}.md`);
-				if (response.ok) {
-					const content = await response.text();
-					setMarkdownContent(content);
-				}
-			} catch (error) {
-				console.error("Failed to load markdown:", error);
-			}
+		let cancelled = false;
+		fetchMarkdown(markdownPath)
+			.then((content) => {
+				if (!cancelled) setMarkdown({ path: markdownPath, content });
+			})
+			.catch((error) => console.error("Failed to load markdown:", error));
+		return () => {
+			cancelled = true;
 		};
-		loadMarkdown();
 	}, [markdownPath]);
 
 	const copyPage = async () => {
 		try {
-			await navigator.clipboard.writeText(markdownContent);
+			const content =
+				markdown?.path === markdownPath ? markdown.content : await fetchMarkdown(markdownPath);
+			await navigator.clipboard.writeText(content);
 			toast.success("Page copied to clipboard");
 		} catch (err) {
 			console.error("Failed to copy:", err);
-			toast.error("Failed to copy page");
-		}
-	};
-
-	const copyPageAsMarkdown = async () => {
-		try {
-			await navigator.clipboard.writeText(markdownContent);
-			toast.success("Page copied to clipboard");
-		} catch (err) {
-			console.error("Failed to copy markdown:", err);
 			toast.error("Failed to copy page");
 		}
 	};
@@ -159,4 +148,12 @@ export function DocsPageDropdown({
 			</DropdownMenu>
 		</div>
 	);
+}
+
+async function fetchMarkdown(markdownPath: string): Promise<string> {
+	const response = await fetch(`/${markdownPath}.md`, { cache: "no-store" });
+	if (!response.ok) {
+		throw new Error(`/${markdownPath}.md returned ${response.status}`);
+	}
+	return response.text();
 }

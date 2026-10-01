@@ -5,6 +5,32 @@ description: "Run an agent's file and shell tools in agentOS, E2B, Daytona, or a
 
 An agent's file and shell tools run in a sandbox, not on your worker. [`@rivet-dev/sandbox-adapter`](https://github.com/rivet-dev/rivet/tree/main/shared/typescript/sandbox-adapter) connects an agent to one. Each Actor gets its own sandbox, created on first start and reconnected every time the Actor wakes.
 
+<div style="overflow-x:auto">
+<svg viewBox="0 0 620 250" role="img" aria-label="The agent Actor sends tool calls through the sandbox adapter, which creates and connects to one sandbox per Actor: agentOS, E2B, Daytona, or your own provider." style="width:100%;min-width:520px;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="sandboxes-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="97" width="140" height="56" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="220" y="97" width="160" height="56" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="460" y="30" width="140" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <rect x="460" y="103" width="140" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <rect x="460" y="176" width="140" height="44" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M161 125 L218 125" marker-end="url(#sandboxes-arrow)"/>
+    <path d="M381 125 L420 125 L420 52 L458 52" marker-end="url(#sandboxes-arrow)"/>
+    <path d="M381 125 L458 125" marker-end="url(#sandboxes-arrow)"/>
+    <path d="M381 125 L420 125 L420 198 L458 198" marker-end="url(#sandboxes-arrow)"/>
+  </g>
+  <text x="90" y="130" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
+  <text x="300" y="122" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox adapter</text>
+  <text x="300" y="139" text-anchor="middle" font-size="12" fill="#56524a">SandboxProvider</text>
+  <text x="530" y="57" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">agentOS</text>
+  <text x="530" y="130" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">E2B</text>
+  <text x="530" y="203" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Daytona</text>
+  <text x="189.5" y="118" text-anchor="middle" font-size="12" fill="#56524a">tool calls</text>
+</svg>
+</div>
+
 ## Quickstart
 
 <Steps>
@@ -81,7 +107,7 @@ The working directory is the sandbox's own working directory. A stopped sandbox 
 
 ## How the sandbox is managed
 
-- The sandbox is created the first time the agent needs it, and its id is saved right away in the Actor's SQLite database.
+- The sandbox is created the first time the agent needs it.
 - On wake, the Actor reconnects to the same sandbox. If it no longer exists, a new one is created and the old files are lost.
 - An existing Actor cannot switch to a different provider.
 - Commands run with the sandbox's environment, not your worker's, and paths outside the working directory are rejected.

@@ -1,26 +1,53 @@
 ---
 title: "Cost & Token Budgets"
-description: "Track tokens and cost per run and per session, and stop an agent that goes over budget."
+description: "Track what each run costs, cap spending per tenant, and stop an agent that goes over budget."
 ---
 
-TODO
+Agents don't enforce a budget on their own. Each model response reports its tokens and cost, so your backend can stop an agent that spends too much.
 
-Agents don't enforce a budget on their own. Each session tracks its tokens and cost, and each model response reports its own usage, so your backend can stop an agent that spends too much.
+Put the check in one backend route that every client goes through, and don't give clients direct access to the agent. The check can't live in the agent Actor today, because a user action can't replace Pi's own `prompt`.
 
-<CodeSnippet file="examples/budgets/client.ts" title="client.ts" />
+<div style="overflow-x:auto">
+<svg viewBox="0 0 640 250" role="img" aria-label="Clients send prompts to one backend route. The route checks the tenant Actor&#x27;s remaining budget, prompts the agent, aborts it if a run passes the budget, and records the run&#x27;s cost on the tenant Actor." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="budgets-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <rect x="20" y="50" width="120" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="210" y="50" width="170" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <rect x="490" y="50" width="130" height="52" rx="7" fill="#c7e4fb" stroke="#3d9df3" stroke-width="2"/>
+  <rect x="210" y="170" width="170" height="52" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.4"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none">
+    <path d="M141 76 L208 76" marker-end="url(#budgets-arrow)"/>
+    <path d="M381 66 L488 66" marker-end="url(#budgets-arrow)"/>
+    <path d="M489 86 L382 86" marker-end="url(#budgets-arrow)" stroke-dasharray="5 4"/>
+    <path d="M295 103 L295 168" marker-end="url(#budgets-arrow)"/>
+  </g>
+  <text x="80" y="81" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Client</text>
+  <text x="295" y="73" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Backend route</text>
+  <text x="295" y="90" text-anchor="middle" font-size="12" fill="#56524a">POST /prompt</text>
+  <text x="555" y="81" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
+  <text x="295" y="193" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">tenant Actor</text>
+  <text x="295" y="210" text-anchor="middle" font-size="12" fill="#56524a">budget, spent</text>
+  <text x="174.5" y="69" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
+  <text x="434.5" y="59" text-anchor="middle" font-size="12" fill="#56524a">prompt, abort</text>
+  <text x="435.5" y="102" text-anchor="middle" font-size="12" fill="#56524a">turn_end usage</text>
+  <text x="303" y="139.5" text-anchor="start" font-size="12" fill="#56524a">remaining, spend</text>
+</svg>
+</div>
 
-## How it works
+<CodeGroup>
+<CodeSnippet file="examples/budgets/route.ts" title="route.ts" />
+<CodeSnippet file="examples/budgets/server.ts" title="server.ts" />
+</CodeGroup>
 
-- `getSessionStats` returns the session's tokens (`input`, `output`, `cacheRead`, `cacheWrite`, and `total`) and its `cost`, from the first message on. The backend refuses to start a run once the session is over budget.
-- Each `turn_end` event carries the model response's `usage`. Adding up `usage.cost.total` gives the cost of the run so far. When the run or the session passes its budget, the backend calls `abort`.
-- The check runs after each response, so the response that crosses the budget still finishes. Set budgets a little below your real limit.
+- One `tenant` Actor holds the budget for all of a tenant's agents. `spend` is synchronous, so two runs recording at once never lose an update.
+- The route refuses to start a run once the tenant has nothing left, and aborts a run when its cost reaches what was left.
+- The check runs after each model response, so the response that crosses the line still finishes. Runs that start at the same time can each spend up to what was left. Set the budget a little below your real limit.
+- The route records the run's cost from `getSessionStats` before and after the run, which also counts the summaries made during compaction.
+
+For a token budget instead, use `usage.totalTokens` from each `turn_end`, and `tokens.total` from `getSessionStats`.
 
 ## What the cost covers
 
 - Cost is in US dollars, calculated from each model's per-million-token prices for input, output, and cached tokens. Models from a custom provider need their own prices.
-- It covers model calls only, including the summaries made during compaction. Sandbox and hosting costs aren't included.
-- Session stats include messages that were later compacted, so the total covers the whole session.
-
-## Budgets per tenant
-
-To cap spending across all of a tenant's agents, record each run's cost in your own database by tenant, and check the total before prompting.
+- It covers model calls only. Sandbox and hosting costs aren't included.

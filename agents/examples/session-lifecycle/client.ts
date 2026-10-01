@@ -1,19 +1,36 @@
 import { createClient } from "rivetkit/client";
 import type { registry } from "../pi/server";
 
-const client = createClient<typeof registry>("http://localhost:6420");
+const client = createClient<typeof registry>();
 const conn = client.agent.getOrCreate(["support", "customer-123"]).connect();
 
-let steered = false;
 conn.on("event", (event) => {
-	if (event.type === "tool_execution_start" && !steered) {
-		steered = true;
-		void conn.steer("Keep the public API unchanged.");
+	switch (event.type) {
+		case "turn_start":
+			console.log("\n[turn]");
+			break;
+		case "message_update":
+			if (event.assistantMessageEvent.type === "text_delta") {
+				process.stdout.write(event.assistantMessageEvent.delta);
+			}
+			break;
+		case "tool_execution_start":
+			console.log(`\n> ${event.toolName}`);
+			break;
+		case "tool_execution_end":
+			console.log(event.isError ? "  failed" : "  done");
+			break;
+		case "turn_end":
+			if (event.message.role === "assistant") {
+				const { totalTokens, cost } = event.message.usage;
+				console.log(`\n[${totalTokens} tokens, $${cost.total.toFixed(4)}]`);
+			}
+			break;
+		case "agent_end":
+			console.log("\n[done]");
+			break;
 	}
 });
 
-const cancel = setTimeout(() => void conn.abort(), 5 * 60_000);
-await conn.prompt("Refactor the billing module.");
-clearTimeout(cancel);
-
+await conn.prompt("Find the failing test and fix it.");
 await conn.dispose();

@@ -22,6 +22,7 @@ const flakyTest = workflow({
 			timeout: 10 * 60_000,
 			run: async (step) => {
 				const fixer = step.client<Agents>().agent.getOrCreate([step.actorId]);
+				await fixer.abort();
 				await fixer.prompt("Run the test suite and note any failing tests.");
 			},
 		});
@@ -33,6 +34,7 @@ const flakyTest = workflow({
 			timeout: 10 * 60_000,
 			run: async (step) => {
 				const fixer = step.client<Agents>().agent.getOrCreate([step.actorId]);
+				await fixer.abort();
 				await fixer.prompt("Run the suite again. Which failures happened both times?");
 				step.state.report = (await fixer.getLastAssistantText()) ?? null;
 			},

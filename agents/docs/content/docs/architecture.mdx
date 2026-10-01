@@ -1,7 +1,63 @@
 ---
 title: "Architecture"
-description: "How an agent keeps its session and sandbox across sleep, crashes, and deploys."
+description: "The states an agent moves through, and how it keeps its session and sandbox across sleep, crashes, and deploys."
 ---
+
+## States
+
+An agent is idle until a prompt starts a run, and goes back to idle when the run ends or is cancelled. A run compacts its context when it fills up. An idle agent sleeps and frees its memory, and the next action wakes it.
+
+<div style="overflow-x:auto">
+<svg viewBox="0 0 660 276" role="img" aria-label="Agent states: Idle goes to Running on a prompt and back to Idle when the turn is done or cancelled. Running goes to Compacting when the context is full and back when compaction is done. Idle goes to Sleeping when idle, and Sleeping wakes to Idle on the next prompt, with its state kept in SQLite. Running sends tool calls to a process in the agentOS VM, which sleeps on its own when idle." style="width:100%;min-width:520px;max-width:660px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs>
+    <marker id="lifecycle-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
+  </defs>
+  <g font-size="11" font-family="ui-monospace,monospace" font-weight="600" letter-spacing="0.14em" fill="rgb(var(--site-pine, 46 64 52))">
+    <text x="16" y="26">AGENT</text>
+    <text x="476" y="26">SANDBOX · AGENTOS VM</text>
+  </g>
+  <g fill="rgb(var(--site-paper-mid, 227 227 229))" stroke="rgb(var(--site-pine, 46 64 52))" stroke-width="1.4" stroke-dasharray="7 6">
+    <rect x="16" y="40" width="380" height="226" rx="10"/>
+    <rect x="476" y="40" width="168" height="150" rx="10"/>
+  </g>
+  <g stroke="#3d9df3" stroke-width="2" fill="#c7e4fb">
+    <rect x="40" y="70" width="120" height="48" rx="7"/>
+    <rect x="256" y="70" width="120" height="48" rx="7"/>
+    <rect x="256" y="190" width="120" height="48" rx="7"/>
+    <rect x="40" y="190" width="120" height="48" rx="7" opacity="0.45"/>
+  </g>
+  <rect x="492" y="70" width="136" height="48" rx="7" fill="#fecaca" stroke="#ef4444" stroke-width="2"/>
+  <g stroke="rgb(var(--site-ink, 27 25 22))" stroke-width="1.4" fill="none" marker-end="url(#lifecycle-arrow)">
+    <line x1="160" y1="86" x2="254" y2="86"/>
+    <line x1="256" y1="104" x2="162" y2="104"/>
+    <line x1="300" y1="118" x2="300" y2="188"/>
+    <line x1="332" y1="190" x2="332" y2="120"/>
+    <line x1="84" y1="118" x2="84" y2="188"/>
+    <line x1="116" y1="190" x2="116" y2="120"/>
+    <line x1="376" y1="94" x2="490" y2="94"/>
+  </g>
+  <g text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">
+    <text x="100" y="99">Idle</text>
+    <text x="316" y="99">Running</text>
+    <text x="316" y="219">Compacting</text>
+    <text x="100" y="219">Sleeping</text>
+    <text x="560" y="99">Process</text>
+  </g>
+  <g font-size="11" fill="#56524a">
+    <text x="208" y="78" text-anchor="middle">prompt</text>
+    <text x="208" y="122" text-anchor="middle">done / cancel</text>
+    <text x="292" y="158" text-anchor="end">context full</text>
+    <text x="340" y="158">done</text>
+    <text x="76" y="158" text-anchor="end">idle</text>
+    <text x="124" y="158">next prompt</text>
+    <text x="436" y="86" text-anchor="middle">tool call</text>
+    <text x="100" y="256" text-anchor="middle">state kept in SQLite</text>
+    <text x="560" y="150" text-anchor="middle">sleeps on its own when idle</text>
+  </g>
+</svg>
+</div>
+
+The agentOS VM has its own lifecycle. It keeps running tool processes while the agent works and sleeps on its own when idle, separately from the agent.
 
 ## Durability
 
