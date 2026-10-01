@@ -47,7 +47,7 @@ An agent is idle until a prompt starts a run, and goes back to idle when the run
 
 ## Sleep
 
-An idle agent sleeps and frees its memory. The next action on its key wakes it: the agent reloads its session and reconnects to the same sandbox, so clients don't do anything different. While the agent sleeps, an E2B or Daytona sandbox is suspended, and an agentOS VM sleeps on its own. If the agent has to sleep during a run, the run is aborted.
+An idle agent sleeps and frees its memory. The next action on its key wakes it: the agent reloads its session and reconnects to the same sandbox, so clients don't do anything different. While the agent sleeps, an E2B or Daytona sandbox is suspended, and an agentOS VM sleeps on its own.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 640 280" role="img" aria-label="The agent loop runs in memory and saves each step to the Actor&#x27;s SQLite database, which also holds the sandbox id. On wake, the loop is restored from SQLite and reconnects to the same sandbox. Sleep, a crash, or a deploy clears memory, and SQLite is kept." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -83,9 +83,9 @@ An idle agent sleeps and frees its memory. The next action on its key wakes it: 
 
 | | Session | Sandbox |
 | --- | --- | --- |
-| Sleep | Every message so far. A run in progress is aborted. | Reconnected on wake. |
+| Sleep | Every message so far. | Reconnected on wake. |
 | Crash | Every message written before the crash. | Reconnected on wake. |
-| Deploy | The same as sleep. The agent wakes on the new code. | Reconnected on wake. |
+| Deploy | Every message so far. Old Actors get up to 30 minutes to finish before the agent wakes on the new code. See [Versions](/docs/versions). | Reconnected on wake. |
 | Destroy | Deleted. | E2B and Daytona sandboxes are deleted. An agentOS VM and its files are left in place. |
 
 A model chosen with `setModel` is restored too, if it's still allowed. If the sandbox no longer exists when the agent wakes, a new one is created and the old files are lost.
