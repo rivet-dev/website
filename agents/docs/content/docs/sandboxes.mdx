@@ -71,7 +71,7 @@ agentOS is hosted by Rivet, so there is no SDK to install and nothing else to ad
 
 | Option | Description |
 | --- | --- |
-| `software` | Packages to install, as `{ url, digest }`. Include coreutils, which provides `sh`. |
+| `software` | Packages to install, as `{ url, digest }`. `digest` is optional. Include coreutils, which provides `sh`. |
 | `cwd` | Working directory inside the VM. Defaults to `/workspace`. |
 
 ### E2B
@@ -110,7 +110,7 @@ The working directory is the sandbox's own working directory. A stopped sandbox 
 - The sandbox is created the first time the agent needs it.
 - On wake, the Actor reconnects to the same sandbox. If it no longer exists, a new one is created and the old files are lost.
 - An existing Actor cannot switch to a different provider.
-- Commands run with the sandbox's environment, not your worker's, and paths outside the working directory are rejected.
+- Commands run with the sandbox's environment, not your worker's. File tools reject paths outside the working directory, but shell commands can reach anything inside the sandbox.
 
 ## Write your own provider
 

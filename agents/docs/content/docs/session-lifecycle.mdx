@@ -66,7 +66,7 @@ While a run is in progress:
 | --- | --- |
 | `steer(text)` | The agent reads the message after its current tool calls finish, before its next model call. |
 | `followUp(text)` | The agent reads the message once it has no tool calls left, and the run continues. On an idle agent it only queues. |
-| `abort()` | Cancels the run and kills any command still running in the sandbox. |
+| `abort()` | Cancels the run and stops any command still running in the sandbox. Daytona can't cancel a command, so it runs until it exits or times out. |
 
 `prompt` throws while a run is in progress. Pass `streamingBehavior: "steer"` or `"followUp"` to queue the prompt instead. If the agent is idle, it runs right away.
 
