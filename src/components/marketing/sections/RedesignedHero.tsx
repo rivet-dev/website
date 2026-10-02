@@ -294,9 +294,8 @@ function HeroStats() {
 
 /**
  * The blueprint frame around the hero row: hairlines along its top and bottom
- * edges, guides closing the sides at the rail's guide position, a registration
- * cross at each corner, and guide stubs fading away above and below so the
- * frame reads as one drafted line with the <SectionRule /> that follows. Pure
+ * edges, guides aligned with the navbar's outer edges, a registration cross
+ * at each corner, and guide stubs fading away above and below. Pure
  * decoration, drawn by .site-hero-plate in main.css.
  */
 function HeroPlateMarks() {
@@ -366,12 +365,10 @@ export const RedesignedHero = ({
       >
         <div className="site-hero-plate">
           <HeroPlateMarks />
-          {/* md:py-10 is --rule-outset (2.5rem): the plate's guides stand that
-              far outside the rail, so the same inset above and below gives the
-              copy and the artwork an even margin from the frame on all four
-              sides. */}
+          {/* Keep the content rail and vertical inset independent of the
+              wider frame aligned with the navbar. */}
           <div
-            className={`relative flex flex-col gap-12 md:py-10 lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64 ${SITE_STANDARD_RAIL_CLASS}`}
+            className={`relative flex flex-col gap-12 md:py-[7.5rem] lg:flex-row lg:items-center lg:justify-between lg:gap-32 xl:gap-48 2xl:gap-64 ${SITE_STANDARD_RAIL_CLASS}`}
           >
             <div className="max-w-2xl">
               <h1 {...settledHeroReveal(0)} className={`mb-5 ${HERO_H1_CLASS}`}>

@@ -206,8 +206,8 @@
 	   The guide tracks the max-w-7xl rail edge but stands --rule-outset
 	   outside it so the crosses breathe instead of hugging the content;
 	   --rule-min keeps them clear of the viewport edge when the rail's
-	   SITE_SECTION_CLASS gutter is all the room there is. The same tokens
-	   drive the hero plate below so the two never drift. */
+	   SITE_SECTION_CLASS gutter is all the room there is. The hero plate
+	   shares the mark styling but follows the navbar's wider rail. */
 	.site-rule,
 	.site-hero-plate {
 		--rule-min: 1rem;
@@ -314,21 +314,16 @@
 	   rectangle in the same vocabulary as .site-rule. Hairlines trace the
 	   row's top and bottom edges (so the headline gets a ceiling and the
 	   artwork registers to the frame), vertical guides close the sides at
-	   the rail's guide position, a registration cross marks each corner,
-	   and short guide stubs fade away above and below toward the header and
-	   the first <SectionRule />. The plate wraps the standard rail inside
-	   the hero section's gutter, so --rule-guide is re-derived here against
-	   the plate's own width: the guide sits --site-gutter further out than
-	   the plate's edge, which is why it can go negative. --site-gutter must
-	   track SITE_UTILITY_HERO_CLASS's horizontal padding. Hidden below md,
-	   where the guide would land on the content edge itself. */
+	   the navbar's outer edges, and a registration cross marks each corner.
+	   Match SITE_WIDE_GUTTERED_RAIL_CLASS's 1800px cap and gutters without
+	   changing the standard content rail inside. --site-gutter tracks
+	   SITE_UTILITY_HERO_CLASS's horizontal padding so the guide offset is
+	   relative to the plate, not the viewport. Hidden below md. */
 	.site-hero-plate {
 		--site-gutter: 1rem;
-		--rule-guide: calc(
-			max(
-				var(--rule-min),
-				(100% + 2 * var(--site-gutter) - 80rem) / 2 - var(--rule-outset)
-			) - var(--site-gutter)
+		--rule-guide: max(
+			0px,
+			calc((100% + 2 * var(--site-gutter) - 1800px) / 2)
 		);
 		position: relative;
 	}
