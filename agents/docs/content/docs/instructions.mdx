@@ -33,8 +33,10 @@ An agent's system prompt is the default prompt, which describes its tools, plus 
 
 <CodeSnippet file="examples/instructions/server.ts" title="server.ts" />
 
-`appendSystemPrompt` adds your instructions after the default prompt. `agentsFilesOverride` supplies project rules as an inline `AGENTS.md`, so the agent gets the same rules wherever it runs. Call `reload()` before passing the loader. Every session of this agent gets the same instructions.
+The resource loader's `appendSystemPrompt` adds your instructions after the default prompt. Its `agentsFilesOverride` supplies project rules as an inline `AGENTS.md`, so the agent gets the same rules wherever it runs. Call `reload()` before passing the loader. Every session of this agent gets the same instructions.
 
 ## Context for one prompt
 
 Put context for a single turn in the prompt text, or attach images with `prompt(text, { images })`. Each image is `{ type: "image", data, mimeType }`, with the image base64-encoded in `data`. The system prompt stays the same.
+
+<CodeSnippet file="examples/instructions/client.ts" title="client.ts" />

@@ -5,8 +5,8 @@ description: "What a session is, the events one prompt produces, and how to stee
 
 A session is one agent's conversation. Each agent key has exactly one session, and the session:
 
-- Holds every message, tool call, and tool result, in order.
-- Runs one prompt at a time. A run is one or more turns, and each turn is a model response plus the tool calls it asked for.
+- Keeps the full history of messages and tool calls.
+- Runs one prompt at a time, calling the model and tools until the model is done.
 - Streams events to every connected client while it runs.
 - Summarizes older messages when the context fills up.
 - Survives sleep, crashes, and deploys. See [Architecture](/agents/docs/architecture).
@@ -46,17 +46,17 @@ This client connects to the [Quickstart](/agents/docs/quickstart) agent, sends o
 
 Every event arrives as `event`, with a `type`:
 
-| Type | When it fires |
+| Event Type | When it fires |
 | --- | --- |
-| `agent_start`, `agent_end` | A run starts or ends. `agent_settled` follows once the agent is fully idle, after any retry. |
-| `turn_start`, `turn_end` | A model response starts, or it and its tool calls are done. `turn_end` has the response's `usage`: tokens and cost. |
-| `message_update` | The model streams output. `assistantMessageEvent.type` is `text_delta`, `thinking_delta`, or a tool call update. |
+| `agent_start`, `agent_end` | A run starts or ends. Then `agent_settled` follows once the agent is fully idle, after any retry. |
+| `turn_start`, `turn_end` | A model response starts, or it and its tool calls are done. The `turn_end` event has the response's `usage`: tokens and cost. |
+| `message_update` | The model streams output. Its `assistantMessageEvent.type` is `text_delta`, `thinking_delta`, or a tool call update. |
 | `message_end` | A message is complete: your prompt, a model reply, or a tool result. |
-| `tool_execution_start`, `tool_execution_end` | A tool starts or finishes. `isError` marks a failure. |
+| `tool_execution_start`, `tool_execution_end` | A tool starts or finishes. On a failure, `isError` is true. |
 | `auto_retry_start`, `auto_retry_end` | A failed model call is retried. |
 | `compaction_start`, `compaction_end` | Older messages are summarized to free up context. |
 
-`on` returns a function that removes the listener. A client that connects mid-run receives events from that point on. Read earlier messages with `getMessages`.
+A client that connects mid-run only receives events from that point on, so read earlier messages with `getMessages`. To stop listening, call the function that `on` returns.
 
 ## Steer, follow up, or cancel
 
@@ -68,11 +68,11 @@ While a run is in progress:
 | `followUp(text)` | The agent reads the message once it has no tool calls left, and the run continues. On an idle agent it only queues. |
 | `abort()` | Cancels the run and stops any command still running in the sandbox. Daytona can't cancel a command, so it runs until it exits or times out. |
 
-`prompt` throws while a run is in progress. Pass `streamingBehavior: "steer"` or `"followUp"` to queue the prompt instead. If the agent is idle, it runs right away.
+Calling `prompt` while a run is in progress throws. To queue it instead, pass `streamingBehavior: "steer"` or `"followUp"`. On an idle agent, the prompt runs right away.
 
 ## Compaction and errors
 
 - When the context fills up, the agent summarizes older messages and keeps going. Call `compact` to do it yourself. It cancels the run in progress first.
 - A failed model call is retried automatically. If it keeps failing, the run ends with an assistant message whose `stopReason` is `"error"`, and the session is kept.
 
-**Next:** [Sandboxes](/agents/docs/sandboxes), where the agent's tool calls run.
+**Next:** [Client SDK](/agents/docs/client-sdk), how to call an agent from your backend or a browser.

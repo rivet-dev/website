@@ -5,7 +5,7 @@ description: "The states an agent moves through, and what survives sleep, crashe
 
 ## States
 
-An agent is idle until a prompt starts a run, and goes back to idle when the run ends or is cancelled. When the context fills up during a run, the agent compacts it and keeps going. Tool calls run in the sandbox.
+An agent is idle until a prompt starts a run, and goes back to idle when the run ends or is cancelled. When the context fills up during a run, the agent compacts it and keeps going.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 640 300" role="img" aria-label="Agent states: a prompt moves Idle to Running, and the run ending or being cancelled moves it back. Running moves to Compacting when the context is full and back when compaction is done. Idle moves to Sleeping when idle, and the next action wakes it back to Idle. Running sends tool calls to the sandbox." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -47,7 +47,7 @@ An agent is idle until a prompt starts a run, and goes back to idle when the run
 
 ## Sleep
 
-An idle agent sleeps and frees its memory. The next action on its key wakes it: the agent reloads its session and reconnects to the same sandbox, so clients don't do anything different. While the agent sleeps, an E2B or Daytona sandbox is suspended, and an agentOS VM sleeps on its own.
+An idle agent sleeps and frees its memory. The next action on its key wakes it: the agent reloads its session and reconnects to the same sandbox, so clients don't do anything different. While the agent sleeps, its sandbox is suspended.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 640 280" role="img" aria-label="The agent loop runs in memory and saves each step to the Actor&#x27;s SQLite database, which also holds the sandbox id. On wake, the loop is restored from SQLite and reconnects to the same sandbox. Sleep, a crash, or a deploy clears memory, and SQLite is kept." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -86,6 +86,6 @@ An idle agent sleeps and frees its memory. The next action on its key wakes it: 
 | Sleep | Every message so far. | Reconnected on wake. |
 | Crash | Every message written before the crash. | Reconnected on wake. |
 | Deploy | Every message so far. Old Actors get up to 30 minutes to finish before the agent wakes on the new code. See [Versions](/docs/versions). | Reconnected on wake. |
-| Destroy | Deleted. | E2B and Daytona sandboxes are deleted. An agentOS VM and its files are left in place. |
+| Destroy | Deleted. | Deleted. |
 
 A model chosen with `setModel` is restored too, if it's still allowed. If the sandbox no longer exists when the agent wakes, a new one is created and the old files are lost.

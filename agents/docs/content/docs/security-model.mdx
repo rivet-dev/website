@@ -59,7 +59,6 @@ The agent loop runs in an Actor on your backend, and the commands the model choo
 - Not your worker's environment. Commands run with the sandbox's own environment.
 - File tools reject paths outside the working directory. Shell commands can reach anything inside the sandbox, so the sandbox itself is the boundary.
 - Without a sandbox, the agent has no file or shell tools. They never fall back to running on your worker.
-- An agentOS VM keeps its files after the agent is destroyed, so delete them with the rest of a user's data.
 
 ## Where secrets live
 

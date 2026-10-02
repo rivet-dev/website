@@ -74,7 +74,7 @@ Under **Event Subscriptions**, set the request URL to `https://<your-worker>/sla
 
 - The route verifies Slack's signature against the raw body and rejects requests older than five minutes.
 - Each Slack thread gets its own agent, keyed by team, channel, and thread. Mentioning the app again in the thread continues the same session.
-- Slack expects a response within three seconds and an agent run takes longer, so the route only hands the message to the agent's `receive` action and returns. `receive` schedules `reply`, which prompts the agent and posts the answer in the thread with the Slack Web API. The schedule is saved with the agent, so the reply still runs if the request that delivered the message goes away.
+- Slack expects a response within three seconds and an agent run takes longer, so the route only hands the message to the agent's `receive` action and returns. The `receive` action adds the message to the agent's queue and schedules `drain`, which prompts the agent with the oldest message and posts the answer in the thread with the Slack Web API. A message that arrives while the agent is answering waits in the queue. The queue is saved with the agent, so replies still run if the request that delivered a message goes away.
 - Slack retries events it thinks timed out. The route ignores retries, because the first delivery is already being answered.
 
 ## Configure
@@ -83,7 +83,7 @@ Under **Event Subscriptions**, set the request URL to `https://<your-worker>/sla
 | --- | --- |
 | `SLACK_SIGNING_SECRET` | **Required.** Verifies that requests come from Slack. |
 | `SLACK_BOT_TOKEN` | **Required.** Posts replies with the Slack Web API. |
-| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [API Keys](/agents/docs/api-keys). |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. For another provider, change `model` and set its key instead, such as `OPENAI_API_KEY` or `OPENROUTER_API_KEY`. See [LLM API Keys](/agents/docs/api-keys). |
 
 ## Supported events
 

@@ -3,7 +3,7 @@ title: "Workflows"
 description: "Run agents as steps in durable, multi-step workflows."
 ---
 
-Run an agent as a workflow step to get retries, and durable waits between steps.
+Run an agent as a workflow step to get retries and durable waits between steps.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 640 250" role="img" aria-label="A workflow runs the first-run step, sleeps ten minutes, then runs the second-run step. Each step aborts and then prompts the same fixer agent." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -36,11 +36,14 @@ Run an agent as a workflow step to get retries, and durable waits between steps.
 </svg>
 </div>
 
+<CodeGroup>
 <CodeSnippet file="examples/workflows/server.ts" title="server.ts" />
+<CodeSnippet file="examples/workflows/client.ts" title="client.ts" />
+</CodeGroup>
 
 - Steps time out after 30 seconds by default, so `timeout` gives each prompt up to ten minutes.
 - A step that throws is retried up to three times, while a timeout fails the step right away. Each attempt calls `abort` first, so a retry stops any run the previous attempt left going before prompting again.
-- `ctx.sleep` waits ten minutes with nothing running. The workflow resumes on time, even after a crash or deploy.
+- The `ctx.sleep` call waits ten minutes with nothing running. The workflow resumes on time, even after a crash or deploy.
 - Both steps use the same agent key, so the second prompt continues the first conversation.
 - Use a workflow when the work has fixed steps, waits, or retries. Use a single agent session when the agent should decide the steps itself.
 

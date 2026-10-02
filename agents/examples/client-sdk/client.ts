@@ -1,4 +1,4 @@
-import { ActorError, createClient } from "rivetkit/client";
+import { createClient } from "rivetkit/client";
 import type { registry } from "./server";
 
 const client = createClient<typeof registry>();
@@ -29,12 +29,7 @@ const unsubscribe = conn.on("event", (event) => {
 	}
 });
 
-try {
-	await conn.prompt("Summarize the README.");
-} catch (error) {
-	if (!(error instanceof ActorError)) throw error;
-	console.error(`\n${error.group}.${error.code}: ${error.message}`);
-}
+await conn.prompt("Clone https://github.com/honojs/hono and summarize its README.");
 
 const last = (await conn.getMessages()).at(-1);
 if (last?.role === "assistant" && last.stopReason === "error") {

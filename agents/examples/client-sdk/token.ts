@@ -4,6 +4,7 @@ import type { registry } from "./server";
 
 const admin = createClient<typeof registry>();
 
+// Replace with your own auth, such as verifying a session cookie. Never trust a user id the client sends.
 async function authenticateUser(request: Request): Promise<string | null> {
 	return request.headers.get("x-user-id");
 }

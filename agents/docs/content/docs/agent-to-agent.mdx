@@ -32,10 +32,12 @@ A tool can send another agent a message. Here a coder agent hands a finished bra
 <CodeGroup>
 <CodeSnippet file="examples/agent-to-agent/coder.ts" title="coder.ts" />
 <CodeSnippet file="examples/agent-to-agent/server.ts" title="server.ts" />
+<CodeSnippet file="examples/agent-to-agent/client.ts" title="client.ts" />
 </CodeGroup>
 
 - The reviewer is keyed by repository, so every coder working on the same repository reaches the same reviewer, and its session remembers past reviews.
-- `requestReview` schedules the reviewer's `prompt` and returns, so the coder's tool doesn't wait for the review. The schedule is saved with the reviewer, so the review runs even if the coder's request goes away.
-- `streamingBehavior: "followUp"` queues the request when the reviewer is busy with another review. Use it with `prompt`, not the `followUp` action, which only queues on an idle agent and never starts a run.
+- The `requestReview` action schedules the reviewer's `prompt` and returns, so the coder's tool doesn't wait for the review. The schedule is saved with the reviewer, so the review runs even if the coder's request goes away.
+- Passing `streamingBehavior: "followUp"` queues the request when the reviewer is busy with another review. Use it with `prompt`, not the `followUp` action, which only queues on an idle agent and never starts a run.
+- The reviewer runs on a different model family than the coder.
 
 To wait for the other agent's answer instead, see [Subagents](/agents/docs/subagents). See [Schedules](/actors/docs/schedule) for more on `c.schedule`.
