@@ -40,10 +40,10 @@ A tool can publish its work to an Actor and hand out a short-lived token for it.
 <CodeSnippet file="examples/scoped-access/viewer.ts" title="viewer.ts" />
 </CodeGroup>
 
-- `share_report` creates a `report` Actor for each report, with the report as its input. A token can call every action on its Actor, so `report` only has `read`.
-- The tool runs in your backend, where its client has your Rivet token. `issueToken` mints a token for this one report that expires after an hour.
+- The `share_report` tool creates a `report` Actor for each report, with the report as its input. A token can call every action on its Actor, so `report` only has `read`.
+- The tool runs in your backend, where its client has your Rivet token. Its `issueToken` call mints a token for this one report that expires after an hour.
 - The token goes in the URL fragment, which browsers don't send to your server.
-- `viewer.ts` runs in the browser and connects with the token. A request to any other Actor is rejected before it reaches your code.
+- The viewer in `viewer.ts` runs in the browser and connects with the token. A request to any other Actor is rejected before it reaches your code.
 - The link is part of the tool result, so the model and connected clients see it, and the agent can pass it on.
 
 Tokens can't be revoked, so keep them short. See [JWTs](/docs/jwt) for permissions and expiration.

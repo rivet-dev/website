@@ -1,5 +1,6 @@
 import { DefaultResourceLoader, getAgentDir } from "@earendil-works/pi-coding-agent";
 import { pi } from "@rivet-dev/pi";
+import { e2bProvider } from "@rivet-dev/sandbox-adapter/e2b";
 import { setup } from "rivetkit";
 
 const resourceLoader = new DefaultResourceLoader({
@@ -14,6 +15,12 @@ const resourceLoader = new DefaultResourceLoader({
 });
 await resourceLoader.reload();
 
-const agent = pi({ model: "anthropic/claude-opus-5-5", resourceLoader });
+const agent = pi({
+	model: "anthropic/claude-opus-5-5",
+	sandbox: e2bProvider(),
+	resourceLoader,
+});
 
 export const registry = setup({ use: { agent } });
+
+registry.start();

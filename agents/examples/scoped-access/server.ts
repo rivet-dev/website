@@ -20,3 +20,5 @@ const shareReport = defineTool({
 const agent = pi({ model: "anthropic/claude-opus-5-5", customTools: [shareReport] });
 
 export const registry = setup({ use: { agent, report } });
+
+registry.start();

@@ -76,7 +76,7 @@ In Linear's **Settings > Administration > API**, which needs admin rights, creat
 - The route verifies the `Linear-Signature` HMAC against the raw body and rejects deliveries older than a minute.
 - Each Linear issue gets its own agent. Every comment with the trigger continues the same session.
 - The route never answers the agent's own comments, so replies do not loop.
-- The route only hands the comment to the agent's `receive` action and returns. `receive` schedules `reply`, which prompts the agent and posts the answer as a comment with the Linear SDK. The schedule is saved with the agent, so the reply still runs if the request that delivered the message goes away.
+- The route only hands the comment to the agent's `receive` action and returns. The `receive` action adds the message to the agent's queue and schedules `drain`, which prompts the agent with the oldest message and posts the answer as a comment with the Linear SDK. A message that arrives while the agent is answering waits in the queue. The queue is saved with the agent, so replies still run if the request that delivered a message goes away.
 
 ## Configure
 
@@ -85,7 +85,7 @@ In Linear's **Settings > Administration > API**, which needs admin rights, creat
 | `LINEAR_WEBHOOK_SECRET` | **Required.** Verifies that deliveries come from Linear. |
 | `LINEAR_API_KEY` | **Required.** Posts replies as the agent's Linear user. |
 | `LINEAR_TRIGGER` | Text that makes a comment start a reply. Defaults to `@agent`. |
-| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [API Keys](/agents/docs/api-keys). |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. For another provider, change `model` and set its key instead, such as `OPENAI_API_KEY` or `OPENROUTER_API_KEY`. See [LLM API Keys](/agents/docs/api-keys). |
 
 ## Supported events
 

@@ -1,15 +1,17 @@
 ---
 title: "Built-in Tools"
-description: "The file and shell tools every agent gets, where they run, and how to limit them."
+description: "Pi's file and shell tools for agents with a sandbox, where they run, and how to limit them."
 ---
 
-With a sandbox, an agent gets seven built-in tools that run in the sandbox, not on your worker.
+Built-in tools are Pi's own [coding tools](https://github.com/earendil-works/pi/tree/main/packages/coding-agent), with the same names, parameters, and output as in Pi. They run in the agent's sandbox instead of on your worker.
 
 | Tool | What it does |
 | --- | --- |
 | `read`, `write`, `edit` | Read, create, and change files. |
 | `grep`, `find`, `ls` | Search files and list directories. |
 | `bash` | Run a shell command. |
+
+A sandbox is optional. Without one, the agent has no built-in tools and only uses the [custom tools](/agents/docs/custom-tools) you pass. Pi's tools run with the permissions of the process they run in, which is your worker, so they're only turned on when a [sandbox](/agents/docs/sandboxes) gives them somewhere else to run.
 
 <div style="overflow-x:auto">
 <svg viewBox="0 0 640 200" role="img" aria-label="client.ts calls executeBash on the reviewer agent to check out the branch. The reviewer&#x27;s read and search tools run in its sandbox. bash, edit, and write are excluded." style="width:100%;min-width:520px;max-width:640px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
@@ -37,9 +39,8 @@ With a sandbox, an agent gets seven built-in tools that run in the sandbox, not 
 <CodeSnippet file="examples/built-in-tools/client.ts" title="client.ts" />
 </CodeGroup>
 
-- `excludeTools` turns tools off by name, so this reviewer can read and search files but can't run commands or change them. `tools` does the opposite and enables only the tools you list.
-- `executeBash` runs a command in the agent's sandbox from your backend, without the model. It works even though the reviewer can't run `bash` itself. `excludeFromContext` keeps the output out of the conversation.
-- File tools only reach paths inside the sandbox's working directory. `bash` accepts a timeout, and long output is truncated before it reaches the model.
-- Without a sandbox, the agent has no built-in tools. See [Sandboxes](/agents/docs/sandboxes).
+- The `excludeTools` option turns tools off by name, so this reviewer can read and search files but can't run commands or change them. The `tools` option does the opposite and enables only the tools you list.
+- The `executeBash` action runs a command in the agent's sandbox from your backend, without the model. It works even though the reviewer can't run `bash` itself. Its `excludeFromContext` option keeps the output out of the conversation.
+- File tools only reach paths inside the sandbox's working directory. The `bash` tool accepts a timeout, and long output is truncated before it reaches the model.
 
 To give an agent your own tools, see [Custom Tools](/agents/docs/custom-tools).

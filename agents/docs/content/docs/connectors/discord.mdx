@@ -88,7 +88,7 @@ Under **General Information**, set the interactions endpoint URL to `https://<yo
 
 - The route verifies Discord's Ed25519 signature against the raw body with the application's public key.
 - Each Discord channel gets its own agent. Every `/ask` in the channel continues the same session.
-- Discord expects a response within three seconds and an agent run takes longer, so the route hands the command to the agent's `receive` action and defers the reply. `receive` schedules `reply`, which prompts the agent and edits the deferred message. Interaction tokens stay valid for 15 minutes, and a message holds up to 2,000 characters. The schedule is saved with the agent, so the reply still runs if the request that delivered the message goes away.
+- Discord expects a response within three seconds and an agent run takes longer, so the route hands the command to the agent's `receive` action and defers the reply. The `receive` action adds the message to the agent's queue and schedules `drain`, which prompts the agent with the oldest message and edits the deferred message. Interaction tokens stay valid for 15 minutes, and a message holds up to 2,000 characters. A message that arrives while the agent is answering waits in the queue. The queue is saved with the agent, so replies still run if the request that delivered a message goes away.
 
 ## Configure
 
@@ -97,7 +97,7 @@ Under **General Information**, set the interactions endpoint URL to `https://<yo
 | `DISCORD_PUBLIC_KEY` | **Required.** Verifies that requests come from Discord. |
 | `DISCORD_APPLICATION_ID` | Registers the command. Not needed by the server. |
 | `DISCORD_BOT_TOKEN` | Registers the command. Not needed by the server. |
-| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. See [API Keys](/agents/docs/api-keys). |
+| `ANTHROPIC_API_KEY` | **Required.** The agent's model key. For another provider, change `model` and set its key instead, such as `OPENAI_API_KEY` or `OPENROUTER_API_KEY`. See [LLM API Keys](/agents/docs/api-keys). |
 
 ## Supported events
 

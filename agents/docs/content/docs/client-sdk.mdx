@@ -41,19 +41,19 @@ Call an agent from your backend, a script, or any JavaScript runtime with `rivet
 
 ## Handles and connections
 
-- `createClient()` reads `RIVET_ENDPOINT`, `RIVET_NAMESPACE`, and `RIVET_TOKEN` from the environment, and defaults to a local Rivet at `localhost:6420`.
-- `getOrCreate` returns a handle to the agent with that key, and creates the agent on first use. Actions called on the handle, like `getMessages`, are single requests.
-- `connect()` opens a live connection that receives the session's events. Actions called before it opens wait until it does.
-- A dropped connection reconnects on its own. `onStatusChange` reports `connecting`, `connected`, and `disconnected`, and `idle` after `dispose()` closes the connection for good.
+- With no options, `createClient()` reads `RIVET_ENDPOINT`, `RIVET_NAMESPACE`, and `RIVET_TOKEN` from the environment, and defaults to a local Rivet at `localhost:6420`.
+- The `getOrCreate` method returns a handle to the agent with that key, and creates the agent on first use. Actions called on the handle, like `getMessages`, are single requests.
+- Calling `connect()` opens a live connection that receives the session's events. Actions called before it opens wait until it does.
+- A dropped connection reconnects on its own. The `onStatusChange` callback reports `connecting`, `connected`, and `disconnected`, and `idle` after `dispose()` closes the connection for good.
 
 ## Events
 
-`on("event", ...)` receives every event of the session as the agent works. See [Session Lifecycle](/agents/docs/session-lifecycle#events) for the event types.
+A listener added with `on("event", ...)` receives every event of the session as the agent works. See [Session Lifecycle](/agents/docs/session-lifecycle#events) for the event types.
 
 ## Results and errors
 
-- `prompt` resolves when the run ends. Read the reply with `getLastAssistantText` or `getMessages`.
-- `prompt` rejects with an `ActorError` when the action itself fails. For example, another prompt is already running (pass `streamingBehavior` to queue it instead), the model has no credential (`model_unavailable`), or the run passes the ten-minute action timeout (`action_timed_out`).
+- The `prompt` action resolves when the run ends. Read the reply with `getLastAssistantText` or `getMessages`.
+- The `prompt` action rejects with an `ActorError` when the action itself fails. For example, another prompt is already running (pass `streamingBehavior` to queue it instead), the model has no credential (`model_unavailable`), or the run passes the ten-minute action timeout (`action_timed_out`).
 - A model error doesn't reject. The run ends with an assistant message whose `stopReason` is `"error"`, and `errorMessage` explains why.
 
 ## Browsers
@@ -65,8 +65,8 @@ A browser shouldn't hold your Rivet credentials. Your backend checks who the use
 <CodeSnippet file="examples/client-sdk/token.ts" title="token.ts" />
 </CodeGroup>
 
-- `token.ts` resolves the user's agent and calls `issueToken`, which returns a token for that one agent that expires in 15 minutes.
-- `browser.ts` connects with `getForId`. `getToken` fetches a new token whenever the old one expires, so the connection stays up.
+- In `token.ts`, your backend resolves the user's agent and calls `issueToken`, which returns a token for that one agent that expires in 15 minutes.
+- In `browser.ts`, the client connects with `getForId`, and `getToken` fetches a new token whenever the old one expires, so the connection stays up.
 
 See [JWTs](/docs/jwt) and [Authentication](/docs/authentication).
 

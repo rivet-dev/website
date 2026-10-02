@@ -2,7 +2,7 @@ import { createClient } from "rivetkit/client";
 import type { registry } from "../quickstart/server";
 
 const client = createClient<typeof registry>();
-const conn = client.agent.getOrCreate(["support", "customer-123"]).connect();
+const conn = client.agent.getOrCreate(["user-123"]).connect();
 
 conn.on("event", (event) => {
 	if (event.type === "turn_start") console.log("\n[turn]");
@@ -15,5 +15,5 @@ conn.on("event", (event) => {
 	if (event.type === "compaction_start") console.log("\n[compacting]");
 });
 
-await conn.prompt("Find the failing test and fix it.");
+await conn.prompt("Write an isPalindrome function in TypeScript, add tests for it, and run them.");
 await conn.dispose();

@@ -4,7 +4,7 @@ description: "Run the Pi coding agent as a durable Rivet Actor."
 skill: false
 ---
 
-`@rivet-dev/pi` runs the [Pi](https://github.com/earendil-works/pi) coding agent in a Rivet Actor. The agent loop runs in the Actor. Pi's file and shell tools run in a separate sandbox.
+The `@rivet-dev/pi` package runs the [Pi](https://github.com/earendil-works/pi) coding agent in a Rivet Actor. The agent loop runs in the Actor. Pi's file and shell tools run in a separate sandbox.
 
 Each Actor holds one Pi session and saves it in its SQLite database, so a conversation survives sleep and restarts.
 
@@ -84,7 +84,11 @@ Each Actor holds one Pi session and saves it in its SQLite database, so a conver
 </svg>
 </div>
 
-To get started, follow the [Quickstart](/agents/docs/quickstart).
+<CardGroup>
+  <Card title="Quickstart" href="/agents/docs/quickstart">
+    Run your first agent, with its tools in a sandbox.
+  </Card>
+</CardGroup>
 
 ## Configuration
 
@@ -99,3 +103,5 @@ The Pi Actor accepts every [`actor()`](/actors/docs/actor-configuration) option 
 | `credentials` | Logins your application stores. See [User Subscriptions](/agents/docs/user-subscriptions). |
 | `sandbox` | Where Pi's file and shell tools run. See [Sandboxes](/agents/docs/sandboxes). |
 | `settings` | Pi settings for a new session. |
+
+**Next:** [Design Patterns](/agents/docs/design-patterns), how to structure an app with many agents.

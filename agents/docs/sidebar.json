@@ -21,6 +21,7 @@
 				{
 					"title": "Pi",
 					"href": "/agents/docs/pi",
+					"badge": "Beta",
 					"icon": {
 						"src": "/images/vendors/pi.svg"
 					}
@@ -31,9 +32,14 @@
 			"title": "Core",
 			"pages": [
 				{
-					"title": "Session Lifecycle",
-					"href": "/agents/docs/session-lifecycle",
-					"icon": "faArrowsRotate"
+					"title": "Design Patterns",
+					"href": "/agents/docs/design-patterns",
+					"icon": "faDiagramProject"
+				},
+				{
+					"title": "LLM API Keys",
+					"href": "/agents/docs/api-keys",
+					"icon": "faKey"
 				},
 				{
 					"title": "Sandboxes",
@@ -41,19 +47,14 @@
 					"icon": "faHardDrive"
 				},
 				{
-					"title": "API Keys",
-					"href": "/agents/docs/api-keys",
-					"icon": "faKey"
-				},
-				{
 					"title": "Custom Tools",
 					"href": "/agents/docs/custom-tools",
 					"icon": "faWrench"
 				},
 				{
-					"title": "Design Patterns",
-					"href": "/agents/docs/design-patterns",
-					"icon": "faDiagramProject"
+					"title": "Session Lifecycle",
+					"href": "/agents/docs/session-lifecycle",
+					"icon": "faArrowsRotate"
 				}
 			]
 		},

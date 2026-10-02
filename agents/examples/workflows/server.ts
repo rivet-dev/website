@@ -1,10 +1,10 @@
 import { pi } from "@rivet-dev/pi";
-import { agentOSProvider } from "@rivet-dev/sandbox-adapter/agentos";
+import { e2bProvider } from "@rivet-dev/sandbox-adapter/e2b";
 import { type Registry, setup, workflow } from "@rivet-dev/workflows";
 
 const agent = pi({
 	model: "anthropic/claude-opus-5-5",
-	sandbox: agentOSProvider(),
+	sandbox: e2bProvider(),
 });
 
 type Agents = Registry<{ agent: typeof agent }>;
@@ -18,7 +18,7 @@ const flakyTest = workflow({
 			run: async (step) => {
 				const fixer = step.client<Agents>().agent.getOrCreate([step.actorId]);
 				await fixer.abort();
-				await fixer.prompt("Run the test suite and note any failing tests.");
+				await fixer.prompt("Clone https://github.com/acme/app, run its test suite, and note any failing tests.");
 			},
 		});
 

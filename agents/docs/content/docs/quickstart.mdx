@@ -8,7 +8,7 @@ import { Hosting } from "@/components/docs/Hosting";
 An agent is a Rivet Actor in your backend. Its file and shell tools run in a sandbox, and clients prompt it like any other Actor.
 
 <div style="overflow-x:auto">
-<svg viewBox="0 0 620 236" role="img" aria-label="The client sends a prompt to the agent Actor. The agent sends model calls to the model provider and tool calls to its agentOS VM." style="width:100%;min-width:520px;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+<svg viewBox="0 0 620 236" role="img" aria-label="The client sends a prompt to the agent Actor. The agent sends model calls to the model provider and tool calls to its sandbox." style="width:100%;min-width:520px;max-width:620px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
     <marker id="quickstart-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
   </defs>
@@ -25,7 +25,7 @@ An agent is a Rivet Actor in your backend. Its file and shell tools run in a san
   <text x="80" y="100" text-anchor="middle" font-size="12" fill="#56524a">client.ts</text>
   <text x="305" y="83" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
   <text x="305" y="100" text-anchor="middle" font-size="12" fill="#56524a">server.ts</text>
-  <text x="535" y="91" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">agentOS VM</text>
+  <text x="535" y="91" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox</text>
   <text x="305" y="195" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Model provider</text>
   <text x="184.5" y="79" text-anchor="middle" font-size="12" fill="#56524a">prompt</text>
   <text x="424.5" y="79" text-anchor="middle" font-size="12" fill="#56524a">tool calls</text>
@@ -47,7 +47,7 @@ npm add @rivet-dev/pi rivetkit
 
 <CodeSnippet file="examples/pi/server.ts" title="server.ts" />
 
-Set the key for your model provider, such as `ANTHROPIC_API_KEY`.
+Set `ANTHROPIC_API_KEY`. For another provider, change `model` and set its key instead, such as `OPENAI_API_KEY`, `XAI_API_KEY`, or `OPENROUTER_API_KEY`. See [LLM API Keys](/agents/docs/api-keys).
 
 </Step>
 
@@ -56,19 +56,19 @@ Set the key for your model provider, such as `ANTHROPIC_API_KEY`.
 Pi's file and shell tools run in a sandbox. Without one they are disabled.
 
 ```sh
-npm add @rivet-dev/sandbox-adapter
+# E2B
+npm add @rivet-dev/sandbox-adapter e2b
+
+# Daytona
+npm add @rivet-dev/sandbox-adapter @daytonaio/sdk
 ```
 
-<CodeSnippet file="examples/quickstart/server.ts" title="server.ts" />
+<CodeGroup>
+<CodeSnippet file="examples/quickstart/server.ts" title="e2b.ts" />
+<CodeSnippet file="examples/sandboxes/daytona.ts" title="daytona.ts" />
+</CodeGroup>
 
-To use another provider, install its SDK and pass its provider instead. Provider credentials never enter the sandbox.
-
-| Provider | Import from `@rivet-dev/sandbox-adapter` | SDK |
-| --- | --- | --- |
-| [E2B](https://e2b.dev) | `e2bProvider` from `/e2b` | `e2b` |
-| [Daytona](https://daytona.io) | `daytonaProvider` from `/daytona` | `@daytonaio/sdk` |
-
-The agentOS VM comes with coreutils, which provides `sh` and the basic commands the agent runs. For another provider, implement [`SandboxProvider`](https://github.com/rivet-dev/rivet/blob/main/shared/typescript/sandbox-adapter/src/index.ts). See [Sandboxes](/agents/docs/sandboxes).
+Set `E2B_API_KEY` for [E2B](https://e2b.dev) or `DAYTONA_API_KEY` for [Daytona](https://daytona.io). To write your own provider, see [Sandboxes](/agents/docs/sandboxes).
 
 </Step>
 
@@ -84,11 +84,11 @@ The agentOS VM comes with coreutils, which provides `sh` and the basic commands 
 
 ```sh
 URL="http://localhost:6420/gateway/agent/action"
-AGENT="rvt-namespace=default&rvt-method=getOrCreate&rvt-key=support,customer-123&rvt-pool=default"
+AGENT="rvt-namespace=default&rvt-method=getOrCreate&rvt-key=user-123&rvt-pool=default"
 
 curl -X POST "$URL/prompt?$AGENT" \
   -H "Content-Type: application/json" \
-  -d '{"args": ["Inspect the project and summarize its test failures."]}'
+  -d '{"args": ["Write a Python script that prints the first 20 prime numbers, run it, and show me the output."]}'
 
 curl -X POST "$URL/getLastAssistantText?$AGENT" \
   -H "Content-Type: application/json" \
@@ -100,7 +100,7 @@ Each action is a `POST` to the gateway with its arguments in `args`. See [Call A
 </Tab>
 </Tabs>
 
-`prompt` waits for Pi to finish, then `getLastAssistantText` reads the full reply.
+The `prompt` action waits for Pi to finish, then `getLastAssistantText` reads the full reply.
 
 </Step>
 
@@ -112,6 +112,4 @@ Each action is a `POST` to the gateway with its arguments in `args`. See [Call A
 
 </Steps>
 
-The rest of the Core pages build on this agent.
-
-**Next:** [Session Lifecycle](/agents/docs/session-lifecycle), what happens while the agent answers a prompt.
+**Next:** [Design Patterns](/agents/docs/design-patterns), how to structure an app with many agents.
