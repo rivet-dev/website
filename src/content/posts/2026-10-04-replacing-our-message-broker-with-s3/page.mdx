@@ -1,0 +1,512 @@
+---
+image: true
+author: nathan-flurry
+published: "2026-10-04"
+category: technical
+keywords: ["nats", "s3", "object storage", "pub/sub", "message broker", "broadcast", "gossip", "distributed systems", "actors", "rivet 3.0"]
+title: "Replacing Our Message Broker with... S3?"
+description: "Rivet 3.0's only dependency is S3. Here's how we replaced NATS with it."
+seoTitle: "Replacing NATS with S3"
+seoDescription: "How Rivet replaced NATS with direct node-to-node requests and batched S3 broadcast logs, making S3 its only dependency."
+---
+
+[Rivet](https://github.com/rivet-dev/rivet) is a fast, high-density, and scalable orchestrator for agentic workloads such as agent orchestration, workflows, and realtime apps. The primitive at the center of Rivet is an Actor, frequently used as an open-source alternative to Durable Objects.
+
+We're putting the finishing touches on Rivet 3.0, which has three goals:
+
+- **S3 as the only dependency**, making scaling cheaper and easier to operate.
+- **No performance sacrifice** compared to the SSD-based databases behind Rivet 2.0, like Postgres and FoundationDB.
+- **As easy as possible to run**, whether you're self-hosting Rivet or embedding it inside your own application.
+
+That obviously means removing those databases. It also means replacing our message broker, [NATS](https://nats.io), which has been the backbone between all of our services.
+
+Replacing NATS with S3 sounds absurd, and for most workloads it would be. Here's how we did it.
+
+## What is NATS?
+
+[NATS](https://nats.io) is a lightweight, open-source message broker, and it's the message broker Rivet has used between all of its nodes: sending messages between nodes, broadcasting events to the whole cluster, and generally anything that helps us scale beyond a single machine.
+
+We use it in two ways:
+
+- **Request/reply**: One node sends a request to a specific subscriber, such as the node running a given Actor, and waits for a reply.
+- **Broadcast**: One node publishes an event, and every node subscribed to that subject receives it.
+
+<svg viewBox="0 0 680 224" role="img" aria-label="Two panels. Request and reply: Node A sends a request to NATS, NATS forwards it to Node B, and Node B's reply travels back through NATS to Node A. Broadcast: Node A publishes one message to NATS, which delivers it to both Node B and Node C." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-nats-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-nats-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-nats-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker></defs>
+  <rect x="12" y="12" width="320" height="200" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="28" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">REQUEST / REPLY</text>
+  <rect x="26" y="110" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="58.0" y="130.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <rect x="140" y="110" width="64" height="34" rx="7" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <text x="172.0" y="130.5" font-size="10.5" fill="#2E4034" text-anchor="middle" font-weight="600">NATS</text>
+  <rect x="254" y="110" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="286.0" y="130.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <line x1="90.0" y1="120.0" x2="140.0" y2="120.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-nats-ink)"/>
+  <line x1="204.0" y1="120.0" x2="254.0" y2="120.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-nats-ink)"/>
+  <text x="115" y="112" font-size="9.5" fill="#1b1916" text-anchor="middle">request</text>
+  <text x="229" y="112" font-size="9.5" fill="#1b1916" text-anchor="middle">request</text>
+  <line x1="254.0" y1="134.0" x2="204.0" y2="134.0" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-nats-pine)"/>
+  <line x1="140.0" y1="134.0" x2="90.0" y2="134.0" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-nats-pine)"/>
+  <text x="115" y="150" font-size="9.5" fill="#2E4034" text-anchor="middle">reply</text>
+  <text x="229" y="150" font-size="9.5" fill="#2E4034" text-anchor="middle">reply</text>
+  <text x="172" y="196" font-size="9.5" fill="#8a8578" text-anchor="middle">one request, one reply</text>
+  <rect x="348" y="12" width="320" height="200" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="364" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">BROADCAST</text>
+  <rect x="362" y="110" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="394.0" y="130.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <rect x="476" y="110" width="64" height="34" rx="7" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <text x="508.0" y="130.5" font-size="10.5" fill="#2E4034" text-anchor="middle" font-weight="600">NATS</text>
+  <rect x="590" y="72" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="622.0" y="92.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <rect x="590" y="148" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="622.0" y="168.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node C</text>
+  <line x1="426.0" y1="127.0" x2="476.0" y2="127.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-nats-ink)"/>
+  <text x="451" y="119" font-size="9.5" fill="#1b1916" text-anchor="middle">publish</text>
+  <line x1="540.0" y1="120.0" x2="590.0" y2="92.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-nats-ink)"/>
+  <line x1="540.0" y1="134.0" x2="590.0" y2="162.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-nats-ink)"/>
+  <text x="508" y="196" font-size="9.5" fill="#8a8578" text-anchor="middle">one publish, every subscriber receives it</text>
+</svg>
+
+Before going any further, it's worth saying that **NATS has been phenomenal**. It's arguably the lowest-maintenance piece of our stack:
+
+- **We've never had an outage caused by NATS.**
+- **Its CPU and memory usage is laughably low.**
+- **It's incredibly easy to set up and run.**
+- **We've hit exactly two bugs**, both in the Rust client.
+
+If you need a message broker, use NATS.
+
+## So why replace it?
+
+We want Rivet to be as easy as possible to run, both when self-hosting and when embedding Rivet as a dependency inside your own application. Every extra service is one more thing to deploy, monitor, and upgrade. Removing NATS makes S3 our only dependency.
+
+There's a performance motivation too. Every message through NATS travels from the sender to NATS and then from NATS to the receiver.
+
+<svg viewBox="0 0 680 150" role="img" aria-label="Two panels side by side. Through NATS: Node A sends a message to NATS, and NATS sends it on to Node B, an extra network hop and data copy highlighted in red. Direct: Node A sends the message straight to Node B in one hop." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-hops-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-hops-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-hops-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker><marker id="nx-hops-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b4432f"/></marker></defs>
+  <rect x="12" y="12" width="320" height="126" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="28" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">THROUGH NATS</text>
+  <text x="316" y="34" font-size="9.5" fill="#8a8578" text-anchor="end">2 hops</text>
+  <rect x="26" y="70" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="58.0" y="90.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <rect x="140" y="70" width="64" height="34" rx="7" fill="#f6e3df" stroke="#b4432f" stroke-width="1.3"/>
+  <text x="172" y="90.5" font-size="10.5" fill="#b4432f" text-anchor="middle" font-weight="600">NATS</text>
+  <rect x="254" y="70" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="286.0" y="90.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <line x1="90.0" y1="87.0" x2="140.0" y2="87.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hops-ink)"/>
+  <line x1="204.0" y1="87.0" x2="254.0" y2="87.0" stroke="#b4432f" stroke-width="1.4" marker-end="url(#nx-hops-red)"/>
+  <text x="229" y="124" font-size="9.5" fill="#b4432f" text-anchor="middle" font-weight="600">extra hop + copy</text>
+  <rect x="348" y="12" width="320" height="126" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="364" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">DIRECT</text>
+  <text x="652" y="34" font-size="9.5" fill="#8a8578" text-anchor="end">1 hop</text>
+  <rect x="390" y="70" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="422.0" y="90.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <rect x="562" y="70" width="64" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="594.0" y="90.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <line x1="454.0" y1="87.0" x2="562.0" y2="87.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hops-ink)"/>
+</svg>
+
+Talking directly instead:
+
+- **Removes a network hop** from every request, which directly cuts latency inside Rivet.
+- **Removes a data copy** through the broker, which makes throughput cheaper.
+
+## Taking a step back: our actual workload
+
+S3 writes take tens of milliseconds and are billed per request. To be clear, **S3 is not a generic replacement for NATS**.
+
+But here's the thing: **we don't need all of NATS**. When we looked at every place Rivet uses it, it came down to two patterns:
+
+- **Frequent, latency-sensitive request/reply** between nodes.
+- **Infrequent broadcasts** to other nodes that are fine taking a moment to arrive.
+
+We don't rely on most of the situations where NATS shines, and these two patterns have very different requirements, so we solved them separately.
+
+## The naive approach: fan out to every node
+
+The naive way to get rid of NATS is to have each node talk to every other node directly. For example, when a node needs to broadcast something like `actor.wake`, it sends it to every other Rivet node, and nodes without a matching subscriber ignore it.
+
+<svg viewBox="0 0 680 284" role="img" aria-label="Direct fanout. With 3 nodes, the broadcasting node sends 2 requests, one to each other node. With 10 nodes, the broadcasting node sends 9 requests." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-fan-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-fan-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-fan-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker></defs>
+  <rect x="12" y="12" width="240" height="260" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="28" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">3 NODES</text>
+  <text x="236" y="34" font-size="9.5" fill="#8a8578" text-anchor="end">2 requests</text>
+  <line x1="84.0" y1="143.3" x2="172.0" y2="100.7" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="84.0" y1="160.7" x2="172.0" y2="203.3" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <circle cx="66.0" cy="152.0" r="18" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <text x="66.0" y="155.5" font-size="9.5" fill="#2E4034" text-anchor="middle" font-weight="600">A</text>
+  <circle cx="190.0" cy="92.0" r="18" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="190.0" y="95.5" font-size="9.5" fill="#1b1916" text-anchor="middle">B</text>
+  <circle cx="190.0" cy="212.0" r="18" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="190.0" y="215.5" font-size="9.5" fill="#1b1916" text-anchor="middle">C</text>
+  <rect x="268" y="12" width="400" height="260" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="284" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">10 NODES</text>
+  <text x="652" y="34" font-size="9.5" fill="#8a8578" text-anchor="end">9 requests</text>
+  <line x1="380.6" y1="143.7" x2="388.9" y2="118.2" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="384.8" y1="145.9" x2="430.8" y2="82.6" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="388.1" y1="149.2" x2="484.3" y2="79.3" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="390.3" y1="153.4" x2="528.2" y2="108.6" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="391.0" y1="158.0" x2="545.0" y2="158.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="390.3" y1="162.6" x2="528.2" y2="207.4" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="388.1" y1="166.8" x2="484.3" y2="236.7" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="384.8" y1="170.1" x2="430.8" y2="233.4" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <line x1="380.6" y1="172.3" x2="388.9" y2="197.8" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-fan-ink)"/>
+  <circle cx="376.0" cy="158.0" r="13" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <circle cx="393.6" cy="103.9" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="439.6" cy="70.5" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="496.4" cy="70.5" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="542.4" cy="103.9" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="560.0" cy="158.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="542.4" cy="212.1" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="496.4" cy="245.5" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="439.6" cy="245.5" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <circle cx="393.6" cy="212.1" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+</svg>
+
+With 3 nodes, this is fine: each broadcast costs 2 requests. With 10 nodes, each broadcast costs 9 requests. **The cost of a single broadcast grows with the size of the cluster**, which is O(n) per broadcast. If every node broadcasts at a steady rate, total cluster traffic is n × (n − 1), or **O(n²)**: 6 messages for 3 nodes, 90 for 10 nodes, and 9,900 for 100 nodes.
+
+This is **fan-out amplification**: one logical event costs work proportional to the cluster size. It's doubly bad because it gets worse precisely when you scale. Adding nodes should increase capacity, but here each new node also makes every broadcast more expensive for every other node.
+
+NATS solves this with a hub. A publisher sends one message to its NATS server, and the NATS cluster takes care of delivering it to every subscriber.
+
+<svg viewBox="0 0 680 296" role="img" aria-label="Node A sends a single message to one NATS server. That server forwards it across the NATS cluster to two other servers, and each of the three servers delivers it to its three local subscribers, nine nodes in total." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-hub-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-hub-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-hub-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker></defs>
+  <rect x="300" y="14" width="80" height="32" rx="7" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <text x="340.0" y="33.5" font-size="10.5" fill="#2E4034" text-anchor="middle" font-weight="600">Node A</text>
+  <rect x="60" y="84" width="560" height="82" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="76" y="106" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">NATS CLUSTER</text>
+  <rect x="95" y="114" width="110" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="150.0" y="134.5" font-size="10.5" fill="#1b1916" text-anchor="middle">NATS server</text>
+  <rect x="285" y="114" width="110" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="340.0" y="134.5" font-size="10.5" fill="#1b1916" text-anchor="middle">NATS server</text>
+  <rect x="475" y="114" width="110" height="34" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="530.0" y="134.5" font-size="10.5" fill="#1b1916" text-anchor="middle">NATS server</text>
+  <line x1="340.0" y1="46.0" x2="340.0" y2="114.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <text x="350" y="72" font-size="9.5" fill="#1b1916" text-anchor="start">1 message</text>
+  <line x1="285.0" y1="131.0" x2="205.0" y2="131.0" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-hub-pine)"/>
+  <line x1="395.0" y1="131.0" x2="475.0" y2="131.0" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-hub-pine)"/>
+  <line x1="150.0" y1="148.0" x2="107.3" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="100.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="150.0" y1="148.0" x2="150.0" y2="216.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="150.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="150.0" y1="148.0" x2="192.7" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="200.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="340.0" y1="148.0" x2="297.3" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="290.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="340.0" y1="148.0" x2="340.0" y2="216.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="340.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="340.0" y1="148.0" x2="382.7" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="390.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="530.0" y1="148.0" x2="487.3" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="480.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="530.0" y1="148.0" x2="530.0" y2="216.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="530.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <line x1="530.0" y1="148.0" x2="572.7" y2="218.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-hub-ink)"/>
+  <circle cx="580.0" cy="230.0" r="13" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="340" y="276" font-size="9.5" fill="#8a8578" text-anchor="middle">Node A's cost stays at one message no matter how many nodes subscribe</text>
+</svg>
+
+The publisher's cost is constant regardless of cluster size. That's a big part of why brokers exist.
+
+<svg viewBox="0 0 680 290" role="img" aria-label="Line chart of messages each node sends per broadcast as the cluster grows from 3 to 100 Rivet nodes. Fanout grows linearly, from 2 messages at 3 nodes to 99 at 100 nodes. With NATS it stays at 1 message at every cluster size." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-chart-nats-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-chart-nats-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-chart-nats-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker><marker id="nx-chart-nats-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b4432f"/></marker></defs>
+  <text x="70" y="22" font-size="11" fill="#1b1916" text-anchor="start" font-weight="600">Messages each node sends per broadcast</text>
+  <rect x="70" y="34" width="14" height="3" rx="1.5" fill="#b4432f"/>
+  <text x="90" y="39" font-size="9.5" fill="#56524a" text-anchor="start">Fanout</text>
+  <rect x="134" y="34" width="14" height="3" rx="1.5" fill="#2f6db5"/>
+  <text x="154" y="39" font-size="9.5" fill="#56524a" text-anchor="start">NATS</text>
+  <line x1="70" y1="230.0" x2="600" y2="230.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="233.5" font-size="9" fill="#8a8578" text-anchor="end">0</text>
+  <text x="70.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">0</text>
+  <line x1="70" y1="188.0" x2="600" y2="188.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="191.5" font-size="9" fill="#8a8578" text-anchor="end">25</text>
+  <text x="202.5" y="246" font-size="9" fill="#8a8578" text-anchor="middle">25</text>
+  <line x1="70" y1="146.0" x2="600" y2="146.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="149.5" font-size="9" fill="#8a8578" text-anchor="end">50</text>
+  <text x="335.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">50</text>
+  <line x1="70" y1="104.0" x2="600" y2="104.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="107.5" font-size="9" fill="#8a8578" text-anchor="end">75</text>
+  <text x="467.5" y="246" font-size="9" fill="#8a8578" text-anchor="middle">75</text>
+  <line x1="70" y1="62.0" x2="600" y2="62.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="65.5" font-size="9" fill="#8a8578" text-anchor="end">100</text>
+  <text x="600.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">100</text>
+  <line x1="70" y1="230" x2="600" y2="230" stroke="#8a8578" stroke-width="1"/>
+  <text x="335.0" y="266" font-size="9.5" fill="#56524a" text-anchor="middle">Rivet nodes</text>
+  <text x="18" y="146.0" font-size="9.5" fill="#56524a" text-anchor="middle" transform="rotate(-90 18 146.0)">messages</text>
+  <polyline points="85.9,226.6 123.0,214.9 202.5,189.7 335.0,147.7 467.5,105.7 600.0,63.7" fill="none" stroke="#b4432f" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="85.9" cy="226.6" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 3 nodes: 2 messages</title></circle>
+  <circle cx="123.0" cy="214.9" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 10 nodes: 9 messages</title></circle>
+  <circle cx="202.5" cy="189.7" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 25 nodes: 24 messages</title></circle>
+  <circle cx="335.0" cy="147.7" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 50 nodes: 49 messages</title></circle>
+  <circle cx="467.5" cy="105.7" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 75 nodes: 74 messages</title></circle>
+  <circle cx="600.0" cy="63.7" r="4" fill="#b4432f" stroke="#ffffff" stroke-width="2"><title>Fanout, 100 nodes: 99 messages</title></circle>
+  <text x="610" y="67.18" font-size="9.5" fill="#1b1916" text-anchor="start">Fanout: 99</text>
+  <polyline points="85.9,228.3 123.0,228.3 202.5,228.3 335.0,228.3 467.5,228.3 600.0,228.3" fill="none" stroke="#2f6db5" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="85.9" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 3 nodes: 1 messages</title></circle>
+  <circle cx="123.0" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 10 nodes: 1 messages</title></circle>
+  <circle cx="202.5" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 25 nodes: 1 messages</title></circle>
+  <circle cx="335.0" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 50 nodes: 1 messages</title></circle>
+  <circle cx="467.5" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 75 nodes: 1 messages</title></circle>
+  <circle cx="600.0" cy="228.3" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 100 nodes: 1 messages</title></circle>
+  <text x="610" y="231.82" font-size="9.5" fill="#1b1916" text-anchor="start">NATS: 1</text>
+</svg>
+
+## The alternative: gossip
+
+Another option we considered was **gossip**. Instead of sending a broadcast to every node, a node tells a few random peers, and those peers each tell a few more. The message spreads like a rumor, reaching the whole cluster in O(log n) rounds while each node only does a constant amount of work.
+
+<svg viewBox="0 0 680 270" role="img" aria-label="Gossip. In round 1, Node A tells Nodes B and C. In round 2, B tells D and E, and C tells F and G. C also tells E, which already has the message, so E drops the duplicate." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-gossip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-gossip-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-gossip-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker></defs>
+  <text x="205" y="20" font-size="9" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace" font-weight="600">ROUND 1</text>
+  <text x="445" y="20" font-size="9" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace" font-weight="600">ROUND 2</text>
+  <line x1="135.0" y1="147.0" x2="255.0" y2="93.0" stroke="#2E4034" stroke-width="1.4" marker-end="url(#nx-gossip-pine)"/>
+  <line x1="135.0" y1="147.0" x2="255.0" y2="203.0" stroke="#2E4034" stroke-width="1.4" marker-end="url(#nx-gossip-pine)"/>
+  <line x1="345.0" y1="93.0" x2="495.0" y2="55.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-gossip-ink)"/>
+  <line x1="345.0" y1="93.0" x2="495.0" y2="119.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-gossip-ink)"/>
+  <line x1="345.0" y1="203.0" x2="495.0" y2="183.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-gossip-ink)"/>
+  <line x1="345.0" y1="203.0" x2="495.0" y2="247.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-gossip-ink)"/>
+  <line x1="345.0" y1="203.0" x2="495.0" y2="119.0" stroke="#8a8578" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-gossip-muted)"/>
+  <rect x="45" y="132" width="90" height="30" rx="7" fill="#e7ece7" stroke="#2E4034" stroke-width="1.3"/>
+  <text x="90.0" y="150.5" font-size="10.5" fill="#2E4034" text-anchor="middle" font-weight="600">Node A</text>
+  <rect x="255" y="78" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="300.0" y="96.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <rect x="255" y="188" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="300.0" y="206.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node C</text>
+  <rect x="495" y="40" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="540.0" y="58.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node D</text>
+  <rect x="495" y="104" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="540.0" y="122.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node E</text>
+  <rect x="495" y="168" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="540.0" y="186.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node F</text>
+  <rect x="495" y="232" width="90" height="30" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="540.0" y="250.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node G</text>
+  <text x="593" y="123" font-size="9" fill="#8a8578" text-anchor="start">duplicate,</text>
+  <text x="593" y="135" font-size="9" fill="#8a8578" text-anchor="start">dropped</text>
+</svg>
+
+This gives gossip attractive scaling properties. A node only ever talks to a few peers at a time, and to make sure every node eventually hears a broadcast, each message is retransmitted about log n times. In HashiCorp's [memberlist](https://github.com/hashicorp/memberlist), that's **`4 * ceil(log10(n + 1))` messages per node**, so per-node cost grows as **O(log n)** and total cluster traffic as **O(n log n)**, instead of the O(n) per node of direct fanout.
+
+<svg viewBox="0 0 680 290" role="img" aria-label="Line chart of messages each node sends per broadcast as the cluster grows from 3 to 1,000 Rivet nodes. With NATS it stays at 1 message. With gossip, using memberlist's default of 4 times the ceiling of log10 of n plus 1 retransmissions, it climbs in steps that grow further apart: 4 messages below 10 nodes, 8 from 10 to 99 nodes, and 12 from 100 to 999 nodes." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-chart-gossip-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-chart-gossip-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-chart-gossip-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker><marker id="nx-chart-gossip-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b4432f"/></marker></defs>
+  <text x="70" y="22" font-size="11" fill="#1b1916" text-anchor="start" font-weight="600">Messages each node sends per broadcast</text>
+  <rect x="70" y="34" width="14" height="3" rx="1.5" fill="#2f6db5"/>
+  <text x="90" y="39" font-size="9.5" fill="#56524a" text-anchor="start">NATS</text>
+  <rect x="122" y="34" width="14" height="3" rx="1.5" fill="#c08a1e"/>
+  <text x="142" y="39" font-size="9.5" fill="#56524a" text-anchor="start">Gossip</text>
+  <line x1="70" y1="230.0" x2="600" y2="230.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="233.5" font-size="9" fill="#8a8578" text-anchor="end">0</text>
+  <line x1="70" y1="196.4" x2="600" y2="196.4" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="199.9" font-size="9" fill="#8a8578" text-anchor="end">4</text>
+  <line x1="70" y1="162.8" x2="600" y2="162.8" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="166.3" font-size="9" fill="#8a8578" text-anchor="end">8</text>
+  <line x1="70" y1="129.2" x2="600" y2="129.2" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="132.7" font-size="9" fill="#8a8578" text-anchor="end">12</text>
+  <line x1="70" y1="95.6" x2="600" y2="95.6" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="99.1" font-size="9" fill="#8a8578" text-anchor="end">16</text>
+  <line x1="70" y1="62.0" x2="600" y2="62.0" stroke="#e6e2d8" stroke-width="1"/>
+  <text x="62" y="65.5" font-size="9" fill="#8a8578" text-anchor="end">20</text>
+  <text x="70.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">0</text>
+  <text x="202.5" y="246" font-size="9" fill="#8a8578" text-anchor="middle">250</text>
+  <text x="335.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">500</text>
+  <text x="467.5" y="246" font-size="9" fill="#8a8578" text-anchor="middle">750</text>
+  <text x="600.0" y="246" font-size="9" fill="#8a8578" text-anchor="middle">1,000</text>
+  <line x1="70" y1="230" x2="600" y2="230" stroke="#8a8578" stroke-width="1"/>
+  <text x="335.0" y="266" font-size="9.5" fill="#56524a" text-anchor="middle">Rivet nodes</text>
+  <text x="18" y="146.0" font-size="9.5" fill="#56524a" text-anchor="middle" transform="rotate(-90 18 146.0)">messages</text>
+  <polyline points="71.6,221.6 75.3,221.6 123.0,221.6 600.0,221.6" fill="none" stroke="#2f6db5" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="71.6" cy="221.6" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 3 nodes: 1 messages</title></circle>
+  <circle cx="75.3" cy="221.6" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 10 nodes: 1 messages</title></circle>
+  <circle cx="123.0" cy="221.6" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 100 nodes: 1 messages</title></circle>
+  <circle cx="600.0" cy="221.6" r="4" fill="#2f6db5" stroke="#ffffff" stroke-width="2"><title>NATS, 1000 nodes: 1 messages</title></circle>
+  <text x="610" y="225.1" font-size="9.5" fill="#1b1916" text-anchor="start">NATS: 1</text>
+  <polyline points="71.6,196.4 74.8,196.4 75.3,162.8 122.5,162.8 123.0,129.2 599.5,129.2" fill="none" stroke="#c08a1e" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="71.6" cy="196.4" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 3 nodes: 4 messages</title></circle>
+  <circle cx="74.8" cy="196.4" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 9 nodes: 4 messages</title></circle>
+  <circle cx="75.3" cy="162.8" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 10 nodes: 8 messages</title></circle>
+  <circle cx="122.5" cy="162.8" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 99 nodes: 8 messages</title></circle>
+  <circle cx="123.0" cy="129.2" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 100 nodes: 12 messages</title></circle>
+  <circle cx="599.5" cy="129.2" r="4" fill="#c08a1e" stroke="#ffffff" stroke-width="2"><title>Gossip, 999 nodes: 12 messages</title></circle>
+  <text x="610" y="132.7" font-size="9.5" fill="#1b1916" text-anchor="start">Gossip: 12</text>
+</svg>
+
+HashiCorp's stack is built on this. [Consul](https://www.consul.io) and [Nomad](https://www.nomadproject.io) use [Serf](https://github.com/hashicorp/serf), which is built on their [memberlist](https://github.com/hashicorp/memberlist) library, an implementation of the [SWIM](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf) gossip protocol. Gossip is a good fit when broadcasts need to arrive quickly but not instantly, which describes ours well.
+
+We didn't go with it for two reasons:
+
+- **Complexity**: Gossip means owning peer forwarding, deduplication, repairing messages that a node missed, and correct behavior while nodes join and leave. Every one of those is a source of subtle bugs.
+- **State**: Every node has to remember which messages it has already seen so it can drop duplicates, like Node E above. With S3, a reader keeps one position per publisher, reads what's new, and forgets it.
+
+## Solving request/reply
+
+Request/reply turns out to be a simple problem, because **we already have a list of every Rivet node and how to send requests to it**.
+
+The catch is that it **requires changing logic outside of our messaging layer**: anywhere we need request/reply, the caller now has to know which node owns the subscriber.
+
+For example, a worker running an Actor used to blindly listen on a topic for that Actor, like `actor.123`, and anyone who wanted to talk to the Actor sent a request to that topic:
+
+```ts
+client.request("actor.123", payload);
+```
+
+Now we store the ID of the worker running it on the Actor's record in S3, and when we need to talk to the Actor, we send the request straight to that worker's internal address:
+
+```ts
+client.request(actor.workerId, "actor.123", payload);
+```
+
+<svg viewBox="0 0 680 250" role="img" aria-label="Direct request and reply. Node A looks up the Actor record, which says Actor 123 runs on worker node-b. Node A then sends the request straight to Node B, which runs the Actor, and Node B replies directly. There is no broker in between." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-direct-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-direct-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-direct-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker></defs>
+  <rect x="250" y="14" width="180" height="70" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="266" y="34" font-size="9" fill="#2E4034" text-anchor="start" font-family="ui-monospace,monospace" font-weight="600">ACTOR RECORD</text>
+  <text x="266" y="54" font-size="9.5" fill="#1b1916" text-anchor="start" font-family="ui-monospace,monospace">actor_id:  123</text>
+  <text x="266" y="72" font-size="9.5" fill="#2E4034" text-anchor="start" font-family="ui-monospace,monospace" font-weight="600">worker_id: node-b</text>
+  <rect x="50" y="150" width="130" height="50" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="115.0" y="178.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <rect x="490" y="136" width="150" height="78" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="565" y="156" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <rect x="520" y="170" width="90" height="22" rx="11.0" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <text x="565.0" y="184.0" font-size="8.5" fill="#2E4034" text-anchor="middle">Actor 123</text>
+  <line x1="140.0" y1="150.0" x2="250.0" y2="70.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-direct-ink)"/>
+  <text x="192" y="98" font-size="9.5" fill="#1b1916" text-anchor="end">1. who owns Actor 123?</text>
+  <line x1="180.0" y1="166.0" x2="490.0" y2="166.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-direct-ink)"/>
+  <text x="335" y="158" font-size="10" fill="#1b1916" text-anchor="middle">2. request</text>
+  <line x1="490.0" y1="188.0" x2="180.0" y2="188.0" stroke="#2E4034" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#nx-direct-pine)"/>
+  <text x="335" y="204" font-size="10" fill="#2E4034" text-anchor="middle">reply</text>
+  <text x="340" y="238" font-size="9.5" fill="#8a8578" text-anchor="middle">one hop, no broker in between</text>
+</svg>
+
+The result is that **request/reply is now one direct hop between two nodes**, the theoretical minimum, with a little more care about where requests and replies come from.
+
+## Solving broadcasting
+
+Rivet's broadcasts are:
+
+- **Low frequency**: Events are published occasionally, not per request.
+- **Latency-tolerant**: It's fine if delivery takes a moment.
+- **Reach every node**: Every node that subscribes must eventually see every event.
+
+Examples include cache purges and configuration changes. None of this logic is on the hot path for low-latency behavior such as Actor scheduling and networking, which makes it a good fit for S3.
+
+### One batched log per node
+
+Each node writes its broadcasts to its own log in S3. Instead of one write per event, it **batches everything published in a 100 ms window** into a single write, then advances the log's head to the new batch using head fencing.
+
+<svg viewBox="0 0 680 300" role="img" aria-label="S3 sits above three nodes. Each node has its own log in S3 and appends one batch of broadcast messages to it every 100 ms. Node A's log holds a batch with cache.purge and config.update, then a batch with cache.purge. Node B's log holds batches with pool.update, then two cache.purge messages. Node C's log holds batches with config.update, then pool.update." style="width:100%;max-width:680px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+  <defs><marker id="nx-batch-ink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1b1916"/></marker><marker id="nx-batch-pine" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2E4034"/></marker><marker id="nx-batch-muted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8a8578"/></marker><marker id="nx-batch-red" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#b4432f"/></marker></defs>
+  <rect x="14" y="12" width="652" height="188" rx="10" fill="#faf8f3" stroke="#2E4034" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="30" y="34" font-size="10" font-weight="600" fill="#2E4034" font-family="ui-monospace,monospace" letter-spacing="0.12em">S3</text>
+  <rect x="30" y="42" width="180" height="146" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.1"/>
+  <text x="42" y="58" font-size="9" fill="#8a8578" text-anchor="start" font-family="ui-monospace,monospace">node A log</text>
+  <rect x="42" y="68" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="52" y="96.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 1</text>
+  <rect x="93" y="74.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="101" y="79.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M101 79.5 L106 83.5 L111 79.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="151" y="86.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">cache.purge</text>
+  <rect x="93" y="94.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="101" y="99.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M101 99.5 L106 103.5 L111 99.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="151" y="106.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">config.update</text>
+  <rect x="42" y="126" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="52" y="154.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 2</text>
+  <rect x="93" y="142.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="101" y="147.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M101 147.5 L106 151.5 L111 147.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="151" y="154.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">cache.purge</text>
+  <rect x="250" y="42" width="180" height="146" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.1"/>
+  <text x="262" y="58" font-size="9" fill="#8a8578" text-anchor="start" font-family="ui-monospace,monospace">node B log</text>
+  <rect x="262" y="68" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="272" y="96.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 1</text>
+  <rect x="313" y="84.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="321" y="89.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M321 89.5 L326 93.5 L331 89.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="371" y="96.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">pool.update</text>
+  <rect x="262" y="126" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="272" y="154.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 2</text>
+  <rect x="313" y="132.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="321" y="137.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M321 137.5 L326 141.5 L331 137.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="371" y="144.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">cache.purge</text>
+  <rect x="313" y="152.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="321" y="157.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M321 157.5 L326 161.5 L331 157.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="371" y="164.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">cache.purge</text>
+  <rect x="470" y="42" width="180" height="146" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.1"/>
+  <text x="482" y="58" font-size="9" fill="#8a8578" text-anchor="start" font-family="ui-monospace,monospace">node C log</text>
+  <rect x="482" y="68" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="492" y="96.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 1</text>
+  <rect x="533" y="84.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="541" y="89.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M541 89.5 L546 93.5 L551 89.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="591" y="96.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">config.update</text>
+  <rect x="482" y="126" width="156" height="50" rx="5" fill="#faf8f3" stroke="#1b1916" stroke-width="1"/>
+  <text x="492" y="154.5" font-size="8.5" fill="#56524a" text-anchor="start" font-family="ui-monospace,monospace">batch 2</text>
+  <rect x="533" y="142.5" width="101" height="17" rx="8.5" fill="#e7ece7" stroke="#2E4034" stroke-width="1.1"/>
+  <rect x="541" y="147.5" width="10" height="7" rx="1" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <path d="M541 147.5 L546 151.5 L551 147.5" fill="none" stroke="#2E4034" stroke-width="0.9"/>
+  <text x="591" y="154.0" font-size="8.5" fill="#2E4034" text-anchor="middle" font-family="ui-monospace,monospace">pool.update</text>
+  <rect x="30" y="250" width="180" height="38" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="120.0" y="272.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node A</text>
+  <line x1="120.0" y1="250.0" x2="120.0" y2="188.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-batch-ink)"/>
+  <text x="128" y="228" font-size="9.5" fill="#1b1916" text-anchor="start">1 batch / 100 ms</text>
+  <rect x="250" y="250" width="180" height="38" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="340.0" y="272.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node B</text>
+  <line x1="340.0" y1="250.0" x2="340.0" y2="188.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-batch-ink)"/>
+  <text x="348" y="228" font-size="9.5" fill="#1b1916" text-anchor="start">1 batch / 100 ms</text>
+  <rect x="470" y="250" width="180" height="38" rx="7" fill="#ffffff" stroke="#1b1916" stroke-width="1.3"/>
+  <text x="560.0" y="272.5" font-size="10.5" fill="#1b1916" text-anchor="middle">Node C</text>
+  <line x1="560.0" y1="250.0" x2="560.0" y2="188.0" stroke="#1b1916" stroke-width="1.4" marker-end="url(#nx-batch-ink)"/>
+  <text x="568" y="228" font-size="9.5" fill="#1b1916" text-anchor="start">1 batch / 100 ms</text>
+</svg>
+
+Every node then **polls every other node's log** every 250 ms.
+
+Each log is two kinds of objects in S3, a small **head** that records the log's newest batch and the immutable batches themselves:
+
+```
+heads/
+  node-a = 2
+  node-b = 2
+batches/
+  node-a/
+    1 = [cache.purge, config.update]
+    2 = [cache.purge]
+  node-b/
+    1 = [pool.update]
+    2 = [cache.purge, cache.purge]
+```
+
+A poll works like this:
+
+1. **List the heads**: One S3 list request on `heads/` returns every head with its version fingerprint ([ETag](https://docs.aws.amazon.com/AmazonS3/latest/API/API_Object.html)). If a head's fingerprint is the same as on the last poll, that log hasn't changed, so the node skips it.
+2. **Read the changed heads**: For each head whose fingerprint changed, the node reads it to find that log's newest batch.
+3. **Fetch the new batches**: The node downloads every batch between the last one it read and the newest one, such as `batches/node-a/2`.
+4. **Deliver locally**: Each node has many local subscribers, so it filters the messages by subject and delivers each one only to the subscribers that care about it.
+
+As an unintended side effect of this architecture, broadcasts are durable since they're stored in S3, even though they don't need to be.
+
+Overall, this makes broadcasts **cheap, scalable, and simple for our specific use case**, though it doesn't fit most NATS workloads.
+
+### Why not a log per subject?
+
+With S3, the expensive part is the number of write operations, not the bytes written. A log per subject would turn one write per node into one write per active subject. With high-cardinality subjects, that's a lot of writes happening at once.
+
+It also makes reading harder. There's no cheap way for a reader to know which subject logs exist or have changed, so it would have to discover and poll a growing set of logs.
+
+### Why not one big shared log?
+
+Writing to a log requires a [conditional write](https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html) to its head (head fencing) so writers can't clobber each other. That's cheap with a single writer per log. With one shared log, every node would compete to update the same head, causing constant retries that get worse as the cluster grows. Per-node logs cost readers a bit more polling, which is fine for our workload.
+
+## Looking ahead to Rivet 3.0
+
+As we wrap up the finishing touches on Rivet 3.0, we're excited to share more about its inner workings.
+
+We believe S3 is finally at the point where, with the right engineering decisions, it is the best durable backend for most storage by providing fast, cheap, and scalable storage.
+
+## Learn more
+
+- [Learn more about Rivet](https://rivet.dev)
+- [Rivet on GitHub](https://github.com/rivet-dev/rivet)
+- Follow [@rivet_dev on X](https://x.com/rivet_dev) to subscribe to updates
+- [Join our Discord](https://rivet.dev/discord)
+- Questions? @ me on [X](https://x.com/nathanflurry) or [Discord](https://rivet.dev/discord)
