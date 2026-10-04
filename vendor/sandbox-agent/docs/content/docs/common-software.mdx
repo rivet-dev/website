@@ -5,7 +5,7 @@ sidebarTitle: "Common Software"
 icon: "box-open"
 ---
 
-The sandbox runs a Debian/Ubuntu base image. You can install software with `apt-get` via the [Process API](/processes) or by customizing your Docker image. This page covers commonly needed packages and how to install them.
+The sandbox runs a Debian/Ubuntu base image. You can install software with `apt-get` via the [Process API](/sandbox-agent/docs/processes) or by customizing your Docker image. This page covers commonly needed packages and how to install them.
 
 ## Browsers
 
@@ -320,7 +320,7 @@ This installs `gcc`, `g++`, `make`, `cmake`, and related tools.
 
 ## Desktop applications
 
-These require the [Computer Use](/computer-use) desktop to be started first.
+These require the [Computer Use](/sandbox-agent/docs/computer-use) desktop to be started first.
 
 ### LibreOffice
 
@@ -557,4 +557,4 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install numpy pandas matplotlib
 ```
 
-See [Docker deployment](/deploy/docker) for how to use custom images with Sandbox Agent.
+See [Docker deployment](/sandbox-agent/docs/deploy/docker) for how to use custom images with Sandbox Agent.

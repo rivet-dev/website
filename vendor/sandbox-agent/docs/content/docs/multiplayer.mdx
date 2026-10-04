@@ -4,7 +4,7 @@ description: "Use Rivet Actors to coordinate shared sessions."
 icon: "users"
 ---
 
-For multiplayer orchestration, use [Rivet Actors](https://rivet.dev/docs/actors).
+For multiplayer orchestration, use [Rivet Actors](https://rivet.dev/actors/docs/).
 
 Recommended model:
 
@@ -12,7 +12,7 @@ Recommended model:
 - The actor owns Sandbox Agent session lifecycle and persistence.
 - Clients connect to the actor and receive realtime broadcasts.
 
-Use [actor keys](https://rivet.dev/docs/actors/keys) to map each workspace to one actor, [events](https://rivet.dev/docs/actors/events) for realtime updates, and [lifecycle hooks](https://rivet.dev/docs/actors/lifecycle) for cleanup.
+Use [actor keys](https://rivet.dev/actors/docs/keys/) to map each workspace to one actor, [events](https://rivet.dev/actors/docs/events/) for realtime updates, and [lifecycle hooks](https://rivet.dev/actors/docs/lifecycle/) for cleanup.
 
 ## Example
 
@@ -144,4 +144,4 @@ await conn.prompt({
 
 - Keep sandbox calls actor-only. Browser clients should not call Sandbox Agent directly.
 - Copy the Rivet persist driver from the example above into your project so session history persists in actor state.
-- For client connection patterns, see [Rivet JavaScript client](https://rivet.dev/docs/clients/javascript).
+- For client connection patterns, see [Rivet JavaScript client](https://rivet.dev/actors/docs/clients/javascript/).

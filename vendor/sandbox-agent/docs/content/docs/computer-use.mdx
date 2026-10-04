@@ -393,12 +393,12 @@ curl -X POST "http://127.0.0.1:2468/v1/desktop/open" \
 ```
 </CodeGroup>
 
-The returned `processId` can be used with the [Process API](/processes) to read logs (`GET /v1/processes/{id}/logs`) or stop the application (`POST /v1/processes/{id}/stop`).
+The returned `processId` can be used with the [Process API](/sandbox-agent/docs/processes) to read logs (`GET /v1/processes/{id}/logs`) or stop the application (`POST /v1/processes/{id}/stop`).
 
 When `wait` is `true`, the API polls for up to 5 seconds for a window to appear. If the window appears, its ID is returned in `windowId`. If it times out, `windowId` is `null` but the process is still running.
 
 <Tip>
-**Launch/Open vs the Process API:** Both `launch` and `open` are convenience wrappers around the [Process API](/processes). They create managed processes (with `owner: "desktop"`) that you can inspect, log, and stop through the same Process endpoints. The difference is that `launch` validates the binary exists in PATH first and can optionally wait for a window to appear, while `open` delegates to the system default handler (`xdg-open`). Use the Process API directly when you need full control over command, environment, working directory, or restart policies.
+**Launch/Open vs the Process API:** Both `launch` and `open` are convenience wrappers around the [Process API](/sandbox-agent/docs/processes). They create managed processes (with `owner: "desktop"`) that you can inspect, log, and stop through the same Process endpoints. The difference is that `launch` validates the binary exists in PATH first and can optionally wait for a window to appear, while `open` delegates to the system default handler (`xdg-open`). Use the Process API directly when you need full control over command, environment, working directory, or restart policies.
 </Tip>
 
 ## Recording
@@ -441,7 +441,7 @@ curl -X DELETE "http://127.0.0.1:2468/v1/desktop/recordings/rec_1"
 
 ## Desktop processes
 
-The desktop runtime manages several background processes (Xvfb, openbox, neko, ffmpeg). These are all registered with the general [Process API](/processes) under the `desktop` owner, so you can inspect logs, check status, and troubleshoot using the same tools you use for any other managed process.
+The desktop runtime manages several background processes (Xvfb, openbox, neko, ffmpeg). These are all registered with the general [Process API](/sandbox-agent/docs/processes) under the `desktop` owner, so you can inspect logs, check status, and troubleshoot using the same tools you use for any other managed process.
 
 <CodeGroup>
 ```ts TypeScript
@@ -524,7 +524,7 @@ curl -X POST "http://127.0.0.1:2468/v1/desktop/stream/stop"
 ```
 </CodeGroup>
 
-For a drop-in React component, see [React Components](/react-components).
+For a drop-in React component, see [React Components](/sandbox-agent/docs/react-components).
 
 ## API reference
 
@@ -611,7 +611,7 @@ For a drop-in React component, see [React Components](/react-components).
 
 ## Customizing the desktop environment
 
-The desktop runs inside the sandbox filesystem, so you can customize it using the [File System](/file-system) API before or after starting the desktop. The desktop HOME directory is located at `~/.local/state/sandbox-agent/desktop/home` (or `$XDG_STATE_HOME/sandbox-agent/desktop/home` if `XDG_STATE_HOME` is set).
+The desktop runs inside the sandbox filesystem, so you can customize it using the [File System](/sandbox-agent/docs/file-system) API before or after starting the desktop. The desktop HOME directory is located at `~/.local/state/sandbox-agent/desktop/home` (or `$XDG_STATE_HOME/sandbox-agent/desktop/home` if `XDG_STATE_HOME` is set).
 
 All configuration files below are written to paths relative to this HOME directory.
 
@@ -727,7 +727,7 @@ curl -X PUT "http://127.0.0.1:2468/v1/fs/file?path=~/.local/state/sandbox-agent/
 </CodeGroup>
 
 <Note>
-`feh` is not installed by default. Install it via the [Process API](/processes) before starting the desktop: `await sdk.runProcess({ command: "apt-get", args: ["install", "-y", "feh"] })`.
+`feh` is not installed by default. Install it via the [Process API](/sandbox-agent/docs/processes) before starting the desktop: `await sdk.runProcess({ command: "apt-get", args: ["install", "-y", "feh"] })`.
 </Note>
 
 ### Fonts

@@ -65,34 +65,7 @@ function remarkCodeFenceMetaToAnnotation() {
  * relative, file, query-string, fragment, or external URLs.
  */
 function remarkCanonicalInternalLinks() {
-	return (tree: unknown, file: { path?: string; history?: string[] }) => {
-		const contentPath = file.path ?? file.history?.[0] ?? "";
-		const sandboxAgentDocs = contentPath.includes("/sandbox-agent/");
-		const canonicalize = (href: string) => {
-			if (sandboxAgentDocs && href.startsWith("https://rivet.dev/")) {
-				href = new URL(href).pathname;
-			}
-			if (!sandboxAgentDocs || !href.startsWith("/")) {
-				return canonicalizeInternalHref(href);
-			}
-			const [pathname, suffix = ""] = href.split(/(?=[?#])/u, 2);
-			const normalized = pathname.replace(/\/+$/u, "");
-			if (normalized === "/docs/actors/authentication") {
-				return `/docs/authentication/${suffix}`;
-			}
-			if (normalized === "/docs/actors") return `/actors/docs/${suffix}`;
-			if (normalized.startsWith("/docs/actors/")) {
-				return `/actors/docs/${normalized.slice("/docs/actors/".length)}/${suffix}`;
-			}
-			if (normalized === "/docs/clients/javascript") {
-				return `/actors/docs/clients/javascript/${suffix}`;
-			}
-			if (pathname.startsWith("/sandbox-agent/")) {
-				return canonicalizeInternalHref(href);
-			}
-			return canonicalizeInternalHref(`/sandbox-agent/docs${pathname}${suffix}`);
-		};
-
+	return (tree: unknown) => {
 		visit(tree, (node: unknown) => {
 			const link = node as {
 				type?: string;
@@ -106,13 +79,13 @@ function remarkCanonicalInternalLinks() {
 			};
 
 			if (link.type === "link" && typeof link.url === "string") {
-				link.url = canonicalize(link.url);
+				link.url = canonicalizeInternalHref(link.url);
 				return;
 			}
 
 			if (
-				(link.type === "mdxJsxFlowElement" ||
-					link.type === "mdxJsxTextElement")
+				link.type === "mdxJsxFlowElement" ||
+				link.type === "mdxJsxTextElement"
 			) {
 				const href = link.attributes?.find(
 					(attribute) =>
@@ -121,21 +94,7 @@ function remarkCanonicalInternalLinks() {
 						typeof attribute.value === "string",
 				);
 				if (href && typeof href.value === "string") {
-					href.value = canonicalize(href.value);
-				}
-				const src = link.attributes?.find(
-					(attribute) =>
-						attribute.type === "mdxJsxAttribute" &&
-						attribute.name === "src" &&
-						typeof attribute.value === "string",
-				);
-				if (
-					sandboxAgentDocs &&
-					src &&
-					typeof src.value === "string" &&
-					src.value.startsWith("/images/")
-				) {
-					src.value = `/sandbox-agent${src.value}`;
+					href.value = canonicalizeInternalHref(href.value);
 				}
 			}
 		});

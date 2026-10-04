@@ -78,6 +78,18 @@
           "href": "/sandbox-agent/docs/agent-sessions"
         },
         {
+          "title": "Session Persistence",
+          "href": "/sandbox-agent/docs/session-persistence"
+        },
+        {
+          "title": "Multiplayer",
+          "href": "/sandbox-agent/docs/multiplayer"
+        },
+        {
+          "title": "Orchestration Architecture",
+          "href": "/sandbox-agent/docs/orchestration-architecture"
+        },
+        {
           "title": "Agents",
           "pages": [
             {

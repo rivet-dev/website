@@ -62,7 +62,7 @@ const sdk = await SandboxAgent.connect({
 controller.abort();
 ```
 
-With persistence (see [Persisting Sessions](/session-persistence) for driver options):
+With persistence (see [Persisting Sessions](/sandbox-agent/docs/session-persistence) for driver options):
 
 ```ts
 import { SandboxAgent, InMemorySessionPersistDriver } from "sandbox-agent";
@@ -158,7 +158,7 @@ claude.onPermissionRequest((request) => {
 });
 ```
 
-See [Agent Sessions](/agent-sessions) for full details on config options and error handling.
+See [Agent Sessions](/sandbox-agent/docs/agent-sessions) for full details on config options and error handling.
 
 ## Events
 
@@ -276,4 +276,4 @@ Parameters:
 
 ## LLM credentials
 
-Sandbox Agent supports personal API keys, shared organization keys, and per-tenant gateway keys with budget enforcement. See [LLM Credentials](/llm-credentials) for setup details.
+Sandbox Agent supports personal API keys, shared organization keys, and per-tenant gateway keys with budget enforcement. See [LLM Credentials](/sandbox-agent/docs/llm-credentials) for setup details.

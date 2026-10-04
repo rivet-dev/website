@@ -4,7 +4,7 @@ description: "Backend-first auth and access control patterns."
 icon: "shield"
 ---
 
-As covered in [Orchestration Architecture](/orchestration-architecture), run the Sandbox Agent client on your backend, not in the browser.
+As covered in [Orchestration Architecture](/sandbox-agent/docs/orchestration-architecture), run the Sandbox Agent client on your backend, not in the browser.
 
 This keeps sandbox credentials private and gives you one place for authz, rate limiting, and audit logging.
 
@@ -144,7 +144,7 @@ console.log(result.stopReason);
 
 </CodeGroup>
 
-Use [onBeforeConnect](https://rivet.dev/docs/actors/authentication), [connection params](https://rivet.dev/docs/actors/connections), and [actor keys](https://rivet.dev/docs/actors/keys) together so each actor enforces auth per workspace.
+Use [onBeforeConnect](https://rivet.dev/docs/authentication/), [connection params](https://rivet.dev/actors/docs/connections/), and [actor keys](https://rivet.dev/actors/docs/keys/) together so each actor enforces auth per workspace.
 
 ### Hono
 
@@ -188,4 +188,3 @@ app.all("/sandbox/*", async (c) => {
   });
 });
 ```
-
