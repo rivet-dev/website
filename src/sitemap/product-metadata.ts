@@ -143,13 +143,12 @@ export const PRODUCTS: ProductMetadata[] = [
 	},
 	{
 		// Agents are Actors with a particular shape rather than a separate
-		// library. Their docs are website-owned for now, shaped like a product
-		// bundle so they can move to a repo of their own later.
+		// library. Their docs and packages (`@rivet-dev/pi`,
+		// `@rivet-dev/sandbox-adapter`) live in `rivet-dev/agents`.
 		id: "agents",
 		name: "Agents",
 		tagline: "A durable process per agent, with memory that survives restarts",
-		repo: "rivet-website",
-		localBundle: "agents",
+		repo: "agents",
 		color: "#2C5A7A",
 		contrast: 6.41,
 		optionalTabs: [],

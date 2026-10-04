@@ -19,15 +19,17 @@ function formatNumber(num: number): string {
 
 // One repo per product, plus the supporting libraries. `rivet-dev/actors` was
 // renamed back to `rivet-dev/rivet`; GitHub still redirects the old name, but
-// the counter names the current one. Secure Exec is deliberately absent: it
-// ships from `rivet-dev/agentos`, and the old `rivet-dev/secure-exec` redirects
-// to `dynamic-apps`, which would count that repo's stars twice.
+// the counter names the current one. Likewise `rivet-dev/sandbox-agent` is now
+// `rivet-dev/agents`, which also holds the Agents packages; listing both would
+// count it twice. Secure Exec is deliberately absent: it ships from
+// `rivet-dev/agentos`, and the old `rivet-dev/secure-exec` redirects to
+// `dynamic-apps`, which would count that repo's stars twice.
 const REPOS = [
 	"rivet-dev/rivet",
 	"rivet-dev/agentos",
 	"rivet-dev/dynamic-apps",
 	"rivet-dev/workflows",
-	"rivet-dev/sandbox-agent",
+	"rivet-dev/agents",
 	"rivet-dev/antiox",
 	"rivet-dev/rivet-durable-streams",
 ];
