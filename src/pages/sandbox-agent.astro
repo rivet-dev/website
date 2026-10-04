@@ -1,114 +1,50 @@
 ---
-import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import { ProductLockup } from '@/components/marketing/ProductLockup';
-import { getProduct } from '@/sitemap/products';
-import { highlightCodeHtml } from '@/lib/highlight-code';
-import {
-  PRODUCT_HERO_SECTION_CLASS, PRODUCT_HERO_INNER_CLASS, PRODUCT_HERO_H1_CLASS,
-  PRODUCT_HERO_SUBTITLE_CLASS, PRODUCT_HERO_CTA_ROW_CLASS,
-  PRODUCT_HERO_PRIMARY_BUTTON_CLASS, PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
-  SECTION_H2_CLASS, SECTION_LEDE_CLASS, CARD_TITLE_CLASS,
-} from '@/components/marketing/typography';
-import { SITE_SECTION_CLASS, SITE_STANDARD_RAIL_CLASS } from '@/components/marketing/layout';
-
-const source = 'https://github.com/rivet-dev/agents/tree/main/sandbox-agent';
-const docs = '/sandbox-agent/docs';
-const agents = ['Claude Code', 'Codex', 'OpenCode', 'Cursor', 'Amp', 'Pi'];
-const providers = ['E2B', 'Daytona', 'Vercel', 'Cloudflare', 'Docker', 'Modal'];
-const features = [
-  ['One API for every agent', 'Start sessions, send prompts, handle permissions, and stream events through a single interface. Swap agents without rewriting your integration.', 'sdk-overview'],
-  ['Streaming events', 'Receive events as the agent works. Store the conversation in your own database for replay, auditing, and session restoration.', 'session-persistence'],
-  ['Your choice of sandbox', 'A lightweight Rust server runs inside your sandbox. Connect from your application over HTTP, or use the TypeScript SDK locally.', 'deploy/local'],
-  ['Files, processes, and terminals', 'Read and write files, run commands, and attach to terminals alongside your coding agent.', 'processes'],
-  ['Skills and MCP', 'Configure skills, MCP servers, and custom tools for your agents through the same SDK.', 'mcp-config'],
-  ['OpenCode compatibility', 'Use OpenCode tooling to control supported agents through the experimental compatibility API.', 'opencode-compatibility'],
-];
-const faqs = [
-  ['Does this replace the Vercel AI SDK?', 'They work together. AI SDK helps you build chat interfaces and call language models. Sandbox Agent controls coding agents that write code and run commands.'],
-  ['Which coding agents are supported?', 'Claude Code, Codex, OpenCode, Cursor, Amp, and Pi. The SDK normalizes their APIs so you can swap agents without changing your integration.'],
-  ['How is session data persisted?', 'Session events use a shared schema that you can store in your own database. The persistence guides cover IndexedDB, SQLite, Postgres, and Rivet.'],
-  ['Can I run this locally?', 'Yes. Run locally for development or deploy the server inside a sandbox. The same SDK supports both.'],
-  ['Does it support my platform?', 'The server is a Rust binary that runs in Docker, virtual machines, and sandbox providers. The docs include deployment guides for E2B, Daytona, Vercel, Cloudflare, Modal, and more.'],
-  ['Can I use my own API keys?', 'Yes. Supply your own provider credentials, or use sandbox-agent credentials extract-env to extract credentials from your local agent configuration.'],
-  ['Why Rust?', 'Rust provides a single binary, fast startup, and predictable memory usage, so the server can run inside sandboxes and CI without a separate application runtime.'],
-  ['Why use a sandbox?', 'Coding agents run commands and change files. A sandbox isolates those operations from your application servers. Sandbox Agent supplies the API for controlling the agent remotely.'],
-  ['How is this different from an agent’s official SDK?', 'Official SDKs typically run local processes. Sandbox Agent runs a server inside the sandbox so your application can control those processes over HTTP.'],
-  ['Why not SSH?', 'Coding agents need streaming output, interactive terminals, and permission handling. Sandbox Agent exposes these capabilities through an application API.'],
-];
-const install = await highlightCodeHtml('npm install sandbox-agent@0.4.x', 'bash');
+// Preserve the original Sandbox Agent landing page, as with Secure Exec.
+// Only the surrounding navigation/footer and relocated links change.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Header } from '@/components/v2/Header';
+import { Hero } from '@/components/marketing/sandbox-agent/Hero';
+import { PainPoints } from '@/components/marketing/sandbox-agent/PainPoints';
+import { FeatureGrid } from '@/components/marketing/sandbox-agent/FeatureGrid';
+import { GetStarted } from '@/components/marketing/sandbox-agent/GetStarted';
+import { Inspector } from '@/components/marketing/sandbox-agent/Inspector';
+import { FAQ } from '@/components/marketing/sandbox-agent/FAQ';
+import '@/components/marketing/sandbox-agent/sandbox-agent.css';
 ---
 
-<MarketingLayout productId="sandbox-agent" active="product"
-  title="Sandbox Agent - Run coding agents in sandboxes"
-  description="Run Claude Code, Codex, OpenCode, Cursor, Amp, and Pi in sandboxes. Control sessions, tools, and streaming events over HTTP or the TypeScript SDK."
+<BaseLayout
+  title="Sandbox Agent SDK - Run Coding Agents in Sandboxes"
+  description="Universal SDK for coding agents. Control Claude Code, Codex, OpenCode, Amp, and Pi with unified events and sessions."
   canonicalUrl="https://rivet.dev/sandbox-agent/"
-  ogImage="/sandbox-agent/og.png">
-  <section class={PRODUCT_HERO_SECTION_CLASS}>
-    <div class={PRODUCT_HERO_INNER_CLASS}>
-      <div class="mb-8"><ProductLockup product={getProduct('sandbox-agent')!} /></div>
-      <h1 class={PRODUCT_HERO_H1_CLASS}>Run coding agents in sandboxes.<br />Control them over HTTP.</h1>
-      <p class={PRODUCT_HERO_SUBTITLE_CLASS}>A server runs inside your sandbox. Your app connects remotely to control agents, stream events, handle permissions, and manage sessions.</p>
-      <div class={PRODUCT_HERO_CTA_ROW_CLASS}>
-        <a class={PRODUCT_HERO_PRIMARY_BUTTON_CLASS} href={`${docs}/quickstart/`}>Get started</a>
-        <a class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS} href={source}>View on GitHub</a>
-      </div>
-      <ul class="mt-10 flex flex-wrap justify-center gap-3" aria-label="Supported coding agents">
-        {agents.map((name) => <li class="rounded-md border border-ink/15 bg-white/55 px-4 py-2 text-sm text-ink-soft">{name}</li>)}
-      </ul>
-    </div>
-  </section>
-
-  <section class={`border-t border-ink/10 ${SITE_SECTION_CLASS}`}>
-    <div class={SITE_STANDARD_RAIL_CLASS}>
-      <h2 class={SECTION_H2_CLASS}>One integration. Your choice of agent.</h2>
-      <p class={SECTION_LEDE_CLASS}>Every agent has different APIs, event formats, and permission flows. Sandbox Agent handles those differences so your application can use one interface.</p>
-      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {features.map(([title, description, slug]) => <a href={`${docs}/${slug}/`} class="rounded-xl border border-ink/15 bg-white/55 p-7 transition-colors hover:border-ink/30">
-          <h3 class={CARD_TITLE_CLASS}>{title}</h3>
-          <p class="mt-3 text-[15px] leading-relaxed text-ink-soft">{description}</p>
-        </a>)}
-      </div>
-      <p class="mt-8 text-sm text-ink-faint">Deploy on {providers.join(', ')}, or your own infrastructure.</p>
-    </div>
-  </section>
-
-  <section id="get-started" class={`border-t border-ink/10 ${SITE_SECTION_CLASS}`}>
-    <div class={SITE_STANDARD_RAIL_CLASS}>
-      <h2 class={SECTION_H2_CLASS}>Get started</h2>
-      <p class={SECTION_LEDE_CLASS}>Install the TypeScript SDK, start a server, and send your first prompt.</p>
-      <div class="mt-7 overflow-x-auto rounded-xl border border-ink/15 [&_pre]:m-0 [&_pre]:p-6" set:html={install} />
-      <div class="mt-6 flex flex-wrap gap-4">
-        <a class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS} href={`${docs}/quickstart/`}>Follow the quickstart</a>
-        <a class={PRODUCT_HERO_SECONDARY_BUTTON_CLASS} href={`${docs}/api-reference/`}>HTTP API reference</a>
-      </div>
-    </div>
-  </section>
-
-  <section class={`border-t border-ink/10 ${SITE_SECTION_CLASS}`}>
-    <div class={SITE_STANDARD_RAIL_CLASS}>
-      <h2 class={SECTION_H2_CLASS}>Inspect every session</h2>
-      <p class={SECTION_LEDE_CLASS}>Use the built-in Inspector to view conversations, examine event payloads, and troubleshoot your integration.</p>
-      <a href={`${docs}/inspector/`} class="mt-9 block overflow-hidden rounded-xl border border-ink/15">
-        <img src="/sandbox-agent/images/inspector.png" alt="Sandbox Agent Inspector showing agent sessions and events" loading="lazy" width="4062" height="2634" class="h-auto w-full" />
-      </a>
-    </div>
-  </section>
-
-  <section class={`border-t border-ink/10 ${SITE_SECTION_CLASS}`}>
-    <div class={SITE_STANDARD_RAIL_CLASS}>
-      <h2 class={SECTION_H2_CLASS}>Questions and answers</h2>
-      <div class="mt-9 max-w-3xl divide-y divide-ink/10">
-        {faqs.map(([question, answer]) => <details class="py-5">
-          <summary class="cursor-pointer text-base font-medium text-ink">{question}</summary>
-          <p class="mt-3 text-[15px] leading-relaxed text-ink-soft">{answer}</p>
-        </details>)}
-      </div>
-      <div class="mt-8 flex flex-wrap gap-4 text-sm text-pine">
-        <a href={`${docs}/`}>Documentation</a>
-        <a href="https://github.com/rivet-dev/agents/releases">Changelog</a>
-        <a href={source}>Source code</a>
-        <a href="/discord">Discord</a>
-      </div>
-    </div>
-  </section>
-</MarketingLayout>
+  ogImage="/sandbox-agent/og.png"
+  pageFamily="site"
+  themeColor="#09090b"
+  darkChrome
+>
+  <Fragment slot="head-fonts">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </Fragment>
+  <Header
+    variant="full-width"
+    light={false}
+    showProductBar={true}
+    productId="sandbox-agent"
+    tabId="overview"
+    initialPathname={Astro.url.pathname}
+    active="product"
+    pageFamily="site"
+    client:load
+  />
+  <div class="sandbox-agent-page min-h-screen overflow-x-clip">
+    <main id="main-content" tabindex="-1">
+      <Hero client:load />
+      <PainPoints client:visible />
+      <FeatureGrid client:visible />
+      <GetStarted client:visible />
+      <Inspector client:visible />
+      <FAQ client:visible />
+    </main>
+  </div>
+</BaseLayout>

@@ -57,4 +57,7 @@ None are blocking. These would look sharper with dedicated files than with a fil
 
 ## Sandbox Agent
 
-- `/sandbox-agent/images/inspector.png`: an application screenshot, kept in its native colors in both themes. The surrounding page uses theme tokens.
+- The overview preserves the original fixed-dark landing page, like Secure Exec. Its fonts, white surfaces, diagram colors, and selection/scrollbar styles are scoped to `.sandbox-agent-page`; the docs continue using Rivet's normal theme.
+- `/sandbox-agent/images/inspector.png`: an application screenshot, kept in its native colors in both themes.
+- The original white wordmark supplies the stacked product tile in `src/images/products/sandbox-agent-logo.svg`; shared product badges mask it in white on an accent tile, not a robot icon.
+- The hero's Claude and Amp SVGs and inline agent marks retain their original colors on the fixed-dark diagram.

@@ -221,7 +221,6 @@ const PRODUCT_GLYPHS: Record<string, IconDefinition | undefined> = {
 	"dynamic-apps": faSparkles,
 	workflows: faDiagramNext,
 	agents: faRobot,
-	"sandbox-agent": faRobot,
 	integrations: faPuzzlePiece,
 	cloud: faCloud,
 };

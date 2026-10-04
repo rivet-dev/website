@@ -1,0 +1,86 @@
+/* Original landing-page theme, isolated from Rivet's shared chrome and docs. */
+.sandbox-agent-page {
+  --sandbox-agent-header: 57px;
+  /* Rivet retints bg-white in dark mode; this page's original whites stay white. */
+  --site-surface: 255 255 255;
+  background: #09090b;
+  color: #fff;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 768px) {
+  .sandbox-agent-page {
+    --sandbox-agent-header: 121px;
+  }
+}
+
+/* Rivet's full desktop navigation does not fit beside its actions on tablets.
+   Keep the product bar, but use the existing navigation sheet at those widths. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  html:has(.sandbox-agent-page) .site-header-glass nav > .md\:flex {
+    display: none;
+  }
+  html:has(.sandbox-agent-page) .site-header-glass [data-mobile-menu-trigger] {
+    display: inline-flex;
+  }
+  html:has(.sandbox-agent-page)
+    .site-header-glass
+    button[aria-label="Search documentation"] {
+    width: 10rem;
+  }
+}
+
+:where(.sandbox-agent-page) *:not(html) {
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+.sandbox-agent-page .font-mono,
+.sandbox-agent-page :is(pre, code, kbd, samp) {
+  font-family: "IBM Plex Mono", SFMono-Regular, monospace;
+}
+
+.sandbox-agent-page ::selection {
+  background: rgb(255 79 0 / 0.3);
+  color: #fed7aa;
+}
+
+.sandbox-agent-page .selection-dark::selection {
+  background: #18181b;
+  color: white;
+}
+
+.sandbox-agent-page * {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+.sandbox-agent-page :is(pre, code, .overflow-x-auto) {
+  scrollbar-color: #52525b #18181b;
+}
+
+.sandbox-agent-page ::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.sandbox-agent-page ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sandbox-agent-page ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+.sandbox-agent-page ::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+.sandbox-agent-page ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.sandbox-agent-page :is(pre, code, .overflow-x-auto)::-webkit-scrollbar-track {
+  background: #18181b;
+}
+.sandbox-agent-page :is(pre, code, .overflow-x-auto)::-webkit-scrollbar-thumb {
+  background: #52525b;
+}

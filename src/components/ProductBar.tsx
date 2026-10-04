@@ -302,7 +302,9 @@ export function ProductBar({
 		products.find((candidate) => candidate.id === productId) ??
 		fromPath?.product;
 	const activeTabId = tabId ?? fromPath?.tab.id;
-	const revealed = useHeroReveal(activeTabId === "overview");
+	// Sandbox Agent's original hero has no wordmark; its brand lived in the
+	// standalone navigation, so keep that identity visible in our replacement.
+	const revealed = useHeroReveal(activeTabId === "overview" && product?.id !== "sandbox-agent");
 
 	if (!product && !sectionLabel) return null;
 
