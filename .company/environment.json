@@ -1,0 +1,21 @@
+{
+	"$schema": "https://api.thecompany.company/schemas/v1/environment.json",
+	"scripts": {
+		"install": {
+			"command": "set -euo pipefail\nexport DEBIAN_FRONTEND=noninteractive\nsudo apt-get update -y\nsudo apt-get install -y --no-install-recommends ca-certificates curl gnupg\ncurl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -\nsudo apt-get install -y --no-install-recommends nodejs\nsudo corepack enable\ncorepack prepare pnpm@10.13.1 --activate\npnpm install --frozen-lockfile\npnpm build",
+			"timeout": 3600
+		},
+		"prepare": {
+			"command": "set -euo pipefail\npnpm install --frozen-lockfile",
+			"timeout": 600
+		},
+		"start": {
+			"command": "pnpm dev"
+		}
+	},
+	"env": {
+		"COREPACK_ENABLE_DOWNLOAD_PROMPT": "0",
+		"NODE_OPTIONS": "--max-old-space-size=4096",
+		"PUBLIC_SITE_URL": "https://rivet.dev"
+	}
+}
