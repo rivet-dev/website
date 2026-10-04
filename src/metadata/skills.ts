@@ -1,5 +1,5 @@
 /**
- * One AI skill per product, generated entirely from the docs.
+ * Product skills and a combined Rivet skill, generated entirely from the docs.
  *
  * A skill is frontmatter, an index of links to the Markdown mirror of that
  * product's docs, and the examples those docs embed. There is no hand-written
@@ -90,11 +90,48 @@ export function renderSkill(skill: Skill): string {
 		`description: ${JSON.stringify(skill.description)}`,
 		"---",
 		"",
+		...renderSkillBody(skill),
+	];
+
+	return `${lines.join("\n")}\n`;
+}
+
+export function renderMetaSkill(skills: Skill[]) {
+	const name = "rivet";
+	const description = skills.map((skill) => skill.description).join(" ");
+	if (description.length > 1024) {
+		throw new Error("Combined Rivet skill description must be <= 1024 chars.");
+	}
+	const lines = [
+		"---",
+		`name: ${JSON.stringify(name)}`,
+		`description: ${JSON.stringify(description)}`,
+		"---",
+	];
+
+	for (const skill of skills) {
+		const product = VISIBLE_PRODUCTS.find((product) => skill.name === `rivet-${product.id}`);
+		const skillUrl = `${SITE_BASE_URL}/metadata/skills/${skill.name}/`;
+		lines.push(
+			"",
+			`## ${product?.name ?? skill.name}`,
+			"",
+			`[Product skill](${skillUrl}SKILL.md)`,
+			"",
+			...renderSkillBody(skill, skillUrl).map((line) =>
+				line.startsWith("## ") ? `#${line}` : line,
+			),
+		);
+	}
+
+	return { name, description, content: `${lines.join("\n")}\n` };
+}
+
+function renderSkillBody(skill: Skill, skillUrl?: string): string[] {
+	const lines = [
 		"## Documentation",
 		"",
-		...skill.docs.map(
-			(page) => `- [${page.title}](${SITE_BASE_URL}/${page.slug}.md)`,
-		),
+		...skill.docs.map((page) => `- [${page.title}](${SITE_BASE_URL}/${page.slug}.md)`),
 	];
 
 	if (skill.examples.length > 0) {
@@ -102,24 +139,19 @@ export function renderSkill(skill: Skill): string {
 			"",
 			"## Examples",
 			"",
-			"Runnable code the documentation above embeds, mirrored under `examples/` in this skill directory.",
+			skillUrl
+				? "Runnable code the documentation above embeds, available through the links below."
+				: "Runnable code the documentation above embeds, mirrored under `examples/` in this skill directory.",
 			"",
-			...skill.examples.map(
-				(example) => `- [${example.path}](${example.url})`,
-			),
+			...skill.examples.map((example) => `- [${example.path}](${example.url})`),
 		);
 	}
 
 	if (skill.openApiPath) {
-		lines.push(
-			"",
-			"## API Reference",
-			"",
-			"- [openapi.json](openapi.json)",
-		);
+		lines.push("", "## API Reference", "", `- [openapi.json](${skillUrl ?? ""}openapi.json)`);
 	}
 
-	return `${lines.join("\n")}\n`;
+	return lines;
 }
 
 /**
