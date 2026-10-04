@@ -54,3 +54,7 @@ None are blocking. These would look sharper with dedicated files than with a fil
 - If an `<img>` mark is single-color black, add `theme-monochrome-logo`; if single-color white, add `theme-light-invert`.
 - If a mark is multi-color and drawn for white, put it on a `registry-logo-plate` tile rather than filtering it.
 - Never filter product wordmarks; they live in tiles (see AGENTS.md, Product Marks).
+
+## Sandbox Agent
+
+- `/sandbox-agent/images/inspector.png`: an application screenshot, kept in its native colors in both themes. The surrounding page uses theme tokens.

@@ -18,23 +18,23 @@
  *   node scripts/assemble.mjs --force   reset every link to its default
  */
 import {
-	existsSync,
-	lstatSync,
-	mkdirSync,
-	readFileSync,
-	readdirSync,
-	readlinkSync,
-	realpathSync,
-	rmSync,
-	symlinkSync,
-	writeFileSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  readlinkSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { PRODUCTS, ownsDocsBundle } from "../src/sitemap/product-metadata";
 import {
-	DOCS_SOURCES,
-	SITE_DOCS_NAMESPACE,
-	SITE_DOCS_NAMESPACES,
+  DOCS_SOURCES,
+  SITE_DOCS_NAMESPACE,
+  SITE_DOCS_NAMESPACES,
 } from "../src/sitemap/docs-sources";
 import { fileURLToPath } from "node:url";
 
@@ -44,25 +44,27 @@ const CONTENT_BASE = path.join(REPO_ROOT, "src/content/docs");
 // Runs under tsx so the product list comes from the one metadata file rather
 // than being duplicated here.
 const BUNDLES = Object.fromEntries(
-	PRODUCTS.filter(ownsDocsBundle).map((product) => {
-		// A product serving another's bundle (`bundleOf`) links to the
-		// same source; its routes differ, its content does not.
-		const source = product.bundleOf
-			? PRODUCTS.find((candidate) => candidate.id === product.bundleOf)
-			: product;
-		if (!source) {
-			throw new Error(`${product.id}: bundleOf "${product.bundleOf}" is not a product`);
-		}
-		return [
-			product.id,
-			{
-				sourceId: source.id,
-				repo: source.repo,
-				localBundle: source.localBundle,
-				bundlePath: source.bundlePath ?? "docs",
-			},
-		];
-	}),
+  PRODUCTS.filter(ownsDocsBundle).map((product) => {
+    // A product serving another's bundle (`bundleOf`) links to the
+    // same source; its routes differ, its content does not.
+    const source = product.bundleOf
+      ? PRODUCTS.find((candidate) => candidate.id === product.bundleOf)
+      : product;
+    if (!source) {
+      throw new Error(
+        `${product.id}: bundleOf "${product.bundleOf}" is not a product`,
+      );
+    }
+    return [
+      product.id,
+      {
+        sourceId: source.id,
+        repo: source.repo,
+        localBundle: source.localBundle,
+        bundlePath: source.bundlePath ?? "docs",
+      },
+    ];
+  }),
 );
 
 // The site-wide sections (the product-agnostic docs at `/docs/`, the HTTP API
@@ -71,44 +73,46 @@ const BUNDLES = Object.fromEntries(
 // namespaces have no tab dimension, so their bundle content is flat and links in
 // exactly like a product's does.
 for (const namespace of SITE_DOCS_NAMESPACES) {
-	BUNDLES[namespace] = {
-		sourceId: namespace,
-		repo: DOCS_SOURCES[namespace].repo,
-		localBundle: DOCS_SOURCES[namespace].localBundle,
-		bundlePath: DOCS_SOURCES[namespace].bundlePath ?? "docs",
-	};
+  BUNDLES[namespace] = {
+    sourceId: namespace,
+    repo: DOCS_SOURCES[namespace].repo,
+    localBundle: DOCS_SOURCES[namespace].localBundle,
+    bundlePath: DOCS_SOURCES[namespace].bundlePath ?? "docs",
+  };
 }
 
 const force = process.argv.includes("--force");
+const vendorOnly = process.env.DOCS_VENDOR_ONLY === "1";
 
 /** Where a product's docs should come from, and how we found it. */
 function resolveTarget(productId, repo, localBundle, bundlePath = "docs") {
-	// A bundle in this repo has no sibling to prefer and no override to respect.
-	if (localBundle) {
-		const local = path.resolve(REPO_ROOT, localBundle, bundlePath, "content");
-		return existsSync(local)
-			? { target: local, via: "in-repo" }
-			: { target: null, via: "missing" };
-	}
+  // A bundle in this repo has no sibling to prefer and no override to respect.
+  if (localBundle) {
+    const local = path.resolve(REPO_ROOT, localBundle, bundlePath, "content");
+    return existsSync(local)
+      ? { target: local, via: "in-repo" }
+      : { target: null, via: "missing" };
+  }
 
-	const sibling = path.resolve(REPO_ROOT, "..", repo, bundlePath, "content");
-	if (existsSync(sibling)) return { target: sibling, via: "sibling" };
+  const sibling = path.resolve(REPO_ROOT, "..", repo, bundlePath, "content");
+  if (!vendorOnly && existsSync(sibling))
+    return { target: sibling, via: "sibling" };
 
-	const vendored = path.resolve(REPO_ROOT, "vendor", productId, "docs/content");
-	if (existsSync(vendored)) return { target: vendored, via: "vendor" };
+  const vendored = path.resolve(REPO_ROOT, "vendor", productId, "docs/content");
+  if (existsSync(vendored)) return { target: vendored, via: "vendor" };
 
-	return { target: null, via: "missing" };
+  return { target: null, via: "missing" };
 }
 
 function describe(linkPath) {
-	try {
-		const stat = lstatSync(linkPath);
-		if (!stat.isSymbolicLink()) return { kind: "real" };
-		const dest = path.resolve(path.dirname(linkPath), readlinkSync(linkPath));
-		return { kind: existsSync(dest) ? "link" : "dangling", dest };
-	} catch {
-		return { kind: "none" };
-	}
+  try {
+    const stat = lstatSync(linkPath);
+    if (!stat.isSymbolicLink()) return { kind: "real" };
+    const dest = path.resolve(path.dirname(linkPath), readlinkSync(linkPath));
+    return { kind: existsSync(dest) ? "link" : "dangling", dest };
+  } catch {
+    return { kind: "none" };
+  }
 }
 
 mkdirSync(CONTENT_BASE, { recursive: true });
@@ -116,63 +120,77 @@ mkdirSync(CONTENT_BASE, { recursive: true });
 const rows = [];
 const problems = [];
 
-for (const [productId, { sourceId, repo, localBundle, bundlePath }] of Object.entries(
-	BUNDLES,
-)) {
-	const linkPath = path.join(CONTENT_BASE, productId);
-	const current = describe(linkPath);
-	const { target, via } = resolveTarget(sourceId, repo, localBundle, bundlePath);
+for (const [
+  productId,
+  { sourceId, repo, localBundle, bundlePath },
+] of Object.entries(BUNDLES)) {
+  const linkPath = path.join(CONTENT_BASE, productId);
+  const current = describe(linkPath);
+  const { target, via } = resolveTarget(
+    sourceId,
+    repo,
+    localBundle,
+    bundlePath,
+  );
 
-	// An in-repo bundle is always relinked: there is nothing to override it with,
-	// so a stale link here is a mistake rather than a choice.
-	if (localBundle && target) {
-		if (current.kind !== "none") rmSync(linkPath, { recursive: true, force: true });
-		symlinkSync(path.relative(CONTENT_BASE, target), linkPath, "dir");
-		rows.push([productId, target, via]);
-		continue;
-	}
+  // An in-repo bundle is always relinked: there is nothing to override it with,
+  // so a stale link here is a mistake rather than a choice.
+  if (localBundle && target) {
+    if (current.kind !== "none")
+      rmSync(linkPath, { recursive: true, force: true });
+    symlinkSync(path.relative(CONTENT_BASE, target), linkPath, "dir");
+    rows.push([productId, target, via]);
+    continue;
+  }
 
-	// A real directory here means someone committed content that should live in
-	// a product repo. Refuse rather than silently deleting their work.
-	if (current.kind === "real") {
-		problems.push(
-			`${productId}: src/content/docs/${productId} is a real directory, not a link. ` +
-				`Product docs belong in the ${repo} repo; move them there and re-run.`,
-		);
-		continue;
-	}
+  // A real directory here means someone committed content that should live in
+  // a product repo. Refuse rather than silently deleting their work.
+  if (current.kind === "real") {
+    problems.push(
+      `${productId}: src/content/docs/${productId} is a real directory, not a link. ` +
+        `Product docs belong in the ${repo} repo; move them there and re-run.`,
+    );
+    continue;
+  }
 
-	// Respect a manual override: an existing, resolving link is left alone.
-	if (current.kind === "link" && !force) {
-		const overridden = current.dest !== target;
-		rows.push([productId, current.dest, overridden ? "override" : via]);
-		continue;
-	}
+  // Respect a manual override: an existing, resolving link is left alone.
+  if (current.kind === "link" && !force) {
+    const overridden = current.dest !== target;
+    rows.push([productId, current.dest, overridden ? "override" : via]);
+    continue;
+  }
 
-	if (!target) {
-		problems.push(
-			`${productId}: no docs source. Clone the ${repo} repo next to this one ` +
-				`(${path.resolve(REPO_ROOT, "..", repo, bundlePath ?? "docs")}) or add ` +
-					`vendor/${sourceId}/docs/content.`,
-		);
-		continue;
-	}
+  if (!target) {
+    problems.push(
+      `${productId}: no docs source. Clone the ${repo} repo next to this one ` +
+        `(${path.resolve(REPO_ROOT, "..", repo, bundlePath ?? "docs")}) or add ` +
+        `vendor/${sourceId}/docs/content.`,
+    );
+    continue;
+  }
 
-	if (current.kind !== "none") rmSync(linkPath, { recursive: true, force: true });
-	symlinkSync(path.relative(CONTENT_BASE, target), linkPath, "dir");
-	rows.push([productId, target, current.kind === "dangling" ? `${via} (repaired)` : via]);
+  if (current.kind !== "none")
+    rmSync(linkPath, { recursive: true, force: true });
+  symlinkSync(path.relative(CONTENT_BASE, target), linkPath, "dir");
+  rows.push([
+    productId,
+    target,
+    current.kind === "dangling" ? `${via} (repaired)` : via,
+  ]);
 }
 
 const width = Math.max(...rows.map(([id]) => id.length), 8);
 console.log("docs sources:");
 for (const [id, dest, via] of rows) {
-	console.log(`  ${id.padEnd(width)}  ${path.relative(REPO_ROOT, dest) || dest}  (${via})`);
+  console.log(
+    `  ${id.padEnd(width)}  ${path.relative(REPO_ROOT, dest) || dest}  (${via})`,
+  );
 }
 
 if (problems.length > 0) {
-	console.error("\nassemble failed:");
-	for (const problem of problems) console.error(`  - ${problem}`);
-	process.exit(1);
+  console.error("\nassemble failed:");
+  for (const problem of problems) console.error(`  - ${problem}`);
+  process.exit(1);
 }
 
 // ---------------------------------------------------------------------------
@@ -191,44 +209,51 @@ const sidebars = {};
 const iconNames = new Set();
 
 function collectIcons(node) {
-	if (Array.isArray(node)) return node.forEach(collectIcons);
-	if (!node || typeof node !== "object") return;
-	if (typeof node.icon === "string") iconNames.add(node.icon);
-	for (const value of Object.values(node)) collectIcons(value);
+  if (Array.isArray(node)) return node.forEach(collectIcons);
+  if (!node || typeof node !== "object") return;
+  if (typeof node.icon === "string") iconNames.add(node.icon);
+  for (const value of Object.values(node)) collectIcons(value);
 }
 
 for (const [productId] of Object.entries(BUNDLES)) {
-	// The content link points at <repo>/docs/content; the sidebar sits beside it.
-	const contentLink = path.join(CONTENT_BASE, productId);
-	const sidebarPath = path.resolve(path.dirname(realpathSync(contentLink)), "sidebar.json");
-	if (!existsSync(sidebarPath)) {
-		console.error(`\nassemble failed:\n  - ${productId}: missing ${sidebarPath}`);
-		process.exit(1);
-	}
-	const sidebar = JSON.parse(readFileSync(sidebarPath, "utf-8"));
-	sidebars[productId] = sidebar;
-	collectIcons(sidebar);
+  // The content link points at <repo>/docs/content; the sidebar sits beside it.
+  const contentLink = path.join(CONTENT_BASE, productId);
+  const sidebarPath = path.resolve(
+    path.dirname(realpathSync(contentLink)),
+    "sidebar.json",
+  );
+  if (!existsSync(sidebarPath)) {
+    console.error(
+      `\nassemble failed:\n  - ${productId}: missing ${sidebarPath}`,
+    );
+    process.exit(1);
+  }
+  const sidebar = JSON.parse(readFileSync(sidebarPath, "utf-8"));
+  sidebars[productId] = sidebar;
+  collectIcons(sidebar);
 }
 
 writeFileSync(
-	path.join(GENERATED, "sidebars.json"),
-	`${JSON.stringify(sidebars, null, "\t")}\n`,
+  path.join(GENERATED, "sidebars.json"),
+  `${JSON.stringify(sidebars, null, "\t")}\n`,
 );
 
 const sorted = [...iconNames].sort();
 writeFileSync(
-	path.join(GENERATED, "sidebar-icons.ts"),
-	`// Generated by scripts/assemble.mjs. Do not edit.\n` +
-		`// Only the icons referenced by product sidebars, so the bundle never has to\n` +
-		`// resolve the whole @rivet-gg/icons surface.\n` +
-		`import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";\n` +
-		`import { ${sorted.join(", ")} } from "@rivet-gg/icons";\n\n` +
-		`export const SIDEBAR_ICONS: Record<string, IconDefinition> = {\n` +
-		sorted.map((n) => `\t${n},`).join("\n") +
-		`\n};\n`,
+  path.join(GENERATED, "sidebar-icons.ts"),
+  `// Generated by scripts/assemble.mjs. Do not edit.\n` +
+    `// Only the icons referenced by product sidebars, so the bundle never has to\n` +
+    `// resolve the whole @rivet-gg/icons surface.\n` +
+    `import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";\n` +
+    `import { ${sorted.join(", ")} } from "@rivet-gg/icons";\n\n` +
+    `export const SIDEBAR_ICONS: Record<string, IconDefinition> = {\n` +
+    sorted.map((n) => `\t${n},`).join("\n") +
+    `\n};\n`,
 );
 
-console.log(`generated sidebars.json and sidebar-icons.ts (${sorted.length} icons)`);
+console.log(
+  `generated sidebars.json and sidebar-icons.ts (${sorted.length} icons)`,
+);
 
 // ---------------------------------------------------------------------------
 // Copy the generated config schemas the docs render.
@@ -241,50 +266,67 @@ console.log(`generated sidebars.json and sidebar-icons.ts (${sorted.length} icon
 // bundle itself use `bundle:` so they resolve the same way whether the bundle
 // is a sibling checkout (`<repo>/docs/api/`) or vendored (`vendor/api/docs/`).
 const ARTIFACTS: Array<[product: string, from: string, to: string]> = [
-	["actors", "rivetkit-typescript/artifacts/actor-config.json", "actor-config.json"],
-	["actors", "rivetkit-typescript/artifacts/registry-config.json", "registry-config.json"],
-	// Control-plane config, so it ships with the product-agnostic bundle.
-	[SITE_DOCS_NAMESPACE, "engine/artifacts/config-schema.json", "engine-config-schema.json"],
-	// agentOS software catalog, generated in that repo by scripts/gen-registry.mjs.
-	["agentos", "bundle:registry.json", "registry.json"],
-	// Error codes for the HTTP API reference, generated in the Rivet repo by
-	// scripts/docs/gen-api-reference.mjs from its compile-time error artifacts.
-	["api", "bundle:error-registry.json", "error-registry.json"],
+  [
+    "actors",
+    "rivetkit-typescript/artifacts/actor-config.json",
+    "actor-config.json",
+  ],
+  [
+    "actors",
+    "rivetkit-typescript/artifacts/registry-config.json",
+    "registry-config.json",
+  ],
+  // Control-plane config, so it ships with the product-agnostic bundle.
+  [
+    SITE_DOCS_NAMESPACE,
+    "engine/artifacts/config-schema.json",
+    "engine-config-schema.json",
+  ],
+  // agentOS software catalog, generated in that repo by scripts/gen-registry.mjs.
+  ["agentos", "bundle:registry.json", "registry.json"],
+  // Error codes for the HTTP API reference, generated in the Rivet repo by
+  // scripts/docs/gen-api-reference.mjs from its compile-time error artifacts.
+  ["api", "bundle:error-registry.json", "error-registry.json"],
 ];
 
 // The bundle directory behind a bundle link: the link points at `<bundle>/content`.
 const bundleDir = (productId: string) =>
-	path.resolve(realpathSync(path.join(CONTENT_BASE, productId)), "..");
+  path.resolve(realpathSync(path.join(CONTENT_BASE, productId)), "..");
 
 // The repo root behind a bundle link. The link points at `<root>/<bundle>/content`,
 // so walk back out by however many segments the bundle path has. A vendored
 // bundle is always normalized to `vendor/<product>/docs`, whatever the product's
 // own bundle path is, so it walks back one.
 const productRoot = (productId: string) => {
-	const bundleRoot = bundleDir(productId);
-	const vendorRoot = path.resolve(bundleRoot, "..");
-	if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId)) return vendorRoot;
-	const depth = (BUNDLES[productId]?.bundlePath ?? "docs").split("/").length;
-	return path.resolve(bundleRoot, ...Array(depth).fill(".."));
+  const bundleRoot = bundleDir(productId);
+  const vendorRoot = path.resolve(bundleRoot, "..");
+  if (vendorRoot === path.resolve(REPO_ROOT, "vendor", productId))
+    return vendorRoot;
+  const depth = (BUNDLES[productId]?.bundlePath ?? "docs").split("/").length;
+  return path.resolve(bundleRoot, ...Array(depth).fill(".."));
 };
 
 const artifactsDir = path.join(GENERATED, "artifacts");
 mkdirSync(artifactsDir, { recursive: true });
 
 for (const [productId, from, to] of ARTIFACTS) {
-	const root = from.startsWith("bundle:") ? bundleDir(productId) : productRoot(productId);
-	const src = path.join(root, from.replace(/^bundle:/, ""));
-	if (!existsSync(src)) {
-		console.error(
-			`\nassemble failed:\n  - missing ${from} in the ${productId} repo (${root}). ` +
-				`It is a generated artifact; build it there first.`,
-		);
-		process.exit(1);
-	}
-	writeFileSync(path.join(artifactsDir, to), readFileSync(src));
+  const root = from.startsWith("bundle:")
+    ? bundleDir(productId)
+    : productRoot(productId);
+  const src = path.join(root, from.replace(/^bundle:/, ""));
+  if (!existsSync(src)) {
+    console.error(
+      `\nassemble failed:\n  - missing ${from} in the ${productId} repo (${root}). ` +
+        `It is a generated artifact; build it there first.`,
+    );
+    process.exit(1);
+  }
+  writeFileSync(path.join(artifactsDir, to), readFileSync(src));
 }
 
-console.log(`copied ${ARTIFACTS.length} generated artifacts from the product repos`);
+console.log(
+  `copied ${ARTIFACTS.length} generated artifacts from the product repos`,
+);
 
 // ---------------------------------------------------------------------------
 // Copy each bundle's public assets.
@@ -295,26 +337,25 @@ console.log(`copied ${ARTIFACTS.length} generated artifacts from the product rep
 // ---------------------------------------------------------------------------
 let assetCount = 0;
 for (const productId of Object.keys(BUNDLES)) {
-	const from = path.join(
-		productRoot(productId),
-		BUNDLES[productId]?.bundlePath ?? "docs",
-		"public",
-	);
-	if (!existsSync(from)) continue;
-	const walk = (dir: string) => {
-		for (const entry of readdirSync(dir, { withFileTypes: true })) {
-			const src = path.join(dir, entry.name);
-			if (entry.isDirectory()) {
-				walk(src);
-				continue;
-			}
-			const dest = path.join(REPO_ROOT, "public", path.relative(from, src));
-			if (existsSync(dest)) continue;
-			mkdirSync(path.dirname(dest), { recursive: true });
-			writeFileSync(dest, readFileSync(src));
-			assetCount++;
-		}
-	};
-	walk(from);
+  // Vendored bundles are normalized to docs/, even when the source bundle
+  // lives in a repository subfolder (Sandbox Agent and Secure Exec).
+  const from = path.join(bundleDir(productId), "public");
+  if (!existsSync(from)) continue;
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const src = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(src);
+        continue;
+      }
+      const dest = path.join(REPO_ROOT, "public", path.relative(from, src));
+      if (existsSync(dest)) continue;
+      mkdirSync(path.dirname(dest), { recursive: true });
+      writeFileSync(dest, readFileSync(src));
+      assetCount++;
+    }
+  };
+  walk(from);
 }
-if (assetCount > 0) console.log(`copied ${assetCount} bundle assets into public/`);
+if (assetCount > 0)
+  console.log(`copied ${assetCount} bundle assets into public/`);

@@ -25,6 +25,7 @@ src/content/docs/agentos
 src/content/docs/api
 src/content/docs/cloud
 src/content/docs/dynamic-apps
+src/content/docs/sandbox-agent
 src/content/docs/secure-exec
 src/content/docs/workflows
 
@@ -40,6 +41,7 @@ src/content/docs/workflows
 /public/docs.md
 /public/guides/
 /public/guides.md
+/public/sandbox-agent/
 /public/secure-exec/
 /public/workflows/
 /public/metadata/
