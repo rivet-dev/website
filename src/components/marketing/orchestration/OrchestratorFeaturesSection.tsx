@@ -45,7 +45,7 @@ const features: Feature[] = [
 		title: "Multi-region",
 		description:
 			"Place Actors near the users and data they serve, and route requests to wherever each one currently lives.",
-		href: "/actors/docs/general/edge",
+		href: "/docs/regions/",
 	},
 	{
 		icon: faNetworkWired,

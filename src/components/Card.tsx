@@ -40,9 +40,9 @@ export function Card({
 						)}
 					>
 						<div className="flex items-center gap-3">
-							{icon && "prefix" in icon ? (
+							{icon && typeof icon === "object" && "prefix" in icon ? (
 								<Icon icon={icon} />
-							) : icon ? (
+							) : icon && typeof icon === "object" ? (
 								<img {...icon} className="h-4 w-auto max-w-10 shrink-0" alt="" />
 							) : null}
 							{title && <h3 className="font-medium">{title}</h3>}

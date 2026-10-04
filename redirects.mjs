@@ -414,6 +414,7 @@ function bundleSplitRedirects() {
 	//
 	// Retired pages.
 	map['/actors/docs/fetch-and-websocket-handler'] = '/actors/docs/websocket-handler/';
+	map['/docs/actors/fetch-and-websocket-handler'] = '/actors/docs/websocket-handler/';
 	map['/actors/use-cases'] = '/actors/docs/';
 	map['/actors/learn/a-radically-simpler-architecture'] =
 		'/guides/a-radically-simpler-architecture/';

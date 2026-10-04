@@ -1512,7 +1512,7 @@ const secondaryFeatures = [
 		icon: RefreshCw,
 		title: 'Durable agents',
 		description: 'Agents run in Actors that keep their session and sandbox across sleep and restarts.',
-		docsHref: '/agents/docs/durability',
+		docsHref: '/agentos/docs/persistence',
 	},
 	{
 		icon: Moon,

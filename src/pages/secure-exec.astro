@@ -13,34 +13,12 @@ import { Benchmarks } from '@/components/marketing/secure-exec/Benchmarks';
 import { SecurityModel } from '@/components/marketing/secure-exec/SecurityModel';
 import { FAQ } from '@/components/marketing/secure-exec/FAQ';
 import { FooterCTA } from '@/components/marketing/secure-exec/FooterCTA';
-import { jsonLdString } from '@/lib/jsonLd';
 import { SECURE_EXEC_OVERVIEW_OG_IMAGE } from '@/lib/ogImage';
 import '@/components/marketing/secure-exec/secure-exec.css';
 
 const description =
 	'Secure Node.js execution without a sandbox. V8 isolate-based code execution with full Node.js and npm compatibility.';
 
-const structuredData = {
-	'@context': 'https://schema.org',
-	'@type': 'SoftwareApplication',
-	name: 'Secure Exec',
-	applicationCategory: 'DeveloperApplication',
-	operatingSystem: 'Linux, macOS, Windows',
-	description,
-	url: 'https://rivet.dev/secure-exec/',
-	author: {
-		'@type': 'Organization',
-		name: 'Rivet',
-		url: 'https://rivet.dev',
-	},
-	offers: {
-		'@type': 'Offer',
-		price: '0',
-		priceCurrency: 'USD',
-	},
-	keywords:
-		'secure code execution, V8 isolate, Node.js sandbox, untrusted code, npm, sandboxed runtime, developer tools',
-};
 ---
 
 <BaseLayout
@@ -83,8 +61,6 @@ const structuredData = {
 		pageFamily="site"
 		client:load
 	/>
-
-	<script type="application/ld+json" is:inline set:html={jsonLdString(structuredData)} />
 
 	<div class="secure-exec-page min-h-screen overflow-x-clip">
 		<main id="main-content" tabindex="-1">

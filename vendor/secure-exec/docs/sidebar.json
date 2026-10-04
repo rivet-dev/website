@@ -103,6 +103,35 @@
 			]
 		},
 		{
+			"title": "Comparison",
+			"pages": [
+				{
+					"title": "Container Sandboxes",
+					"href": "/secure-exec/docs/comparison/container-sandboxes"
+				},
+				{
+					"title": "Cloudflare Workers",
+					"href": "/secure-exec/docs/comparison/cloudflare-workers"
+				},
+				{
+					"title": "isolated-vm",
+					"href": "/secure-exec/docs/comparison/isolated-vm"
+				},
+				{
+					"title": "QuickJS",
+					"href": "/secure-exec/docs/comparison/quickjs"
+				},
+				{
+					"title": "secure-eval-worker",
+					"href": "/secure-exec/docs/comparison/secure-eval-worker"
+				},
+				{
+					"title": "Vercel Run",
+					"href": "/secure-exec/docs/comparison/vercel-run"
+				}
+			]
+		},
+		{
 			"title": "Reference",
 			"pages": [
 				{

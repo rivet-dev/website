@@ -112,6 +112,8 @@ const ALLOWED_HISTORICAL_REDIRECT_LINKS = new Set([
   "/docs/deploy/",
   "/docs/deploy/rivet-compute/",
   "/docs/self-hosting/",
+  "/actors/docs/general/logging/",
+  "/actors/docs/general/tracing/",
   "/integrations/better-auth/",
   "/pricing/",
   "/sales/",
