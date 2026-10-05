@@ -47,7 +47,10 @@ export interface RegistryEntryBase extends SeoOverrides {
 
 export interface RegistryEntryAvailable extends RegistryEntryBase {
 	status: "available";
-	package: string;
+	// npm package that provides it. Registry software has no npm package; it
+	// ships as an immutable `.aospkg` release artifact named `artifactName`.
+	package?: string;
+	artifactName?: string;
 }
 
 export interface RegistryEntryComingSoon extends RegistryEntryBase {
@@ -108,11 +111,12 @@ import rawGenerated from "@/generated/artifacts/registry.json";
 // for this site rather than editing every package manifest upstream.
 const generated = {
 	...rawGenerated,
-	entries: rawGenerated.entries.map((entry) =>
-		typeof entry.docsHref === "string" && entry.docsHref.startsWith("/docs/")
-			? { ...entry, docsHref: `/agentos${entry.docsHref}` }
-			: entry,
-	),
+	entries: rawGenerated.entries.map((entry) => {
+		const docsHref = (entry as { docsHref?: unknown }).docsHref;
+		return typeof docsHref === "string" && docsHref.startsWith("/docs/")
+			? { ...entry, docsHref: `/agentos${docsHref}` }
+			: entry;
+	}),
 } as typeof rawGenerated;
 import { DEPLOY_TARGETS } from "./deploy-targets";
 
@@ -129,18 +133,6 @@ const generatedRegistry: RegistryEntry[] = generated.entries.map(
 );
 
 const curatedRegistry: RegistryEntry[] = [
-	// Agents
-	{
-		slug: "custom-agent",
-		title: "Custom Agent",
-		status: "docs",
-		docsHref: "/agentos/docs/agents/custom",
-		description:
-			"Bring your own coding agent to agentOS by speaking the Agent Client Protocol (ACP) inside the VM.",
-		types: ["agent"],
-		icon: "Wrench",
-	},
-
 	// File Systems
 	{
 		slug: "host-dir",
@@ -152,11 +144,9 @@ const curatedRegistry: RegistryEntry[] = [
 			"Project a real host directory into the VM, Docker-style. The guest sees only the mounted subtree, never the wider host filesystem.",
 		types: ["file-system"],
 		icon: "HardDrive",
-		configExample: `import { agentOS, setup } from "@rivet-dev/agentos";
-import pi from "@agentos-software/pi";
+		configExample: `import { AgentOs } from "@rivet-dev/agentos-core";
 
-const vm = agentOS({
-  software: [pi],
+const vm = await AgentOs.create({
   mounts: [
     {
       path: "/home/agentos/repo",
@@ -164,38 +154,32 @@ const vm = agentOS({
       readOnly: true,
     },
   ],
-});
-
-export const registry = setup({ use: { vm } });`,
+});`,
 	},
 	{
 		slug: "s3",
 		title: "S3",
 		status: "config",
-		configId: 'plugin: { id: "s3" }',
+		configId: 'plugin: { id: "chunked_s3" }',
 		docsHref: "/agentos/docs/filesystem",
 		description:
 			"Mount an S3-compatible bucket as a filesystem. File contents are chunked into S3 objects, keeping large files, partial reads/writes, and snapshots efficient.",
 		types: ["file-system"],
 		featured: true,
 		image: "/images/registry/s3.svg",
-		configExample: `import { agentOS, setup } from "@rivet-dev/agentos";
-import pi from "@agentos-software/pi";
+		configExample: `import { AgentOs } from "@rivet-dev/agentos-core";
 
-const vm = agentOS({
-  software: [pi],
+const vm = await AgentOs.create({
   mounts: [
     {
       path: "/home/agentos/data",
       plugin: {
-        id: "s3",
+        id: "chunked_s3",
         config: { bucket: "my-bucket", prefix: "agent-data/", region: "us-east-1" },
       },
     },
   ],
-});
-
-export const registry = setup({ use: { vm } });`,
+});`,
 	},
 	{
 		slug: "google-drive",
@@ -208,11 +192,9 @@ export const registry = setup({ use: { vm } });`,
 		types: ["file-system"],
 		featured: true,
 		image: "/images/registry/google-drive.svg",
-		configExample: `import { agentOS, setup } from "@rivet-dev/agentos";
-import pi from "@agentos-software/pi";
+		configExample: `import { AgentOs } from "@rivet-dev/agentos-core";
 
-const vm = agentOS({
-  software: [pi],
+const vm = await AgentOs.create({
   mounts: [
     {
       path: "/home/agentos/drive",
@@ -228,9 +210,7 @@ const vm = agentOS({
       },
     },
   ],
-});
-
-export const registry = setup({ use: { vm } });`,
+});`,
 	},
 	{
 		slug: "memory",
@@ -242,21 +222,16 @@ export const registry = setup({ use: { vm } });`,
 			"Mount an ephemeral in-memory directory. Fast scratch space that is discarded when the VM is destroyed.",
 		types: ["file-system"],
 		icon: "HardDrive",
-		configExample: `import { agentOS, setup } from "@rivet-dev/agentos";
-import pi from "@agentos-software/pi";
+		configExample: `import { AgentOs } from "@rivet-dev/agentos-core";
 
-const vm = agentOS({
-  software: [pi],
+const vm = await AgentOs.create({
   mounts: [
     // Ephemeral scratch space for large intermediate artifacts (build
-    // output, downloads, caches). Lives in memory only: it never touches
-    // the VM's persisted filesystem, so it stays out of snapshots and is
-    // discarded when the VM is disposed.
+    // output, downloads, caches). Lives in memory only and is discarded when
+    // the VM is disposed.
     { path: "/tmp/scratch", plugin: { id: "memory", config: {} } },
   ],
-});
-
-export const registry = setup({ use: { vm } });`,
+});`,
 	},
 	// Bindings
 	{

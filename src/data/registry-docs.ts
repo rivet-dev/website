@@ -54,38 +54,20 @@ const TYPE_LABELS: Record<string, string> = {
 	deploy: "Deploy",
 };
 
-const SANDBOX_INSTALL = "npm install @rivet-dev/agentos-sandbox sandbox-agent";
+const SANDBOX_INSTALL = "npm install @rivet-dev/agentos-core @rivet-dev/agentos-sandbox sandbox-agent";
 
-// Turn a package's last path segment into a JS identifier, e.g.
-// `@agentos-software/build-essential` -> `buildEssential`.
-function toIdent(packageName: string): string {
-	return packageName
-		.replace(/^.*\//, "")
-		.replace(/-([a-z0-9])/g, (_, char: string) => char.toUpperCase());
-}
+function softwareExample(title: string, artifactName: string): string {
+	return `import { AgentOs } from "@rivet-dev/agentos-core";
 
-function softwareExample(packageName: string): string {
-	const ident = toIdent(packageName);
-	return `import { agentOS, setup } from "@rivet-dev/agentos";
-import ${ident} from "${packageName}";
+const vm = await AgentOs.create();
 
-// Add the package to your VM's software so its commands are available inside the VM
-const vm = agentOS({ software: [${ident}] });
-
-export const registry = setup({ use: { vm } });`;
-}
-
-function agentExample(title: string, agentId: string, packageName: string): string {
-	return `import { agentOS, setup } from "@rivet-dev/agentos";
-import ${agentId} from "${packageName}";
-
-// Register the ${title} adapter as VM software
-const vm = agentOS({ software: [${agentId}] });
-
-export const registry = setup({ use: { vm } });
-
-// Then start a session from your client with the "${agentId}" agent id:
-// await agent.openSession({ agent: "${agentId}", env: { /* API keys */ } });`;
+// Install the ${title} package from its release artifact. The bytes are
+// verified against the digest before its commands appear on /opt/agentos/bin.
+await vm.software.install({
+  type: "url",
+  url: "https://<release artifacts>/packages/${artifactName}/<sha256>.aospkg",
+  expectedDigest: "sha256:<64 lowercase hex characters>",
+});`;
 }
 
 function sandboxExample(provider: { slug: string; title: string } | null): string {
@@ -93,27 +75,21 @@ function sandboxExample(provider: { slug: string; title: string } | null): strin
 		? [
 				`import { ${provider.slug} } from "sandbox-agent/${provider.slug}";`,
 				`// Start a ${provider.title}-backed sandbox and mount it into the VM`,
-				`${provider.slug}()`,
+				`sandboxAgentProvider(${provider.slug}())`,
 			]
 		: [
 				`import { docker } from "sandbox-agent/docker";`,
-				"// Mount the sandbox filesystem and expose its process bindings to the VM",
-				"docker()",
+				"// Mount the sandbox filesystem and register its host functions in the VM",
+				"sandboxAgentProvider(docker())",
 			];
-	return `import { agentOS, setup } from "@rivet-dev/agentos";
-import { createSandboxFs, createSandboxBindings } from "@rivet-dev/agentos-sandbox";
-import { SandboxAgent } from "sandbox-agent";
+	return `import { AgentOs } from "@rivet-dev/agentos-core";
+import { sandboxAgentProvider } from "@rivet-dev/agentos-sandbox";
 ${importLine}
 
 ${comment}
-const sandbox = await SandboxAgent.start({ sandbox: ${sandbox} });
-
-const vm = agentOS({
-  mounts: [{ path: "/home/agentos/sandbox", plugin: createSandboxFs({ client: sandbox }) }],
-  bindings: [createSandboxBindings({ client: sandbox })],
-});
-
-export const registry = setup({ use: { vm } });`;
+const vm = await AgentOs.create({
+  sandbox: { provider: ${sandbox} },
+});`;
 }
 
 /** What a reader does with an entry: install it, set it up, or read a note. */
@@ -130,15 +106,7 @@ function usage(entry: RegistryEntry): Pick<RegistryDoc, "install" | "setup" | "n
 		case "external":
 			return {};
 		case "docs":
-			return entry.package && entry.agentId
-				? {
-						setup: {
-							title: "Add to agentOS",
-							summary: `Register the ${entry.title} adapter as VM software, then open a session with the "${entry.agentId}" agent id.`,
-							code: agentExample(entry.title, entry.agentId, entry.package),
-						},
-					}
-				: { note: "Built into agentOS, with no separate install. See the docs for setup and usage." };
+			return { note: "Built into agentOS, with no separate install. See the docs for setup and usage." };
 		case "config":
 			return {
 				setup: {
@@ -150,11 +118,11 @@ function usage(entry: RegistryEntry): Pick<RegistryDoc, "install" | "setup" | "n
 		case "available":
 			if (isSoftware) {
 				return {
-					install: `npm install ${entry.package}`,
 					setup: {
 						title: "Add to agentOS",
-						summary: "Register it as VM software so its commands are available inside the VM.",
-						code: softwareExample(entry.package),
+						summary:
+							"Install the package's .aospkg release artifact into a VM so its commands are available inside the VM.",
+						code: softwareExample(entry.title, entry.artifactName ?? entry.slug),
 					},
 				};
 			}
@@ -165,22 +133,12 @@ function usage(entry: RegistryEntry): Pick<RegistryDoc, "install" | "setup" | "n
 						title: "Add to agentOS",
 						summary: isSandboxExt
 							? `Mount a ${entry.title} sandbox into the VM with @rivet-dev/agentos-sandbox.`
-							: "Mount the sandbox filesystem and register the process bindings with @rivet-dev/agentos-sandbox.",
+							: "Mount the sandbox filesystem and register its host functions with @rivet-dev/agentos-sandbox.",
 						code: sandboxExample(isSandboxExt ? entry : null),
 					},
 				};
 			}
-			if (entry.types.includes("agent") && entry.agentId) {
-				return {
-					install: `npm install ${entry.package}`,
-					setup: {
-						title: "Add to agentOS",
-						summary: `Register the ${entry.title} adapter as VM software, then open a session with the "${entry.agentId}" agent id.`,
-						code: agentExample(entry.title, entry.agentId, entry.package),
-					},
-				};
-			}
-			return { install: `npm install ${entry.package}` };
+			return entry.package ? { install: `npm install ${entry.package}` } : {};
 	}
 }
 
