@@ -54,8 +54,12 @@ const explicitRedirects = {
 	// plane statuses rather than the SDK.
 	'/docs/quickstart': '/docs/',
 	'/actors/docs/troubleshooting': '/docs/troubleshooting/',
-	// Containers moved from the product-agnostic docs to Integrations.
-	'/docs/container-runner': '/integrations/containers/',
+	// The container runner and its Containers, Unity, and Godot integration
+	// pages were removed.
+	'/docs/container-runner': '/integrations/',
+	'/integrations/containers': '/integrations/',
+	'/integrations/unity': '/integrations/',
+	'/integrations/godot': '/integrations/',
 	// Endpoints was rewritten as the shorter Connect page; Runtime Modes folded
 	// into Workers & Pools.
 	'/docs/endpoints': '/docs/connect/',
@@ -374,7 +378,7 @@ function bundleSplitRedirects() {
 	// Old slug under `/actors/docs/` -> new path.
 	const MOVED = {
 		cli: '/docs/cli/',
-		'container-runner': '/integrations/containers/',
+		'container-runner': '/integrations/',
 		statuses: '/docs/statuses/',
 		versions: '/docs/versions/',
 		'general/edge': '/docs/regions/',

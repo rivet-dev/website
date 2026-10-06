@@ -67,38 +67,6 @@ const ACTORS: Integration[] = [
 		icon: { src: "/images/vendors/durable-streams.svg" },
 		sourceUrl: "https://github.com/rivet-dev/rivet-durable-streams",
 	},
-	{
-		title: "Containers",
-		description:
-			"Run any container, such as a Unity or Godot server or a batch job, as a Rivet Actor.",
-		slug: "containers",
-		category: "Runtimes",
-		icon: { src: "/images/vendors/docker.svg" },
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/container-runner",
-	},
-	{
-		title: "Unity",
-		description:
-			"Run a Unity dedicated server as a Rivet Actor and connect clients over WebSockets.",
-		slug: "unity",
-		category: "Dedicated Game Servers",
-		icon: { src: "/images/vendors/unity.svg" },
-		exampleUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/container-runner/examples/unity-demo",
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/container-runner",
-	},
-	{
-		title: "Godot",
-		description:
-			"Run a Godot dedicated server as a Rivet Actor and connect clients over WebSockets.",
-		slug: "godot",
-		category: "Dedicated Game Servers",
-		icon: { src: "/images/vendors/godot.svg" },
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/container-runner",
-	},
 ];
 
 const AGENTOS: Integration[] = [
