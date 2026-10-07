@@ -318,7 +318,12 @@
 	   Match SITE_WIDE_GUTTERED_RAIL_CLASS's 1800px cap and gutters without
 	   changing the standard content rail inside. --site-gutter tracks
 	   SITE_UTILITY_HERO_CLASS's horizontal padding so the guide offset is
-	   relative to the plate, not the viewport. Hidden below md. */
+	   relative to the plate, not the viewport. The guides sit at the plate's
+	   edge while the content rail caps at 80rem (max-w-7xl), so the frame
+	   only shows once the viewport leaves at least 2rem of clearance on each
+	   side: 80rem rail + 2 * 3rem gutter + 2 * 2rem clearance = 90rem.
+	   Below that the frame would touch the headline and artwork, so it is
+	   hidden entirely. */
 	.site-hero-plate {
 		--site-gutter: 1rem;
 		--rule-guide: max(
@@ -342,7 +347,7 @@
 		position: absolute;
 		pointer-events: none;
 	}
-	@media (min-width: 768px) {
+	@media (min-width: 1440px) {
 		.site-hero-plate > span {
 			display: block;
 		}

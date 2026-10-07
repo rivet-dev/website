@@ -1,10 +1,13 @@
 <!-- Apply before paint, including Astro's incoming document. Keep the legacy
-     .dark class for the component library; data-theme owns the site palette. -->
+     .dark class for the component library; data-theme owns the site palette.
+     Light is the default: with nothing stored in localStorage the site renders
+     light regardless of the OS. A stored 'system' preference still follows
+     the OS color scheme and tracks changes to it. -->
 <script is:inline>
 	(() => {
 		const media = window.matchMedia('(prefers-color-scheme: dark)');
-		const normalize = (value) => value === 'light' || value === 'dark' ? value : 'system';
-		let preference = 'system';
+		const normalize = (value) => value === 'light' || value === 'dark' || value === 'system' ? value : 'light';
+		let preference = 'light';
 		try { preference = normalize(localStorage.getItem('rivet-theme')); } catch {}
 		const apply = (doc = document) => {
 			const root = doc.documentElement;
