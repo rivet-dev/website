@@ -29,6 +29,9 @@ const explicitRedirects = {
 	'/orchestrate': '/docs/',
 	// The self-host overview became the Deploy section root.
 	'/docs/deploy/self-host': '/docs/deploy/',
+	// The Pi Durable page merged into the Pi page when `pi()` became the Pi
+	// Durable agent.
+	'/agents/docs/pi-durable': '/agents/docs/pi/',
 	// Product marketing pages folded into each product's docs overview.
 	'/actors': '/actors/docs/',
 	'/workflows': '/workflows/docs/',

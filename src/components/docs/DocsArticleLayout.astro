@@ -238,11 +238,12 @@ const breadcrumbSchema = {
 							)}
 						</div>
 			</main>
-			{tableOfContents.length > 0 && (
-				<aside class="hidden xl:block w-64 min-w-0 flex-shrink-0 pb-4">
+			{/* Keep the column on pages without headings so the article does not shift. */}
+			<aside class="hidden xl:block w-64 min-w-0 flex-shrink-0 pb-4">
+				{tableOfContents.length > 0 && (
 					<DocsTableOfContents className="lg:max-h-content" tableOfContents={tableOfContents} productId={productId} client:load />
-				</aside>
-			)}
+				)}
+			</aside>
 		</div>
 	</div>
 </DocsLayout>

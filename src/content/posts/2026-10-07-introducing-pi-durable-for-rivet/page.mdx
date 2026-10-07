@@ -10,6 +10,10 @@ description: "Run Earendil's Pi Durable harness in a Rivet Actor. Every model re
 
 Last week we shipped [Pi 1.0 for Rivet](/changelog/2026-10-01-introducing-pi-1-0-for-rivet/). Today, `pi()` runs <a href="https://earendil.com/posts/pi-durable/" target="_blank" rel="noopener noreferrer">Pi Durable</a> in a [Rivet Actor](/actors). Each Actor runs one Pi Durable harness and stores it in its own SQLite database.
 
+<Note>
+<a href="https://github.com/earendil-works/pi/tree/main/packages/durable" target="_blank" rel="noopener noreferrer">Pi Durable</a> is still in beta, so expect its API to change between releases.
+</Note>
+
 Pi Durable on Rivet gives you:
 
 - **Lightweight**: about 1.3 MB of RAM per session, so hundreds of agents share one process.
@@ -17,7 +21,7 @@ Pi Durable on Rivet gives you:
 - **Durable**: every step is saved to the Actor's SQLite, so runs finish through crashes and upgrades.
 - **Sleeps when idle**: idle agents hibernate and use no memory.
 - **Multiplayer streaming**: any number of clients watch one conversation live.
-- **Sandbox optional**: lightweight agents can run with only your own tools and no sandbox.
+- **Sandbox optional**: without a sandbox, Pi's file tools work on files stored in the Actor's SQLite.
 - **Vanilla Pi Durable**: actions mirror Pi Durable's API, and `c.pi` is the real `Harness`.
 - **And more**: schedules, per-agent state, swappable sandboxes, scoped access, and self-hosting.
 
@@ -107,19 +111,19 @@ Pi Durable is Earendil's harness for agents whose work has to outlive the proces
 
 ## Show me the code
 
-Install `@rivet-dev/pi` with Pi Durable, plus the sandbox adapter:
+Install `@rivet-dev/pi` with Pi Durable:
 
 ```sh
-npm add @rivet-dev/pi @rivet-dev/sandbox-adapter @earendil-works/pi-durable @earendil-works/pi-ai rivetkit
+npm add @rivet-dev/pi @earendil-works/pi-durable rivetkit
 ```
 
-Define the agent. Set an API key for any supported provider, such as `ANTHROPIC_API_KEY`. Pi's coding tools run in a sandbox, or leave the sandbox out for an agent that only uses your own tools:
+Define the agent. Set an API key for any supported provider, such as `ANTHROPIC_API_KEY`. Pi's `read`, `write`, and `edit` tools work without a sandbox, on files stored in the Actor's SQLite. Add a sandbox to give the agent a shell with `bash`:
 
 <Tabs>
 <Tab title="E2B">
 
 ```sh
-npm add e2b
+npm add @rivet-dev/sandbox-adapter e2b
 ```
 
 Set `E2B_API_KEY`.
@@ -150,7 +154,7 @@ registry.start();
 <Tab title="Daytona">
 
 ```sh
-npm add @daytonaio/sdk
+npm add @rivet-dev/sandbox-adapter @daytonaio/sdk
 ```
 
 Set `DAYTONA_API_KEY`.
@@ -181,12 +185,14 @@ registry.start();
 <Tab title="No sandbox">
 
 ```ts server.ts
-import { createRegistry } from "@earendil-works/pi-durable";
+import { createRegistry, defineExtension } from "@earendil-works/pi-durable";
+import { createEditTool, createReadTool, createWriteTool } from "@earendil-works/pi-durable/tools";
 import { pi } from "@rivet-dev/pi";
 import { setup } from "rivetkit";
 
-// No sandbox: install your own tools into the registry
+// read, write, and edit. With no sandbox, the files live in the Actor's SQLite
 const tools = createRegistry();
+tools.install(defineExtension({ name: "files", tools: [createReadTool(), createWriteTool(), createEditTool()] }));
 
 const agent = pi({
 	model: "anthropic/claude-opus-5-5",
@@ -218,7 +224,7 @@ const result = await agent.prompt("Find the failing test and fix it.", {
 console.log(result.status === "done" ? result.text : result.reason);
 ```
 
-See the [Pi Durable docs](/agents/docs/pi-durable/) for streaming, forks, and documents.
+See the [Pi Durable docs](/agents/docs/pi/) for streaming, forks, and documents.
 
 ## Add tools, with a twist
 
@@ -273,6 +279,12 @@ Every tool call is a task, and tools can start tasks of their own. Each step sav
   <text x="48" y="240" font-size="12" style="fill:rgb(var(--site-ink-soft, 86 82 74))">where a restart can pick up</text>
 </svg>
 </div>
+
+Tools define their parameters with `Type` from pi-ai, Pi's model library:
+
+```sh
+npm add @earendil-works/pi-ai
+```
 
 Here `refund_order` runs a two-phase refund as a task:
 
@@ -570,6 +582,6 @@ registry.start();
 
 ## More Links
 
-- [Pi Durable documentation](/agents/docs/pi-durable/)
+- [Pi Durable documentation](/agents/docs/pi/)
 - <a href="https://github.com/rivet-dev/agents" target="_blank" rel="noopener noreferrer">GitHub</a>
 - <a href="https://rivet.dev/discord" target="_blank" rel="noopener noreferrer">Discord</a>
