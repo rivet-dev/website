@@ -31,7 +31,7 @@ We've been doing it this way since the 1980s, when client-server architecture pu
 
 This came from the fact that computers were slow and had limited resources. Running application code and database operations on the same machine meant they'd fight over CPU and memory, making both perform poorly. Separating them protected databases from compute overhead.
 
-This tradeoff made sense when CPU and memory were severely limited, but the pattern outlived its purpose. As traffic grew, we added caching layers, message queues, and distributed locks — each solving a problem from the last without questioning the original assumption of how we got here.
+This tradeoff made sense when CPU and memory were severely limited, but the pattern outlived its purpose. As traffic grew, we added caching layers, message queues, and distributed locks, each solving a problem from the last without questioning the original assumption of how we got here.
 
 ## 40 Years Later
 
@@ -114,7 +114,7 @@ When you build your backend with actors, the four properties listed remove the n
 
 If you've reached this point and are unfamiliar with the actor model, you're probably asking this exact question. It all sounds a little _too_ rosy.
 
-The truth is that actors _are_ used widely — just not visibly. Large enterprises with engineers who've spent years wrestling with traditional architectures have long since adopted them. The pattern has proven itself at massive scale:
+The truth is that actors _are_ used widely, just not visibly. Large enterprises with engineers who've spent years wrestling with traditional architectures have long since adopted them. The pattern has proven itself at massive scale:
 
 - WhatsApp (notoriously acquired for $19B running Erlang/OTP with only 35 engineers)
 - Discord
@@ -126,11 +126,11 @@ The truth is that actors _are_ used widely — just not visibly. Large enterpris
 
 So why hasn't the actor model spread to smaller teams and mainstream development?
 
-This mirrors TypeScript's trajectory. It started as a niche tool for large codebases — most developers dismissed it as unnecessary overhead with poor tooling. But as more developers felt the pain of loose typing at scale, adoption grew. Today, TypeScript is a non-negotiable for many teams because of that collective suffering.
+This mirrors TypeScript's trajectory. It started as a niche tool for large codebases, and most developers dismissed it as unnecessary overhead with poor tooling. But as more developers felt the pain of loose typing at scale, adoption grew. Today, TypeScript is a non-negotiable for many teams because of that collective suffering.
 
 Actors are on the same trajectory. The pain of distributed systems complexity is becoming impossible to ignore.
 
-Other ecosystems have had mature actor frameworks for years — Erlang has OTP, Java has Akka, C# has Microsoft Orleans. But TypeScript has been the missing piece until recently with:
+Other ecosystems have had mature actor frameworks for years. Erlang has OTP, Java has Akka, C# has Microsoft Orleans. But TypeScript has been the missing piece until recently with:
 
 - **Rivet Actors**: Open-source actor infrastructure for TypeScript
 - **Cloudflare Durable Objects**: Leverages Cloudflare's existing network & JavaScript runtime

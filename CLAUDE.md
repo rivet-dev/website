@@ -17,7 +17,7 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 
 ## Docs Routing
 
-- The site-wide docs overview is `/docs/`; the Guides tab is `/guides/` (the Actors bundle's `learn` section plus website-owned guides in `src/content/guides/`); the Deploy tab is `/docs/deploy/{self-host,byoc,cloud}/`. Product documentation stays at `/{product}/docs/` and `/{product}/integrations/`.
+- The site-wide docs overview is `/docs/`; the Guides tab is `/guides/` (every product bundle's `content/guides/` and `guides` sidebar key, merged in product order with same-titled groups combined; the website owns only the overview in `src/content/guides/index.mdx`); the Deploy tab is `/docs/deploy/{self-host,byoc,cloud}/`. Product documentation stays at `/{product}/docs/` and `/{product}/integrations/`.
 - The route prefixes live in `src/sitemap/deploy.ts` and `src/sitemap/guides.ts`. Derive hrefs from them; never hand-write `/orchestrate/`, `/{product}/self-host/`, or `/actors/learn/`, which are redirects.
 
 ## Docs Pages

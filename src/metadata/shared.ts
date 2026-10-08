@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { deploySlugForContentId } from "../sitemap/deploy";
 import { apiSlugForContentId } from "../sitemap/docs-sources";
-import { guidesSlugForContentId } from "../sitemap/guides";
+import { guidesSlugForContentId, isGuidesContentId } from "../sitemap/guides";
 import {
 	integrationsSlugForContentId,
 	productIntegrationsSlugForContentId,
@@ -16,9 +16,9 @@ export const PROJECT_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 // Docs slugs are product-scoped (`actors/docs/state`, `agentos/tutorials`),
 // so the collection slug is already the site path. The exceptions are the
 // Rivet Cloud bundle, which renders inside the Deploy section, the HTTP API
-// bundle, which renders under `/docs/api`, the Actors `learn` and
-// `integrations` sections, which render as the site's Guides and Integrations
-// sections, and any other product's `integrations` section, which renders
+// bundle, which renders under `/docs/api`, every bundle's `guides` section,
+// which renders as the site's Guides tab, the Actors `integrations` section,
+// which renders as the site's Integrations section, and any other product's `integrations` section, which renders
 // inside that product's docs (`/agentos/docs/integrations/`).
 export function getDocsPath(slug: string) {
 	const rerooted =
@@ -61,6 +61,8 @@ const UNROUTED_DOCS_PREFIXES = PRODUCTS.flatMap((product) => [
  */
 export function isRoutedDocsContentId(contentId: string) {
 	const slug = normalizeSlug(contentId);
+	// A bundle's own `guides/index.mdx` is replaced by the website's overview.
+	if (isGuidesContentId(slug)) return guidesSlugForContentId(slug) !== undefined;
 	return !UNROUTED_DOCS_PREFIXES.some(
 		(prefix) => slug === prefix || slug.startsWith(`${prefix}/`),
 	);

@@ -35,7 +35,7 @@ function guideGroups(overviewHref: string): GuideGroup[] {
 /**
  * The Guides overview, generated from the same sidebar the tab is built from:
  * one heading per sidebar section, then a card per guide in it. Adding a guide
- * to the Actors bundle's sidebar or to `SITE_GUIDES` updates both.
+ * to any bundle's `guides` sidebar updates both.
  *
  * `descriptions` maps each guide href to its frontmatter description; the
  * route supplies it from the content collections.

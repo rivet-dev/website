@@ -5,8 +5,9 @@ import {
 	faPuzzlePiece,
 	faRobot,
 	faSparkles,
+	faSquareInfo,
 } from "@rivet-gg/icons";
-import type { SidebarItem } from "@/lib/sitemap";
+import type { SidebarItem, SidebarSection } from "@/lib/sitemap";
 import rawSidebars from "@/generated/sidebars.json";
 import { SIDEBAR_ICONS } from "@/generated/sidebar-icons";
 import {
@@ -22,7 +23,7 @@ import {
 } from "./self-host";
 import { API_DOCS_NAMESPACE, SITE_DOCS_NAMESPACE } from "./docs-sources";
 import { CLOUD_BUNDLE_ID } from "./deploy";
-import { rerootLearnHref, SITE_GUIDES_SIDEBAR_GROUPS } from "./guides";
+import { GUIDE_BUNDLES, guideHref } from "./guides";
 import { integrationFold, integrationSidebar } from "@/data/integrations";
 import { registryFold } from "@/data/registry";
 import { integrationsHref, SITE_INTEGRATIONS_PRODUCT } from "./integrations";
@@ -54,12 +55,14 @@ function hydrateIcons<T>(node: T): T {
 	return out as T;
 }
 
+// Icons are export names in the JSON and become `IconDefinition`s here, so the
+// raw JSON is not yet the hydrated shape.
 const SIDEBARS = hydrateIcons(
-	rawSidebars as Record<
+	rawSidebars as unknown as Record<
 		string,
 		{
 			docs: SidebarItem[];
-			learn?: SidebarItem[];
+			guides?: SidebarItem[];
 			tutorials?: SidebarItem[];
 			integrations?: SidebarItem[];
 			byoc?: SidebarItem[];
@@ -144,26 +147,29 @@ export function deploySidebar(): SidebarItem[] {
 }
 
 /**
- * The Guides tab's sidebar: the Actors bundle's `learn` section re-rooted at
- * `/guides/`, followed by the website-owned solution guides.
+ * The Guides tab's sidebar: the website's overview, then every bundle's
+ * `guides` groups in product order. Groups with the same title merge into one,
+ * at the position the title first appears, keeping each bundle's page order.
  */
 export function guidesSidebar(): SidebarItem[] {
-	const actors = bundleSidebars("actors");
-	const learn = actors.learn ?? actors.tutorials ?? [];
-	return [...rerootHrefs(learn), ...SITE_GUIDES_SIDEBAR_GROUPS];
-}
-
-function rerootHrefs<T>(node: T): T {
-	if (Array.isArray(node)) return node.map(rerootHrefs) as unknown as T;
-	if (!node || typeof node !== "object") return node;
-	const out: Record<string, unknown> = {};
-	for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
-		out[key] =
-			key === "href" && typeof value === "string"
-				? rerootLearnHref(value)
-				: rerootHrefs(value);
+	const overview: SidebarSection = {
+		title: "General",
+		pages: [{ title: "Overview", href: guideHref(""), icon: faSquareInfo }],
+	};
+	const merged: SidebarSection[] = [];
+	for (const bundleId of GUIDE_BUNDLES) {
+		for (const item of SIDEBARS[bundleId]?.guides ?? []) {
+			if (!("pages" in item)) {
+				throw new Error(
+					`${bundleId}/sidebar.json: every "guides" entry must be a group with "title" and "pages"`,
+				);
+			}
+			const group = merged.find((candidate) => candidate.title === item.title);
+			if (group) group.pages.push(...item.pages);
+			else merged.push({ ...item, pages: [...item.pages] });
+		}
 	}
-	return out as T;
+	return [overview, ...merged];
 }
 
 export type ProductTabId =

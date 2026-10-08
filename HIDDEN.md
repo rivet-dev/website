@@ -12,18 +12,9 @@ working — they are just unreachable from the nav.
 | Product | Tab | Why | To restore |
 | --- | --- | --- | --- |
 | All | Use Cases | The other three are stubs, and agentOS retired its page (`/agentos/use-cases/` redirects to `/guides/`) | Write them, add `"use-cases"` back to each `tabs` |
-| Actors | Learn | Cookbooks are thin and the section has no landing copy | Add `"learn"` to `optionalTabs` and `tabs` |
 | agentOS | Learn | Was generated from `examples/*/README.md` by a loader that did not survive the split. Content deleted; READMEs still in `~/agentos/examples/` | Port the loader or convert the READMEs to MDX |
 | Dynamic Apps | Learn | Placeholder only, deleted | Write it |
 | Workflows | Learn | Placeholder only, deleted | Write it |
-
-### Pages behind the hidden Actors Learn tab
-
-Still routed at `/actors/learn/*`, unreachable from the nav:
-
-- `a-radically-simpler-architecture` — a full essay, the strongest piece here
-- `ai-agent`, `chat-room`, `collaborative-text-editor`, `cron-jobs`,
-  `live-cursors`, `multiplayer-game`, `per-tenant-database` — cookbooks
 
 ## Hidden products
 
