@@ -112,8 +112,8 @@ export function requireDocsRoot(productId: string): string {
  * Repo root that a content file's snippets resolve against.
  *
  * Product docs use their own repo. Everything else authored in this repo — the
- * shared self-host guides use website-owned examples. Cookbook, learn, and
- * blog posts fall back to Rivet's examples.
+ * shared self-host guides use website-owned examples. Cookbook and blog posts
+ * fall back to Rivet's examples.
  */
 /**
  * The GitHub repo (under rivet-dev) that owns a content file's snippets, for

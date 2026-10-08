@@ -1,70 +1,58 @@
 ---
 // The Guides tab: /guides/{...slug}
 //
-//   src/content/docs/actors/learn/**   the Actors bundle's guides, re-rooted here
-//   src/content/guides/*.mdx           website-owned: the overview (`index`) and
-//                                      the solution guides (SITE_GUIDES)
+//   src/content/docs/<bundle>/guides/**   each product bundle's guides
+//   src/content/guides/index.mdx          website-owned overview
 //
 // All share the sidebar built by `guidesSidebar()` in src/sitemap/products.ts.
-// The overview is website-owned rather than the bundle's `learn/index.mdx`
-// because it is generated from that sidebar (`GuideCards`).
+// The overview is website-owned because it is generated from that sidebar
+// (`GuideCards`).
 import { getCollection } from 'astro:content';
 import { ogImageFor } from '@/lib/ogImage';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { createGuideCards } from '@/components/docs/GuideCards';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
-import {
-	ACTORS_LEARN_CONTENT_PREFIX,
-	GUIDES_ROUTE_PREFIX,
-	SITE_GUIDES,
-	guideHref,
-} from '@/sitemap/guides';
+import { DOCS_SOURCES } from '@/sitemap/docs-sources';
+import { GUIDES_ROUTE_PREFIX, GUIDES_SECTION, guideForContentId, guideHref } from '@/sitemap/guides';
 
 export async function getStaticPaths() {
 	// `getStaticPaths` is hoisted, so anything it uses must be declared inside.
 	const GUIDES_OVERVIEW_ID = 'index';
 	const paths = [];
-	const siteGuides = new Map((await getCollection('guides')).map((entry) => [entry.id, entry]));
 
 	// Every guide's description, keyed by its site href, for the overview cards.
 	const descriptions: Record<string, string | undefined> = {};
+	// Guides from different bundles share one flat namespace.
+	const owners = new Map<string, string>();
 
-	const learnPrefix = `${ACTORS_LEARN_CONTENT_PREFIX}/`;
 	for (const entry of await getCollection('docs')) {
-		// The glob loader collapses `learn/index.mdx` to the id `actors/learn`;
-		// that page is replaced by the website-owned overview below.
-		if (entry.id === ACTORS_LEARN_CONTENT_PREFIX) continue;
-		if (!entry.id.startsWith(learnPrefix)) continue;
-		const slug = entry.id.slice(learnPrefix.length);
-		descriptions[guideHref(slug)] = entry.data.description;
-		paths.push({
-			params: { slug: getContentParamSlug(slug) },
-			props: {
-				entry,
-				editUrlOverride: `https://github.com/rivet-dev/rivet/edit/main/docs/actors/content/learn/${slug}.mdx`,
-			},
-		});
-	}
-
-	for (const guide of SITE_GUIDES) {
-		const entry = siteGuides.get(guide.slug);
-		if (!entry) {
+		const guide = guideForContentId(entry.id);
+		if (!guide) continue;
+		const owner = owners.get(guide.slug);
+		if (owner) {
 			throw new Error(
-				`src/sitemap/guides.ts lists "${guide.slug}" but src/content/guides/${guide.slug}.mdx is missing`,
+				`/guides/${guide.slug}/ is defined by both the ${owner} and ${guide.bundle} bundles; rename one`,
 			);
 		}
+		owners.set(guide.slug, guide.bundle);
 		descriptions[guideHref(guide.slug)] = entry.data.description;
+
+		const source = DOCS_SOURCES[guide.bundle];
+		const contentPath = (entry.filePath ?? '').split(`/${guide.bundle}/${GUIDES_SECTION}/`).pop();
 		paths.push({
-			params: { slug: guide.slug },
+			params: { slug: getContentParamSlug(guide.slug) },
 			props: {
 				entry,
-				editUrlOverride: `https://github.com/rivet-dev/website/edit/main/src/content/guides/${guide.slug}.mdx`,
+				entryIdPrefix: `${guide.bundle}/${GUIDES_SECTION}/`,
+				editUrlOverride: source.localBundle
+					? `https://github.com/rivet-dev/website/edit/main/${source.localBundle}/docs/content/${GUIDES_SECTION}/${contentPath}`
+					: `https://github.com/rivet-dev/${source.repo}/edit/main/${source.bundlePath ?? 'docs'}/content/${GUIDES_SECTION}/${contentPath}`,
 			},
 		});
 	}
 
-	const overview = siteGuides.get(GUIDES_OVERVIEW_ID);
+	const overview = (await getCollection('guides')).find((entry) => entry.id === GUIDES_OVERVIEW_ID);
 	if (!overview) {
 		throw new Error(`The Guides overview src/content/guides/${GUIDES_OVERVIEW_ID}.mdx is missing`);
 	}
@@ -72,6 +60,7 @@ export async function getStaticPaths() {
 		params: { slug: undefined },
 		props: {
 			entry: overview,
+			entryIdPrefix: '',
 			routeSlugOverride: '',
 			editUrlOverride: `https://github.com/rivet-dev/website/edit/main/src/content/guides/${GUIDES_OVERVIEW_ID}.mdx`,
 			descriptions,
@@ -81,14 +70,14 @@ export async function getStaticPaths() {
 	return paths;
 }
 
-const { entry, routeSlugOverride, editUrlOverride, descriptions } = Astro.props;
+const { entry, entryIdPrefix, routeSlugOverride, editUrlOverride, descriptions } = Astro.props;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 ---
 
 <DocsArticlePage
 	entry={entry}
 	routePrefix={GUIDES_ROUTE_PREFIX}
-	entryIdPrefix={`${ACTORS_LEARN_CONTENT_PREFIX}/`}
+	entryIdPrefix={entryIdPrefix}
 	routeSlugOverride={routeSlugOverride}
 	breadcrumbName="Guides"
 	ogImage={ogImageFor('guides')}

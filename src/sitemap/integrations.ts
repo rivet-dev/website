@@ -1,8 +1,7 @@
 /**
  * The Integrations section (`/integrations/`): third-party frameworks and SDKs
  * backed by Rivet Actors. Its pages are authored in the Actors bundle under
- * `actors/integrations/<slug>` and re-rooted here, the same way the bundle's
- * `learn` section renders as `/guides/`. Any other product (agentOS) renders
+ * `actors/integrations/<slug>` and re-rooted here. Any other product (agentOS) renders
  * its integrations inside its Documentation tab at
  * `/<product>/docs/integrations/`, reached from a fold in the docs sidebar.
  *

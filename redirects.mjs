@@ -341,13 +341,12 @@ function selfHostRedirects() {
 	return map;
 }
 
-// The Actors bundle's `learn` section rendered at `/actors/learn/...` before
-// it became the site-wide Guides tab at `/guides/...`. Website-owned guides in
-// `src/content/guides` never had another URL, but are included so the map
-// lists every guide.
+// The Actors bundle's guides rendered at `/actors/learn/...` before they moved
+// to the site-wide Guides tab at `/guides/...`. Guides from other bundles never
+// had another URL.
 function guidesRedirects() {
 	const map = {};
-	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'docs/actors/learn'))) {
+	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'docs/actors/guides'))) {
 		map[slug ? `/actors/learn/${slug}` : '/actors/learn'] = slug ? `/guides/${slug}/` : '/guides/';
 	}
 	return map;
