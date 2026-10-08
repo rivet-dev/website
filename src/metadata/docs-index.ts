@@ -19,7 +19,7 @@ import { docsRoot } from "../sitemap/docs-sources.node.ts";
 import { getProductMetadata } from "../sitemap/product-metadata";
 import { deploySlugForContentId } from "../sitemap/deploy";
 import { apiSlugForContentId } from "../sitemap/docs-sources";
-import { GUIDES_ROUTE_PREFIX, guidesSlugForContentId, SITE_GUIDES } from "../sitemap/guides";
+import { guidesSlugForContentId } from "../sitemap/guides";
 import { productIntegrationsSlugForContentId } from "../sitemap/integrations";
 import { registryCategorySlug } from "../sitemap/registry";
 import { AGENTOS_REGISTRY_CATEGORIES } from "../data/registry-categories";
@@ -31,9 +31,6 @@ const CONTENT_BASE = path.join(PROJECT_ROOT, "src/content/docs");
 // Website-owned product overviews, which shadow each bundle's docs root on the
 // site (see src/pages/[product]/[tab]/[...slug].astro).
 const OVERVIEWS_BASE = path.join(PROJECT_ROOT, "src/content/overviews");
-// Website-owned solution guides, routed onto the Guides tab (see
-// src/pages/guides/[...slug].astro).
-const GUIDES_BASE = path.join(PROJECT_ROOT, "src/content/guides");
 
 export interface DocPage {
 	/** Product id, i.e. the first slug segment. */
@@ -80,7 +77,7 @@ export function listDocPages(): DocPage[] {
 
 		// Most bundles are served at their content id; the Rivet Cloud bundle
 		// renders inside the Deploy section, the HTTP API bundle under
-		// `/docs/api`, and the Actors `learn` section as the Guides tab instead.
+		// `/docs/api`, and every bundle's `guides` section as the Guides tab instead.
 		const contentId = normalizeSlug(file.replace(/\.mdx$/, ""));
 		// Shared bundles (`bundleOf`) are walked twice; only the
 		// product that routes them gets a Markdown mirror and search entries.
@@ -153,21 +150,6 @@ export function listDocPages(): DocPage[] {
 			sourcePath: registrySource,
 			body: registryCategoryMarkdown(category),
 			snippetFiles: [],
-		});
-	}
-
-	for (const guide of SITE_GUIDES) {
-		const sourcePath = path.join(GUIDES_BASE, `${guide.slug}.mdx`);
-		const raw = readFileSync(sourcePath, "utf-8");
-		const { frontmatter, body } = splitFrontmatter(raw);
-		pages.push({
-			product: "actors",
-			slug: normalizeSlug(`${GUIDES_ROUTE_PREFIX.slice(1)}/${guide.slug}`),
-			title: frontmatterValue(frontmatter, "title") ?? guide.title,
-			description: frontmatterValue(frontmatter, "description") ?? "",
-			sourcePath,
-			body,
-			snippetFiles: listSnippetFiles(body),
 		});
 	}
 

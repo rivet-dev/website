@@ -1,84 +1,65 @@
-import type { SidebarItem } from "@/lib/sitemap";
+import { ownsDocsBundle, PRODUCTS } from "./product-metadata";
 
 /**
- * The Guides tab (`/guides/`). Two sources feed it:
+ * The Guides tab (`/guides/`). Every product bundle may ship guides:
  *
- *   - The Actors bundle's `learn` section. Its content ids are
- *     `actors/learn/<slug>` and its sidebar links `/actors/learn/<slug>`; both
- *     are re-rooted here so the bundle needs no change.
- *   - Website-owned solution guides in `src/content/guides/<slug>.mdx`, listed
- *     in `SITE_GUIDES` because the Solutions menu links to them.
+ *   <repo>/<bundle>/content/guides/<slug>.mdx   -> /guides/<slug>/
+ *   <repo>/<bundle>/sidebar.json "guides"       -> groups of the Guides sidebar
  *
- * Both render through `src/pages/guides/[...slug].astro`.
+ * A bundle links its guides as `/guides/<slug>`, where they render, so nothing
+ * is re-rooted. The website owns only the overview (`src/content/guides/index.mdx`).
+ * Guides render through `src/pages/guides/[...slug].astro`, and their
+ * `<CodeSnippet>` paths resolve against the bundle's own repo.
  */
 export const GUIDES_ROUTE_PREFIX = "/guides";
 
-/** Content-collection prefix of the Actors bundle's guides. */
-export const ACTORS_LEARN_CONTENT_PREFIX = "actors/learn";
+/** The bundle directory and `sidebar.json` key that hold a bundle's guides. */
+export const GUIDES_SECTION = "guides";
 
-/** The bundle's own href prefix for those pages. */
-const ACTORS_LEARN_HREF_PREFIX = "/actors/learn";
-
-export interface SiteGuide {
-	slug: string;
-	title: string;
-	/** Sidebar group. Defaults to Solutions. */
-	group?: string;
-}
-
-export const SITE_GUIDES: SiteGuide[] = [
-	{ slug: "coding-agents", title: "Coding Agents" },
-	{ slug: "agent-app-builders", title: "Agent App Builders" },
-	{ slug: "company-agents", title: "Company-Specific Agents" },
-	{
-		// Prose rather than a worked example, so it sits in its own group rather
-		// than beside the solution guides.
-		slug: "a-radically-simpler-architecture",
-		title: "A Radically Simpler Architecture",
-		group: "Architecture",
-	},
-];
+/**
+ * Bundles that may ship guides, in the order the Guides sidebar merges them.
+ * Shared bundles (`bundleOf`) are read once, through their source product.
+ */
+export const GUIDE_BUNDLES: string[] = PRODUCTS.filter(
+	(product) => ownsDocsBundle(product) && !product.bundleOf && !product.unlaunched,
+).map((product) => product.id);
 
 export function guideHref(slug: string): string {
 	return slug ? `${GUIDES_ROUTE_PREFIX}/${slug}/` : `${GUIDES_ROUTE_PREFIX}/`;
 }
 
 /**
- * Site slug (no leading slash) of an Actors `learn` content id, e.g.
- * `actors/learn/chat-room` -> `guides/chat-room`, `actors/learn` -> `guides`.
- * Undefined for ids outside that section.
+ * The bundle and guide slug of a docs content id, e.g.
+ * `agents/guides/sign-in-with-chatgpt` -> `{ bundle: "agents", slug: "sign-in-with-chatgpt" }`.
+ * Undefined for ids outside a bundle's guides, and for a bundle's own
+ * `guides/index.mdx`, which the website overview replaces.
+ */
+export function guideForContentId(
+	contentId: string,
+): { bundle: string; slug: string } | undefined {
+	for (const bundle of GUIDE_BUNDLES) {
+		const prefix = `${bundle}/${GUIDES_SECTION}/`;
+		if (!contentId.startsWith(prefix)) continue;
+		const slug = contentId.slice(prefix.length).replace(/\/index$/, "");
+		return slug && slug !== "index" ? { bundle, slug } : undefined;
+	}
+	return undefined;
+}
+
+/**
+ * Site slug (no leading slash) of a guide's content id, e.g.
+ * `actors/guides/chat-room` -> `guides/chat-room`. Undefined for other ids.
  */
 export function guidesSlugForContentId(contentId: string): string | undefined {
-	if (contentId === ACTORS_LEARN_CONTENT_PREFIX)
-		return GUIDES_ROUTE_PREFIX.slice(1);
-	if (!contentId.startsWith(`${ACTORS_LEARN_CONTENT_PREFIX}/`))
-		return undefined;
-	return `${GUIDES_ROUTE_PREFIX.slice(1)}/${contentId.slice(ACTORS_LEARN_CONTENT_PREFIX.length + 1)}`;
+	const guide = guideForContentId(contentId);
+	return guide && `${GUIDES_ROUTE_PREFIX.slice(1)}/${guide.slug}`;
 }
 
-/** Re-roots the bundle's `/actors/learn/...` hrefs onto `/guides/...`. */
-export function rerootLearnHref(href: string): string {
-	if (
-		href === ACTORS_LEARN_HREF_PREFIX ||
-		href === `${ACTORS_LEARN_HREF_PREFIX}/`
-	) {
-		return `${GUIDES_ROUTE_PREFIX}/`;
-	}
-	if (href.startsWith(`${ACTORS_LEARN_HREF_PREFIX}/`)) {
-		return `${GUIDES_ROUTE_PREFIX}/${href.slice(ACTORS_LEARN_HREF_PREFIX.length + 1)}`;
-	}
-	return href;
+/** Whether a docs content id sits in a bundle's guides section. */
+export function isGuidesContentId(contentId: string): boolean {
+	return GUIDE_BUNDLES.some(
+		(bundle) =>
+			contentId === `${bundle}/${GUIDES_SECTION}` ||
+			contentId.startsWith(`${bundle}/${GUIDES_SECTION}/`),
+	);
 }
-
-/** The sidebar groups that list every website-owned guide, in first-seen order. */
-export const SITE_GUIDES_SIDEBAR_GROUPS: SidebarItem[] = SITE_GUIDES.reduce(
-	(groups: SidebarItem[], guide) => {
-		const title = guide.group ?? "Solutions";
-		const page = { title: guide.title, href: guideHref(guide.slug) };
-		const group = groups.find((candidate) => candidate.title === title);
-		if (group) group.pages.push(page);
-		else groups.push({ title, pages: [page] });
-		return groups;
-	},
-	[],
-);

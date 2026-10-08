@@ -13,8 +13,8 @@
  *   3. Every product docs/integrations sidebar href resolves to a content file.
  *   4. Every sidebar href appears in exactly one tab.
  *   5. Every routed, indexable product-doc page has a sidebar or content inlink.
- *   6. Every Guides sidebar href resolves to an Actors `learn` page or a
- *      website-owned guide.
+ *   6. The Guides sidebar and every bundle's `guides` content directory agree
+ *      exactly, and no two bundles define the same guide slug.
  *   7. The site Integrations sidebar (`/integrations/`) and the Actors
  *      `integrations` content directory agree exactly.
  *
@@ -37,9 +37,9 @@ import {
 } from "../src/sitemap/deploy";
 import { selfHostGuides } from "../src/sitemap/deployMatrix";
 import {
-	ACTORS_LEARN_CONTENT_PREFIX,
+	GUIDE_BUNDLES,
 	GUIDES_ROUTE_PREFIX,
-	SITE_GUIDES,
+	GUIDES_SECTION,
 } from "../src/sitemap/guides";
 import { integrationSidebar } from "../src/data/integrations";
 import {
@@ -279,9 +279,32 @@ for (const product of products) {
 	}
 }
 
-// 6. Every Guides sidebar href is an Actors `learn` page or a website guide.
+// 6. The Guides sidebar and every bundle's `guides` content directory agree
+// exactly: every href has one content file, every guide file has a sidebar
+// link, and no two bundles define the same slug.
 {
-	const learnContent = path.join(DOCS_CONTENT, ACTORS_LEARN_CONTENT_PREFIX);
+	const owners = new Map<string, string[]>();
+	for (const bundle of GUIDE_BUNDLES) {
+		const base = path.join(DOCS_CONTENT, bundle, GUIDES_SECTION);
+		for (const file of fg.sync("**/*.mdx", { cwd: base, followSymbolicLinks: true })) {
+			const slug = file.replace(/\.mdx$/, "").replace(/(^|\/)index$/, "");
+			if (!slug) {
+				errors.push(
+					`${bundle}/${GUIDES_SECTION}/index.mdx is never rendered; the Guides overview is website-owned`,
+				);
+				continue;
+			}
+			owners.set(slug, [...(owners.get(slug) ?? []), bundle]);
+		}
+	}
+	for (const [slug, bundles] of owners) {
+		if (bundles.length > 1) {
+			errors.push(
+				`${GUIDES_ROUTE_PREFIX}/${slug}/ is defined by more than one bundle: ${bundles.join(", ")}`,
+			);
+		}
+	}
+	const sidebarSlugs = new Set<string>();
 	for (const href of collectHrefs(guidesSidebar())) {
 		if (!href.startsWith(`${GUIDES_ROUTE_PREFIX}/`)) {
 			errors.push(
@@ -292,14 +315,19 @@ for (const product of products) {
 		const slug = href
 			.slice(`${GUIDES_ROUTE_PREFIX}/`.length)
 			.replace(/\/$/, "");
-		// The Guides overview is website-owned; the Actors bundle carries only
-		// the worked examples under it.
-		const siteGuide = slug
-			? SITE_GUIDES.some((guide) => guide.slug === slug) &&
-				contentFileExists(GUIDES_CONTENT, slug)
+		sidebarSlugs.add(slug);
+		const exists = slug
+			? owners.has(slug)
 			: contentFileExists(GUIDES_CONTENT, "index");
-		if (!siteGuide && !contentFileExists(learnContent, slug)) {
+		if (!exists) {
 			errors.push(`Guides sidebar links ${href}, which has no content file`);
+		}
+	}
+	for (const [slug, bundles] of owners) {
+		if (!sidebarSlugs.has(slug)) {
+			errors.push(
+				`${bundles[0]}/${GUIDES_SECTION}/${slug}.mdx is not linked from that bundle's "guides" sidebar`,
+			);
 		}
 	}
 }
