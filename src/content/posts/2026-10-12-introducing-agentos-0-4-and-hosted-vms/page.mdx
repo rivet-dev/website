@@ -65,13 +65,31 @@ When creating the project, choose agentOS as the product.
 
 Set `RIVET_NAMESPACE` and `RIVET_TOKEN` from your project, then create a VM by ID:
 
-```ts @nocheck
+<CodeGroup>
+
+```ts @nocheck TypeScript
 import { createAgentOsClient } from "@rivet-dev/agentos";
 
-const client = createAgentOsClient({ endpoint: "https://api.rivet.dev" });
+const client = createAgentOsClient({
+	endpoint: "https://api.rivet.dev",
+});
 
 const vm = client.agentOS.getOrCreate(["my-vm"]);
 ```
+
+```bash HTTP
+curl -X PUT "https://api.rivet.dev/actors?namespace=$RIVET_NAMESPACE" \
+  -H "Authorization: Bearer $RIVET_TOKEN" \
+  --json '{
+    "name": "agentOS",
+    "key": "my-vm",
+    "runner_name_selector": "services",
+    "crash_policy": "sleep"
+  }'
+# → { "actor": { "actor_id": "…" }, "created": true }
+```
+
+</CodeGroup>
 
 </Step>
 </Steps>
@@ -104,20 +122,37 @@ docker run \
 
 Create a client pointed at your control plane, then create a VM by ID:
 
-```ts @nocheck
+<CodeGroup>
+
+```ts @nocheck TypeScript
 import { createAgentOsClient } from "@rivet-dev/agentos";
 
-const client = createAgentOsClient({ endpoint: "http://localhost:6420" });
+const client = createAgentOsClient({
+	endpoint: "http://localhost:6420",
+});
 
 const vm = client.agentOS.getOrCreate(["my-vm"]);
 ```
+
+```bash HTTP
+curl -X PUT "http://localhost:6420/actors?namespace=default" \
+  --json '{
+    "name": "agentOS",
+    "key": "my-vm",
+    "runner_name_selector": "services",
+    "crash_policy": "sleep"
+  }'
+# → { "actor": { "actor_id": "…" }, "created": true }
+```
+
+</CodeGroup>
 
 </Step>
 </Steps>
 
 ## Show me the code
 
-These examples continue from the quickstart's `vm`. Each cURL example calls the same action over HTTP at `/gateway/$VM_ID/action/<action>`, with a token in `x-rivet-token`.
+These examples continue from the quickstart's `vm`. Each HTTP example calls the same action at `/gateway/$VM_ID/action/<action>`, with a token in `x-rivet-token`.
 
 ### Run Bash Commands
 
@@ -133,7 +168,7 @@ const result = await vm.v1.process.run({
 console.log(result.stdout);
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.process.run" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{
@@ -160,7 +195,7 @@ const file = await vm.v1.filesystem.readFile({
 });
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.writeFile" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{
@@ -202,7 +237,7 @@ const preview = await vm.v1.network.preview.create({
 await vm.v1.network.preview.expire({ token: preview.token });
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.writeFile" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{
@@ -243,7 +278,7 @@ const { value } = await vm.v1.python.evaluate({
 });
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.javascript.execute" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{"source": "console.log(1 + 2)"}]}'
@@ -267,7 +302,7 @@ await vm.v1.cron.schedule({
 });
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.cron.schedule" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{
@@ -302,7 +337,7 @@ const userClient = createAgentOsClient({
 const userVm = userClient.getForId("agentOS", vmId);
 ```
 
-```bash cURL
+```bash HTTP
 curl -X POST "https://api.rivet.dev/auth/tokens" \
   -H "Authorization: Bearer $RIVET_TOKEN" \
   --json @- <<EOF
@@ -343,7 +378,7 @@ await vm.v1.software.uninstall({
 });
 ```
 
-```bash cURL
+```bash HTTP
 curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.install" \
   -H "x-rivet-token: $VM_TOKEN" \
   --json '{"args": [{
