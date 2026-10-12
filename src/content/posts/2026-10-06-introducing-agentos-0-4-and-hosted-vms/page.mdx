@@ -1,0 +1,386 @@
+---
+author: nathan-flurry
+published: "2026-10-06"
+category: changelog
+keywords: ["agentos", "agent-os", "agentos 0.4", "hosted vm", "hosted vms", "vm", "vm api", "http api", "rivetkit", "jwt", "previews", "cron", "python", "javascript"]
+title: "Introducing agentOS 0.4 & Hosted VMs"
+description: "Create durable agentOS Hosted VMs by ID and control them from RivetKit or plain HTTP, with scoped JWTs for direct client access."
+---
+
+Introducing agentOS 0.4, with the Hosted VMs API:
+
+- **Create VMs by ID** from the RivetKit client or plain HTTP
+- **One typed API** for files, processes, terminals, software, networking, cron, and JavaScript, TypeScript, and Python
+- **Durable configuration** that persists across restarts
+- **Output that survives reconnects**
+- **Expiring previews** for any port in the VM
+- **Scoped JWTs** so browsers can call a single VM directly
+
+This release also adds:
+
+- **Dynamic software installation** while a VM is running
+- **Better process management**
+- **Better terminal API**
+- **Better filesystem API**
+
+## What are Hosted VMs?
+
+agentOS works great as a library inside your own backend. Hosted VMs let you manage the same VMs remotely over HTTP.
+
+Because they're the same VMs, you keep agentOS's performance and cost:
+
+- **~5 ms cold starts**: 4.8 ms p50, 92× faster than the [fastest sandbox provider](/agentos/docs/performance#sandbox-baselines)
+- **~22 MB of memory per VM**: 47× less than a 1 GB sandbox (the smallest size sandbox providers offer)
+- **Up to 254× cheaper to run** than the [cheapest sandbox provider](/agentos/docs/performance#sandbox-baselines), self-hosted on AWS ARM
+
+See the [benchmarks and methodology](/agentos/docs/performance). These numbers measure the VM itself; you reach it over the HTTP API, so add your network round trip on top.
+
+Hosted VMs also give you:
+
+- **Multiplayer**: many clients can connect to the same VM and watch its process and terminal output live.
+- **Multi-region**: run each VM in the region closest to its users.
+- **Cron jobs**: schedule commands in the VM, even while it sleeps between runs.
+- **Workflows**: drive VMs from durable [Rivet Workflows](/workflows) steps, so multi-step jobs resume where they left off.
+- **Sleeps when idle**: idle VMs free their resources and wake with durable state when work arrives.
+- **Resource limits and observability**: per-VM caps on processes, memory, files, sockets, and execution time, with warnings before a limit is hit.
+
+## Quickstart
+
+Hosted VMs run on Rivet Cloud or on your own Rivet control plane.
+
+### Rivet Cloud
+
+<Steps>
+<Step title="Create a project on Rivet Cloud">
+
+Sign up at the [Rivet dashboard](https://dashboard.rivet.dev) and create a new project.
+
+</Step>
+<Step title="Select agentOS as the product to run">
+
+When creating the project, choose agentOS as the product.
+
+</Step>
+<Step title="Point your client at it">
+
+Set `RIVET_NAMESPACE` and `RIVET_TOKEN` from your project, then create a VM by ID:
+
+```ts @nocheck
+import { createAgentOsClient } from "@rivet-dev/agentos";
+
+const client = createAgentOsClient({ endpoint: "https://api.rivet.dev" });
+
+const vm = client.agentOS.getOrCreate(["my-vm"]);
+```
+
+</Step>
+</Steps>
+
+### Self-hosting
+
+<Steps>
+<Step title="Run the Rivet control plane">
+
+```sh
+docker run -p 6420:6420 rivetdev/engine
+```
+
+See the [self-hosting guides](/docs/deploy/self-host/) for other ways to run it.
+
+</Step>
+<Step title="Run the agentOS worker">
+
+The worker is what actually runs your VMs. It connects to the control plane:
+
+```sh
+docker run \
+  --add-host=host.docker.internal:host-gateway \
+  -e RIVET_ENDPOINT=http://host.docker.internal:6420 \
+  rivetdev/services
+```
+
+</Step>
+<Step title="Point your client at it">
+
+Create a client pointed at your control plane, then create a VM by ID:
+
+```ts @nocheck
+import { createAgentOsClient } from "@rivet-dev/agentos";
+
+const client = createAgentOsClient({ endpoint: "http://localhost:6420" });
+
+const vm = client.agentOS.getOrCreate(["my-vm"]);
+```
+
+</Step>
+</Steps>
+
+## Show me the code
+
+These examples continue from the quickstart's `vm`. Each cURL example calls the same action over HTTP at `/gateway/$VM_ID/action/<action>`, with a token in `x-rivet-token`.
+
+### Run Bash Commands
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+const result = await vm.v1.process.run({
+	command: "sh",
+	args: ["-c", "echo hello && ls /home/agentos"],
+	options: { captureStdio: true },
+});
+
+console.log(result.stdout);
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.process.run" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{
+    "command": "sh",
+    "args": ["-c", "echo hello && ls /home/agentos"],
+    "options": { "captureStdio": true }
+  }]}'
+```
+
+</CodeGroup>
+
+### Work With the Filesystem
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+await vm.v1.filesystem.writeFile({
+	path: "/home/agentos/hello.txt",
+	content: "Hello, world!",
+});
+
+const file = await vm.v1.filesystem.readFile({
+	path: "/home/agentos/hello.txt",
+});
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.writeFile" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{
+    "path": "/home/agentos/hello.txt",
+    "content": "Hello, world!"
+  }]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.readFile" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"path": "/home/agentos/hello.txt"}]}'
+```
+
+</CodeGroup>
+
+### Run a Dev Server & Create Preview URLs
+
+Start a Node.js server in the VM, then expose its port through a signed URL that expires on its own, or revoke it early.
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+await vm.v1.filesystem.writeFile({
+	path: "/home/agentos/server.js",
+	content: `require("node:http")
+		.createServer((req, res) => res.end("hello"))
+		.listen(3000);`,
+});
+
+await vm.v1.process.spawn({
+	command: "node",
+	args: ["/home/agentos/server.js"],
+});
+
+const preview = await vm.v1.network.preview.create({
+	port: 3000,
+	ttlMs: 60 * 60 * 1_000,
+});
+
+await vm.v1.network.preview.expire({ token: preview.token });
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.writeFile" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{
+    "path": "/home/agentos/server.js",
+    "content": "require(\"node:http\").createServer((req, res) => res.end(\"hello\")).listen(3000);"
+  }]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.process.spawn" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"command": "node", "args": ["/home/agentos/server.js"]}]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.network.preview.create" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"port": 3000, "ttlMs": 3600000}]}'
+# → { "output": { "path": "/preview/…/", "token": "…", … } }
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.network.preview.expire" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"token": "…"}]}'
+```
+
+</CodeGroup>
+
+### Use the Language Runtimes
+
+Run JavaScript, TypeScript, and Python directly, with npm and pip installs built in.
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+await vm.v1.javascript.execute({ source: "console.log(1 + 2)" });
+await vm.v1.typescript.execute({
+	source: "const n: number = 3; console.log(n)",
+});
+
+const { value } = await vm.v1.python.evaluate({
+	expression: "21 * 2",
+});
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.javascript.execute" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"source": "console.log(1 + 2)"}]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.python.evaluate" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"expression": "21 * 2"}]}'
+```
+
+</CodeGroup>
+### Schedule Cron Jobs
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+await vm.v1.cron.schedule({
+	name: "cleanup",
+	expression: "0 * * * *",
+	command: "rm",
+	args: ["-rf", "/tmp/cache"],
+});
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.cron.schedule" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{
+    "name": "cleanup",
+    "expression": "0 * * * *",
+    "command": "rm",
+    "args": ["-rf", "/tmp/cache"]
+  }]}'
+```
+
+</CodeGroup>
+### Give Clients Direct Access With JWTs
+
+Keep your admin token on the backend and issue a JWT scoped to one VM. Browsers and other untrusted clients can then call that VM directly, and nothing else.
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+// Backend: issue a token for this VM only
+const vmId = await vm.resolve();
+const { token } = await vm.issueToken({
+	subject: "user-123",
+	expiresIn: 3600,
+});
+
+// Client: call the VM directly
+const userClient = createAgentOsClient({
+	endpoint: "https://api.rivet.dev",
+	namespace: "my-namespace",
+	token,
+});
+const userVm = userClient.getForId("agentOS", vmId);
+```
+
+```bash cURL
+curl -X POST "https://api.rivet.dev/auth/tokens" \
+  -H "Authorization: Bearer $RIVET_TOKEN" \
+  --json @- <<EOF
+{
+  "namespace": "$RIVET_NAMESPACE",
+  "subject": "user-123",
+  "duration": 3600,
+  "grants": [{
+    "resource": "actor_gateway",
+    "target": { "id": "$VM_ID" },
+    "operations": ["read"]
+  }]
+}
+EOF
+# → { "token": "…", "expires_ts": … }
+```
+
+</CodeGroup>
+
+## Dynamic Software Installation
+
+Install and uninstall software from the [software registry](/agentos/docs/registry/software/) while a VM is running. Packages are immutable `.aospkg` files with real compiled tools, projected into `/opt/agentos` with commands on `/opt/agentos/bin`.
+
+<CodeGroup>
+
+```ts @nocheck TypeScript
+const installed = await vm.v1.software.install({
+	source: {
+		url: "https://packages.example.com/ripgrep.aospkg",
+		digest: "sha256:…",
+	},
+});
+
+const packages = await vm.v1.software.list({});
+
+await vm.v1.software.uninstall({
+	packageId: installed.source.packageId,
+});
+```
+
+```bash cURL
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.install" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{
+    "source": {
+      "url": "https://packages.example.com/ripgrep.aospkg",
+      "digest": "sha256:…"
+    }
+  }]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.list" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{}]}'
+
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.uninstall" \
+  -H "x-rivet-token: $VM_TOKEN" \
+  --json '{"args": [{"packageId": "sha256:…"}]}'
+```
+
+</CodeGroup>
+
+- **Verified and cached**: packages are checked against their digest and cached by content, so repeat installs and VM starts skip the download.
+- **Preloaded**: workers warm commonly used packages on startup.
+- **Tracked in config**: software is part of the VM's durable configuration. Changes apply live to a running VM; otherwise `v1.vm.status` reports when a restart is needed.
+- **Hosted and embedded**: hosted VMs install from HTTPS URLs; embedded Core also accepts trusted local `.aospkg` files.
+
+## Quality of Life Improvements
+
+- **Process management**: run or spawn commands, stream output, write stdin, send signals, resize PTYs, inspect the process tree, and replay buffered output.
+- **Terminals**: interactive terminals have explicit open, write, resize, wait, and close operations, with replayable output.
+- **Filesystem**: batch reads and writes, recursive directory listing, move and remove, mount inspection, and filesystem export.
+- **Safety limits**: resource, networking, execution, buffering, filesystem, and package limits have bounded defaults, and `vm.limitWarning` events fire as a VM approaches one.
+
+## More Links
+
+- [Hosted VMs](/agentos/docs/hosted)
+- [Hosted VM API reference](/agentos/docs/actor-api)
+- [JWT authentication](/docs/jwt)
+- [HTTP API reference](/docs/api/gateway/call-action)
+- [GitHub](https://github.com/rivet-dev/agentos)
+- [Discord](https://rivet.dev/discord)
