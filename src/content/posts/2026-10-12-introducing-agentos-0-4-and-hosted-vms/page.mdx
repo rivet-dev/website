@@ -28,13 +28,15 @@ This release also adds:
 
 agentOS works great as a library inside your own backend. Hosted VMs let you manage the same VMs remotely over HTTP.
 
-Because they're the same VMs, you keep agentOS's performance and cost:
+Running agentOS as a library in your own backend gives you:
 
 - **~5 ms cold starts**: 4.8 ms p50, 92× faster than the [fastest sandbox provider](/agentos#bench-cold-start)
 - **~22 MB of memory per VM**: 47× less than a 1 GB sandbox (the smallest size sandbox providers offer)
 - **Up to 254× cheaper to run** than the [cheapest sandbox provider](/agentos#bench-cost), self-hosted on AWS ARM
 
-See the [benchmarks and methodology](/agentos/docs/performance). These numbers measure the VM itself; you reach it over the HTTP API, so add your network round trip on top.
+Hosted VMs currently cold start in **~400 ms** through the HTTP API. An upcoming update will make this much faster.
+
+See the [benchmarks and methodology](/agentos/docs/performance).
 
 Hosted VMs also give you:
 
