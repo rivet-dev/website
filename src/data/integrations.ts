@@ -69,42 +69,8 @@ const ACTORS: Integration[] = [
 	},
 ];
 
-const AGENTOS: Integration[] = [
-	{
-		title: "Flue",
-		description: "Run Flue agents inside agentOS sandboxes.",
-		slug: "flue",
-		category: "Frameworks",
-		icon: { src: "/images/vendors/flue.svg" },
-		badge: "Beta",
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/integrations/flue-runtime",
-	},
-	{
-		title: "Vercel Eve",
-		description: "Use agentOS as the execution layer for Vercel Eve.",
-		slug: "vercel-eve",
-		category: "Frameworks",
-		icon: { src: "/images/vendors/eve.svg" },
-		badge: "Beta",
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
-	},
-	{
-		title: "Rivet Actors",
-		description: "Run agentOS on Rivet Actors for persistence and scheduling.",
-		slug: "rivet-actors",
-		category: "Platform",
-		icon: { src: "/images/frameworks/rivet.svg" },
-		exampleUrl: "https://github.com/rivet-dev/rivet/tree/main/examples/agent-os",
-		sourceUrl:
-			"https://github.com/rivet-dev/rivet/tree/main/rivetkit-typescript/packages/rivetkit/src/agent-os",
-	},
-];
-
 export const INTEGRATIONS: Record<string, Integration[]> = {
 	actors: ACTORS,
-	agentos: AGENTOS,
 };
 
 /** Cards on a product's Integrations overview page. */

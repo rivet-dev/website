@@ -254,9 +254,9 @@ function withOverviewTitle(
 
 /**
  * A product's Documentation sidebar: its bundle's own sidebar, plus the pages
- * this site adds to it. The Registry is a fold at the end of the opening
- * General group, and a non-site product's Integrations becomes a fold just above the
- * bundle's closing Reference group (or at the end when there is none).
+ * this site adds to it. The Registry and a non-site product's Integrations are
+ * folds at the end of the opening General group, so they sit inside a group
+ * like every other page.
  */
 function docsSidebar(meta: ProductMetadata, bundleDocs: SidebarItem[]): SidebarItem[] {
 	const has = (section: "integrations" | "registry") =>
@@ -265,24 +265,18 @@ function docsSidebar(meta: ProductMetadata, bundleDocs: SidebarItem[]): SidebarI
 		has("integrations") && meta.id !== SITE_INTEGRATIONS_PRODUCT
 			? integrationFold(meta.id)
 			: undefined;
+	const folds = [...(has("registry") ? [registryFold(meta.id)] : []), ...(fold ? [fold] : [])];
 	const docs = [...bundleDocs];
-	if (has("registry")) {
-		const registry = registryFold(meta.id);
+	if (folds.length > 0) {
 		const general = docs.findIndex(
 			(item) => "pages" in item && "title" in item && item.title === "General",
 		);
 		const group = docs[general];
 		if (group && "pages" in group) {
-			docs[general] = { ...group, pages: [...group.pages, registry] };
+			docs[general] = { ...group, pages: [...group.pages, ...folds] };
 		} else {
-			docs.unshift(registry);
+			docs.unshift(...folds);
 		}
-	}
-	if (fold) {
-		const reference = docs.findIndex(
-			(item) => "title" in item && item.title === "Reference",
-		);
-		docs.splice(reference === -1 ? docs.length : reference, 0, fold);
 	}
 	return docs;
 }
