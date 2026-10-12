@@ -3,17 +3,17 @@ import { getProduct, isListed } from "@/sitemap/products";
 
 /**
  * The actor types, as the homepage lists them and the Documentation menu
- * repeats them.
+ * repeats them. Actors, the primitive every other type is built on, leads the
+ * list as a product like the rest.
  *
- * Actors is the primitive being orchestrated, so it is not an actor type and
- * has no entry here. Each type is a product: its title, badge, accent color,
+ * Each type is a product: its title, badge, accent color,
  * wordmark, and docs landing come from `product-metadata.ts` through
  * `getProduct`, so this file only adds what the product record does not carry —
  * the ordering, the plate's premise line, and the hover motif it borrows.
  */
 export interface ActorType {
 	/** Product id; also the wordmark (`productLogos`) and the accent. */
-	id: "agents" | "workflows" | "agentos" | "dynamic-apps";
+	id: "actors" | "agents" | "workflows" | "agentos" | "dynamic-apps";
 	name: string;
 	/** One line under the name on the homepage plate. No terminal period. */
 	premise: string;
@@ -30,6 +30,11 @@ const ORDERED: {
 	premise: string;
 	motifId: ProductMotifId;
 }[] = [
+	{
+		id: "actors",
+		premise: "Long-lived processes with state, realtime, and scheduling built in",
+		motifId: "actors",
+	},
 	{
 		id: "agents",
 		premise: "A durable process per agent, with memory that survives restarts",
@@ -71,11 +76,10 @@ export const ACTOR_TYPES: readonly ActorType[] = ORDERED.filter((entry) =>
 ).map(resolve);
 
 /**
- * The two ways past the list, shown after the actor types wherever they are
- * listed: the registry for actors Rivet does not maintain, and the Actors docs
- * for writing one.
+ * The way past the list, shown after the actor types wherever they are listed:
+ * the registry for Actors Rivet does not maintain.
  */
-export const ACTOR_WAYFINDERS = {
-	explore: { label: "Explore more Actors", href: "/registry/" },
-	build: { label: "Build your own Actor", href: "/actors/docs/" },
+export const ACTOR_REGISTRY_LINK = {
+	label: "Explore more Actors",
+	href: "/registry/",
 } as const;

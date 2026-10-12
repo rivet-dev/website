@@ -12,8 +12,7 @@ import {
 	faUsers,
 } from "@rivet-gg/icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import actorsShapesUrl from "@/images/products/actors-shapes.svg";
-import { ACTOR_TYPES, ACTOR_WAYFINDERS } from "./actor-types";
+import { ACTOR_REGISTRY_LINK, ACTOR_TYPES } from "./actor-types";
 
 /**
  * The two header menus.
@@ -98,11 +97,6 @@ export interface DocsMenuLink {
 		| "dynamic-apps"
 		| "integrations";
 	icon?: IconDefinition;
-	/**
-	 * A bare white-on-transparent mark painted in ink with no tile, for rows
-	 * that stand for a concept rather than a product (masked like a wordmark).
-	 */
-	markSrc?: string;
 }
 
 export interface DocsMenuGroup {
@@ -146,10 +140,7 @@ export const DOCS_MENU: DocsMenuColumn[] = [
 					href: type.href,
 					productId: type.id,
 				})),
-				{ ...ACTOR_WAYFINDERS.explore, icon: faGrid2 },
-				// Building your own is the Actors primitive itself: the three
-				// shapes alone, without the tile the product rows above carry.
-				{ ...ACTOR_WAYFINDERS.build, markSrc: actorsShapesUrl.src },
+				{ ...ACTOR_REGISTRY_LINK, icon: faGrid2 },
 			],
 		},
 	],

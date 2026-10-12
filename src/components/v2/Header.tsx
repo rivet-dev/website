@@ -37,7 +37,6 @@ import {
 	SOLUTIONS_MENU_FOOTER,
 } from "@/data/nav-menus";
 import { findStandaloneProduct, getProduct, visibleTabs } from "@/sitemap/products";
-import { wordmarkMaskStyle } from "@/lib/product-accent";
 
 // Both assets carry the same black badge; only the word color differs.
 // CSS selects the asset before hydration, without inverting the badge.
@@ -289,23 +288,19 @@ function NavDropdown({
 /**
  * The quiet outlined tile at the head of a non-product menu row, sized to the
  * product tiles beside it so both columns share one rhythm. Drawn with tokens
- * only so it holds in both themes. Takes either a Font Awesome glyph or a
- * white-on-transparent mark, which is masked and painted in the tile's text
- * color.
+ * only so it holds in both themes.
  */
 function GlyphTile({
 	lightTheme,
-	className,
 	children,
-}: { lightTheme: boolean; className?: string; children: React.ReactNode }) {
+}: { lightTheme: boolean; children: React.ReactNode }) {
 	return (
 		<span
 			className={cn(
-				"flex shrink-0 items-center justify-center rounded-[34.375%] border",
+				"flex size-8 shrink-0 items-center justify-center rounded-[34.375%] border",
 				lightTheme
 					? "border-ink/10 bg-paper text-ink-soft group-hover:border-ink/20 group-hover:text-ink"
 					: "border-white/10 bg-white/5 text-zinc-300 group-hover:text-white",
-				className ?? "size-8",
 			)}
 		>
 			{children}
@@ -317,23 +312,6 @@ function MenuGlyph({ icon, lightTheme }: { icon: IconProp; lightTheme: boolean }
 	return (
 		<GlyphTile lightTheme={lightTheme}>
 			<Icon icon={icon} aria-hidden="true" className="h-3.5 w-3.5" />
-		</GlyphTile>
-	);
-}
-
-function MenuMark({
-	src,
-	lightTheme,
-	className,
-	markClassName = "size-4",
-}: { src: string; lightTheme: boolean; className?: string; markClassName?: string }) {
-	return (
-		<GlyphTile lightTheme={lightTheme} className={className}>
-			<span
-				aria-hidden="true"
-				style={wordmarkMaskStyle(src)}
-				className={cn("inline-block bg-current", markClassName)}
-			/>
 		</GlyphTile>
 	);
 }
@@ -475,8 +453,6 @@ function DocsDropdown({
 										>
 											{product ? (
 												<ProductBadge product={product} className="size-8" />
-											) : link.markSrc ? (
-												<MenuMark src={link.markSrc} lightTheme={lightTheme} />
 											) : link.icon ? (
 												<MenuGlyph icon={link.icon} lightTheme={lightTheme} />
 											) : (
@@ -842,8 +818,6 @@ function DocsMobileNavigation({
 								>
 									{product ? (
 										<ProductBadge product={product} className="size-6" />
-									) : link.markSrc ? (
-										<MenuMark src={link.markSrc} lightTheme className="size-6" markClassName="size-3.5" />
 									) : (
 										<span aria-hidden="true" className="size-6 shrink-0" />
 									)}
@@ -955,8 +929,6 @@ function DocsMobileNavigation({
 							>
 								{product ? (
 									<ProductBadge product={product} className="size-6" />
-								) : link.markSrc ? (
-									<MenuMark src={link.markSrc} lightTheme={false} className="size-6" markClassName="size-3.5" />
 								) : (
 									<span aria-hidden="true" className="size-6 shrink-0" />
 								)}

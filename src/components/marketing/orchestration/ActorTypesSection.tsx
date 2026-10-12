@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { productAccent, wordmarkMaskStyle } from "@/lib/product-accent";
 import { productLogos } from "@/sitemap/productLogos";
-import { ACTOR_TYPES, ACTOR_WAYFINDERS } from "@/data/actor-types";
+import { ACTOR_REGISTRY_LINK, ACTOR_TYPES } from "@/data/actor-types";
 import {
 	BODY_CLASS,
 	CARD_TITLE_BASE_CLASS,
@@ -13,8 +13,8 @@ import { canonicalizeInternalHref } from "@/lib/internalHref";
 
 /**
  * The starting points the orchestrator is used through, three across and two
- * down: the four actor types from `src/data/actor-types.ts` (shared with the
- * Documentation menu), then the two wayfinders past the list.
+ * down: the actor types from `src/data/actor-types.ts` (shared with the
+ * Documentation menu), Actors first, then the registry tile past the list.
  *
  * Each plate is filled with its product's accent and carries the product's
  * wordmark painted white straight on that field — the plate is the tile, so
@@ -27,16 +27,6 @@ const registryMarks = [
 	{ src: "/images/vendors/eve.svg", label: "Vercel Eve" },
 	{ src: "/images/vendors/workflow.svg", label: "Vercel Workflow SDK" },
 	{ src: "/images/vendors/flue.svg", label: "Flue" },
-];
-
-/**
- * Deliberately not actor plates: no accent, no badge, no mark — a quiet paper
- * tile with centered text and an arrow, so the four real actor types stay the
- * only colored things in the grid.
- */
-const wayfinders = [
-	{ ...ACTOR_WAYFINDERS.explore, marks: true },
-	{ ...ACTOR_WAYFINDERS.build, marks: false },
 ];
 
 export const ActorTypesSection = () => (
@@ -102,36 +92,34 @@ export const ActorTypesSection = () => (
 					);
 				})}
 
-				{wayfinders.map((way) => (
-					<a
-						key={way.href}
-						href={canonicalizeInternalHref(way.href)}
-						data-site-reveal-child=""
-						className="group flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-xl border border-ink/10 bg-ink/[0.04] p-5 text-center transition-colors duration-200 hover:border-ink/20 hover:bg-ink/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper motion-reduce:transition-none sm:aspect-[16/10] sm:min-h-0"
-					>
-						<span className="inline-flex items-center gap-2 text-base font-medium tracking-tight text-ink">
-							{way.label}
-							<ArrowUpRight className="h-4 w-4 text-ink-faint transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-						</span>
-						{way.marks && (
-							// Stacked and overlapping, so the row reads as "and more of
-							// these" rather than as four separate destinations.
-							<ul className="flex items-center pl-1.5">
-								{registryMarks.map((mark) => (
-									<li key={mark.label} className="-ml-1.5 flex">
-										<img
-											src={mark.src}
-											alt={mark.label}
-											title={mark.label}
-											loading="lazy"
-											className="registry-logo-plate size-7 rounded-full border border-ink/10 bg-white object-contain p-1.5"
-										/>
-									</li>
-								))}
-							</ul>
-						)}
-					</a>
-				))}
+				{/* Deliberately not an actor plate: no accent, no badge, no mark —
+				    a quiet paper tile with centered text and an arrow, so the actor
+				    types stay the only colored things in the grid. */}
+				<a
+					href={canonicalizeInternalHref(ACTOR_REGISTRY_LINK.href)}
+					data-site-reveal-child=""
+					className="group flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-xl border border-ink/10 bg-ink/[0.04] p-5 text-center transition-colors duration-200 hover:border-ink/20 hover:bg-ink/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper motion-reduce:transition-none sm:aspect-[16/10] sm:min-h-0"
+				>
+					<span className="inline-flex items-center gap-2 text-base font-medium tracking-tight text-ink">
+						{ACTOR_REGISTRY_LINK.label}
+						<ArrowUpRight className="h-4 w-4 text-ink-faint transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+					</span>
+					{/* Stacked and overlapping, so the row reads as "and more of
+					    these" rather than as four separate destinations. */}
+					<ul className="flex items-center pl-1.5">
+						{registryMarks.map((mark) => (
+							<li key={mark.label} className="-ml-1.5 flex">
+								<img
+									src={mark.src}
+									alt={mark.label}
+									title={mark.label}
+									loading="lazy"
+									className="registry-logo-plate size-7 rounded-full border border-ink/10 bg-white object-contain p-1.5"
+								/>
+							</li>
+						))}
+					</ul>
+				</a>
 			</div>
 		</div>
 	</section>
