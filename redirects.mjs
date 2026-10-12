@@ -32,6 +32,8 @@ const explicitRedirects = {
 	// The Pi Durable page merged into the Pi page when `pi()` became the Pi
 	// Durable agent.
 	'/agents/docs/pi-durable': '/agents/docs/pi/',
+	// The Instructions page became the System Prompt page.
+	'/agents/docs/instructions': '/agents/docs/system-prompt/',
 	// Product marketing pages folded into each product's docs overview.
 	'/actors': '/actors/docs/',
 	'/workflows': '/workflows/docs/',
