@@ -100,8 +100,16 @@ curl -X PUT "https://api.rivet.dev/actors?namespace=$RIVET_NAMESPACE" \
 <Steps>
 <Step title="Run the Rivet control plane">
 
+<Note>
+The control plane requires an admin token. See [Admin token](/docs/deploy/self-host/control-plane/configuration#admin-token).
+</Note>
+
 ```sh
-docker run -p 6420:6420 rivetdev/engine
+export RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)
+
+docker run -p 6420:6420 \
+  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
+  rivetdev/engine
 ```
 
 See the [control plane guides](/docs/deploy/self-host/control-plane/) for other ways to run it.
@@ -109,19 +117,24 @@ See the [control plane guides](/docs/deploy/self-host/control-plane/) for other 
 </Step>
 <Step title="Run the agentOS worker">
 
-The worker is what actually runs your VMs. It connects to the control plane:
+The worker is what actually runs your VMs. Register its `services` pool, then start it:
 
 ```sh
+curl -X PUT "http://localhost:6420/runner-configs/services?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
+  --json '{"datacenters": {"default": {"normal": {}}}}'
+
 docker run \
   --add-host=host.docker.internal:host-gateway \
   -e RIVET_ENDPOINT=http://host.docker.internal:6420 \
-  rivetdev/services
+  -e RIVET_TOKEN="$RIVET_ADMIN_TOKEN" \
+  rivetdev/services:0.2.0
 ```
 
 </Step>
 <Step title="Point your client at it">
 
-Create a client pointed at your control plane, then create a VM by ID:
+Set `RIVET_TOKEN` to the admin token, then create a VM by ID:
 
 <CodeGroup>
 
@@ -137,6 +150,7 @@ const vm = client.agentOS.getOrCreate(["my-vm"]);
 
 ```bash HTTP
 curl -X PUT "http://localhost:6420/actors?namespace=default" \
+  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
   --json '{
     "name": "agentOS",
     "key": "my-vm",
@@ -204,16 +218,22 @@ curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.writeFile" \
     "content": "Hello, world!"
   }]}'
 
-curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.filesystem.readFile" \
+curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.process.run" \
   -H "x-rivet-token: $VM_TOKEN" \
-  --json '{"args": [{"path": "/home/agentos/hello.txt"}]}'
+  --json '{"args": [{
+    "command": "cat",
+    "args": ["/home/agentos/hello.txt"],
+    "options": { "captureStdio": true }
+  }]}'
 ```
 
 </CodeGroup>
 
+`v1.filesystem.readFile` returns raw bytes, which the JSON encoding of the HTTP API cannot carry, so the HTTP example reads the file through a process.
+
 ### Run a Dev Server & Create Preview URLs
 
-Start a Node.js server in the VM, then expose its port through a signed URL that expires on its own, or revoke it early.
+Start a Node.js server in the VM, then expose its port through a signed URL that expires on its own, or revoke it early. Open the preview at `/gateway/$VM_ID@$VM_TOKEN/request` followed by the returned `path`.
 
 <CodeGroup>
 
@@ -324,10 +344,22 @@ Keep your admin token on the backend and issue a JWT scoped to one VM. Browsers 
 ```ts @nocheck TypeScript
 // Backend: issue a token for this VM only
 const vmId = await vm.resolve();
-const { token } = await vm.issueToken({
-	subject: "user-123",
-	expiresIn: 3600,
+const response = await fetch("https://api.rivet.dev/auth/tokens", {
+	method: "POST",
+	headers: {
+		Authorization: `Bearer ${process.env.RIVET_TOKEN}`,
+		"Content-Type": "application/json",
+	},
+	body: JSON.stringify({
+		namespace: process.env.RIVET_NAMESPACE,
+		subject: "user-123",
+		duration: 3600,
+		grants: [
+			{ resource: "actor_gateway", target: { id: vmId }, operations: ["read"] },
+		],
+	}),
 });
+const { token } = await response.json();
 
 // Client: call the VM directly
 const userClient = createAgentOsClient({
@@ -414,6 +446,9 @@ curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.uninstall" \
 
 ## More Links
 
+- [Quickstart (Hosted)](/agentos/docs/quickstart-hosted)
+- [Hosted HTTP API](/agentos/docs/hosted-api)
+- [agentOS documentation](/agentos/docs)
 - [JWT authentication](/docs/jwt)
 - [HTTP API reference](/docs/api/gateway/call-action)
 - [GitHub](https://github.com/rivet-dev/agentos)

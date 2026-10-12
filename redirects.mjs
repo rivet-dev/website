@@ -21,6 +21,8 @@ const explicitRedirects = {
 	// Public community short link. Keep this slashless in authored links, while
 	// Caddy serves both variants so copied URLs cannot fall through to a 404.
 	'/discord': 'https://discord.gg/rivet-developer-network-822914074136018994',
+	// The agentOS 0.4 launch post moved from its draft date to its launch date.
+	'/changelog/2026-10-06-introducing-agentos-0-4-and-hosted-vms': '/changelog/2026-10-12-introducing-agentos-0-4-and-hosted-vms/',
 	// Integrations moved out of the documentation URL hierarchy.
 	'/docs/integrations/vercel-workflow': '/integrations/workflow-sdk/',
 	'/integrations/vercel-workflow': '/integrations/workflow-sdk/',
