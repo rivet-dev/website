@@ -56,17 +56,23 @@ const TYPE_LABELS: Record<string, string> = {
 
 const SANDBOX_INSTALL = "npm install @rivet-dev/agentos-core @rivet-dev/agentos-sandbox sandbox-agent";
 
-function softwareExample(title: string, artifactName: string): string {
+function softwareExample(artifactName: string): string {
 	return `import { AgentOs } from "@rivet-dev/agentos-core";
+
+// Each release publishes registry packages next to a manifest. Use a release
+// version, or \`latest\`.
+const base = "https://releases.rivet.dev/agent-os/latest/software/";
+const { artifacts } = await (await fetch(\`\${base}manifest.json\`)).json();
+const pkg = artifacts.find((artifact) => artifact.name === "${artifactName}");
 
 const vm = await AgentOs.create();
 
-// Install the ${title} package from its release artifact. The bytes are
-// verified against the digest before its commands appear on /opt/agentos/bin.
+// The bytes are verified against the digest before the package's commands
+// appear on /opt/agentos/bin.
 await vm.software.install({
   type: "url",
-  url: "https://<release artifacts>/packages/${artifactName}/<sha256>.aospkg",
-  expectedDigest: "sha256:<64 lowercase hex characters>",
+  url: new URL(pkg.path, base).href,
+  expectedDigest: pkg.digest,
 });`;
 }
 
@@ -122,7 +128,7 @@ function usage(entry: RegistryEntry): Pick<RegistryDoc, "install" | "setup" | "n
 						title: "Add to agentOS",
 						summary:
 							"Install the package's .aospkg release artifact into a VM so its commands are available inside the VM.",
-						code: softwareExample(entry.title, entry.artifactName ?? entry.slug),
+						code: softwareExample(entry.artifactName ?? entry.slug),
 					},
 				};
 			}
