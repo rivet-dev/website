@@ -7,7 +7,6 @@ import {
 	Wrench,
 	HardDrive,
 	Check,
-	ShieldCheck,
 	Package,
 	GitFork,
 	RefreshCw,
@@ -306,17 +305,17 @@ const frameworks: SupportedFramework[] = [
 		name: 'Eve',
 		monochrome: true,
 		wordmark: true,
-		href: '/agentos/docs/integrations/vercel-eve',
+		href: '/integrations/vercel-eve',
 	},
 	{
 		src: '/images/frameworks/flue.svg',
 		name: 'Flue',
-		href: '/agentos/docs/integrations/flue',
+		href: '/integrations/flue',
 	},
 	{
 		src: '/images/frameworks/rivet.svg',
 		name: 'Rivet Actors',
-		href: '/agentos/docs/integrations/rivet-actors',
+		href: '/agentos/docs/quickstart',
 	},
 ];
 
@@ -1527,12 +1526,6 @@ const secondaryFeatures = [
 		docsHref: '/agentos/docs/host-functions',
 	},
 	{
-		icon: ShieldCheck,
-		title: 'Human in the loop',
-		description: 'Pause permission requests for review, then approve or reject them in your own UI.',
-		docsHref: '/agentos/docs/approvals',
-	},
-	{
 		icon: Package,
 		title: 'Sandbox mounting',
 		description: 'Mount a full Linux sandbox only when native binaries or heavy compilation need one.',
@@ -1554,7 +1547,7 @@ const secondaryFeatures = [
 		icon: Globe,
 		title: 'Preview URLs',
 		description: 'Expose services running inside a VM through signed, time-limited URLs.',
-		docsHref: '/agentos/docs/networking#preview-urls',
+		docsHref: '/agentos/docs/networking#previews',
 	},
 	{
 		icon: CalendarClock,
