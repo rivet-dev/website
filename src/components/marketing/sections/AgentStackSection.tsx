@@ -6,7 +6,6 @@ import {
   GitBranch,
   Radio,
   Rocket,
-  ScrollText,
   Shield,
   SquareTerminal,
   type LucideIcon,
@@ -69,12 +68,6 @@ const agentNeeds: AgentNeed[] = [
     icon: Radio,
     layer: "actors",
     href: "/actors/docs/events",
-  },
-  {
-    label: "Session transcripts",
-    icon: ScrollText,
-    layer: "agentos",
-    href: "/agentos/docs/sessions",
   },
   {
     label: "Memory",
