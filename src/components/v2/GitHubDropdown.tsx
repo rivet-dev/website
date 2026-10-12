@@ -17,22 +17,14 @@ function formatNumber(num: number): string {
 	return num.toString();
 }
 
-// One repo per product, plus the supporting libraries. `rivet-dev/actors` was
-// renamed back to `rivet-dev/rivet`; GitHub still redirects the old name, but
-// the counter names the current one. Likewise `rivet-dev/sandbox-agent` is now
-// `rivet-dev/agents`, which also holds the Agents packages; listing both would
-// count it twice. Secure Exec is deliberately absent: it ships from
-// `rivet-dev/agentos`, and the old `rivet-dev/secure-exec` redirects to
-// `dynamic-apps`, which would count that repo's stars twice.
-const REPOS = [
-	"rivet-dev/rivet",
-	"rivet-dev/agentos",
-	"rivet-dev/dynamic-apps",
-	"rivet-dev/workflows",
-	"rivet-dev/agents",
-	"rivet-dev/antiox",
-	"rivet-dev/rivet-durable-streams",
-];
+// Sums the stars of every non-fork repo in the rivet-dev org, so renames,
+// deletions, and new repos are tracked automatically. A hardcoded name list
+// went stale twice before: the deleted `rivet-dev/antiox` silently contributed
+// 0 stars, and `rivet-dev/secure-exec`'s rename to `dynamic-apps` made the
+// redirect double-count that repo's stars. `type=sources` excludes forks, and
+// one page holds every source repo today; the loop guards against the org
+// someday growing past 100.
+const ORG_REPO_LIST_URL = "https://api.github.com/orgs/rivet-dev/repos";
 
 export function GitHubDropdown({ className, ...props }: GitHubDropdownProps) {
 	const [totalStars, setTotalStars] = useState<RepoData>({
@@ -52,24 +44,38 @@ export function GitHubDropdown({ className, ...props }: GitHubDropdownProps) {
 			}
 		}
 
-		Promise.allSettled(
-			REPOS.map((repo) =>
-				fetch(`https://api.github.com/repos/${repo}`)
-					.then((res) => (res.ok ? res.json() : null))
-					.then((data) => data?.stargazers_count ?? 0)
-					.catch(() => 0),
-			),
-		).then((results) => {
-			const total = results.reduce(
-				(sum, r) => sum + (r.status === "fulfilled" ? r.value : 0),
-				0,
-			);
-			setTotalStars({ stars: total, loading: false });
-			sessionStorage.setItem(
-				cacheKey,
-				JSON.stringify({ stars: total, timestamp: Date.now() }),
-			);
-		});
+		// A failed or partial fetch must not render (or cache) a shrunken
+		// total, so only a complete walk of the repo list updates state; on
+		// failure the loading label stays up.
+		let cancelled = false;
+		(async () => {
+			try {
+				let total = 0;
+				for (let page = 1; page <= 3; page++) {
+					const response = await fetch(
+						`${ORG_REPO_LIST_URL}?per_page=100&type=sources&page=${page}`,
+					);
+					if (!response.ok) throw new Error("Failed to fetch");
+					const repos: Array<{ stargazers_count?: number }> =
+						await response.json();
+					if (!Array.isArray(repos) || repos.length === 0) break;
+					for (const repo of repos) total += repo.stargazers_count ?? 0;
+					if (repos.length < 100) break;
+				}
+				if (cancelled) return;
+				setTotalStars({ stars: total, loading: false });
+				sessionStorage.setItem(
+					cacheKey,
+					JSON.stringify({ stars: total, timestamp: Date.now() }),
+				);
+			} catch (err) {
+				if (!cancelled) console.error("Failed to fetch stars", err);
+			}
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	return (
