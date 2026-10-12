@@ -1,6 +1,6 @@
 ---
 author: nathan-flurry
-published: "2026-10-06"
+published: "2026-10-12"
 category: changelog
 keywords: ["agentos", "agent-os", "agentos 0.4", "hosted vm", "hosted vms", "vm", "vm api", "http api", "rivetkit", "jwt", "previews", "cron", "python", "javascript"]
 title: "Introducing agentOS 0.4 & Hosted VMs"
@@ -29,9 +29,9 @@ agentOS works great as a library inside your own backend. Hosted VMs let you man
 
 Because they're the same VMs, you keep agentOS's performance and cost:
 
-- **~5 ms cold starts**: 4.8 ms p50, 92× faster than the [fastest sandbox provider](/agentos/docs/performance#sandbox-baselines)
+- **~5 ms cold starts**: 4.8 ms p50, 92× faster than the [fastest sandbox provider](/agentos#bench-cold-start)
 - **~22 MB of memory per VM**: 47× less than a 1 GB sandbox (the smallest size sandbox providers offer)
-- **Up to 254× cheaper to run** than the [cheapest sandbox provider](/agentos/docs/performance#sandbox-baselines), self-hosted on AWS ARM
+- **Up to 254× cheaper to run** than the [cheapest sandbox provider](/agentos#bench-cost), self-hosted on AWS ARM
 
 See the [benchmarks and methodology](/agentos/docs/performance). These numbers measure the VM itself; you reach it over the HTTP API, so add your network round trip on top.
 
@@ -85,7 +85,7 @@ const vm = client.agentOS.getOrCreate(["my-vm"]);
 docker run -p 6420:6420 rivetdev/engine
 ```
 
-See the [self-hosting guides](/docs/deploy/self-host/) for other ways to run it.
+See the [control plane guides](/docs/deploy/self-host/control-plane/) for other ways to run it.
 
 </Step>
 <Step title="Run the agentOS worker">
@@ -378,8 +378,6 @@ curl "https://api.rivet.dev/gateway/$VM_ID/action/v1.software.uninstall" \
 
 ## More Links
 
-- [Hosted VMs](/agentos/docs/hosted)
-- [Hosted VM API reference](/agentos/docs/actor-api)
 - [JWT authentication](/docs/jwt)
 - [HTTP API reference](/docs/api/gateway/call-action)
 - [GitHub](https://github.com/rivet-dev/agentos)
