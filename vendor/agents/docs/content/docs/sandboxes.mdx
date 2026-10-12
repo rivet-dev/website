@@ -1,6 +1,6 @@
 ---
 title: "Sandboxes"
-description: "Run an agent without a sandbox, or give it a shell in E2B, Daytona, agentOS, or a sandbox provider you write."
+description: "Run an agent without a sandbox, or give it a shell in agentOS, E2B, Daytona, or a sandbox provider you write."
 ---
 
 An agent doesn't need a sandbox. Without one, its file tools work on files in the Actor's own database. Add a sandbox only when the agent needs a shell.
@@ -8,7 +8,7 @@ An agent doesn't need a sandbox. Without one, its file tools work on files in th
 | | Files | Shell | Setup |
 | --- | --- | --- | --- |
 | **No sandbox** | In the Actor's SQLite database | None. `bash` returns an error. | None |
-| **Sandbox** | In the sandbox | `bash` runs in the sandbox | A provider account or agentOS |
+| **Sandbox** | In the sandbox | `bash` runs in the sandbox | agentOS, or a provider account |
 
 ## Without a sandbox
 
@@ -27,7 +27,7 @@ See [Built-in Tools](/agents/docs/built-in-tools) for what each tool does.
 When the agent needs to run commands, such as tests or a build, pass a sandbox provider. <a href="https://github.com/rivet-dev/agents/tree/main/packages/sandbox-adapter" target="_blank" rel="noopener noreferrer">`@rivet-dev/sandbox-adapter`</a> gives each Actor its own sandbox, and `CodingTools` run there.
 
 <div style="overflow-x:auto">
-<svg viewBox="0 0 676 246" role="img" aria-label="The agent Actor sends tool calls through the sandbox adapter, which creates and connects to one sandbox per Actor from a sandbox provider: E2B, Daytona, or agentOS." style="width:100%;min-width:520px;max-width:676px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
+<svg viewBox="0 0 676 246" role="img" aria-label="The agent Actor sends tool calls through the sandbox adapter, which creates and connects to one sandbox per Actor from a sandbox provider: agentOS, E2B, or Daytona." style="width:100%;min-width:520px;max-width:676px;height:auto;display:block;margin:2.5rem auto;font-family:system-ui,sans-serif">
   <defs>
     <marker id="sandboxes-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="rgb(var(--site-ink, 27 25 22))"/></marker>
   </defs>
@@ -45,9 +45,9 @@ When the agent needs to run commands, such as tests or a build, pass a sandbox p
   <text x="90" y="133" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Agent Actor</text>
   <text x="340" y="125" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Sandbox adapter</text>
   <text x="340" y="142" text-anchor="middle" font-size="12" fill="#56524a">SandboxProvider</text>
-  <text x="570" y="73" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">E2B</text>
-  <text x="570" y="133" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Daytona</text>
-  <text x="570" y="193" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">agentOS</text>
+  <text x="570" y="73" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">agentOS</text>
+  <text x="570" y="133" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">E2B</text>
+  <text x="570" y="193" text-anchor="middle" font-size="14" font-weight="600" fill="#1b1916">Daytona</text>
   <text x="209.5" y="119" text-anchor="middle" font-size="12" fill="#56524a">tool calls</text>
 </svg>
 </div>
@@ -57,14 +57,17 @@ When the agent needs to run commands, such as tests or a build, pass a sandbox p
 <Step title="Install the adapter">
 
 ```sh
-npm add @rivet-dev/sandbox-adapter e2b
+npm add @rivet-dev/sandbox-adapter
 ```
 
 </Step>
 
 <Step title="Pass a provider">
 
-<CodeSnippet file="examples/docs/sandboxes/e2b.ts" title="server.ts" />
+<CodeSnippet file="examples/docs/sandboxes/agentos.ts" title="server.ts" />
+
+agentOS needs no provider account. To use E2B or Daytona instead, see
+[Providers](#providers).
 
 </Step>
 
@@ -74,11 +77,26 @@ npm add @rivet-dev/sandbox-adapter e2b
 
 | Provider | SDK | While the Actor sleeps | When the Actor is destroyed |
 | --- | --- | --- | --- |
+| [agentOS](/agentos/docs) | None | Sleeps when idle, and keeps its files | Left in place |
 | <a href="https://e2b.dev" target="_blank" rel="noopener noreferrer">E2B</a> | `e2b` | Paused | Deleted |
 | <a href="https://daytona.io" target="_blank" rel="noopener noreferrer">Daytona</a> | `@daytonaio/sdk` | Stopped | Deleted |
-| agentOS | None | Sleeps when idle, and keeps its files | Left in place |
 
 Provider credentials stay on your worker and never enter the sandbox.
+
+### agentOS
+
+```sh
+npm add @rivet-dev/sandbox-adapter
+```
+
+<CodeSnippet file="examples/docs/sandboxes/agentos.ts" title="server.ts" />
+
+| Option | Description |
+| --- | --- |
+| `cwd` | Working directory inside the VM. Defaults to `/workspace`. |
+| `software` | Packages installed when the VM is created, such as coreutils for `sh`. |
+
+The VM is an agentOS Actor in the `services` pool, with the key `["sandbox", <agent Actor id>]`. It keeps its files in its own SQLite database, so they persist while the agent sleeps. The VM sleeps on its own when idle. Destroying the agent leaves the VM and its files in place.
 
 ### E2B
 
@@ -110,21 +128,6 @@ npm add @rivet-dev/sandbox-adapter @daytonaio/sdk
 | `create` | Options for Daytona's `create`. |
 
 The working directory is the sandbox's own working directory. A stopped sandbox is started again the next time the Actor uses it.
-
-### agentOS
-
-```sh
-npm add @rivet-dev/sandbox-adapter
-```
-
-<CodeSnippet file="examples/docs/sandboxes/agentos.ts" title="server.ts" />
-
-| Option | Description |
-| --- | --- |
-| `cwd` | Working directory inside the VM. Defaults to `/workspace`. |
-| `software` | Packages installed when the VM is created, such as coreutils for `sh`. |
-
-The VM is an agentOS Actor in the `services` pool, with the key `["sandbox", <agent Actor id>]`. It keeps its files in its own SQLite database, so they persist while the agent sleeps. The VM sleeps on its own when idle. Destroying the agent leaves the VM and its files in place.
 
 ## How the sandbox is managed
 
