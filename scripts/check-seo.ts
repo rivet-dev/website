@@ -69,6 +69,8 @@ const ALLOWED_HISTORICAL_REDIRECT_LINKS = new Set([
   "/actors/self-host/",
   "/agentos/docs/resource-limits/",
   "/agentos/docs/security-model/",
+  // The agents Instructions page became System Prompt.
+  "/agents/docs/instructions/",
   "/cloud/byoc/",
   "/cloud/byoc/architecture/",
   "/cloud/byoc/quickstart/",
