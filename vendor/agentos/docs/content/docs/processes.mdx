@@ -1,60 +1,140 @@
 ---
-title: "Processes & Shell"
-description: "Run commands, start long-lived processes, and open interactive shells inside agentOS VMs with controlled environment and lifecycle management."
-skill: true
+title: "Processes & Shells"
+description: "Execute commands, manage long-running processes, replay their output, and open interactive shells."
 ---
 
-Run commands with one-shot `exec`, spawn long-running processes with streaming stdout/stderr and stdin, manage their lifecycle (stop, kill, wait, inspect), open interactive PTY-backed shells, and inspect the process tree across all VM runtimes.
+Every guest process is an entry in the VM's kernel process table, never a host
+process.
 
-## One-shot execution
-
-Use `exec` to run a command and wait for completion. Returns stdout, stderr, and exit code.
-
-<CodeGroup>
-<CodeSnippet file="examples/processes/exec.ts" />
-<CodeSnippet file="examples/processes/server.ts" />
-</CodeGroup>
-
-## Spawn a long-running process
-
-Use `spawn` for processes that run in the background. Call `connect()` and subscribe to native `processOutput` and `processExit` events, filtering their `pid` in application code.
+| | Hosted | Library |
+|---|---|---|
+| Run to completion with an argument array | `v1.process.run({ command, args })` | `process.execFile(file, args)` |
+| Run a shell command line | `v1.process.run({ command: "sh", args: ["-c", line] })` | `process.exec(line)` |
+| Start a long-running process | `v1.process.spawn({ command, args })` returns `{ generation, pid }` | `process.spawn(command, args)` returns `{ pid }` |
 
 <CodeGroup>
-<CodeSnippet file="examples/processes/spawn.ts" />
-<CodeSnippet file="examples/processes/server.ts" />
+
+```ts Hosted @nocheck
+import { createAgentOsClient } from "@rivet-dev/agentos";
+
+const client = createAgentOsClient({ endpoint: "https://api.rivet.dev" });
+const vm = client.agentOS.getOrCreate(["my-vm"]);
+
+// One-shot execution
+const result = await vm.v1.process.run({
+	command: "ls",
+	args: ["-la", "/home/agentos"],
+	options: { captureStdio: true },
+});
+console.log(result.stdout);
+
+// Long-running process with live output and exit events.
+const conn = vm.connect();
+await conn.ready;
+const server = await conn.v1.process.spawn({
+	command: "node",
+	args: ["/tmp/server.mjs"],
+});
+
+conn.on("process.output", (event) => {
+	if (event.process.pid !== server.pid) return;
+	console.log(event.stream, new TextDecoder().decode(event.data));
+});
+conn.on("process.exit", (event) => {
+	if (event.process.pid !== server.pid) return;
+	console.log("exited:", event.status.exitCode);
+});
+
+// Write to stdin
+await conn.v1.process.stdin.write({ process: server, data: "some input\n" });
+
+// Stop or kill
+await conn.v1.process.signal({ process: server, signal: "SIGTERM" });
+```
+
+<CodeSnippet file="examples/embedded/vm.ts" region="processes" title="Library" />
+
 </CodeGroup>
 
-## Write to stdin
+Process arguments are passed as individual argv entries. An empty string is a
+valid argument; it is not dropped or treated as an omitted argument. Empty
+commands or working directories are invalid input.
 
-Send input to a running process.
+## Manage running processes
+
+| Operation | Hosted | Library |
+|---|---|---|
+| Write and close stdin | `v1.process.stdin.write`, `v1.process.stdin.close` | `process.writeStdin`, `process.closeStdin` |
+| Send a signal | `v1.process.signal` | `process.signal`, `process.kill` |
+| Resize a PTY | `v1.process.pty.resize` | `process.resizePty` |
+| Wait for exit | `v1.process.wait` | `process.wait` |
+| Inspect | `v1.process.get`, `v1.process.list`, `v1.process.tree` | `process.get`, `process.list`, `process.tree` |
+
+Hosted operations take the process handle `{ generation, pid }`; library
+operations take the `pid`. A hosted handle from before a `v1.vm.restart` fails
+with `stale_generation`.
+
+`get` and `list` report `startedAtMs` as a Unix timestamp in milliseconds.
+`tree` includes guest child processes as well as processes launched through the
+API, so it can show more than you started. Use the returned handle or `pid`
+rather than reconstructing one from a node; guest children that were not
+launched through the API have no hosted process handle.
+
+A process wait returns an exit only after agentOS observes a guest exit. A
+rejected launch or lost exit observation rejects the wait instead of inventing
+an exit code. An observation failure does not prove the guest has stopped;
+inspect the VM or recreate it before assuming it is safe to retry work.
+
+## Output events and replay
+
+Process output can be replayed after the fact, even after the process has
+exited or a live event was missed. Hosted VMs retain output for every spawned
+process; in the library, pass `output: { retainEvents: true }` to `spawn`.
+Then page through retained output with a sequence cursor.
 
 <CodeGroup>
-<CodeSnippet file="examples/processes/stdin.ts" />
-<CodeSnippet file="examples/processes/server.ts" />
+
+```ts Hosted @nocheck
+import { createAgentOsClient } from "@rivet-dev/agentos";
+
+const client = createAgentOsClient({ endpoint: "https://api.rivet.dev" });
+const vm = client.agentOS.getOrCreate(["my-vm"]);
+
+const shell = await vm.v1.process.spawn({ command: "sh", args: [] });
+
+await vm.v1.process.stdin.write({ process: shell, data: "echo from the background\n" });
+await vm.v1.process.stdin.close({ process: shell });
+await vm.v1.process.wait({ process: shell });
+
+// Later, from any client
+const replay = await vm.v1.process.output.read({
+	process: shell,
+	maxEvents: 32,
+	maxBytes: 64 * 1024,
+});
+console.log(replay.events.length, replay.nextCursor);
+```
+
+<CodeSnippet file="examples/quickstart/bash/spawn.ts" title="Library" />
+
 </CodeGroup>
 
-## Process lifecycle
-
-<CodeGroup>
-<CodeSnippet file="examples/processes/lifecycle.ts" />
-<CodeSnippet file="examples/processes/server.ts" />
-</CodeGroup>
+Pass the last cursor as `after` to read the next page. A replay page reports
+`nextCursor`, `hasMore`, and `truncated`. Live events are low-latency hints:
+`process.output` and `process.exit` on a hosted connection, or
+`vm.onProcessOutput` and `vm.onProcessExit` in the library. Retention is
+bounded; see [Resource Limits](/agentos/docs/resource-limits) for the defaults.
 
 ## Interactive shells
 
-Open an interactive shell with PTY support. Subscribe to native `shellData`, `shellStderr`, and `shellExit` events, filtering their `shellId` in application code.
+Interactive terminals allocate a kernel PTY and start a shell attached to it.
 
-<CodeGroup>
-<CodeSnippet file="examples/processes/shell.ts" />
-<CodeSnippet file="examples/processes/server.ts" />
-</CodeGroup>
+| Operation | Hosted | Library |
+|---|---|---|
+| Open | `v1.terminal.open` | `terminal.open`, returns a `shellId` |
+| Write input | `v1.terminal.stdin.write` | `terminal.write` |
+| Resize | `v1.terminal.pty.resize` | `terminal.resize` |
+| Wait and close | `v1.terminal.wait`, `v1.terminal.close` | `terminal.wait`, `terminal.close` |
+| Output | `terminal.output` and `terminal.exit` events, `v1.terminal.output.read` replay | `vm.onShellData`, `vm.onShellStderr`, `vm.onShellExit` |
 
-## Embedded API
-
-Process and terminal methods are identical except for actor-only shell listing
-and replay. Embedded output and exit callbacks are already scoped to one VM and
-one host process.
-
-<CodeSnippet file="examples/embedded/vm.ts" region="processes" title="vm.ts" />
-
-Read more in the [embedded API quickstart](/agentos/docs/quickstart-embedded).
+Hosted VMs also list open terminals with `v1.terminal.list`.
