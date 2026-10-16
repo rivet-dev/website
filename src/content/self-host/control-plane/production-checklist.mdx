@@ -12,6 +12,7 @@ We recommend passing this page to your coding agent to verify your configuration
 - **Configure an admin token.** Generate a strong random value and set `RIVET__AUTH__ADMIN_TOKEN`. Without one the API is unauthenticated. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 - **Keep the admin token out of client reach.** It must never appear in a public endpoint or anywhere a browser can read it.
 - **Terminate TLS.** Every connection to the control plane should be encrypted at a reverse proxy or load balancer. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+- **Harden the outbound destination policy.** The control plane dials the serverless URLs in your runner configs from inside its own network, so anyone who can write a runner config can aim it at services only reachable from there. By default `outbound` denies every non-globally-routable destination except loopback. Set `outbound.allow_loopback` to `false` unless a worker genuinely runs on the control plane host, since loopback reaches the control plane's own API, guard, and any sidecar. If your workers live on your network, prefer `outbound.allow_cidrs` or `outbound.allow_hosts` for the specific destinations over `outbound.allow_private_networks`, which opens every private range. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 - **Disable crash reporting in locked-down environments.** The control plane sends crash reports to Rivet by default. Set `RIVET__TELEMETRY__ENABLED=false` for air-gapped or regulated deployments. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 
 ## Resources
@@ -34,6 +35,11 @@ We recommend passing this page to your coding agent to verify your configuration
 - **Configure failover.** A standby replica with automatic failover, for PostgreSQL.
 - **Deploy two or more NATS replicas** for multi-node pub/sub high availability.
 
+## Networking
+
+- **Raise the WebSocket timeout on any L7 load balancer in front of the control plane.** The connection at risk is the long-lived worker-to-control-plane WebSocket that every worker holds open, not just client-facing actor WebSockets. Most L7 HTTPS load balancers (GCP HTTPS LB / GKE Ingress, AWS ALB, Cloudflare, nginx) cap a single WebSocket's lifetime, and ping/pong does not reset it. Defaults are typically 30 to 60 seconds, which kills that connection with WS code 1006 on a fixed cadence and tears down every actor WebSocket multiplexed over it. Set the backend timeout to at least 1 hour (`timeoutSec: 86400` on a GCP `BackendConfig`, `idle_timeout.timeout_seconds: 3600` on an AWS ALB, `proxy_read_timeout` on nginx), or front it with an L4 TCP load balancer that does not terminate the WebSocket.
+- **Raise idle timeouts on every layer to at least 1 hour.** The same applies to the load balancer fronting your own app, since workers connect to it over WebSocket.
+
 ## Operations
 
 - **Pin the image tag.** Never run `latest` in production. See <SelfHostLink to="control-plane/upgrades">Upgrades</SelfHostLink>.
@@ -43,6 +49,11 @@ We recommend passing this page to your coding agent to verify your configuration
 ## Enterprise
 
 Contact [enterprise support](/talk-to-an-engineer/) for architecture review, scaling guidance, and FoundationDB.
+
+FoundationDB is available on Enterprise deployments. If you run it:
+
+- **Provision fast disks.** Use NVMe SSDs with at least 500 MiB/s sustained throughput under a mixed small read/write workload. Keep volumes under 75% full and benchmark drives before production. FoundationDB fsyncs its transaction logs on every commit and its storage servers on a tight interval, so slow disks surface as rising storage-server durability lag and write-queue ratekeeper limiting under write-heavy load.
+- **Do not rely on the cluster default disk class.** Network-attached disks whose throughput scales with volume size (GCP `pd-balanced`, or the default StorageClass on many managed Kubernetes clusters) are often far below that target on small volumes and will bottleneck FoundationDB. Pin a fast disk class (GCP `premium-rwo` / pd-ssd, a provisioned Hyperdisk, or local NVMe) sized so its provisioned throughput meets the target.
 
 ## Next steps
 
