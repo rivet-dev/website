@@ -8,6 +8,10 @@ title: "Building the World's Fastest Package Manager with agentOS"
 description: "agentOS packages install in 130µs, here's how we did it."
 ---
 
+<Note>
+**Updated October 20, 2026:** agentOS software has moved from npm to the agentOS registry, where packages ship as `.aospkg` files. See [Software](/agentos/docs/software) for how to install it today.
+</Note>
+
 We built [agentOS](https://agentos-sdk.dev) as a lightweight alternative to sandboxes. Because it runs Linux on WebAssembly, it cold-starts up to [516× faster](https://agentos-sdk.dev/docs/benchmarks) than a sandbox, and it's light enough to run inside your own backend in userspace, with no external sandboxing infrastructure.
 
 But once starts are that cheap, **everything else on the setup path becomes the bottleneck**, starting with installing packages. So today we [introduced the agentOS Package Registry](/changelog/2026-07-06-introducing-the-agentos-package-registry), which meant installing packages **without the overhead you'd expect** from apt, apk, Homebrew, and the rest.
