@@ -18,7 +18,8 @@
 			"pages": [
 				{ "title": "Overview", "href": "/docs/deploy/cloud", "icon": "faSquareInfo" },
 				{ "title": "Rivet Compute", "href": "/docs/deploy/cloud/compute", "icon": "faServer" },
-				{ "title": "Preview Deployments", "href": "/docs/deploy/cloud/preview-deployments", "icon": "faCodeBranch" }
+				{ "title": "Preview Deployments", "href": "/docs/deploy/cloud/preview-deployments", "icon": "faCodeBranch" },
+				{ "title": "Deploy an Image to a Cluster", "href": "/docs/deploy/cloud/deploy-image", "icon": "faRocket" }
 			]
 		}
 	]

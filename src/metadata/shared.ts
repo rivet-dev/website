@@ -63,6 +63,8 @@ export function isRoutedDocsContentId(contentId: string) {
 	const slug = normalizeSlug(contentId);
 	// A bundle's own `guides/index.mdx` is replaced by the website's overview.
 	if (isGuidesContentId(slug)) return guidesSlugForContentId(slug) !== undefined;
+	// The Rivet Cloud bundle has no tabs of its own; it renders under Deploy.
+	if (deploySlugForContentId(slug) !== undefined) return true;
 	return !UNROUTED_DOCS_PREFIXES.some(
 		(prefix) => slug === prefix || slug.startsWith(`${prefix}/`),
 	);

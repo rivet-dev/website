@@ -1,5 +1,6 @@
 /**
- * Writes one AI skill per product into `public/metadata/skills/<name>/`.
+ * Writes one AI skill per product, plus one per page that opts in with a
+ * `skill` map, into `public/metadata/skills/<name>/`.
  *
  *   SKILL.md      frontmatter, the doc index, the example index
  *   examples/**   the example projects the docs embed
@@ -15,7 +16,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { PROJECT_ROOT } from "../src/metadata/shared";
-import { listSkills, renderSkill } from "../src/metadata/skills";
+import {
+	listPageSkills,
+	listSkills,
+	renderPageSkill,
+	renderSkill,
+} from "../src/metadata/skills";
 
 const OUTPUT_DIR = path.join(PROJECT_ROOT, "public/metadata/skills");
 
@@ -55,6 +61,13 @@ async function main() {
 			`${skill.name}: ${skill.docs.length} docs, ${skill.examples.length} examples` +
 				`${skill.openApiPath ? ", openapi.json" : ""}`,
 		);
+	}
+
+	for (const pageSkill of listPageSkills()) {
+		const skillDir = path.join(OUTPUT_DIR, pageSkill.skill.name);
+		await fs.mkdir(skillDir, { recursive: true });
+		await fs.writeFile(path.join(skillDir, "SKILL.md"), renderPageSkill(pageSkill));
+		console.log(`${pageSkill.skill.name}: page ${pageSkill.page.slug}`);
 	}
 }
 

@@ -45,6 +45,15 @@ export interface DocPage {
 	body: string;
 	/** `examples/...` paths this page embeds, relative to its snippet root. */
 	snippetFiles: string[];
+	/** Set when the page's `skill` frontmatter publishes it as its own skill. */
+	standaloneSkill?: StandaloneSkill;
+}
+
+export interface StandaloneSkill {
+	name: string;
+	description: string;
+	/** Space-separated operations the skill needs, for `metadata.rivet-requires`. */
+	requires?: string;
 }
 
 let cache: DocPage[] | null = null;
@@ -95,6 +104,7 @@ export function listDocPages(): DocPage[] {
 			sourcePath,
 			body,
 			snippetFiles: listSnippetFiles(body),
+			standaloneSkill: standaloneSkill(file, frontmatter),
 		});
 	}
 
@@ -181,6 +191,35 @@ export function splitFrontmatter(raw: string) {
 	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
 	if (!match) return { frontmatter: "", body: raw };
 	return { frontmatter: match[1], body: match[2] };
+}
+
+/**
+ * The `skill:` map, read with the same line-based parsing as the other keys.
+ * `content.config.ts` validates the shape during the Astro build; this only
+ * has to read it for the plain node scripts.
+ */
+function standaloneSkill(
+	file: string,
+	frontmatter: string,
+): StandaloneSkill | undefined {
+	const block = frontmatter.match(/^skill:[ \t]*\r?\n((?:[ \t]+.*(?:\r?\n|$))+)/m);
+	if (!block) return undefined;
+	const name = frontmatterValue(dedent(block[1]), "name");
+	const description = frontmatterValue(dedent(block[1]), "description");
+	if (!name || !description) {
+		throw new Error(
+			`src/content/docs/${file}: a \`skill\` map needs a name and a description`,
+		);
+	}
+	return {
+		name,
+		description,
+		requires: frontmatterValue(dedent(block[1]), "requires"),
+	};
+}
+
+function dedent(text: string) {
+	return text.replace(/^[ \t]+/gm, "");
 }
 
 export function frontmatterValue(frontmatter: string, key: string) {

@@ -1,0 +1,101 @@
+---
+title: "Deploy an Image to a Cluster"
+description: "Deploy a Docker image to a Rivet Cloud cluster through the Rivet MCP server, or roll a cluster back to an earlier build."
+skill:
+  name: rivet-deploy-image
+  description: "Deploy a Docker image to a Rivet Cloud cluster through the Rivet MCP server, or roll a cluster back to an earlier build. Use when asked to deploy, ship, release, or roll back an app on a Rivet cluster and a shell with Docker is available."
+  requires: rivet.deploy.prepare rivet.deploy.rollout
+---
+
+A deploy is a local build, one upload, and two Code Mode operations run through the Rivet MCP server's `execute` tool. It needs Docker and a shell. It does not need the Rivet CLI or any other login.
+
+## Before Starting
+
+1. Confirm the session can deploy. If `search` does not list `rivet.deploy.prepare`, the session is read-only or is pinned to a project or namespace, and the deploy cannot run from there.
+2. Pick the cluster. Run `return (await rivet.cloud.v2.clusters.list()).items;` in `execute` and use the `cluster` field of the one to deploy to, which is its name. On a connection pinned to a cluster, `rivet.context()` reports it, and `cluster` is left out of every call below.
+
+## Steps
+
+<Steps>
+<Step title="Build and measure the image">
+
+The platform must be `linux/amd64`.
+
+```sh @nocheck
+docker build --platform linux/amd64 -t app .
+docker image save app -o image.tar
+wc -c < image.tar                        # content_length
+openssl md5 -binary image.tar | base64   # content_md5
+```
+
+The tarball must be 5 GiB or smaller. Measure the exact file that will be uploaded, because the build fails verification when either value differs.
+
+</Step>
+<Step title="Register the build">
+
+```js @nocheck
+return await rivet.deploy.prepare({
+	cluster: "my-cluster",
+	image: "app:latest",
+	content_length: 48213504,
+	content_md5: "1B2M2Y8AsgTpgAmY7PhCfg==",
+});
+```
+
+`content_length` is a number, not a string. Pass `file` when the tarball is not named `image.tar`. Keep the returned `build_id`.
+
+</Step>
+<Step title="Upload">
+
+Run the returned `upload` command in the shell, unchanged. It is a curl command against a presigned URL that is good for that one tarball until `expires_at`, so it carries no Rivet credentials.
+
+</Step>
+<Step title="Roll out">
+
+Repeat until `done` is `true`.
+
+```js @nocheck
+return await rivet.deploy.rollout({ cluster: "my-cluster", build_id: "<build_id>" });
+```
+
+Each call advances one step and returns immediately, so call it again while `done` is `false`.
+
+</Step>
+<Step title="Report the result">
+
+Report the `build_id` and the `endpoints` from the final result. The `build_id` is what a later rollback needs.
+
+</Step>
+</Steps>
+
+## Rollout Steps
+
+`rivet.deploy.rollout` returns `{ done, step, build_id, build_status?, region?, pool?, status?: { state, message, action_needed }, endpoints? }`.
+
+| `step` | Meaning | What to do |
+| --- | --- | --- |
+| `verifying_build` | The upload is being checked against the size and digest it was prepared with. `build_status` is `uploading` or `completing`. | Call again with the same arguments. |
+| `rolling_out` | The runner pool points at the build and is not ready yet. `status.message` says what is changing. When `status.action_needed` is `true`, the build itself is failing and `status.message` says why. | Call again with the same arguments, or fix the app and deploy a new build when `status.action_needed` is `true`. |
+| `ready` | The pool runs the build, its `status.state` is `ready`, and `done` is `true`. | Stop and report `endpoints`. |
+
+`region` is only needed when the cluster has several. With exactly one region it is chosen automatically. `pool` defaults to `default`. A pool that does not exist yet is created with an empty allowlist, and an existing pool keeps the allowlist it has.
+
+## Errors
+
+| Error | Cause | What to do |
+| --- | --- | --- |
+| `deploy/build_failed` | The uploaded bytes did not match `content_length` and `content_md5`. | Measure the tarball again, call `rivet.deploy.prepare`, and upload again. |
+| `deploy/build_expired`, `deploy/build_deleting` | The build can no longer be deployed, for example because it was never uploaded before `expires_at`. | Call `rivet.deploy.prepare` for a new build. |
+| `deploy/region_required` | The cluster has several regions, or none. | The message lists the regions. Pass one as `region`, or add a region first when there are none. |
+
+A failed upload command means nothing was deployed. Run it again while the URL is still valid, or prepare a new build.
+
+## Rolling Back
+
+Call `rivet.deploy.rollout` with an earlier `build_id`, and repeat it until `done` is `true` exactly as for a deploy. Nothing is rebuilt or uploaded. `rivet.cloud.v2.builds.list` lists a cluster's builds newest first with their status, and only a `ready` build can be rolled to.
+
+## Rules
+
+- Never rebuild or re-upload to retry a rollout. Call `rivet.deploy.rollout` again with the same `build_id`.
+- Use `rivet.deploy.*` for the whole deploy. Do not drive `rivet.cloud.v2.builds.*` or `rivet.cloud.v2.runnerPools.upsert` by hand, because an upsert replaces the pool's settings wholesale and would drop its allowlist.
+- Do not guess a `cluster`, `region`, or `pool` name. List them first.

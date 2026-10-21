@@ -14,8 +14,19 @@ const docs = defineCollection({
 		description: z.string(),
 		...seoOverrides,
 		// Rivet-internal: opts a page into skill-file generation. Product repos
-		// do not carry it, so it defaults off.
-		skill: z.boolean().optional().default(false),
+		// do not carry it, so it defaults off. An object publishes the page as
+		// its own skill (see src/metadata/skills.ts).
+		skill: z
+			.union([
+				z.boolean(),
+				z.object({
+					name: z.string().regex(/^rivet-[a-z0-9]+(-[a-z0-9]+)*$/).max(64),
+					description: z.string().min(1).max(1024),
+					requires: z.string().optional(),
+				}),
+			])
+			.optional()
+			.default(false),
 	}),
 });
 

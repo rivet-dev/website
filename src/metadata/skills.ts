@@ -1,9 +1,11 @@
 /**
- * One AI skill per product, generated entirely from the docs.
+ * AI skills, generated entirely from the docs.
  *
- * A skill is frontmatter, an index of links to the Markdown mirror of that
- * product's docs, and the examples those docs embed. There is no hand-written
- * skill prose anywhere: to change what a skill says, change the docs.
+ * Each product gets one skill: frontmatter, an index of links to the Markdown
+ * mirror of that product's docs, and the examples those docs embed. A page
+ * whose frontmatter has a `skill` map is also published as its own skill, with
+ * the page's Markdown as the body. There is no hand-written skill prose
+ * anywhere: to change what a skill says, change the docs.
  *
  * Published to https://github.com/rivet-dev/skills by
  * `.github/workflows/skills.yml`, and served from `/metadata/skills/<name>/`.
@@ -19,8 +21,10 @@ import { VISIBLE_PRODUCTS } from "../sitemap/product-metadata";
 import {
 	examplesRepoFor,
 	listDocPages,
+	renderDocMarkdown,
 	snippetRootFor,
 	type DocPage,
+	type StandaloneSkill,
 } from "./docs-index";
 import { SITE_BASE_URL } from "./shared";
 
@@ -40,6 +44,53 @@ export interface Skill {
 	examples: SkillExample[];
 	/** Absolute path to an OpenAPI document to ship beside the skill, if any. */
 	openApiPath?: string;
+}
+
+export interface PageSkill {
+	skill: StandaloneSkill;
+	page: DocPage;
+}
+
+/** Pages published as their own skill, one skill each. */
+export function listPageSkills(): PageSkill[] {
+	const productNames = new Set(VISIBLE_PRODUCTS.map((product) => `rivet-${product.id}`));
+	const seen = new Map<string, string>();
+	const skills: PageSkill[] = [];
+	for (const page of listDocPages()) {
+		const skill = page.standaloneSkill;
+		if (!skill) continue;
+		if (productNames.has(skill.name)) {
+			throw new Error(`${page.slug}: skill name ${skill.name} is a product skill's`);
+		}
+		const other = seen.get(skill.name);
+		if (other) {
+			throw new Error(`${page.slug} and ${other} both publish skill ${skill.name}`);
+		}
+		seen.set(skill.name, page.slug);
+		skills.push({ skill, page });
+	}
+	return skills;
+}
+
+export function renderPageSkill({ skill, page }: PageSkill): string {
+	const lines = [
+		"---",
+		`name: ${JSON.stringify(skill.name)}`,
+		`description: ${JSON.stringify(skill.description)}`,
+	];
+	if (skill.requires) {
+		lines.push("metadata:", `  rivet-requires: ${JSON.stringify(skill.requires)}`);
+	}
+	lines.push(
+		"---",
+		"",
+		`# ${page.title}`,
+		"",
+		`Source: ${SITE_BASE_URL}/${page.slug}`,
+		"",
+		renderDocMarkdown(page).trim(),
+	);
+	return `${lines.join("\n")}\n`;
 }
 
 export function listSkills(): Skill[] {
