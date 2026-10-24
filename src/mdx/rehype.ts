@@ -5,6 +5,7 @@ import { toString as mdastToString } from "mdast-util-to-string";
 import { mdxAnnotations } from "mdx-annotations";
 import rehypeMermaid from "rehype-mermaid";
 import * as shiki from "shiki";
+import type { ShikiTransformer } from "shiki";
 import { visit } from "unist-util-visit";
 import theme from "../lib/textmate-code-theme";
 import { repoForContentPath } from "../sitemap/docs-sources.node";
@@ -93,8 +94,14 @@ function rehypeParseCodeBlocks() {
 					const fileLabel = sourceFile
 						? sourceFile.split("/").pop()
 						: fileVal;
+					const highlightMatch = trimmed.match(
+						/\bhighlight="([0-9,-]+)"/,
+					);
+					if (highlightMatch) {
+						parentNode.properties.highlightLines = highlightMatch[1];
+					}
 					const rest = trimmed.replace(
-						/\b(?:title|file|region)=(?:"[^"]*"|'[^']*')/g,
+						/\b(?:title|file|region|highlight)=(?:"[^"]*"|'[^']*')/g,
 						" ",
 					);
 
@@ -198,6 +205,26 @@ export async function highlightDocsCode(code: string, lang: string): Promise<str
 	});
 }
 
+/** Marks the lines in `ranges` (such as `3-7,12`) highlighted and dims the rest. */
+function transformerHighlightLines(ranges: unknown): ShikiTransformer {
+	const lines = new Set<number>();
+	if (typeof ranges === "string") {
+		for (const range of ranges.split(",")) {
+			const [start, end = start] = range.split("-").map(Number);
+			for (let line = start; line <= end; line++) lines.add(line);
+		}
+	}
+	return {
+		name: "highlight-lines",
+		pre(node) {
+			if (lines.size > 0) this.addClassToHast(node, "has-highlighted");
+		},
+		line(node, line) {
+			if (lines.has(line)) this.addClassToHast(node, "highlighted");
+		},
+	};
+}
+
 function rehypeShiki() {
 	return async (tree) => {
 		await docsHighlighter();
@@ -236,7 +263,10 @@ function rehypeShiki() {
 					const result = highlighter.codeToHtml(textNode.value, {
 						lang,
 						themes: { light: theme.name, dark: 'github-dark' },
-						transformers: [transformerNotationFocus()],
+						transformers: [
+							transformerNotationFocus(),
+							transformerHighlightLines(node.properties.highlightLines),
+						],
 					});
 					// Store the highlighted HTML in a property instead of the text node
 					// This prevents MDX from interpreting the HTML as JSX

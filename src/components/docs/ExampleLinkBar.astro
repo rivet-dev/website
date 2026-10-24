@@ -1,17 +1,17 @@
 ---
-// "Prefer to read code?" bar with a View-on-GitHub button, extracted from the
-// inline HTML in the agentOS quickstart so every product's quickstart can use it.
+// "See the full example on GitHub" bar with a View-on-GitHub button. Every
+// docs page and guide that has a complete example links it with this bar, so
+// the wording stays the same everywhere.
 interface Props {
 	href: string;
-	label?: string;
 }
-const { href, label = "Prefer to read code? Clone the example repository." } = Astro.props;
+const { href } = Astro.props;
 ---
 
 <div
 	style="border-radius:0.75rem;border:1px solid rgb(var(--site-ink, 27 25 22) / 0.12);background:rgb(var(--site-ink, 27 25 22) / 0.035);padding:0.875rem 1.125rem;margin:1.5rem 0;color:rgb(var(--site-ink-soft, 86 82 74));display:flex;align-items:center;justify-content:space-between;gap:1.25rem;"
 >
-	<span>{label}</span>
+	<span>See the full example on GitHub.</span>
 	<a
 		href={href}
 		style="appearance:none;border:1px solid rgb(var(--site-ink, 27 25 22) / 0.18);background:transparent;color:rgb(var(--site-ink, 27 25 22));font-family:var(--sl-font);font-size:0.8rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;height:2rem;padding:0 0.85rem;border-radius:6px;cursor:pointer;white-space:nowrap;text-decoration:none;flex:none;gap:0.45rem;box-sizing:border-box;"

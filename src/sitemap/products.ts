@@ -87,13 +87,45 @@ function productSidebars(meta: ProductMetadata) {
 	const bundle = bundleSidebars(meta.id);
 	// A shared bundle's sidebar is authored against its source product's routes
 	// (`/agentos/docs/...`); serve it under this product's instead.
+	const ownDocs = mirrorGuides(bundle.docs, bundle.guides ?? []);
 	const docs = meta.bundleOf
-		? rerootPrefix(bundle.docs, `/${meta.bundleOf}/docs`, `/${meta.id}/docs`)
-		: bundle.docs;
+		? rerootPrefix(ownDocs, `/${meta.bundleOf}/docs`, `/${meta.id}/docs`)
+		: ownDocs;
 	return {
 		docs,
 		integrations: bundle.integrations ?? [],
 	};
+}
+
+/**
+ * Fills a `"mirror": "guides"` group in a bundle's docs sidebar with the
+ * bundle's own guides, so a docs tab can list them without repeating them:
+ *
+ *     { "title": "Guides", "collapsible": true, "mirror": "guides" }
+ *
+ * The pages keep their `/guides/...` hrefs, so they open on the Guides tab.
+ */
+function mirrorGuides<T>(node: T, guides: SidebarItem[]): T {
+	if (Array.isArray(node)) {
+		return node.map((item) => mirrorGuides(item, guides)) as unknown as T;
+	}
+	if (!node || typeof node !== "object") return node;
+	const { mirror, ...rest } = node as Record<string, unknown>;
+	if (mirror === undefined) {
+		return Object.fromEntries(
+			Object.entries(rest).map(([key, value]) => [
+				key,
+				mirrorGuides(value, guides),
+			]),
+		) as T;
+	}
+	if (mirror !== "guides") {
+		throw new Error(`sidebar.json: unknown "mirror" value ${JSON.stringify(mirror)}`);
+	}
+	return {
+		...rest,
+		pages: guides.flatMap((group) => ("pages" in group ? group.pages : [group])),
+	} as T;
 }
 
 function rerootPrefix<T>(node: T, from: string, to: string): T {
@@ -146,10 +178,13 @@ export function deploySidebar(): SidebarItem[] {
 	];
 }
 
+/** Guides tab groups in sidebar order, after General. Groups not listed follow in product order. */
+const GUIDE_GROUP_ORDER = ["Architecture", "Agents", "Guides"];
+
 /**
  * The Guides tab's sidebar: the website's overview, then every bundle's
- * `guides` groups in product order. Groups with the same title merge into one,
- * at the position the title first appears, keeping each bundle's page order.
+ * `guides` groups, ordered by `GUIDE_GROUP_ORDER`. Groups with the same title
+ * merge into one, keeping each bundle's page order.
  */
 export function guidesSidebar(): SidebarItem[] {
 	const overview: SidebarSection = {
@@ -169,6 +204,11 @@ export function guidesSidebar(): SidebarItem[] {
 			else merged.push({ ...item, pages: [...item.pages] });
 		}
 	}
+	const rank = (group: SidebarSection) => {
+		const index = GUIDE_GROUP_ORDER.indexOf(group.title);
+		return index === -1 ? GUIDE_GROUP_ORDER.length : index;
+	};
+	merged.sort((a, b) => rank(a) - rank(b));
 	return [overview, ...merged];
 }
 

@@ -90,6 +90,10 @@
   @apply opacity-100;
 }
 
+.shiki.has-highlighted .line:not(.highlighted) {
+  @apply opacity-40;
+}
+
 @layer utilities {
   /* Cursor-following border glow for porcelain pills (deploy row, stack chips).
      Lights ONLY the pill's 1px border ring as the pointer moves — not the fill.

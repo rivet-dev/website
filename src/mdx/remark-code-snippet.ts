@@ -21,6 +21,10 @@ import { resolve, extname } from "node:path";
  * `// docs:start name` … `// docs:end name` (markers are stripped, region is
  * dedented).
  *
+ * Highlight regions with `highlight="name"` (or `highlight="a,b"`): the snippet
+ * still shows the whole file (or `region`), and every other line is dimmed so
+ * the reader sees where the highlighted code sits in context.
+ *
  * Paths are relative to the repo that owns the page. Product docs are symlinked
  * in from their own repos, so an agentOS page's `examples/...` means agentOS's
  * examples; the caller supplies a resolver that maps the MDX file's path to the
@@ -96,7 +100,8 @@ export function loadSnippet(
 	root: string,
 	file: string,
 	region?: string,
-): { lang: string; value: string } {
+	highlight?: string,
+): { lang: string; value: string; highlightLines?: string } {
 	const abs = resolve(root, file);
 	let source: string;
 	try {
@@ -110,7 +115,66 @@ export function loadSnippet(
 	return {
 		lang: LANG_BY_EXT[extname(abs).toLowerCase()] ?? "text",
 		value: extractRegion(source, region, file),
+		highlightLines: highlight
+			? highlightedLines(source, region, highlight, file)
+			: undefined,
 	};
+}
+
+/**
+ * The 1-based line numbers, as ranges like `3-7,12-14`, that the regions in
+ * `highlight` occupy in the code `extractRegion` returns for `region`.
+ */
+function highlightedLines(
+	source: string,
+	region: string | undefined,
+	highlight: string,
+	file: string,
+): string {
+	const names = new Set(
+		highlight
+			.split(",")
+			.map((name) => name.trim())
+			.filter(Boolean),
+	);
+	const found = new Set<string>();
+	const open = new Set<string>();
+	const ranges: Array<[number, number]> = [];
+	// With `region`, numbering starts inside that region.
+	let shown = region === undefined;
+	let lineNumber = 0;
+
+	for (const line of source.split("\n")) {
+		const m = line.match(MARKER);
+		if (m) {
+			const [, kind, name] = m;
+			if (name === region) shown = kind === "start";
+			if (name && names.has(name)) {
+				if (kind === "start") {
+					open.add(name);
+					found.add(name);
+				} else {
+					open.delete(name);
+				}
+			}
+			continue;
+		}
+		if (!shown) continue;
+		lineNumber += 1;
+		if (open.size === 0) continue;
+		const last = ranges.at(-1);
+		if (last && last[1] === lineNumber - 1) last[1] = lineNumber;
+		else ranges.push([lineNumber, lineNumber]);
+	}
+
+	for (const name of names) {
+		if (!found.has(name)) {
+			throw new Error(
+				`<CodeSnippet>: highlight region "${name}" not found in ${file}`,
+			);
+		}
+	}
+	return ranges.map(([a, b]) => (a === b ? `${a}` : `${a}-${b}`)).join(",");
 }
 
 function getAttr(
@@ -168,13 +232,17 @@ export function remarkCodeSnippet(resolveRoot?: RootResolver) {
 				const region = getAttr(el, "region");
 				const title = getAttr(el, "title");
 				const lang = getAttr(el, "lang");
+				const highlight = getAttr(el, "highlight");
 
-				const snippet = loadSnippet(embedRoot, file, region);
+				const snippet = loadSnippet(embedRoot, file, region, highlight);
 
 				// `file=` in the meta drives the basename tab label + GitHub source
 				// link in the Code component; `title=` overrides the label.
 				const meta = [`file="${file}"`];
 				if (title) meta.push(`title="${title}"`);
+				if (snippet.highlightLines) {
+					meta.push(`highlight="${snippet.highlightLines}"`);
+				}
 
 				parent.children[index] = {
 					type: "code",
