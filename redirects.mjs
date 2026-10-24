@@ -47,7 +47,7 @@ const explicitRedirects = {
 	'/workflows/tutorials': '/workflows/docs/',
 	// Cookbook became the Actors Learn tab.
 	'/cookbook': '/guides/',
-	'/cookbook/ai-agent': '/guides/ai-agent/',
+	'/cookbook/ai-agent': '/guides/personal-agent/',
 	'/cookbook/chat-room': '/guides/chat-room/',
 	'/cookbook/collaborative-text-editor': '/guides/collaborative-text-editor/',
 	'/cookbook/cron-jobs': '/guides/cron-jobs/',
@@ -428,6 +428,9 @@ function bundleSplitRedirects() {
 	map['/actors/use-cases'] = '/actors/docs/';
 	map['/actors/learn/a-radically-simpler-architecture'] =
 		'/guides/a-radically-simpler-architecture/';
+	// The AI Agent guide was retired for the Agents docs and their guides.
+	map['/guides/ai-agent'] = '/guides/personal-agent/';
+	map['/actors/learn/ai-agent'] = '/guides/personal-agent/';
 	return map;
 }
 

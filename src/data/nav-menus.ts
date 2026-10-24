@@ -62,7 +62,7 @@ export const SOLUTIONS_MENU: SolutionMenuItem[] = [
 	},
 	{
 		id: "personal-agents",
-		href: "/guides/ai-agent/",
+		href: "/guides/personal-agent/",
 		label: "Personal agents",
 		description: "One long-lived Actor per user",
 		icon: faUser,
