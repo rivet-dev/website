@@ -312,6 +312,8 @@
 
 			// Check if the code content is tall enough to collapse
 			if (scrollArea.scrollHeight <= CODE_COLLAPSE_HEIGHT) return;
+			// Highlighted lines are the point of the block, so never hide them.
+			if (block.querySelector('.shiki.has-highlighted')) return;
 
 			// Mark as collapsed
 			block.setAttribute('data-code-collapsed', 'true');
