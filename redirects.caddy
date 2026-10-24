@@ -501,8 +501,10 @@ redir /agentos/self-host/workers/vm /docs/deploy/self-host/workers/vm/{http.requ
 redir /agentos/self-host/workers/vm/ /docs/deploy/self-host/workers/vm/{http.request.uri.prefixed_query} 301
 redir /actors/learn/a-radically-simpler-architecture /guides/a-radically-simpler-architecture/{http.request.uri.prefixed_query} 301
 redir /actors/learn/a-radically-simpler-architecture/ /guides/a-radically-simpler-architecture/{http.request.uri.prefixed_query} 301
-redir /actors/learn/ai-agent /guides/ai-agent/{http.request.uri.prefixed_query} 301
-redir /actors/learn/ai-agent/ /guides/ai-agent/{http.request.uri.prefixed_query} 301
+redir /guides/ai-agent /guides/personal-agent/{http.request.uri.prefixed_query} 301
+redir /guides/ai-agent/ /guides/personal-agent/{http.request.uri.prefixed_query} 301
+redir /actors/learn/ai-agent /guides/personal-agent/{http.request.uri.prefixed_query} 301
+redir /actors/learn/ai-agent/ /guides/personal-agent/{http.request.uri.prefixed_query} 301
 redir /actors/learn/chat-room /guides/chat-room/{http.request.uri.prefixed_query} 301
 redir /actors/learn/chat-room/ /guides/chat-room/{http.request.uri.prefixed_query} 301
 redir /actors/learn/collaborative-text-editor /guides/collaborative-text-editor/{http.request.uri.prefixed_query} 301
@@ -555,8 +557,8 @@ redir /workflows/tutorials /workflows/docs/{http.request.uri.prefixed_query} 301
 redir /workflows/tutorials/ /workflows/docs/{http.request.uri.prefixed_query} 301
 redir /cookbook /guides/{http.request.uri.prefixed_query} 301
 redir /cookbook/ /guides/{http.request.uri.prefixed_query} 301
-redir /cookbook/ai-agent /guides/ai-agent/{http.request.uri.prefixed_query} 301
-redir /cookbook/ai-agent/ /guides/ai-agent/{http.request.uri.prefixed_query} 301
+redir /cookbook/ai-agent /guides/personal-agent/{http.request.uri.prefixed_query} 301
+redir /cookbook/ai-agent/ /guides/personal-agent/{http.request.uri.prefixed_query} 301
 redir /cookbook/chat-room /guides/chat-room/{http.request.uri.prefixed_query} 301
 redir /cookbook/chat-room/ /guides/chat-room/{http.request.uri.prefixed_query} 301
 redir /cookbook/collaborative-text-editor /guides/collaborative-text-editor/{http.request.uri.prefixed_query} 301
