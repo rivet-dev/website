@@ -1,160 +1,149 @@
 ---
 title: "Docker Compose"
-description: "Run the Rivet control plane with Docker Compose."
+description: "Run a single control plane instance with Docker Compose and connect your app to it."
 ---
+
+{/* TODO(release): replace 2.3.31 with the released version on every self-host page. */}
+{/* TODO(verify): run these steps against the published image, and confirm the image user can write to fresh named volumes. */}
+
+This runs one control plane instance that keeps its data on local Docker volumes. It is the fastest way to try Rivet. A single instance keeps one copy of your data, so use <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/vm">VMs</SelfHostLink> with three or more instances and a bucket for production.
 
 ## Requirements
 
-- Docker with the Compose plugin
-- A host with a persistent volume
+- Docker
+- About 10 GB of free disk space
 
 ## Steps
 
 <Steps>
 
-<Step title="Create docker-compose.yaml">
+<Step title="Write the config file">
 
-This is a single-node deployment on the file system backend. The named volume is what makes the data survive a restart.
+Save this as `rivet.json`. It keeps recent writes on one volume and the durable copy on another, and creates the instance's storage on first start.
 
-```yaml
-services:
-  rivet-engine:
-    image: rivetdev/engine:latest
-    ports:
-      - "6420:6420"
-    volumes:
-      - rivet-data:/data
-    environment:
-      RIVET__FILE_SYSTEM__PATH: "/data"
-      RIVET__AUTH__ADMIN_TOKEN: "${RIVET_ADMIN_TOKEN}"
-    restart: unless-stopped
+```json
+{
+	"depot": {
+		"log_directory": "/var/lib/rivet/log",
+		"auto_provision_tablets": 1,
+		"balancing": { "enabled": false }
+	},
+	"object_storage": {
+		"primary": { "file_system": { "path": "/var/lib/rivet/objects" } }
+	}
+}
+```
 
-volumes:
-  rivet-data:
+The quickstart keeps objects on a local volume. You can configure S3, GCS, Azure and other object storage on the <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> page.
+
+</Step>
+
+<Step title="Generate a Rivet token">
+
+```bash
+export RIVET_TOKEN="$(openssl rand -hex 32)"
+echo "$RIVET_TOKEN"
+```
+
+The control plane reads it from its `auth.admin_token` setting and refuses to start without one. Your app uses the same token to connect, so save it with your other backend secrets.
+
+</Step>
+
+<Step title="Start the instance">
+
+```bash
+docker run -d --name rivet \
+  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_TOKEN" \
+  -p 6420:6420 \
+  -v "$PWD/rivet.json:/etc/rivet/config.json:ro" \
+  -v rivet-log:/var/lib/rivet/log \
+  -v rivet-objects:/var/lib/rivet/objects \
+  rivetdev/engine:2.3.31
+```
+
+```bash
+curl http://localhost:6420/health
+```
+
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
 ```
 
 </Step>
 
-<Step title="Generate an admin token">
+<Step title="Connect your app">
+
+Point your app at the instance with `RIVET_ENDPOINT` and start it. It connects as a node in the `default` node pool.
 
 ```bash
-echo "RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)" >> .env
-```
-
-Without a token the API is unauthenticated. Keep `.env` out of version control.
-
-</Step>
-
-<Step title="Start it">
-
-```bash
-docker compose up -d
+export RIVET_ENDPOINT="http://default:$RIVET_TOKEN@localhost:6420"
+npm start
 ```
 
 </Step>
 
-<Step title="Verify">
+<Step title="Check that your Rivet Actors run">
+
+Call one of your Rivet Actors from a client, then list what the control plane is running:
 
 ```bash
-curl -i http://localhost:6420/health
+curl -H "Authorization: Bearer $RIVET_TOKEN" \
+  "http://localhost:6420/actors?namespace=default&name=counter"
 ```
 
-Expect `200`. The dashboard is at `http://localhost:6420/ui`; log in with the admin token.
-
-</Step>
-
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before adding your app:
-
-```bash
-curl -X PUT "http://localhost:6420/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
-```
-
-Use `normal` for the long-lived workers this file runs. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
-
-</Step>
-
-<Step title="Add a worker">
-
-Add your app to the same Compose file. Inside the Compose network it reaches the control plane at `rivet-engine:6420`.
-
-```yaml
-  my-app:
-    build: .
-    environment:
-      RIVET_ENDPOINT: "http://default:${RIVET_ADMIN_TOKEN}@rivet-engine:6420"
-    depends_on:
-      - rivet-engine
-    restart: unless-stopped
-```
-
-```bash
-docker compose up -d
-```
-
-Confirm the worker appears under **Runners** in the dashboard.
+The response lists the Rivet Actors named `counter`.
 
 </Step>
 
 </Steps>
 
-## Using PostgreSQL
+## Using Docker Compose
 
-Swap the file system backend for PostgreSQL when you outgrow one node.
+The same instance as a Compose service, with your app beside it:
 
 ```yaml
 services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: rivet
-      POSTGRES_USER: rivet
-      POSTGRES_PASSWORD: rivet_password
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rivet -d rivet"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-    restart: unless-stopped
-
-  rivet-engine:
-    image: rivetdev/engine:latest
+  rivet:
+    image: rivetdev/engine:2.3.31
     ports:
       - "6420:6420"
     environment:
-      RIVET__POSTGRES__URL: postgresql://rivet:rivet_password@postgres:5432/rivet
-      RIVET__AUTH__ADMIN_TOKEN: "${RIVET_ADMIN_TOKEN}"
+      RIVET__AUTH__ADMIN_TOKEN: "${RIVET_TOKEN}"
+    volumes:
+      - ./rivet.json:/etc/rivet/config.json:ro
+      - rivet-log:/var/lib/rivet/log
+      - rivet-objects:/var/lib/rivet/objects
+    restart: unless-stopped
+
+  my-app:
+    build: .
+    environment:
+      RIVET_ENDPOINT: "http://default:${RIVET_TOKEN}@rivet:6420"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - rivet
     restart: unless-stopped
 
 volumes:
-  postgres-data:
+  rivet-log:
+  rivet-objects:
 ```
 
-This file still runs a single engine container, so it is not yet a multi-node deployment. It is the prerequisite for one: the file system backend is single-node RocksDB and cannot be shared, while PostgreSQL can. Multi-node deployments also need NATS. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+Your app reaches the control plane at `rivet:6420` rather than `localhost`, so create the `default` node pool before it starts. The control plane refuses a node whose pool does not exist. See [Nodes & Node Pools](/docs/nodes#quickstart).
 
-## Using a config file
-
-Mount JSON instead of setting environment variables:
-
-```yaml
-    volumes:
-      - ./rivet-config.json:/etc/rivet/config.json:ro
-      - rivet-data:/data
+```bash
+docker compose up -d rivet
+curl -X PUT "http://localhost:6420/pools/default?namespace=default" -H "Authorization: Bearer $RIVET_TOKEN" -H 'Content-Type: application/json' -d '{}'
+docker compose up -d
 ```
 
-See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink> for the full schema.
+```json
+{"pool":{"name":"default","drain_on_version_upgrade":false,"actor_eviction_delay":0,"actor_eviction_period":0,"actor_eviction_rate":1.0,"metadata":null}}
+```
+
+Never delete the `rivet-log` volume while the instance has data: it holds writes that have not reached the `rivet-objects` volume yet.
 
 ## Next steps
 
-- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers">Deploy your workers</SelfHostLink>
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="nodes">Deploy nodes</SelfHostLink>
+- <SelfHostLink to="control-plane/kubernetes">Run a production cluster on Kubernetes</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

@@ -5,11 +5,11 @@
 Applies to all user-facing writing on the website (docs, marketing, blog). Internal code names are unaffected.
 
 - The service that routes, schedules, and persists Actors is the **control plane**. Never "engine", "server", or "orchestrator".
-- A process running the user's code with the Rivet SDK is a **worker**. Never "envoy", "runner", "node", "compute", or "data plane".
+- A process running the user's code with the Rivet SDK is a **node**; nodes sharing a pool name form a **node pool**. Never "envoy", "runner", "worker", "compute", or "data plane". Say "Node.js" for the runtime, "Kubernetes node" and "Kubernetes node pool" for cluster machines, and "control plane instance" for one control plane process. The node guides live at the `nodes/*` self-host slugs.
 - **"Actor" is always capitalized in prose**: "Rivet Actor", "Actors", "an Actor's state", "per-Actor SQLite". Never "actor" or "actors" in user-facing copy, headings, alt text, or captions. Code identifiers, paths (`/actors/docs/`), product IDs (`"actors"`), and CSS classes stay lowercase. Vendored product docs under `vendor/*` are synced from their own repos, so fix capitalization there upstream, not in the vendored copy.
 - **Never use "agent" as a deployment noun.** Rivet ships agentOS and Actors is "where agents live"; the collision is unrecoverable.
 - **"envoy" never appears on the website.** Envoy Proxy is a top-tier CNCF project. Internal code keeps `pegboard-envoy` / `envoy-client`.
-- **Rivet Compute is a live Rivet Cloud feature**, documented at `/docs/deploy/cloud/compute/`. Where prose must name the managed offering, it is **Rivet Cloud**. When describing what Rivet Cloud runs for the customer, say "your backend", never "your workers".
+- **Rivet Compute is a live Rivet Cloud feature**, documented at `/docs/deploy/cloud/compute/`. Where prose must name the managed offering, it is **Rivet Cloud**. When describing what Rivet Cloud runs for the customer, say "your backend", never "your nodes".
 - **Rivet Cloud docs live in the Deploy section at `/docs/deploy/cloud/`, BYOC at `/docs/deploy/byoc/`; the pricing page is `/pricing/`.** Dashboard links point at `https://dashboard.rivet.dev`.
 - **Positioning canon:** the tagline is "Infrastructure for the agentic era." with the supporting line "Orchestrate agents. Operate their environment. Automate their work. Deploy what they build." The phrase "infrastructure for long-lived software" is retired.
 - **"Self-Host" names the section; "control plane" names the thing.** Pages inside it say "deploy the control plane on Kubernetes".
@@ -35,9 +35,9 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 - Use tabs for variants (Rivet Cloud vs self-hosted, and the product switcher), never a forked page.
 - Pin versions in every snippet. No `:latest`.
 - `## Next steps` carries at most three links.
-- The control plane is stateful, so serverless platforms are worker-only. Adding a platform means updating `deployMatrix.ts`, which feeds both the sidebar and `getStaticPaths`.
-- **Platform support is uniform across every product, including agentOS.** agentOS runs inside Actors and the Actor supplies persistence, so it needs nothing extra from the host platform. Do not exclude it from serverless platforms.
-- Worker guides inherit one shared architecture diagram from the template. Do not add a per-guide diagram; platform detail belongs in the steps.
+- Each control plane instance needs its own persistent block-storage disk. Rivet has no serverless mode, so every node platform runs a long-lived process. Adding a platform means updating `deployMatrix.ts`, which feeds both the sidebar and `getStaticPaths`.
+- **Platform support is uniform across every product, including agentOS.** agentOS runs inside Actors and the Actor supplies persistence, so it needs nothing extra from the host platform.
+- Node guides inherit one shared architecture diagram from the template. Do not add a per-guide diagram; platform detail belongs in the steps.
 - Diagrams are hand-authored inline SVG via the `creating-docs-diagrams` skill, drawn in the figure accent (`highlight`, see Theme). Not Mermaid.
 
 ## Icons

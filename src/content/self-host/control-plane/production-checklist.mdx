@@ -1,50 +1,25 @@
 ---
 title: "Production Checklist"
-description: "Checklist for putting a self-hosted control plane into production."
+description: "Everything to check before a self-hosted Rivet cluster serves production traffic."
 ---
 
-<Tip>
-We recommend passing this page to your coding agent to verify your configuration before deploying.
-</Tip>
+## Control plane
 
-## Security
+- [ ] **Three or more instances**, each on its own machine, all on the same pinned version.
+- [ ] **A bucket** configured in `object_storage.primary`, with versioning turned on. Never the in-memory default or `file_system`. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+- [ ] **One persistent block-storage disk per instance**, mounted at `depot.log_directory`, at least 100 GiB, never shared.
+- [ ] **`api_peer.advertise_address`** set to each instance's private IP and port.
+- [ ] **Port `6421` reachable only between instances.** It is plaintext and unauthenticated. See <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>.
+- [ ] **A load balancer on port `6420`** with TLS and a one hour idle timeout.
+- [ ] **The Rivet token in a secret**, not in a committed file or image.
+- [ ] **Prometheus scraping port `6430`** on every instance.
+- [ ] **A tested restore.** See <SelfHostLink to="control-plane/backups">Backup & restore</SelfHostLink>.
 
-- **Configure an admin token.** Generate a strong random value and set `RIVET__AUTH__ADMIN_TOKEN`. Without one the API is unauthenticated. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
-- **Keep the admin token out of client reach.** It must never appear in a public endpoint or anywhere a browser can read it.
-- **Terminate TLS.** Every connection to the control plane should be encrypted at a reverse proxy or load balancer. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
-- **Disable crash reporting in locked-down environments.** The control plane sends crash reports to Rivet by default. Set `RIVET__TELEMETRY__ENABLED=false` for air-gapped or regulated deployments. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
+## Nodes
 
-## Resources
-
-- **Set container resource requests and limits.** The shipped Kubernetes manifests request **2 CPU and 2 GB** per control plane instance, with limits of 3 CPU and 4 GB. Size other platforms to match; 1 CPU is enough only for a quiet single-node deployment.
-- **Configure health checks.** Liveness and readiness probes against `/health` on port `6421`, with a five second timeout. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
-- **Raise load balancer idle timeouts to 3600 seconds.** Long-lived WebSockets are dropped by the 30 to 60 second defaults, which causes reconnect storms. This is the most common self-hosting mistake. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
-
-## Scaling
-
-- **Run two or more nodes.** A single control plane node is a single point of failure. Deploy at least two behind a load balancer.
-- **Do not run multiple file system nodes.** RocksDB is single-node. Multi-node deployments need PostgreSQL or FoundationDB. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-- **Configure autoscaling, on a shared backend only.** Target 60% CPU and 80% memory to leave headroom for traffic spikes. In Kubernetes this is a Horizontal Pod Autoscaler, and the shipped manifests include one at 2 to 10 replicas with a 15 minute scale-down stabilization window. Memory is a backstop rather than a scaling signal: it does not fall as fast as CPU, so scaling in needs to wait it out. Never autoscale a node on the file system backend: adding replicas to a single-node RocksDB deployment corrupts it.
-- **Check the rate limit on your serverless worker platform.** Actor start requests all originate from your control plane nodes, so they come from a small set of IPs. Per-IP rate limits throttle the control plane long before they would throttle end-user traffic. Size the limit to your peak actor create and wake rate.
-
-## Storage
-
-- **Choose the backend that matches your node count.** File system for a single node, PostgreSQL for multi-node up to roughly 1,000 concurrent actors, FoundationDB beyond that. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-- **Configure automated backups**, and restore one into a scratch environment to prove the path works. See <SelfHostLink to="control-plane/backups">Backup & Restore</SelfHostLink>.
-- **Configure failover.** A standby replica with automatic failover, for PostgreSQL.
-- **Deploy two or more NATS replicas** for multi-node pub/sub high availability.
-
-## Operations
-
-- **Pin the image tag.** Never run `latest` in production. See <SelfHostLink to="control-plane/upgrades">Upgrades</SelfHostLink>.
-- **Configure OpenTelemetry.** Set `RIVET_OTEL_ENABLED=1` and point `RIVET_OTEL_GRPC_ENDPOINT` at your collector. Tune `RIVET_OTEL_SAMPLER_RATIO` for trace volume.
-- **Set up alerts.** CPU, memory, request latency, and error rates, with thresholds that fire before an outage rather than during one.
-
-## Enterprise
-
-Contact [enterprise support](/talk-to-an-engineer/) for architecture review, scaling guidance, and FoundationDB.
+See the <SelfHostLink to="nodes/production-checklist">node production checklist</SelfHostLink>.
 
 ## Next steps
 
-- <SelfHostLink to="workers/production-checklist">Worker production checklist</SelfHostLink>
 - <SelfHostLink to="control-plane/upgrades">Upgrades</SelfHostLink>
+- <SelfHostLink to="control-plane/backups">Backup & restore</SelfHostLink>

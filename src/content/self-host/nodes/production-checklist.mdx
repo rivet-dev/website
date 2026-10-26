@@ -1,0 +1,16 @@
+---
+title: "Production Checklist"
+description: "What to check before your nodes serve production traffic."
+---
+
+- [ ] **A namespace and a created node pool** matching the node endpoint and `RIVET_POOL`. See [Nodes & Node Pools](/docs/nodes).
+- [ ] **`RIVET_ENDPOINT` in a secret** on every node. See <SelfHostLink to="nodes">Nodes</SelfHostLink>.
+- [ ] **At least 60 seconds between `SIGTERM` and `SIGKILL`**, delivered to the `node` process itself, not a wrapper such as `npm start`.
+- [ ] **At least two nodes per node pool**, so Rivet Actors have somewhere to wake during a rollout.
+- [ ] **No idle sleeping or scale to zero** on the platform. A node holds an outbound connection, and a suspended node cannot receive Rivet Actors.
+- [ ] **A one hour idle timeout** on any proxy between your nodes and the control plane. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+- [ ] **Health and metrics routes** mounted if your platform probes the process. See <SelfHostLink to="nodes/health-checks">Health checks</SelfHostLink>.
+
+## Next steps
+
+- <SelfHostLink to="control-plane/production-checklist">Control plane production checklist</SelfHostLink>

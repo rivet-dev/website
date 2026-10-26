@@ -1,32 +1,23 @@
 import {
 	faAws,
-	faCloudflare,
 	faDocker,
-	faFreestyle,
-	faGoogleCloud,
+	faHetzner,
 	faKubernetes,
 	faRailway,
 	faRender,
 	faRocket,
 	faServer,
-	faSupabase,
-	faVercel,
 } from "@rivet-gg/icons";
 
 export type Provider =
 	| "docker-compose"
 	| "kubernetes"
 	| "vm"
+	| "hetzner"
 	| "aws-ecs"
 	| "railway"
 	| "render"
-	| "custom"
-	| "vercel"
-	| "cloudflare-workers"
-	| "gcp-cloud-run"
-	| "aws-lambda"
-	| "supabase-functions"
-	| "freestyle";
+	| "custom";
 
 /**
  * The two things a platform can host. A worker runs the user's code with the
@@ -35,9 +26,8 @@ export type Provider =
 export type DeployRole = "worker" | "control-plane";
 
 /**
- * Three-valued so the template can render a caveat automatically. A boolean
- * cannot express "yes, but": Lambda hosting long-lived actors works and is
- * usually a bad idea, and Cloud Run cold-starts without min-instances.
+ * Three-valued so a listing can rank platforms: Kubernetes is the
+ * recommended home for both halves, the rest are supported.
  */
 export type DeploySupport = "recommended" | "supported" | "unsupported";
 
@@ -56,10 +46,8 @@ export interface DeployOption {
 	/** If true, this platform should NOT be shown for generic deploy guides for Node/Bun-specific platforms. */
 	specializedPlatform?: boolean;
 	/**
-	 * Which halves this platform can host. The control plane is stateful, so it
-	 * needs persistent storage and stable network identity; every serverless
-	 * platform is therefore worker-only. That is one property, not a
-	 * per-platform exception.
+	 * Which halves this platform can host. Each control plane instance needs
+	 * its own persistent block-storage disk and a stable private address.
 	 */
 	support: Record<DeployRole, DeploySupport>;
 }
@@ -93,6 +81,15 @@ export const deployOptions: DeployOption[] = [
 		support: { worker: "supported", "control-plane": "supported" },
 	},
 	{
+		displayName: "Hetzner",
+		name: "hetzner",
+		slug: "hetzner",
+		description:
+			"Run on Hetzner Cloud servers with volumes and Object Storage",
+		icon: faHetzner as any,
+		support: { worker: "supported", "control-plane": "supported" },
+	},
+	{
 		displayName: "AWS ECS",
 		shortTitle: "AWS",
 		name: "aws-ecs",
@@ -114,7 +111,7 @@ export const deployOptions: DeployOption[] = [
 		displayName: "Render",
 		name: "render",
 		slug: "render",
-		description: "Deploy Rivet to Render with managed PostgreSQL and automatic HTTPS",
+		description: "Deploy Rivet to Render with a persistent disk and automatic HTTPS",
 		icon: faRender as any,
 		support: { worker: "supported", "control-plane": "supported" },
 	},
@@ -127,62 +124,6 @@ export const deployOptions: DeployOption[] = [
 			"Integrate Rivet with any other hosting platform of your choice",
 		icon: faRocket as any,
 		support: { worker: "supported", "control-plane": "supported" },
-	},
-	{
-		displayName: "Vercel",
-		name: "vercel",
-		slug: "vercel",
-		description: "Deploy Next.js + Rivet apps to Vercel's edge network",
-		icon: faVercel as any,
-		support: { worker: "supported", "control-plane": "unsupported" },
-	},
-	{
-		displayName: "Cloudflare Workers",
-		shortTitle: "Cloudflare",
-		name: "cloudflare-workers",
-		slug: "cloudflare",
-		description: "Run Rivet on Cloudflare Workers with the WebAssembly runtime",
-		icon: faCloudflare as any,
-		specializedPlatform: true,
-		support: { worker: "supported", "control-plane": "unsupported" },
-	},
-	{
-		displayName: "Google Cloud Run",
-		shortTitle: "GCP",
-		name: "gcp-cloud-run",
-		slug: "gcp-cloud-run",
-		description: "Deploy containers to Google Cloud Run for auto-scaling",
-		icon: faGoogleCloud,
-		support: { worker: "supported", "control-plane": "unsupported" },
-	},
-	{
-		displayName: "AWS Lambda",
-		shortTitle: "Lambda",
-		name: "aws-lambda",
-		slug: "aws-lambda",
-		description: "Run Rivet workers on AWS Lambda functions",
-		icon: faAws as any,
-		support: { worker: "supported", "control-plane": "unsupported" },
-	},
-	{
-		displayName: "Supabase Functions",
-		shortTitle: "Supabase",
-		name: "supabase-functions",
-		slug: "supabase",
-		description:
-			"Run Rivet on Supabase Edge Functions with the WebAssembly runtime",
-		icon: faSupabase,
-		specializedPlatform: true,
-		support: { worker: "supported", "control-plane": "unsupported" },
-	},
-	{
-		displayName: "Freestyle",
-		name: "freestyle",
-		slug: "freestyle",
-		description: "Run AI-generated Rivet backends on Freestyle's sandboxed Deno runtime",
-		icon: faFreestyle as any,
-		specializedPlatform: true,
-		support: { worker: "supported", "control-plane": "unsupported" },
 	},
 ];
 

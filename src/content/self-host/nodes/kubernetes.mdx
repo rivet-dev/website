@@ -1,0 +1,131 @@
+---
+title: "Kubernetes"
+description: "Run Rivet nodes on Kubernetes."
+---
+
+Your pod runs as a node: it opens a connection out to the control plane on startup. It needs no `Service`, no Ingress, and no public URL, only outbound network access.
+
+## Requirements
+
+A namespace and a node pool created with `PUT /pools/{pool}` (see [Nodes & Node Pools](/docs/nodes#quickstart)). In local development, RivetKit creates the `default` pool for you.
+
+- A Kubernetes cluster with `kubectl` access
+- Container registry credentials
+- A running <SelfHostLink to="control-plane">control plane</SelfHostLink>
+
+## Steps
+
+<Steps>
+
+<Step title="Package your app">
+
+```dockerfile
+FROM node:24-slim
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+CMD ["node", "server.js"]
+```
+
+Rivet requires Node.js 22 or newer. A node listens on no port.
+
+</Step>
+
+<Step title="Build and push">
+
+```bash
+docker build -t registry.example.com/your-team/rivet-node:1.0.0 .
+docker push registry.example.com/your-team/rivet-node:1.0.0
+```
+
+</Step>
+
+<Step title="Configure the connection">
+
+```yaml rivet-node-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rivet-node-secrets
+type: Opaque
+stringData:
+  RIVET_ENDPOINT: <your-rivet-endpoint>
+```
+
+The value is described in <SelfHostLink to="nodes">Deploy Nodes</SelfHostLink>.
+
+The name is scoped to the node so it does not collide with the control plane's `rivet` secret if you run both in one namespace.
+
+</Step>
+
+<Step title="Deploy">
+
+`terminationGracePeriodSeconds` matters here. Each Rivet Actor gets up to 15 seconds to save its state, and `60` covers that plus shutdown overhead. The Kubernetes default of 30 seconds can cut actors off mid-drain.
+
+```yaml deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rivet-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rivet-node
+  template:
+    metadata:
+      labels:
+        app: rivet-node
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: rivet-node
+          image: registry.example.com/your-team/rivet-node:1.0.0
+          envFrom:
+            - secretRef:
+                name: rivet-node-secrets
+```
+
+```bash
+kubectl apply -f rivet-node-secrets.yaml
+kubectl apply -f deployment.yaml
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+kubectl get pods -l app=rivet-node
+```
+
+```
+NAME                            READY   STATUS    RESTARTS   AGE
+rivet-node-7d4c8b9f5d-x2klm   1/1     Running   0          20s
+```
+
+Once the pod is ready it serves Rivet Actors. Create the node pool before starting nodes. See [Nodes & Node Pools](/docs/nodes#quickstart).
+
+</Step>
+
+</Steps>
+
+## Autoscaling
+
+Nodes are interchangeable, so `replicas` can be raised freely or driven by a HorizontalPodAutoscaler on CPU. Nothing needs re-registering; new pods dial out and start serving Rivet Actors.
+
+```bash
+kubectl autoscale deployment rivet-node --cpu-percent=60 --min=2 --max=10
+```
+
+Scale-down is the part that needs care. A pod the autoscaler removes still drains for up to a minute under `terminationGracePeriodSeconds: 60`, so it keeps serving its actors briefly after the HPA has stopped counting it. Set a scale-down stabilization window that matches, or the autoscaler will keep removing pods that have not actually released their capacity.
+
+## If you expose the node
+
+A node does not need an Ingress to run actors. If you add one anyway, raise its idle timeout to `3600` seconds: nodes connect over WebSocket and the defaults will sever them. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/kubernetes">Run the control plane on Kubernetes</SelfHostLink>

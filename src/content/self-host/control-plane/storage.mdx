@@ -1,175 +1,193 @@
 ---
 title: "Storage"
-description: "Persistence backends for the control plane: file system, PostgreSQL, and FoundationDB."
+description: "The bucket and disks the control plane stores Rivet Actor data on, how to configure them, and what losing one means."
 ---
 
-The control plane is stateful. Pick a backend by how many control plane nodes you run.
+Each Rivet Actor's data lives in its own durable volume, which holds both its SQLite database and its key-value data. The control plane stores volumes in two places:
 
-| | File system (RocksDB) | PostgreSQL | FoundationDB |
-| --- | --- | --- | --- |
-| **Nodes** | Single node only | Multi-node | Multi-node |
-| **Scalability** | One node | Primary/replica failover | Linear horizontal scaling |
-| **Fault tolerance** | None | Primary/replica failover | Automatic recovery with no data loss |
-| **Suited to** | Development, single-node production, air-gapped hosts | Light-to-moderate multi-node workloads | Battle-tested at global scale |
-| **Availability** | Open source | Open source | [Enterprise](/talk-to-an-engineer/) |
-
-Multi-node deployments also need a pub/sub backend so nodes can coordinate. See [Pub/sub](#pubsub-nats) below.
-
-## File system
-
-RocksDB on the local disk. It is local to one node and cannot be shared, so it is the right choice for exactly one control plane instance and the wrong choice for two.
-
-<CodeGroup>
-
-```json Configuration-file
-{
-  "file_system": {
-    "path": "/var/lib/rivet/data"
-  }
-}
-```
-
-```bash Environment-variables
-RIVET__FILE_SYSTEM__PATH="/var/lib/rivet/data"
-```
-
-</CodeGroup>
-
-With no path set, the engine uses a platform default:
-
-| Platform | Default path |
-| --- | --- |
-| Linux | `~/.local/share/rivet-engine/db` |
-| macOS | `~/Library/Application Support/rivet-engine/db` |
-| Windows | `%LOCALAPPDATA%\rivet-engine\db` |
-
-In a container or as a service the path defaults to `./data/db`, relative to the working directory. Always mount a volume at whatever path you choose.
-
-## PostgreSQL
-
-The recommended backend for multi-node deployments. It is production-ready for light-to-moderate workloads, up to roughly 1,000 concurrent actors. Past that, or for high-throughput realtime workloads, contact [enterprise support](/talk-to-an-engineer/) about FoundationDB.
-
-<CodeGroup>
-
-```json Configuration-file
-{
-  "postgres": {
-    "url": "postgresql://user:password@host:5432/database"
-  }
-}
-```
-
-```bash Environment-variables
-RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database"
-```
-
-</CodeGroup>
-
-### Do not use a connection pooler
-
-The engine needs direct connections for session-level features. PgBouncer, Supavisor, and AWS RDS Proxy are not supported. Where a managed provider offers both, use the direct connection string, not the pooled one.
-
-### TLS
-
-Add `sslmode` to the connection URL:
-
-| Value | Behavior |
-| --- | --- |
-| `disable` | Never use TLS |
-| `prefer` | Use TLS if available (default) |
-| `require` | Require TLS, fail if unavailable |
-
-`require` encrypts the connection but does not verify the server certificate. To verify against a CA, or to authenticate with a client certificate, set the paths explicitly:
-
-<CodeGroup>
-
-```json Configuration-file
-{
-  "postgres": {
-    "url": "postgresql://user:password@host:5432/database?sslmode=require",
-    "ssl": {
-      "root_cert_path": "/path/to/root-ca.crt",
-      "client_cert_path": "/path/to/client.crt",
-      "client_key_path": "/path/to/client.key"
-    }
-  }
-}
-```
-
-```bash Environment-variables
-RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database?sslmode=require"
-RIVET__POSTGRES__SSL__ROOT_CERT_PATH="/path/to/root-ca.crt"
-RIVET__POSTGRES__SSL__CLIENT_CERT_PATH="/path/to/client.crt"
-RIVET__POSTGRES__SSL__CLIENT_KEY_PATH="/path/to/client.key"
-```
-
-</CodeGroup>
-
-| Parameter | Description | PostgreSQL equivalent |
+| | Disk | Bucket |
 | --- | --- | --- |
-| `root_cert_path` | Root certificate used to verify the server | `sslrootcert` |
-| `client_cert_path` | Client certificate for client authentication | `sslcert` |
-| `client_key_path` | Client private key for client authentication | `sslkey` |
+| **What it holds** | Recent writes, replicated to the disks of several instances, plus a read cache | The durable copy of every volume |
+| **When data lands there** | Before a write is acknowledged | In the background, shortly after |
+| **How many** | One per control plane instance | One per cluster |
 
-All three are optional. Without them the engine uses the system root certificates.
+A write is acknowledged once a majority of the instances holding that volume have it on disk, so losing one instance loses no acknowledged write.
 
-### Managed provider notes
+## Bucket
+
+Set `object_storage.primary` to one backend. Use S3, an S3-compatible store, Google Cloud Storage or Azure Blob Storage in production. The local file system and in-memory backends are for trying Rivet on one machine.
 
 <Tabs>
-<Tab title="PlanetScale">
+<Tab title="Amazon S3">
 
-Use the direct connection, not the connection pooler.
-
-```bash
-RIVET__POSTGRES__URL="postgresql://pscale_api_<username>.<unique-id>:<password>@<region>.pg.psdb.cloud:5432/postgres?sslmode=require"
+```json
+{
+	"object_storage": {
+		"primary": {
+			"s3": {
+				"bucket": "my-rivet-bucket",
+				"region": "us-east-1",
+				"access_key_id": "AKIA...",
+				"secret_access_key": "..."
+			}
+		}
+	}
+}
 ```
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| `bucket` | Yes | The bucket name. |
+| `region` | No | The bucket's region. |
+| `access_key_id`, `secret_access_key` | No | Static credentials. Leave them out to use the environment's AWS credentials, such as the instance's IAM role. |
+| `endpoint` | No | The URL of an S3-compatible store. See the S3-compatible tab. |
+| `prefix` | No | A path in the bucket to store Rivet's objects under. |
 
 </Tab>
-<Tab title="Supabase">
+<Tab title="S3-compatible">
 
-Use the direct connection on port `5432`, not the pooler.
+For MinIO, Cloudflare R2, Hetzner Object Storage and other S3-compatible stores, use the `s3` backend and add `endpoint`:
 
-Without SSL:
-
-```bash
-RIVET__POSTGRES__URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=disable"
+```json
+{
+	"object_storage": {
+		"primary": {
+			"s3": {
+				"bucket": "rivet",
+				"endpoint": "https://minio.example.com:9000",
+				"region": "us-east-1",
+				"access_key_id": "...",
+				"secret_access_key": "..."
+			}
+		}
+	}
+}
 ```
 
-With SSL, download the root certificate from your Supabase dashboard and point at it. See [Supabase SSL enforcement](https://supabase.com/docs/guides/platform/ssl-enforcement).
+The other fields are the same as for Amazon S3.
 
-```bash
-RIVET__POSTGRES__URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require"
-RIVET__POSTGRES__SSL__ROOT_CERT_PATH="/path/to/supabase-ca.crt"
+</Tab>
+<Tab title="Google Cloud Storage">
+
+```json
+{
+	"object_storage": {
+		"primary": {
+			"gcs": {
+				"bucket": "my-rivet-bucket",
+				"service_account_key": "<service account key JSON>"
+			}
+		}
+	}
+}
 ```
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| `bucket` | Yes | The bucket name. |
+| `service_account_key` | No | A service account key in JSON. Leave it out to use application default credentials, such as the instance's service account. |
+| `prefix` | No | A path in the bucket to store Rivet's objects under. |
+
+</Tab>
+<Tab title="Azure Blob Storage">
+
+```json
+{
+	"object_storage": {
+		"primary": {
+			"azure": {
+				"account": "myaccount",
+				"container": "rivet",
+				"access_key": "..."
+			}
+		}
+	}
+}
+```
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| `account` | Yes | The storage account name. |
+| `container` | Yes | The container name. |
+| `access_key` | No | The storage account access key. Leave it out to use credentials from the environment or a managed identity. |
+| `prefix` | No | A path in the container to store Rivet's objects under. |
+
+</Tab>
+<Tab title="Local file system">
+
+```json
+{
+	"object_storage": {
+		"primary": {
+			"file_system": { "path": "/var/lib/rivet/objects" }
+		}
+	}
+}
+```
+
+`path` is the only field. The control plane creates the directory if it is missing.
+
+Only one control plane process may use the directory at a time. Its conditional writes are atomic only within that process, so never share the directory between instances, even over a shared volume. Use it for single-instance setups such as the <SelfHostLink to="control-plane/docker-compose">quickstart</SelfHostLink>.
+
+</Tab>
+<Tab title="In memory">
+
+```json
+{
+	"object_storage": {
+		"primary": "in_memory"
+	}
+}
+```
+
+This is the default when `object_storage.primary` is not set. Data lives in the control plane process and is lost when it restarts. Use it only to try Rivet locally or in tests, with one instance.
 
 </Tab>
 </Tabs>
 
-## FoundationDB
+The `s3`, `gcs` and `azure` backends accept `prefix` to store Rivet's objects under a path in a shared bucket. Give the control plane its own bucket or prefix, and never point two clusters at the same one.
 
-A distributed, ordered key-value store originally built by Apple, and the backend behind iCloud, Snowflake's metadata layer, Datadog, and Tigris. Its strict serializability, fault tolerance, and linear scaling make it the right fit for large deployments.
+<Warning>
+The in-memory backend loses every Rivet Actor's data on restart, and the `file_system` backend keeps it on one machine. Neither belongs in production. See the <SelfHostLink to="control-plane/production-checklist">production checklist</SelfHostLink>.
+</Warning>
 
-FoundationDB requires an enterprise license. Cluster setup is handled during onboarding. Contact [enterprise support](/talk-to-an-engineer/) to get started.
+### Environment variables
 
-## Pub/sub (NATS)
+Every setting above can also be set with environment variables, as described in <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>. The S3 example as environment variables:
 
-Multi-node deployments use NATS to coordinate realtime messaging between control plane nodes. Single-node deployments need no pub/sub configuration at all.
-
-```json
-{
-  "postgres": {
-    "url": "postgresql://user:password@host:5432/database"
-  },
-  "nats": {
-    "addresses": ["nats:4222"]
-  }
-}
+```bash
+RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET=my-rivet-bucket
+RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION=us-east-1
+RIVET__OBJECT_STORAGE__PRIMARY__S3__ACCESS_KEY_ID=AKIA...
+RIVET__OBJECT_STORAGE__PRIMARY__S3__SECRET_ACCESS_KEY=...
+RIVET__OBJECT_STORAGE__PRIMARY__S3__ENDPOINT=https://minio.example.com:9000
+RIVET__OBJECT_STORAGE__PRIMARY__S3__PREFIX=rivet
 ```
 
-Run at least two NATS replicas for high availability.
+Set only the fields you need. The same pattern works for the other backends, for example `RIVET__OBJECT_STORAGE__PRIMARY__GCS__BUCKET` and `RIVET__OBJECT_STORAGE__PRIMARY__AZURE__CONTAINER`.
+
+## Disks
+
+Set `depot.log_directory` to a directory on the instance's disk. The directory must already exist.
+
+- **One disk per instance.** The disk holds the instance's identity. Never share it, copy it to another instance, or mount it on two instances.
+- **Block storage only.** Use local SSDs or block volumes such as EBS or Persistent Disk. Network file systems such as NFS and EFS are not supported.
+- **Size.** The control plane sizes its use of the disk from the free space at startup and keeps at least 10% free. Give each instance at least 100 GiB in production.
+
+The read cache lives in the same directory by default. Move it to another disk with `depot.cold_store.disk_cache_directory`; it is disposable.
+
+## Losing a disk or an instance
+
+| What is lost | What happens |
+| --- | --- |
+| One instance of three or more | Nothing is lost. After about two minutes the control plane rebuilds its replicas on the remaining instances. |
+| A single-instance setup's disk | Writes that had not reached the bucket yet are lost. |
+| The bucket | Every volume's durable copy is lost. See <SelfHostLink to="control-plane/backups">Backup & restore</SelfHostLink>. |
+
+{/* TODO(verify): measure the replica rebuild after losing one instance of three on a real cluster, and confirm a replaced disk rejoins as a new instance with no operator step. */}
 
 ## Next steps
 
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
-- <SelfHostLink to="control-plane/backups">Backups</SelfHostLink>
+- <SelfHostLink to="control-plane/backups">Backup & restore</SelfHostLink>
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

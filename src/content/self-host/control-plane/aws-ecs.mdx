@@ -1,145 +1,72 @@
 ---
 title: "AWS ECS"
-description: "Run the Rivet control plane on AWS ECS with Fargate."
+description: "Run the control plane on Amazon ECS with an EBS volume per task and an S3 bucket."
 ---
+
+{/* TODO(verify): run this on ECS and confirm each task keeps the same EBS volume across restarts. ECS attaches a fresh EBS volume to each new task unless it is restored from a snapshot, which would replace the instance each time. Kubernetes or VMs are the tested paths. */}
 
 ## Requirements
 
-- An AWS account with ECS and Fargate available
-- An EFS file system, or an RDS PostgreSQL instance, for persistence
-- An Application Load Balancer in front of the service
-- AWS Secrets Manager, or SSM Parameter Store, for the admin token
-
-<Note>
-A published Terraform module for the control plane does not exist yet. The [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs) covers workers, not the control plane. The steps below are the generic container requirements mapped onto ECS.
-</Note>
+- An ECS cluster on the EC2 launch type, with instances in at least three availability zones
+- An S3 bucket and an IAM task role that can read, write, list and delete in it
+- One EBS volume per control plane instance, mounted on its host
 
 ## Steps
 
 <Steps>
 
-<Step title="Provision storage">
-
-Fargate task storage is ephemeral, so the data directory must live outside the task.
-
-- **Single node:** create an EFS file system and mount it into the task at `/data`.
-- **Multi-node:** create an RDS PostgreSQL instance instead and skip the volume. Use the direct endpoint, not RDS Proxy, which is not supported. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-</Step>
-
-<Step title="Store the admin token">
+<Step title="Store the Rivet token">
 
 ```bash
-aws secretsmanager create-secret \
-  --name rivet/admin-token \
+aws secretsmanager create-secret --name rivet-admin-token \
   --secret-string "$(openssl rand -hex 32)"
 ```
-
-Reference it from the task definition's `secrets` block rather than putting it in `environment`.
 
 </Step>
 
 <Step title="Define the task">
 
-Use a pinned image tag, expose both ports, and mount the volume.
-
-```json
-{
-  "family": "rivet-engine",
-  "requiresCompatibilities": ["FARGATE"],
-  "networkMode": "awsvpc",
-  "cpu": "1024",
-  "memory": "2048",
-  "containerDefinitions": [
-    {
-      "name": "rivet-engine",
-      "image": "rivetdev/engine:2.3.3",
-      "portMappings": [
-        { "containerPort": 6420 },
-        { "containerPort": 6421 }
-      ],
-      "environment": [
-        { "name": "RIVET__FILE_SYSTEM__PATH", "value": "/data" }
-      ],
-      "secrets": [
-        {
-          "name": "RIVET__AUTH__ADMIN_TOKEN",
-          "valueFrom": "arn:aws:secretsmanager:REGION:ACCOUNT:secret:rivet/admin-token"
-        }
-      ],
-      "mountPoints": [
-        { "sourceVolume": "rivet-data", "containerPath": "/data" }
-      ]
-    }
-  ],
-  "volumes": [
-    {
-      "name": "rivet-data",
-      "efsVolumeConfiguration": { "fileSystemId": "fs-XXXXXXXX" }
-    }
-  ]
-}
-```
-
-1 CPU and 2 GB of RAM is the recommended minimum per instance.
-
-</Step>
-
-<Step title="Raise the ALB idle timeout">
-
-The ALB default is 60 seconds, which severs long-lived WebSockets and causes reconnect storms.
+Run `rivetdev/engine:2.3.31` with the command `["--config", "/etc/rivet"]`, `awsvpc` networking and these settings. Mount the host's EBS volume at `/var/lib/rivet/log`.
 
 ```bash
-aws elbv2 modify-load-balancer-attributes \
-  --load-balancer-arn <arn> \
-  --attributes Key=idle_timeout.timeout_seconds,Value=3600
+RIVET__AUTH__ADMIN_TOKEN=<from the secret>
+RIVET__DEPOT__LOG_DIRECTORY=/var/lib/rivet/log
+RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET=my-rivet-bucket
+RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION=us-east-1
+RIVET__API_PEER__ADVERTISE_ADDRESS=<task private IP>:6421
 ```
 
-Point the target group at container port `6420` and terminate TLS on the listener. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+Leave out the S3 keys to use the task role. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends. Set `stopTimeout` to 120 seconds, the most ECS allows. An instance can take up to about ten minutes to shut down, so ECS may stop a task before its shutdown finishes.
 
 </Step>
 
-<Step title="Configure health checks">
+<Step title="Allow port 6421 between tasks">
 
-Set the target group health check path to `/health` on port `6421`, with a five second timeout.
+Allow `6421` only from the control plane's own security group. It is plaintext and unauthenticated. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+</Step>
+
+<Step title="Add a load balancer">
+
+Point an Application Load Balancer at port `6420`, health-check `/health`, and raise its idle timeout to `3600` seconds.
 
 </Step>
 
 <Step title="Verify">
 
 ```bash
-aws ecs describe-services --cluster <cluster> --services rivet-engine \
-  --query 'services[0].deployments[0].rolloutState'
+curl https://rivet.example.com/health
 ```
 
-Expect `COMPLETED`. Then open `/ui` on the load balancer hostname and log in with the admin token.
-
-</Step>
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
-
-```bash
-curl -X PUT "http://<load-balancer-host>/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
 ```
-
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
 
 </Step>
 
 </Steps>
 
-## Scaling past one task
-
-EFS-backed file system storage is single-node: RocksDB cannot be shared between tasks. Before raising the desired count above one, move to RDS PostgreSQL and add NATS for pub/sub. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-Once on RDS, ECS Service Auto Scaling can drive the desired count. Use target tracking on average CPU at 60%, matching the <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> manifests, and keep a minimum of two tasks so the service survives losing one. Leave the desired count at one for as long as the task is on EFS.
-
 ## Next steps
 
+- <SelfHostLink to="nodes/aws-ecs">Run your nodes on ECS</SelfHostLink>
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers/aws-ecs">Deploy workers on AWS ECS</SelfHostLink>
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

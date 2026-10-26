@@ -26,7 +26,7 @@ import { selfHostGuides } from '@/sitemap/deployMatrix';
 const SECTION_LABELS: Record<string, string> = {
 	cloud: 'Rivet Cloud',
 	byoc: 'Rivet BYOC',
-	'self-host/workers': 'Rivet Worker Self-Host',
+	'self-host/nodes': 'Rivet Node Self-Host',
 	'self-host/control-plane': 'Rivet Control Plane Self-Host',
 	'self-host': 'Rivet Self-Host',
 };
@@ -38,7 +38,7 @@ export async function getStaticPaths() {
 	const byId = new Map(selfHost.map((entry) => [entry.id, entry]));
 	for (const guide of selfHostGuides()) {
 		// `index` collapses to the section root in the glob loader, so
-		// `workers/index.mdx` has the id `workers`.
+		// `nodes/index.mdx` has the id `nodes`.
 		const entry = byId.get(guide.slug);
 		if (!entry) {
 			throw new Error(

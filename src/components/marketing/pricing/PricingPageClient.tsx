@@ -64,7 +64,7 @@ const SelfHostingComparison = () => {
       cta: 'Get Started',
       href: 'https://dashboard.rivet.dev',
       primary: true,
-      secondaryLink: { label: 'Connect your own compute', href: '/docs/deploy/self-host/workers/' },
+      secondaryLink: { label: 'Connect your own nodes', href: '/docs/deploy/self-host/nodes/' },
     },
     {
       title: 'Bring your own cloud',

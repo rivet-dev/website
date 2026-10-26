@@ -288,16 +288,14 @@ export const ColdStartSection = () => (
 			unit: "cold start",
 			method: (
 				<>
-					{COLD_START.method} Uses an{" "}
+					{COLD_START.method}{" "}
 					<a
-						href={COLD_START.experimental.href}
-						target="_blank"
-						rel="noopener noreferrer"
+						href={COLD_START.benchmarkHref}
 						className="text-pine underline decoration-pine/40 underline-offset-2 hover:decoration-pine"
 					>
-						{COLD_START.experimental.label}
-					</a>{" "}
-					that {COLD_START.experimental.status}.
+						See the benchmark
+					</a>
+					.
 				</>
 			),
 		}}

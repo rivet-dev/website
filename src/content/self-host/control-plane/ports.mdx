@@ -1,57 +1,39 @@
 ---
 title: "Ports"
-description: "Every port the control plane listens on and what talks to it. Guides link here instead of restating."
+description: "Every port a control plane instance listens on, and which ones to expose."
 ---
 
-| Port | Purpose | Who connects | Expose publicly |
+| Port | Serves | Who connects | Expose |
 | --- | --- | --- | --- |
-| `6420` | API, dashboard, and WebSocket traffic | Clients, workers, your backend | Yes, behind TLS |
-| `6421` | api-peer, the internal peer API, which also serves health checks | Other control plane nodes and regions, and your orchestrator's liveness and readiness probes | No |
+| `6420` | API, Rivet Actor traffic and node connections | Clients, nodes, your backend | Yes, through a load balancer with TLS |
+| `6421` | Internal traffic between instances | Other control plane instances only | **Never.** Private network only. |
+| `6430` | Prometheus metrics at `/metrics` | Your monitoring | Private network only |
 
-## 6420: API and WebSocket
+Change a port with `guard.port`, `api_peer.port` or `metrics.port`. See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>.
 
-Everything that talks to the control plane uses this port: the dashboard at `/ui`, the HTTP API, and the WebSocket connections that carry both client traffic and envoy traffic.
+## 6420: public traffic
 
-Put a reverse proxy or load balancer in front of it and terminate TLS there. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
+Clients, nodes and your backend all use this port. Put a load balancer in front of every instance and terminate TLS there. Probe `/health` on this port.
 
 ### Raise the idle timeout
 
-This is the single most common self-hosting mistake. Rivet holds long-lived WebSocket connections open on this port, and the default idle timeout on most ingress controllers and cloud load balancers is 30 to 60 seconds. Those defaults sever live connections and cause reconnect storms.
+Nodes and clients hold long-lived WebSocket connections on this port. Most load balancers and ingress controllers close idle connections after 30 to 60 seconds, which causes reconnect storms. Raise the idle, read and send timeouts to one hour (`3600` seconds) on every proxy in the path:
 
-Raise the idle, read, and send timeouts to at least one hour (`3600` seconds) on **every** proxy in the path.
+- **NGINX Ingress**: annotations `nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"` and `nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"`.
+- **AWS Load Balancer Controller**: `alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600`.
+- **GKE Ingress**: `timeoutSec: 3600` on the `BackendConfig` of the Service.
 
-- **NGINX Ingress**, as annotations on the Ingress:
+## 6421: between instances
 
-    ```yaml
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    ```
+Instances send each other internal storage and coordination traffic on this port. **It is plaintext and unauthenticated**, so anyone who can reach it can read and change Rivet Actor data. Allow it only between control plane instances, with a firewall rule, a security group or a Kubernetes NetworkPolicy. See the example in <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink>.
 
-- **AWS Load Balancer Controller (ALB)**:
+Each instance binds this port to the host of its `api_peer.advertise_address`, or to `127.0.0.1` when none is set. Set `advertise_address` to the instance's private IP and port, such as `10.0.0.11:6421`. When it is a DNS name, also set `api_peer.host` to the private IP to bind.
 
-    ```yaml
-    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
-    ```
+## 6430: metrics
 
-- **GCE Ingress (GKE)**: set `timeoutSec: 3600` on the `BackendConfig` referenced by the Service.
-
-The same requirement applies to any load balancer in front of your workers, because envoys connect to them over WebSocket too.
-
-## 6421: api-peer and health
-
-This is the api-peer service. Control plane nodes and other regions reach each other here, and it is the port a datacenter's `peer_url` points at. See <SelfHostLink to="control-plane/multi-region">Multi-Region</SelfHostLink>.
-
-Point liveness and readiness probes at `/health` on this port. A five second timeout is a reasonable default.
-
-```bash
-curl http://localhost:6421/health
-```
-
-`/health` is served on `6420` as well, which is the easier probe when you have not exposed `6421`.
-
-Keep this port internal to your cluster or VPC.
+Scrape `http://<instance>:6430/metrics` from each instance with Prometheus. Keep it on your private network.
 
 ## Next steps
 
 - <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

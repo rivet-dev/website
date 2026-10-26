@@ -1,0 +1,61 @@
+---
+title: "Custom Platform"
+description: "Run Rivet nodes on any platform that can run your app."
+---
+
+A node is your app plus two environment variables. Any platform that can run your app and reach the control plane can host it.
+
+## Requirements
+
+A namespace and a node pool created with `PUT /pools/{pool}` (see [Nodes & Node Pools](/docs/nodes#quickstart)). In local development, RivetKit creates the `default` pool for you.
+
+Your platform must provide:
+
+- **A long-running process** for your app, as a container or a plain process.
+- **Environment variables**, to carry the connection.
+- **Outbound network access** to the control plane.
+
+## Steps
+
+<Steps>
+
+<Step title="Deploy your app">
+
+Deploy however your platform expects. A node listens on no port, so it needs no public URL.
+
+</Step>
+
+<Step title="Set the environment variables">
+
+```bash
+RIVET_ENDPOINT=https://<namespace>:<rivet-token>@<control-plane-host>
+```
+
+On a self-hosted control plane, the Rivet token is the value of its `auth.admin_token` setting. See <SelfHostLink to="nodes">Deploy Nodes</SelfHostLink>.
+
+</Step>
+
+<Step title="Configure graceful shutdown">
+
+Each Rivet Actor gets up to 15 seconds to save its state. Give the process at least 60 seconds between `SIGTERM` and `SIGKILL`, and make sure the signal reaches it: a wrapper such as `npm start` becomes PID 1 and swallows it.
+
+</Step>
+
+<Step title="Verify">
+
+Call one of your Rivet Actors from a client.
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+**Rivet Actors stay pending.** Check outbound network access, and that `RIVET_ENDPOINT` carries the right namespace and token. Check the node's logs for connection errors.
+
+**The connection drops every 30 to 60 seconds.** A proxy in front of the control plane is timing out idle WebSockets. Raise its idle timeout to `3600` seconds. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Run your own control plane</SelfHostLink>

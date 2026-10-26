@@ -199,7 +199,7 @@ async function docsHighlighter() {
  */
 export async function highlightDocsCode(code: string, lang: string): Promise<string> {
 	return (await docsHighlighter()).codeToHtml(code, {
-		lang,
+		lang: lang === "promql" ? "text" : lang,
 		themes: { light: theme.name, dark: 'github-dark' },
 		transformers: [transformerNotationFocus()],
 	});
@@ -261,7 +261,8 @@ function rehypeShiki() {
 
 				try {
 					const result = highlighter.codeToHtml(textNode.value, {
-						lang,
+						// Shiki has no bundled PromQL grammar. Preserve the label above.
+						lang: lang === "promql" ? "text" : lang,
 						themes: { light: theme.name, dark: 'github-dark' },
 						transformers: [
 							transformerNotationFocus(),

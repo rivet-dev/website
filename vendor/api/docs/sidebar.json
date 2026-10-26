@@ -44,6 +44,11 @@
 					"badge": "GET"
 				},
 				{
+					"title": "Get Actor",
+					"href": "/docs/api/actors/get",
+					"badge": "GET"
+				},
+				{
 					"title": "Create Actor",
 					"href": "/docs/api/actors/create",
 					"badge": "POST"
@@ -233,42 +238,37 @@
 			]
 		},
 		{
-			"title": "Workers",
+			"title": "Node Pools",
 			"pages": [
 				{
-					"title": "List Workers",
-					"href": "/docs/api/workers/list",
+					"title": "List Node Pools",
+					"href": "/docs/api/pools/list",
 					"badge": "GET"
 				},
 				{
-					"title": "Worker Connection",
-					"href": "/docs/api/worker-connect",
-					"badge": "WS"
-				},
-				{
-					"title": "List Worker Configs",
-					"href": "/docs/api/workers/configs-list",
+					"title": "Get Node Pool",
+					"href": "/docs/api/pools/get",
 					"badge": "GET"
 				},
 				{
-					"title": "Upsert Worker Config",
-					"href": "/docs/api/workers/configs-upsert",
+					"title": "Upsert Node Pool",
+					"href": "/docs/api/pools/upsert",
 					"badge": "PUT"
 				},
 				{
-					"title": "Delete Worker Config",
-					"href": "/docs/api/workers/configs-delete",
+					"title": "Delete Node Pool",
+					"href": "/docs/api/pools/delete",
 					"badge": "DELETE"
 				},
 				{
-					"title": "Refresh Config Metadata",
-					"href": "/docs/api/workers/configs-refresh-metadata",
-					"badge": "POST"
+					"title": "List Nodes",
+					"href": "/docs/api/pools/list-nodes",
+					"badge": "GET"
 				},
 				{
-					"title": "Serverless Health Check",
-					"href": "/docs/api/workers/serverless-health-check",
-					"badge": "POST"
+					"title": "Node Connection",
+					"href": "/docs/api/worker-connect",
+					"badge": "WS"
 				}
 			]
 		},

@@ -11,7 +11,7 @@ import ByocRegionsDiagram from '@/components/docs/ByocRegionsDiagram.astro';
 
 <ByocArchitectureDiagram />
 
-The Rivet operator runs inside your Kubernetes cluster and connects to Rivet Cloud to receive deployment instructions. It manages updates to the Rivet control plane and FoundationDB inside your VPC. No inbound management connection from Rivet Cloud is required.
+The Rivet operator runs inside your Kubernetes cluster and connects to Rivet Cloud to receive deployment instructions. It manages updates to the Rivet control plane inside your VPC. No inbound management connection from Rivet Cloud is required.
 
 1. **Request a deployment or update** through Enterprise Support
 2. **The operator receives instructions** from Rivet Cloud
@@ -20,7 +20,7 @@ The Rivet operator runs inside your Kubernetes cluster and connects to Rivet Clo
 
 ## What gets provisioned
 
-Terraform provisions networking, a Kubernetes cluster, container registry, object storage, secrets, and the Rivet operator. Rivet then deploys the control plane and FoundationDB.
+Terraform provisions networking, a Kubernetes cluster, container registry, object storage, secrets, and the Rivet operator. Rivet then deploys the control plane.
 
 <Tabs>
 <Tab title="AWS">
@@ -61,15 +61,15 @@ Authenticate with your admin token. See [Credentials & dashboard](/docs/deploy/b
 
 When `rivet_endpoint_access` is `public`, use your configured hostname, such as `https://rivet.mycompany.com`. HTTPS is configured automatically after [DNS setup](/docs/deploy/byoc/quickstart#configure-dns-for-public-access).
 
-Authenticate with your [admin token](/docs/deploy/byoc/credentials), or [create a public token using ACL](/docs/deploy/self-host/control-plane/rbac#publishable-key).
+Authenticate with your [admin token](/docs/deploy/byoc/credentials), or issue a [scoped token](/docs/jwt).
 
 ## Multi-region
 
 <ByocRegionsDiagram />
 
-Each region has its own VPC, Kubernetes cluster, operator, and Rivet deployment. Regions communicate over private connectivity and share a container registry. Workers connect to the regional endpoints provided by Rivet.
+Each region has its own VPC, Kubernetes cluster, operator, and Rivet deployment. Regions communicate over private connectivity and share a container registry. Nodes connect to the regional endpoints provided by Rivet.
 
 ## Next steps
 
 - [BYOC quickstart](/docs/deploy/byoc/quickstart)
-- [Connect workers](/docs/deploy/self-host/workers)
+- [Connect nodes](/docs/deploy/self-host/nodes)

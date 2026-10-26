@@ -1,4 +1,4 @@
-const endpoint = "https://api.rivet.dev";
+const endpoint = "https://rivet.example.com";
 const actorId = process.env.ACTOR_ID;
 const response = await fetch(`${endpoint}/gateway/${actorId}/queue/increment`, {
 	method: "POST",

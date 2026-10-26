@@ -37,7 +37,7 @@ const features: Feature[] = [
 		icon: faArrowRotateLeft,
 		title: "Fault tolerance by design",
 		description:
-			"A worker going down reschedules its Actors elsewhere with their state intact. No replay harness or checkpointing of your own.",
+			"A node going down reschedules its Actors elsewhere with their state intact. No replay harness or checkpointing of your own.",
 		href: "/actors/docs/",
 	},
 	{
@@ -45,7 +45,7 @@ const features: Feature[] = [
 		title: "Multi-region",
 		description:
 			"Place Actors near the users and data they serve, and route requests to wherever each one currently lives.",
-		href: "/docs/regions/",
+		href: "/docs/deploy/self-host/control-plane/multi-region/",
 	},
 	{
 		icon: faNetworkWired,

@@ -58,15 +58,6 @@ const ACTORS: Integration[] = [
 		sourceUrl:
 			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
 	},
-	{
-		title: "Durable Streams",
-		description:
-			"Real-time streams with durable, replayable history, backed by Rivet Actors.",
-		slug: "durable-streams",
-		category: "Streams",
-		icon: { src: "/images/vendors/durable-streams.svg" },
-		sourceUrl: "https://github.com/rivet-dev/rivet-durable-streams",
-	},
 ];
 
 export const INTEGRATIONS: Record<string, Integration[]> = {

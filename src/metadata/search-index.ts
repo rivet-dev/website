@@ -111,7 +111,7 @@ const SECTION_LABELS: Record<string, string> = {
 	tutorials: "Tutorials",
 	byoc: "BYOC",
 	"control-plane": "Control plane",
-	workers: "Workers",
+	nodes: "Nodes",
 };
 
 function buildDocument(input: {

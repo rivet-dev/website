@@ -17,8 +17,7 @@
 			"title": "Cloud",
 			"pages": [
 				{ "title": "Overview", "href": "/docs/deploy/cloud", "icon": "faSquareInfo" },
-				{ "title": "Rivet Compute", "href": "/docs/deploy/cloud/compute", "icon": "faServer" },
-				{ "title": "Preview Deployments", "href": "/docs/deploy/cloud/preview-deployments", "icon": "faCodeBranch" }
+				{ "title": "Actor Nodes", "href": "/docs/deploy/cloud/compute", "icon": "faServer" }
 			]
 		}
 	]

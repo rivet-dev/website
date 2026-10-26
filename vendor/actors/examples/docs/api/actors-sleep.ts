@@ -1,4 +1,4 @@
-const endpoint = "https://api.rivet.dev";
+const endpoint = "https://rivet.example.com";
 const namespace = process.env.RIVET_NAMESPACE ?? "default";
 const token = process.env.RIVET_TOKEN ?? "";
 const actorId = "00000000-0000-0000-0000-000000000000";

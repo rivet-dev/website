@@ -5,7 +5,7 @@ seoTitle: "Rivet Actors: the primitive for agent orchestration"
 seoDescription: "Durable identity, in-memory state, queues, storage, and realtime connections for agents, collaboration, and other stateful workloads."
 ---
 
-import { faCloudflare, faLayerGroup, faNextjs, faNodeJs, faReact, faRust } from '@rivet-gg/icons';
+import { faLayerGroup, faNextjs, faNodeJs, faReact, faRust } from '@rivet-gg/icons';
 
 One Actor per agent, per session, per user. An Actor is a long-lived process with durable state, a queue, realtime connections, and scheduling, addressed by key and scheduled by the control plane. The same primitive powers realtime apps, multiplayer, and collaborative state, and every other product on this site is built on it.
 
@@ -24,9 +24,6 @@ One Actor per agent, per session, per user. An Actor is a long-lived process wit
   </Card>
   <Card title="Effect.ts" href="/actors/docs/quickstart/effect" icon={faLayerGroup}>
     The Effect SDK with typed Schema actions.
-  </Card>
-  <Card title="Cloudflare Workers" href="/actors/docs/quickstart/cloudflare" icon={faCloudflare}>
-    Run RivetKit on Cloudflare Workers.
   </Card>
 </CardGroup>
 
@@ -58,7 +55,7 @@ Define an actor with state and actions, register it, and call it from a typed cl
 
 ## See inside every Actor
 
-The [Actor Inspector](/actors/docs/inspector-tabs) shows live state, connections, queues, workflow history, and SQLite data without building admin tooling. [Rivet MCP](/docs/mcp) lets your AI client find Actors, call actions, and open the same Inspector inline as it debugs your application.
+The [Actor Inspector](/actors/docs/debugging) shows live state, connections, queues, workflow history, and SQLite data without building admin tooling. [Rivet MCP](/docs/mcp) lets your AI client find Actors, call actions, and open the same Inspector inline as it debugs your application.
 
 ## The foundation the rest of Rivet builds on
 

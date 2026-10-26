@@ -1,0 +1,115 @@
+---
+title: "Nodes"
+description: "Run your app as long-running nodes that connect to the control plane and host your Rivet Actors."
+---
+
+A **node** is a process running your app with the Rivet SDK. It opens an outbound connection to the control plane and hosts the Rivet Actors the control plane assigns to it. Nodes that share a pool name form a **node pool**. Without a pool name, a node joins the `default` node pool.
+
+Nodes need no public URL and no inbound port. Run as many as you need, on any platform that keeps a process running: Kubernetes, Docker, virtual machines, AWS ECS, Railway, Render and others.
+
+## Connecting
+
+| Variable | Purpose |
+| --- | --- |
+| `RIVET_ENDPOINT` | Where the node reaches the control plane, with the namespace and token: `https://<namespace>:<token>@<host>`. Server-side only. |
+| `RIVET_POOL` | The node pool to join. Defaults to `default`. |
+
+Every control plane creates the `default` [namespace](/docs/namespaces). Create the node pool before you start nodes, because the control plane refuses a node whose pool does not exist (`pool.not_found`). See [Nodes & Node Pools](/docs/nodes#quickstart).
+
+```bash
+export RIVET_API=https://rivet.mycompany.com
+export RIVET_TOKEN=<rivet-token>
+curl -X PUT "$RIVET_API/pools/default?namespace=default" -H "Authorization: Bearer $RIVET_TOKEN" -H 'Content-Type: application/json' -d '{}'
+```
+
+```json
+{"pool":{"name":"default","drain_on_version_upgrade":false,"actor_eviction_delay":0,"actor_eviction_period":0,"actor_eviction_rate":1.0,"metadata":null}}
+```
+
+Nodes connect with your Rivet token, the value of the control plane's `auth.admin_token` setting. Keep it on the server side. Browser clients get [scoped tokens](/docs/jwt) from your app's backend instead.
+
+```bash
+RIVET_ENDPOINT=https://<namespace>:<rivet-token>@rivet.mycompany.com
+```
+
+## Packaging
+
+A minimal Node.js image:
+
+```dockerfile
+FROM node:24-slim
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+CMD ["node", "server.js"]
+```
+
+Rivet requires Node.js 22 or newer. Debian-based and Alpine images both work.
+
+## Running
+
+<Tabs>
+<Tab title="Kubernetes">
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: my-app }
+  template:
+    metadata:
+      labels: { app: my-app }
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: my-app
+          image: registry.example.com/my-app:1.0.0
+          env:
+            - name: RIVET_ENDPOINT
+              valueFrom: { secretKeyRef: { name: my-app, key: rivet-endpoint } }
+```
+
+</Tab>
+<Tab title="Docker">
+
+```bash
+docker run -d --name my-app --restart unless-stopped \
+  -e RIVET_ENDPOINT="https://default:$RIVET_TOKEN@rivet.example.com" \
+  registry.example.com/my-app:1.0.0
+```
+
+</Tab>
+<Tab title="Other platforms">
+
+Deploy the image as a long-running service with `RIVET_ENDPOINT` set as a secret. No port, health check URL or public domain is required. Keep at least one instance running at all times.
+
+</Tab>
+</Tabs>
+
+Confirm the node connected by calling one of your Rivet Actors from a client.
+
+## Graceful shutdown
+
+When a node receives `SIGTERM`, it puts its Rivet Actors to sleep, which saves their state, and the control plane wakes them on another node. Each Rivet Actor gets up to 15 seconds. Give the process at least 60 seconds between `SIGTERM` and `SIGKILL`, and make sure your process receives the signal: a wrapper such as `npm start` becomes PID 1 and swallows it. Run `node` directly, or use `dumb-init` or `tini`.
+
+## Rolling out a new version
+
+During a rollout, old and new nodes can both receive Actors. Keep each new deployment able to read the state that the running deployment wrote.
+
+Roll nodes one at a time. Rivet Actors on a stopping node sleep and wake on a running node.
+
+## Health and metrics
+
+A node opens no port of its own. If your app serves HTTP, mount the registry's routes for probes and scraping. For example, with Hono: `app.get("/health", () => registry.routes.health())` and `app.get("/metrics", (c) => registry.routes.prometheusMetrics(c.req.raw))`.
+
+Point liveness and readiness probes at the health route. The metrics route serves the node's metrics in Prometheus format.
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane">Self-host the control plane</SelfHostLink>

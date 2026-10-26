@@ -127,7 +127,7 @@ function collectContentInlinks(): Map<string, Set<string>> {
 	return inlinks;
 }
 
-/** `workers/kubernetes` -> src/content/self-host/workers/kubernetes.mdx */
+/** `nodes/kubernetes` -> src/content/self-host/nodes/kubernetes.mdx */
 function contentFileExists(base: string, slug: string) {
 	const stem = slug === "index" || slug === "" ? "index" : slug;
 	return (

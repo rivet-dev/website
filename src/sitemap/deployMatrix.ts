@@ -49,9 +49,8 @@ export const WORKER_PAGES = [
 export const CONTROL_PLANE_PAGES = [
 	"index",
 	"configuration",
-	"rbac",
-	"ports",
 	"storage",
+	"ports",
 	"tls",
 	"multi-region",
 	"upgrades",
@@ -60,7 +59,7 @@ export const CONTROL_PLANE_PAGES = [
 ] as const;
 
 export interface SelfHostGuide {
-	/** Path under the section root, e.g. `workers/kubernetes`. */
+	/** Path under the section root, e.g. `nodes/kubernetes`. */
 	slug: string;
 	role: DeployRole | null;
 	/** Set when the guide is a platform guide. */
@@ -73,13 +72,13 @@ export function selfHostGuides(): SelfHostGuide[] {
 
 	for (const page of WORKER_PAGES) {
 		guides.push({
-			slug: page === "index" ? "workers" : `workers/${page}`,
+			slug: page === "index" ? "nodes" : `nodes/${page}`,
 			role: "worker",
 		});
 	}
 	for (const platform of platformsFor("worker")) {
 		guides.push({
-			slug: `workers/${platform.slug}`,
+			slug: `nodes/${platform.slug}`,
 			role: "worker",
 			platform,
 		});

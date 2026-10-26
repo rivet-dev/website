@@ -2,7 +2,7 @@
  * Links between self-host guides.
  *
  * Relative hrefs do not work in the guides: they sit at three different depths
- * (`/docs/deploy/`, `/docs/deploy/self-host/workers/`, `.../workers/kubernetes/`), so no
+ * (`/docs/deploy/`, `/docs/deploy/self-host/nodes/`, `.../nodes/kubernetes/`), so no
  * single `../` prefix is correct everywhere, and hardcoding the section root
  * in every body would make the next move a mass edit.
  *

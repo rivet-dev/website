@@ -1,4 +1,4 @@
-const endpoint = "https://api.rivet.dev";
+const endpoint = "https://rivet.example.com";
 const token = process.env.RIVET_TOKEN ?? "";
 
 const response = await fetch(`${endpoint}/datacenters`, {
