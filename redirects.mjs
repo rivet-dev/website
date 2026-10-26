@@ -188,12 +188,12 @@ const explicitRedirects = {
 	// Air-gapped deployment is a self-hosting topic, not an actors cookbook.
 	'/guides/vpc-air-gapped': '/docs/deploy/self-host/control-plane/vm/',
 	// The Solutions guides were replaced by the closest use-case guide.
-	'/guides/coding-agents': '/guides/build-coding-agent/',
-	'/actors/learn/coding-agents': '/guides/build-coding-agent/',
+	'/guides/coding-agents': '/guides/run-claude-code/',
+	'/actors/learn/coding-agents': '/guides/run-claude-code/',
 	'/guides/agent-app-builders': '/guides/host-ai-generated-apps/',
 	'/actors/learn/agent-app-builders': '/guides/host-ai-generated-apps/',
-	'/guides/company-agents': '/guides/deploy-ai-agent/',
-	'/actors/learn/company-agents': '/guides/deploy-ai-agent/',
+	'/guides/company-agents': '/guides/durable-ai-agents/',
+	'/actors/learn/company-agents': '/guides/durable-ai-agents/',
 	// The multiplayer game guide was split into one guide per game type.
 	'/guides/multiplayer-game': '/guides/battle-royale/',
 	'/actors/learn/multiplayer-game': '/guides/battle-royale/',
