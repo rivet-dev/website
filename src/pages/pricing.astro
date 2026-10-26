@@ -43,7 +43,7 @@ const productSchema = {
 		{
 			"@type": "Offer",
 			"name": "Free",
-			"description": "For prototyping and small projects. 100,000 Awake Actor Hours, 5GB storage, community support.",
+			"description": "For prototyping. One control plane node in one availability zone, up to 1 Actor Node included at no charge, community support.",
 			"price": "0",
 			"priceCurrency": "USD",
 			"priceValidUntil": "2027-12-31",
@@ -53,8 +53,8 @@ const productSchema = {
 		{
 			"@type": "Offer",
 			"name": "Hobby",
-			"description": "For scaling applications. 400,000 Awake Actor Hours included, 25 Billion reads/month, email support.",
-			"price": "20",
+			"description": "For side projects that need to stay up. One control plane node in one availability zone, up to 3 Actor Nodes, email support. Actor Nodes priced per node from $4.20/month.",
+			"price": "10",
 			"priceCurrency": "USD",
 			"priceValidUntil": "2027-12-31",
 			"availability": "https://schema.org/InStock",
@@ -63,8 +63,18 @@ const productSchema = {
 		{
 			"@type": "Offer",
 			"name": "Team",
-			"description": "For growing teams and businesses. 400,000 Awake Actor Hours included, MFA, Slack support.",
-			"price": "200",
+			"description": "For production workloads and growing teams. Three control plane nodes across three availability zones, up to 10 Actor Nodes, Slack and email support. Actor Nodes priced per node from $4.20/month.",
+			"price": "120",
+			"priceCurrency": "USD",
+			"priceValidUntil": "2027-12-31",
+			"availability": "https://schema.org/InStock",
+			"url": "https://dashboard.rivet.dev"
+		},
+		{
+			"@type": "Offer",
+			"name": "Enterprise",
+			"description": "For compliance, SSO, audit logs, and dedicated support. Five control plane nodes across three availability zones, up to 50 Actor Nodes. Actor Nodes priced per node from $4.20/month.",
+			"price": "900",
 			"priceCurrency": "USD",
 			"priceValidUntil": "2027-12-31",
 			"availability": "https://schema.org/InStock",

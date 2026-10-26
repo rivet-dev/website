@@ -3,15 +3,17 @@
 import { useId, useState } from 'react';
 import {
   ArrowRight,
-  ShieldCheck,
-  Cpu,
-  MemoryStick,
-  Clock
+  ShieldCheck
 } from 'lucide-react';
 import {
   Icon,
+  faCheck,
   faCloudArrowUp,
   faCloudCheck,
+  faGoogleCloud,
+  faLock,
+  faMinus,
+  faPlus,
   faServer
 } from '@rivet-gg/icons';
 import imgYC from '@/images/logos/yc.svg';
@@ -168,203 +170,383 @@ const SelfHostingComparison = () => {
   )
 }
 
-const ComparisonTable = () => {
-    const features = [
-      { name: "Awake Actor Hours", free: "100,000 max", hobby: "400,000 included", team: "400,000 included" },
-      { name: "Compute", free: "$5 max", hobby: "Usage-based", team: "Usage-based" },
-      { name: "Max vCPU", free: "1", hobby: "8", team: "8" },
-      { name: "Storage", free: "5GB max", hobby: "5GB included", team: "5GB included" },
-      { name: "Reads / mo", free: "200 Million max", hobby: "25 Billion included", team: "25 Billion included" },
-      { name: "Writes / mo", free: "5 Million max", hobby: "50 Million included", team: "50 Million included" },
-      { name: "Egress", free: "100GB max", hobby: "1TB included", team: "1TB included" },
-      { name: "Support", free: "Community", hobby: "Email", team: "Slack & Email" },
-    ];
+// Rivet Cloud pricing. Mirrors the dashboard's "Create a cluster" page: a plan
+// prices the control plane and caps how many Actor Nodes the cluster can run;
+// each Actor Node is priced by its size. Keep these numbers in sync with the
+// dashboard.
 
-    const renderCell = (value: string) => <span className="text-sm text-ink-soft">{value}</span>;
+interface Plan {
+    key: PlanKey;
+    name: string;
+    controlPlaneUsd: number;
+    description: string;
+    maxActorNodes: number;
+    highlights: string[];
+}
 
-    return (
-        <div className="mt-24 pt-16" data-site-reveal>
-            <h3 className={`mb-12 ${SECTION_H2_CLASS}`}>Compare Cloud Plans</h3>
-            <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px] border-collapse">
-                    <thead>
-                        <tr className="border-b border-ink/15">
-                            <th className="w-1/4 p-4 text-left text-sm font-medium text-ink-faint">Feature</th>
-                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="free">Free</PlanBadge></th>
-                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="hobby">Hobby</PlanBadge></th>
-                            <th className="w-[18%] p-4 text-center"><PlanBadge plan="team">Team</PlanBadge></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {features.map((feature, i) => (
-                            <tr key={i} className="border-b border-ink/10">
-                                <td className="p-4 text-sm text-ink-soft">{feature.name}</td>
-                                <td className="p-4 text-center">{renderCell(feature.free)}</td>
-                                <td className="p-4 text-center">{renderCell(feature.hobby)}</td>
-                                <td className="p-4 text-center">{renderCell(feature.team)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <p className="mt-6 text-xs text-ink-faint">
-                Free plan values are hard monthly limits. Hobby and Team include the listed amounts, then bill per usage; paid active execution has no included amount and is billed per usage.
-            </p>
-        </div>
-    );
-  };
+const PLANS: Plan[] = [
+    {
+        key: "free",
+        name: "Free",
+        controlPlaneUsd: 0,
+        description: "For prototyping.",
+        maxActorNodes: 1,
+        highlights: [
+            "1 control plane node in 1 availability zone",
+            "Up to 1 Actor Node",
+            "Community support",
+        ],
+    },
+    {
+        key: "hobby",
+        name: "Hobby",
+        controlPlaneUsd: 10,
+        description: "For side projects that need to stay up.",
+        maxActorNodes: 3,
+        highlights: [
+            "1 control plane node in 1 availability zone",
+            "Up to 3 Actor Nodes",
+            "Email support",
+        ],
+    },
+    {
+        key: "team",
+        name: "Team",
+        controlPlaneUsd: 120,
+        description: "For production workloads and growing teams.",
+        maxActorNodes: 10,
+        highlights: [
+            "3 control plane nodes across 3 availability zones",
+            "Up to 10 Actor Nodes",
+            "Slack & email support",
+        ],
+    },
+    {
+        key: "enterprise",
+        name: "Enterprise",
+        controlPlaneUsd: 900,
+        description: "For compliance, SSO, audit logs, and dedicated support.",
+        maxActorNodes: 50,
+        highlights: [
+            "5 control plane nodes across 3 availability zones",
+            "Up to 50 Actor Nodes",
+            "Dedicated support",
+        ],
+    },
+];
 
-// Rivet Cloud pricing. Cost is billed per active second based on each actor's
-// configured CPU and memory:
-//   cost = active_seconds × (vcpus × CPU_PER_VCPU_SECOND + memory_gib × MEMORY_PER_GIB_SECOND)
-// One vCPU is half a physical core. The Free plan is limited to 1 vCPU; paid plans
-// allow up to 8 vCPU.
-const COMPUTE = {
-    cpuPerVcpuSecond: 0.000033,
-    memoryPerGibSecond: 0.0000029,
-    maxVcpu: 8,
-    freeMaxVcpu: 1,
+// Plans in ascending order, so a node size can name the cheapest plan that
+// unlocks it.
+const PLAN_RANK: Record<PlanKey, number> = { free: 0, hobby: 1, team: 2, enterprise: 3 };
+
+const planByKey = (key: PlanKey) => PLANS.find((plan) => plan.key === key) as Plan;
+
+interface NodeSize {
+    id: string;
+    vcpu: number;
+    memoryGb: number;
+    monthlyUsd: number;
+    // The cheapest plan that can run this size.
+    minPlan: PlanKey;
+}
+
+// Per-node prices are for Google Cloud, the only cloud the dashboard offers.
+const NODE_SIZES: NodeSize[] = [
+    { id: "R-5", vcpu: 1 / 4, memoryGb: 1, monthlyUsd: 4.2, minPlan: "free" },
+    { id: "R-10", vcpu: 1 / 2, memoryGb: 2, monthlyUsd: 8.4, minPlan: "free" },
+    { id: "R-20", vcpu: 1, memoryGb: 4, monthlyUsd: 16.8, minPlan: "hobby" },
+    { id: "R-40", vcpu: 4, memoryGb: 8, monthlyUsd: 27.3, minPlan: "team" },
+    { id: "R-160", vcpu: 8, memoryGb: 16, monthlyUsd: 94.5, minPlan: "team" },
+];
+
+const REGIONS: { id: string; name: string; flag: string }[] = [
+    { id: "us-east4", name: "N. Virginia", flag: "🇺🇸" },
+    { id: "us-central1", name: "Iowa", flag: "🇺🇸" },
+    { id: "europe-west1", name: "Belgium", flag: "🇧🇪" },
+    { id: "europe-west3", name: "Frankfurt", flag: "🇩🇪" },
+    { id: "asia-southeast1", name: "Singapore", flag: "🇸🇬" },
+    { id: "asia-east1", name: "Taiwan", flag: "🇹🇼" },
+];
+
+// Whole dollars print without cents ($120); anything else prints two ($4.20).
+const formatUsd = (value: number) =>
+    `$${value.toLocaleString("en-US", {
+        minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+        maximumFractionDigits: 2,
+    })}`;
+
+// 1/4 and 1/2 vCPU read better as fractions than as 0.25 and 0.5.
+const formatVcpu = (value: number) => {
+    const denominator = [1, 2, 4, 8].find((d) => Number.isInteger(value * d));
+    return denominator && denominator > 1 ? `${value * denominator}/${denominator}` : `${value}`;
 };
 
-// Valid compute shapes. vCPU is continuous from 0.08 to 1, then exactly 2, 4,
-// or 8. Memory ranges from 128 MiB to 4096 MiB (4 GiB).
-const VCPU_STEPS = [0.08, 0.25, 0.5, 1, 2, 4, 8];
-const MEMORY_STEPS = [128, 256, 512, 1024, 2048, 4096]; // MiB
+const sizeAllowedOn = (size: NodeSize, plan: Plan) => PLAN_RANK[plan.key] >= PLAN_RANK[size.minPlan];
 
-const usd = (n: number, decimals = 2) =>
-    `$${n.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
+// The Free plan includes its Actor Nodes at no charge.
+const nodePriceUsd = (plan: Plan, size: NodeSize) => (plan.key === "free" ? 0 : size.monthlyUsd);
 
-const ComputeCalculator = () => {
-    const vcpuInputId = useId();
-    const memoryInputId = useId();
-    const hoursInputId = useId();
-    const [vcpuIdx, setVcpuIdx] = useState(3); // 1 vCPU
-    const [memIdx, setMemIdx] = useState(2); // 512 MiB
-    const [hours, setHours] = useState(100);
+const nodesLabel = (count: number) => (count === 1 ? "1 Actor Node" : `${count} Actor Nodes`);
 
-    const vcpus = VCPU_STEPS[vcpuIdx];
-    const memoryMib = MEMORY_STEPS[memIdx];
-    const cpuPerSec = vcpus * COMPUTE.cpuPerVcpuSecond;
-    const memPerSec = (memoryMib / 1024) * COMPUTE.memoryPerGibSecond;
-    const perSecond = cpuPerSec + memPerSec;
-    const monthly = perSecond * hours * 3600;
+function quoteCluster(plan: Plan, size: NodeSize, nodeCount: number) {
+    const nodesUsd = nodePriceUsd(plan, size) * nodeCount;
+    return {
+        nodesUsd,
+        totalUsd: plan.controlPlaneUsd + nodesUsd,
+    };
+}
 
-    const memLabel = memoryMib >= 1024 ? `${memoryMib / 1024} GiB` : `${memoryMib} MiB`;
+const TABLE_HEAD_CLASS = "border-b border-ink/15 text-sm font-medium text-ink-faint";
+const TABLE_ROW_CLASS = "border-b border-ink/10 text-sm text-ink-soft";
+
+const ActorNodes = () => (
+    <div className="pt-16" data-site-reveal>
+        <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Actor Nodes</h3>
+        <p className="mb-8 max-w-2xl text-[15px] leading-relaxed text-ink-soft">
+            Actor Nodes connect to the control plane and run your actor logic. Scale them with the
+            number of actors running. Your plan caps how many Actor Nodes a cluster can run and
+            which sizes it can use, and each node is priced per month on top of the control plane.
+        </p>
+        <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] border-collapse">
+                <thead>
+                    <tr className={TABLE_HEAD_CLASS}>
+                        <th className="p-4 text-left">Size</th>
+                        <th className="p-4 text-right">vCPU</th>
+                        <th className="p-4 text-right">RAM</th>
+                        <th className="p-4 text-left">Available on</th>
+                        <th className="p-4 text-right">Per node / month</th>
+                    </tr>
+                </thead>
+                <tbody className="tabular-nums">
+                    {NODE_SIZES.map((size) => {
+                        const minPlan = planByKey(size.minPlan);
+                        return (
+                            <tr key={size.id} className={TABLE_ROW_CLASS}>
+                                <td className="p-4">
+                                    <span className="rounded-md border border-ink/15 bg-white/55 px-2 py-0.5 font-mono text-xs text-ink">
+                                        {size.id}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-right">{formatVcpu(size.vcpu)}</td>
+                                <td className="p-4 text-right">{size.memoryGb} GB</td>
+                                <td className="p-4">
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <PlanBadge plan={minPlan.key}>{minPlan.name}</PlanBadge>
+                                        {minPlan.key !== "enterprise" ? (
+                                            <span className="text-xs text-ink-faint">and up</span>
+                                        ) : null}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-right font-medium text-ink">{formatUsd(size.monthlyUsd)}</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+        <p className="mt-6 text-xs text-ink-faint">
+            The Free plan includes its Actor Node at no charge. Need more Actor Nodes or larger
+            sizes?{" "}
+            <a href="/talk-to-an-engineer/" className="underline decoration-ink/30 underline-offset-2 hover:text-ink">
+                Talk to us
+            </a>
+            .
+        </p>
+
+        <div className="mt-10 border-t border-ink/10 pt-6">
+            <div className="flex items-center gap-2.5">
+                <Icon icon={faGoogleCloud} aria-hidden="true" className="h-4 w-4 text-ink" />
+                <span className="text-sm font-medium text-ink">Google Cloud</span>
+            </div>
+            <p className="mt-1 text-xs text-ink-faint">
+                Clusters run on Google Cloud in the region you pick when creating the cluster.
+            </p>
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+                {REGIONS.map((region) => (
+                    <li
+                        key={region.id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-ink/10 bg-white/55 px-2.5 py-0.5 text-xs text-ink-soft"
+                    >
+                        <span aria-hidden="true">{region.flag}</span>
+                        <span className="font-mono text-ink">{region.id}</span>
+                        <span>{region.name}</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </div>
+);
+
+// Segmented control for the estimator. A plain button group keeps the
+// estimate keyboard-reachable without a form submit. Disabled options stay
+// visible so the locked sizes read the same way as in the dashboard.
+function Segmented<T>({
+    label,
+    options,
+    value,
+    onChange,
+    render,
+    disabledReason,
+}: {
+    label: string;
+    options: T[];
+    value: T;
+    onChange: (next: T) => void;
+    render: (option: T) => string;
+    disabledReason?: (option: T) => string | null;
+}) {
+    return (
+        <div>
+            <div className="mb-3 text-sm text-ink-soft">{label}</div>
+            <div role="group" aria-label={label} className="flex flex-wrap gap-2">
+                {options.map((option) => {
+                    const selected = option === value;
+                    const reason = disabledReason?.(option) ?? null;
+                    return (
+                        <button
+                            key={render(option)}
+                            type="button"
+                            aria-pressed={selected}
+                            disabled={reason !== null}
+                            title={reason ?? undefined}
+                            onClick={() => onChange(option)}
+                            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed ${
+                                selected
+                                    ? "border-pine bg-pine/10 text-ink"
+                                    : reason
+                                      ? "border-ink/10 bg-white/30 text-ink-faint"
+                                      : "border-ink/10 bg-white/55 text-ink-soft hover:border-ink/30"
+                            }`}
+                        >
+                            {reason ? <Icon icon={faLock} aria-hidden="true" className="h-3 w-3" /> : null}
+                            {render(option)}
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+const STEPPER_BUTTON_CLASS =
+    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-ink/10 bg-white/55 text-ink-soft transition-colors hover:border-ink/30 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-ink/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper";
+
+const ClusterEstimator = () => {
+    const [plan, setPlan] = useState<Plan>(planByKey("team"));
+    const [size, setSize] = useState<NodeSize>(NODE_SIZES[0]);
+    const [nodeCount, setNodeCount] = useState(1);
+    const nodeCountId = useId();
+    const q = quoteCluster(plan, size, nodeCount);
+
+    // Switching to a cheaper plan can lock the chosen size or lower the node
+    // cap, so clamp both to what the new plan allows.
+    const choosePlan = (next: Plan) => {
+        setPlan(next);
+        if (!sizeAllowedOn(size, next)) setSize(NODE_SIZES[0]);
+        if (nodeCount > next.maxActorNodes) setNodeCount(next.maxActorNodes);
+    };
+
+    const lines: { label: string; amount: number | string }[] = [
+        { label: `${plan.name} control plane`, amount: plan.controlPlaneUsd === 0 ? "Free" : plan.controlPlaneUsd },
+        {
+            label: `${nodeCount} × ${size.id} ${nodeCount === 1 ? "Actor Node" : "Actor Nodes"}`,
+            amount: plan.key === "free" ? "Free" : q.nodesUsd,
+        },
+    ];
 
     return (
         <div className="pt-16" data-site-reveal>
-            <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate managed execution cost</h3>
+            <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Estimate your cluster cost</h3>
             <p className="mb-8 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
-                Run your Actors and applications on Rivet Cloud and pay only for the seconds they are active.
-                Costs scale with the CPU and memory you configure.
+                Pick a plan, an Actor Node size, and how many nodes to run. This is the same quote
+                you see when creating a cluster in the dashboard, and you can change all of it later
+                without downtime.
             </p>
 
             <div className="grid gap-6 lg:grid-cols-2">
-                {/* Controls sit on porcelain: this is interactive input UI. */}
                 <div className={`space-y-8 ${SITE_CARD_CLASS}`}>
-                    {/* vCPU */}
+                    <Segmented<Plan>
+                        label="Plan"
+                        options={PLANS}
+                        value={plan}
+                        onChange={choosePlan}
+                        render={(p) => p.name}
+                    />
+                    <Segmented<NodeSize>
+                        label="Actor Node size"
+                        options={NODE_SIZES}
+                        value={size}
+                        onChange={setSize}
+                        render={(s) => s.id}
+                        disabledReason={(s) =>
+                            sizeAllowedOn(s, plan) ? null : `Requires the ${planByKey(s.minPlan).name} plan`
+                        }
+                    />
                     <div>
-                        <div className="mb-3 flex items-center justify-between">
-                            <label htmlFor={vcpuInputId} className="flex items-center gap-2 text-sm text-ink-soft">
-                                <Cpu aria-hidden="true" className="h-4 w-4 text-ink-faint" /> vCPU
-                            </label>
-                            <output htmlFor={vcpuInputId} className="font-mono text-sm text-ink">{vcpus}</output>
+                        <label htmlFor={nodeCountId} className="mb-3 block text-sm text-ink-soft">
+                            Actor Nodes
+                        </label>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                aria-label="Remove an Actor Node"
+                                disabled={nodeCount <= 1}
+                                onClick={() => setNodeCount((n) => Math.max(1, n - 1))}
+                                className={STEPPER_BUTTON_CLASS}
+                            >
+                                <Icon icon={faMinus} aria-hidden="true" className="h-3.5 w-3.5" />
+                            </button>
+                            <output
+                                id={nodeCountId}
+                                aria-live="polite"
+                                className="min-w-[2.5rem] text-center font-mono text-lg text-ink tabular-nums"
+                            >
+                                {nodeCount}
+                            </output>
+                            <button
+                                type="button"
+                                aria-label="Add an Actor Node"
+                                disabled={nodeCount >= plan.maxActorNodes}
+                                onClick={() => setNodeCount((n) => Math.min(plan.maxActorNodes, n + 1))}
+                                className={STEPPER_BUTTON_CLASS}
+                            >
+                                <Icon icon={faPlus} aria-hidden="true" className="h-3.5 w-3.5" />
+                            </button>
+                            <span className="text-xs text-ink-faint">
+                                {plan.name} includes up to {plan.maxActorNodes}
+                            </span>
                         </div>
-                        <input
-                            id={vcpuInputId}
-                            type="range"
-                            min={0}
-                            max={VCPU_STEPS.length - 1}
-                            step={1}
-                            value={vcpuIdx}
-                            aria-valuetext={`${vcpus} vCPU`}
-                            aria-describedby={`${vcpuInputId}-description`}
-                            onChange={(e) => setVcpuIdx(Number(e.target.value))}
-                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                        />
-                        <p id={`${vcpuInputId}-description`} className="mt-2 text-xs text-ink-faint">
-                            1 vCPU = half a physical core. 0.08–1 vCPU, or exactly 2, 4, or 8.
-                        </p>
                     </div>
-
-                    {/* Memory */}
-                    <div>
-                        <div className="mb-3 flex items-center justify-between">
-                            <label htmlFor={memoryInputId} className="flex items-center gap-2 text-sm text-ink-soft">
-                                <MemoryStick aria-hidden="true" className="h-4 w-4 text-ink-faint" /> Memory
-                            </label>
-                            <output htmlFor={memoryInputId} className="font-mono text-sm text-ink">{memLabel}</output>
-                        </div>
-                        <input
-                            id={memoryInputId}
-                            type="range"
-                            min={0}
-                            max={MEMORY_STEPS.length - 1}
-                            step={1}
-                            value={memIdx}
-                            aria-valuetext={memLabel}
-                            aria-describedby={`${memoryInputId}-description`}
-                            onChange={(e) => setMemIdx(Number(e.target.value))}
-                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                        />
-                        <p id={`${memoryInputId}-description`} className="mt-2 text-xs text-ink-faint">
-                            128 MiB to 4 GiB.
-                        </p>
-                    </div>
-
-                    {/* Active time */}
-                    <div>
-                        <div className="mb-3 flex items-center justify-between">
-                            <label htmlFor={hoursInputId} className="flex items-center gap-2 text-sm text-ink-soft">
-                                <Clock aria-hidden="true" className="h-4 w-4 text-ink-faint" /> Active hours / month
-                            </label>
-                            <output htmlFor={hoursInputId} className="font-mono text-sm text-ink">{hours >= 730 ? "Always on" : `${hours} h`}</output>
-                        </div>
-                        <input
-                            id={hoursInputId}
-                            type="range"
-                            min={1}
-                            max={730}
-                            step={1}
-                            value={hours}
-                            aria-valuetext={hours >= 730 ? 'Always on, 730 hours per month' : `${hours} hours per month`}
-                            aria-describedby={`${hoursInputId}-description`}
-                            onChange={(e) => setHours(Number(e.target.value))}
-                            className="w-full accent-pine focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-                        />
-                        <p id={`${hoursInputId}-description`} className="mt-2 text-xs text-ink-faint">
-                            Sleeping Actors are not billed for active execution.
-                        </p>
-                    </div>
+                    <p className="text-xs text-ink-faint">
+                        Each {size.id} node has {formatVcpu(size.vcpu)} vCPU and {size.memoryGb} GB of RAM.
+                    </p>
                 </div>
 
-                {/* Result is the data moment: render it on the ink plate so the
-                    estimate reads as output, mirroring the Self-Hosted panel. */}
                 <InkPanel className="flex flex-col p-8">
-                    <span className={EYEBROW_ON_INK_CLASS}>Estimated execution cost</span>
+                    <span className={EYEBROW_ON_INK_CLASS}>Per month</span>
                     <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-4xl font-medium tracking-[-0.015em] text-cream">{usd(monthly)}</span>
+                        <span className="text-4xl font-medium tracking-[-0.015em] text-cream">{formatUsd(q.totalUsd)}</span>
                         <span className="text-xs text-cream/50">/mo</span>
                     </div>
 
-                    <div className="mt-8 space-y-3 text-sm">
-                        <div className="flex items-center justify-between border-b border-cream/10 py-2">
-                            <span className="text-cream/50">CPU ({vcpus} vCPU)</span>
-                            <span className="font-mono text-cream/85">{usd(cpuPerSec * hours * 3600)}</span>
-                        </div>
-                        <div className="flex items-center justify-between border-b border-cream/10 py-2">
-                            <span className="text-cream/50">Memory ({memLabel})</span>
-                            <span className="font-mono text-cream/85">{usd(memPerSec * hours * 3600)}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2">
-                            <span className="text-cream/50">Rate</span>
-                            <span className="font-mono text-cream/85">{usd(perSecond, 7)}/s</span>
-                        </div>
-                    </div>
+                    <dl className="mt-8 space-y-3 text-sm">
+                        {lines.map((line, i) => (
+                            <div
+                                key={line.label}
+                                className={`flex items-center justify-between py-2 ${i < lines.length - 1 ? "border-b border-cream/10" : ""}`}
+                            >
+                                <dt className="text-cream/50">{line.label}</dt>
+                                <dd className="font-mono text-cream/85">
+                                    {typeof line.amount === "number" ? formatUsd(line.amount) : line.amount}
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
 
                     <p className="mt-auto pt-8 text-xs leading-relaxed text-cream/50">
-                        Estimate only. Or use a supported deployment path on AWS, Vercel,
-                        Railway, or bare metal and pay that provider directly.
+                        Prices are for Google Cloud. Bring your own nodes and there is nothing more to
+                        pay beyond the control plane.
                     </p>
                 </InkPanel>
             </div>
@@ -372,137 +554,21 @@ const ComputeCalculator = () => {
     );
 };
 
-// One row of a plan card's spec table. A `value` renders a two-column
-// label | value row; without one the label spans the row (used for the
-// Enterprise Edition capability list, which has no per-item quantity).
-interface PlanRow {
-    label: string;
-    value?: string;
-}
-
-interface Plan {
-    key: PlanKey;
-    name: string;
-    prefix?: string;
-    price: string;
-    period: string;
-    rows: PlanRow[];
-    cta: string;
-    highlight: boolean;
-}
-
 const Pricing = () => {
-    const cloudPlans: Plan[] = [
-        {
-            key: "free",
-            name: "Free",
-            price: "$0",
-            period: "/mo",
-            rows: [
-                { label: "Awake Actor Hours", value: "100,000 /mo max" },
-                { label: "Compute", value: "$5 /mo max" },
-                { label: "Max vCPU", value: "1" },
-                { label: "Storage", value: "5GB max" },
-                { label: "Reads", value: "200M /mo max" },
-                { label: "Writes", value: "5M /mo max" },
-                { label: "Egress", value: "100GB max" },
-                { label: "Support", value: "Community" },
-            ],
-            cta: "Get Started",
-            highlight: false
-        },
-        {
-            key: "hobby",
-            name: "Hobby",
-            prefix: "From",
-            price: "$20",
-            period: "/mo + Usage",
-            rows: [
-                { label: "Awake Actor Hours", value: "400,000 /mo" },
-                { label: "Compute", value: "Usage-based" },
-                { label: "Max vCPU", value: "8" },
-                { label: "Storage", value: "5GB" },
-                { label: "Reads", value: "25B /mo" },
-                { label: "Writes", value: "50M /mo" },
-                { label: "Egress", value: "1TB" },
-                { label: "Support", value: "Email" },
-            ],
-            cta: "Get Started",
-            highlight: true
-        },
-        {
-            key: "team",
-            name: "Team",
-            prefix: "From",
-            price: "$200",
-            period: "/mo + Usage",
-            rows: [
-                { label: "Awake Actor Hours", value: "400,000 /mo" },
-                { label: "Compute", value: "Usage-based" },
-                { label: "Max vCPU", value: "8" },
-                { label: "Storage", value: "5GB" },
-                { label: "Reads", value: "25B /mo" },
-                { label: "Writes", value: "50M /mo" },
-                { label: "Egress", value: "1TB" },
-                { label: "Support", value: "Slack & Email" },
-            ],
-            cta: "Get Started",
-            highlight: false
-        }
-    ];
-
-    // Enterprise Edition is the self-hosted, BYOC offering. It is the only
-    // enterprise tier, so it is appended to the cloud plans and stays visible
-    // by default.
-    const enterpriseEditionPlan: Plan = {
-        key: "enterprise",
-        name: "Enterprise Edition",
-        price: "BYOC",
-        period: "",
-        rows: [
-            { label: "Actor control plane" },
-            { label: "FoundationDB persistence layer" },
-            { label: "Cloud layer for multi-tenant" },
-            { label: "SQLite backup" },
-            { label: "SQLite PITR" },
-            { label: "Forking" },
-            { label: "ACL system" },
-            { label: "ACL for agents" },
-            { label: "Advanced ClickHouse analytics" },
-            { label: "OpenTelemetry integration" },
-            { label: "Alert manager rules, Prometheus rules, Grafana configs" },
-            { label: "Kubernetes manifests" },
-            { label: "Air-gapped & sovereign-cloud deployments" },
-            { label: "Priority support & SLA" },
-            { label: "Hardening guidance for FedRAMP, HIPAA, regulated industries" },
-        ],
-        cta: "Contact Sales",
-        highlight: false
-    };
-
-    const plans = [...cloudPlans, enterpriseEditionPlan];
-
-    const usagePricing: { resource: string; price: string; unit: string; prefix?: string }[] = [
-        { resource: "Awake Actors", price: "$0.05", unit: "per 1k Awake Actor Hours" },
-        { resource: "State Storage", price: "$0.40", unit: "per GB-month" },
-        { resource: "Reads*", price: "$0.20", unit: "per million reads" },
-        { resource: "Writes*", price: "$1", unit: "per million writes" },
-        { resource: "Egress", price: "$0.15", unit: "per GB" },
-        { resource: "Compute", prefix: "From", price: "$0.0000330", unit: "per vCPU-second + $0.0000029/GiB-s" },
-    ];
-
     return (
         <section id="pricing" className={SITE_SECTION_CLASS}>
             <div className={SITE_STANDARD_RAIL_CLASS}>
                 <div className="flex flex-col gap-12">
                     <div className="flex flex-col gap-12">
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4" data-site-reveal-group>
-                                {plans.map((plan, idx) => (
+                                {PLANS.map((plan) => {
+                                    const highlight = plan.key === "team";
+                                    return (
                                     <div
-                                       key={idx}
+                                       key={plan.key}
                                        data-site-reveal-child
                                        className={`flex flex-col overflow-hidden rounded-xl border bg-white/55 ${
-                                           plan.highlight ? 'border-pine/60' : 'border-ink/10'
+                                           highlight ? 'border-pine/60' : 'border-ink/10'
                                        }`}
                                     >
                                         <div className="flex flex-grow flex-col p-6 md:p-8">
@@ -511,42 +577,37 @@ const Pricing = () => {
                                             </h3>
 
                                             <div className="mb-6">
-                                                {/* Always reserve the prefix line so prices and the
-                                                    spec rows below stay level across cards. */}
-                                                <span className={`mb-1 block text-sm font-medium text-ink-faint ${plan.prefix ? '' : 'invisible'}`} aria-hidden={!plan.prefix}>
-                                                    {plan.prefix ?? 'From'}
-                                                </span>
                                                 <div className="flex items-baseline gap-1">
-                                                    <span className="text-3xl font-medium tracking-[-0.015em] text-ink">{plan.price}</span>
-                                                    {plan.period && <span className="ml-1 text-xs text-ink-faint">{plan.period}</span>}
+                                                    <span className="text-3xl font-medium tracking-[-0.015em] text-ink">{formatUsd(plan.controlPlaneUsd)}</span>
+                                                    <span className="ml-1 text-xs text-ink-faint">/mo for control plane</span>
                                                 </div>
+                                                {/* Fixed height so the highlights below stay level
+                                                    across cards when a description wraps. */}
+                                                <p className="mt-2 min-h-[2.5rem] text-xs leading-5 text-ink-soft">{plan.description}</p>
                                             </div>
 
-                                            {/* Spec table: hairline-divided label | value rows, so
-                                                the four cards scan like columns of one table. */}
-                                            <dl className="mb-8 divide-y divide-ink/10 border-y border-ink/10 text-xs">
-                                                {plan.rows.map((row) => (
-                                                    <div key={row.label} className="flex items-baseline justify-between gap-3 py-2">
-                                                        <dt className={row.value ? 'text-ink-faint' : 'text-ink-soft'}>{row.label}</dt>
-                                                        {row.value ? (
-                                                            <dd className="text-right font-medium text-ink">{row.value}</dd>
-                                                        ) : null}
-                                                    </div>
+                                            <ul className="mb-8 space-y-2.5 border-t border-ink/10 pt-5 text-xs leading-5 text-ink">
+                                                {plan.highlights.map((item) => (
+                                                    <li key={item} className="flex items-start gap-2">
+                                                        <Icon icon={faCheck} aria-hidden="true" className="mt-1 h-3 w-3 shrink-0 text-pine" />
+                                                        <span>{item}</span>
+                                                    </li>
                                                 ))}
-                                            </dl>
+                                            </ul>
 
-                                            <a href={plan.cta === "Contact Sales" ? "/talk-to-an-engineer/" : "https://dashboard.rivet.dev"}
+                                            <a href="https://dashboard.rivet.dev"
                                                 className={`mt-auto ${
-                                                    plan.highlight
+                                                    highlight
                                                     ? PRODUCT_HERO_PRIMARY_BUTTON_CLASS
                                                     : PRODUCT_HERO_SECONDARY_BUTTON_CLASS
                                                 }`}
                                             >
-                                                {plan.cta}
+                                                Get Started
                                             </a>
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {/* YC & a16z Speedrun Callout */}
@@ -578,31 +639,9 @@ const Pricing = () => {
                                     </div>
                                 </div>
 
-                            {/* Usage pricing, compute calculator, and plan comparison */}
-                                <>
-                                    {/* Usage Pricing Section */}
-                                    <div className="pt-16" data-site-reveal>
-                                        <h3 className={`mb-3 ${SECTION_H2_CLASS}`}>Usage Pricing</h3>
-                                        <p className="mb-8 text-[15px] leading-relaxed text-ink-soft">Metered costs for scaling beyond plan limits.</p>
+                            <ActorNodes />
 
-                                        <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-                                            {usagePricing.map((item, i) => (
-                                                <div key={i} className="border-t border-ink/10 pt-6">
-                                                    <div className="mb-2 text-sm font-medium text-ink-faint">{item.resource}</div>
-                                                    {item.prefix && <span className="mb-1 block text-sm font-medium text-ink-faint">{item.prefix}</span>}
-                                                    <div className="mb-1 font-mono text-2xl text-ink">{item.price}</div>
-                                                    <div className="text-xs text-ink-faint">{item.unit}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <p className="mt-6 text-xs text-ink-faint">* Reads and writes to persisted Actor state, not in-memory operations within an Actor</p>
-                                        <p className="mt-2 text-xs text-ink-faint">Active execution on Rivet Cloud is billed per second. Supported deployment paths are also available for AWS, Vercel, Railway, and bare metal.</p>
-                                    </div>
-
-                                    <ComputeCalculator />
-
-                                    <ComparisonTable />
-                                </>
+                            <ClusterEstimator />
                     </div>
                 </div>
             </div>
