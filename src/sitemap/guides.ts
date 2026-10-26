@@ -31,6 +31,7 @@ export const GUIDE_BUNDLES: string[] = PRODUCTS.filter(
  * after the ranked ones.
  */
 export const GUIDE_PRIORITY: string[] = [
+	"personal-agent",
 	"durable-ai-agents",
 	"run-claude-code",
 	"run-codex",
