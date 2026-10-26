@@ -71,6 +71,26 @@ Library VMs share a sidecar process by default. Limits that apply to the whole
 process, such as `runtime.executor.maxActiveVms`, are set when creating a
 dedicated sidecar with `AgentOs.createSidecar()`, as in the example above.
 
+Each library request to the sidecar must fit in one protocol frame. The sidecar
+reports its frame limit (16 MiB) when the client connects, and the limit is not
+configurable. The client rejects a larger request with `SidecarFrameTooLarge`
+before it sends it, so the sidecar and the other VMs on it keep running. Binary
+file content is base64-encoded, so one `writeFile` or `writeFiles` call carries
+at most about 12 MiB of binary data. To move larger files, split them into
+several files or mount a host directory.
+
+### Sidecar memory
+
+On Linux with glibc, the sidecar returns memory freed by a disposed VM's V8
+isolates to the OS shortly after disposal.
+
+The sidecar also keeps a pool of up to four pre-started V8 isolates so that
+JavaScript and Python executions start faster. The pool stays resident while
+the sidecar runs, at about 20 MiB per isolate. To cap it, set
+`AGENTOS_V8_WARM_ISOLATES` to a value from `0` to `4` in the environment that
+starts the sidecar. `0` disables the pool and trades memory for slower
+execution starts.
+
 ## Embedded API
 
 Limits apply to VMs created with `AgentOs.create()` and sidecars created with
