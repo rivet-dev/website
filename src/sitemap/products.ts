@@ -23,7 +23,7 @@ import {
 } from "./self-host";
 import { API_DOCS_NAMESPACE, SITE_DOCS_NAMESPACE } from "./docs-sources";
 import { CLOUD_BUNDLE_ID } from "./deploy";
-import { GUIDE_BUNDLES, guideHref } from "./guides";
+import { GUIDE_BUNDLES, GUIDE_PRIORITY, guideHref } from "./guides";
 import { integrationFold, integrationSidebar } from "@/data/integrations";
 import { registryFold } from "@/data/registry";
 import { integrationsHref, SITE_INTEGRATIONS_PRODUCT } from "./integrations";
@@ -179,13 +179,30 @@ export function deploySidebar(): SidebarItem[] {
 }
 
 /** Guides tab groups in sidebar order, after General. Groups not listed follow in product order. */
-const GUIDE_GROUP_ORDER = ["Architecture", "Agents", "Guides"];
+const GUIDE_GROUP_ORDER = [
+	"Architecture",
+	"Agents",
+	"Coding Agents",
+	"Sandboxes",
+	"RL & Evals",
+	"Workflows",
+	"Realtime",
+	"AI-Generated Apps",
+	"Databases",
+	"Platforms",
+	"Security & Compliance",
+	"IoT",
+	"Games",
+];
 
 /**
  * The Guides tab's sidebar: the website's overview, then every bundle's
  * `guides` groups, ordered by `GUIDE_GROUP_ORDER`. Groups with the same title
- * merge into one, keeping each bundle's page order.
+ * merge into one, and each group's pages sort by `GUIDE_PRIORITY`.
  */
+/** Guides each group shows before its "more" button. */
+const GUIDE_GROUP_LIMIT = 12;
+
 export function guidesSidebar(): SidebarItem[] {
 	const overview: SidebarSection = {
 		title: "General",
@@ -201,7 +218,7 @@ export function guidesSidebar(): SidebarItem[] {
 			}
 			const group = merged.find((candidate) => candidate.title === item.title);
 			if (group) group.pages.push(...item.pages);
-			else merged.push({ ...item, pages: [...item.pages] });
+			else merged.push({ ...item, pages: [...item.pages], limit: GUIDE_GROUP_LIMIT });
 		}
 	}
 	const rank = (group: SidebarSection) => {
@@ -209,6 +226,12 @@ export function guidesSidebar(): SidebarItem[] {
 		return index === -1 ? GUIDE_GROUP_ORDER.length : index;
 	};
 	merged.sort((a, b) => rank(a) - rank(b));
+	const priority = (page: SidebarItem) => {
+		const slug = "href" in page && page.href ? page.href.replace(/^\/guides\//, "").replace(/\/$/, "") : "";
+		const index = GUIDE_PRIORITY.indexOf(slug);
+		return index === -1 ? GUIDE_PRIORITY.length : index;
+	};
+	for (const group of merged) group.pages.sort((a, b) => priority(a) - priority(b));
 	return [overview, ...merged];
 }
 

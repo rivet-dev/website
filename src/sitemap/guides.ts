@@ -24,6 +24,44 @@ export const GUIDE_BUNDLES: string[] = PRODUCTS.filter(
 	(product) => ownsDocsBundle(product) && !product.bundleOf && !product.unlaunched,
 ).map((product) => product.id);
 
+/**
+ * Guide slugs from highest to lowest priority, ranked by search demand and fit
+ * (see `~/.agents/research/guides-seo`). The Guides sidebar sorts the pages of
+ * every group by this order; guides missing from it keep their bundle order
+ * after the ranked ones.
+ */
+export const GUIDE_PRIORITY: string[] = [
+	"personal-agent",
+	"durable-ai-agents",
+	"run-claude-code",
+	"run-codex",
+	"run-opencode",
+	"run-amp",
+	"chat-room",
+	"multi-agent-system",
+	"human-in-the-loop",
+	"per-tenant-database",
+	"ai-workflows",
+	"host-ai-generated-apps",
+	"handle-webhooks",
+	"cron-jobs",
+	"collaborative-text-editor",
+	"collaborative-text-editor-ot",
+	"battle-royale",
+	"io-game",
+	"arena-game",
+	"turn-based-game",
+	"open-world-game",
+	"party-game",
+	"ranked-game",
+	"idle-game",
+	"physics-2d-game",
+	"physics-3d-game",
+	"authentication",
+	"live-cursors",
+	"webhook-delivery",
+];
+
 export function guideHref(slug: string): string {
 	return slug ? `${GUIDES_ROUTE_PREFIX}/${slug}/` : `${GUIDES_ROUTE_PREFIX}/`;
 }

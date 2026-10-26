@@ -39,6 +39,10 @@ console.log(sum.value); // 3
 Returning `undefined`, a function, a symbol, or a circular value fails with
 `evaluation_serialization_failed` rather than silently losing the value.
 
+`evaluate()` returns as soon as the expression's promise settles and its
+in-flight host calls finish. Work it leaves behind is released as described in
+[Keep state between calls](#keep-state-between-calls).
+
 ## Execute code
 
 `execute()` runs source and captures its output instead of returning a value.
@@ -65,6 +69,11 @@ Executions are ephemeral, so capture stdio only when you want it: `"stderr"` for
 diagnostics, `"all"` for both streams. `onStdout`/`onStderr` stream live and work
 independently of capture.
 
+Without a `contextId`, `execute()` behaves like `node -e`: it finishes when the
+event loop is empty, so a ref'd timer or a listening server keeps it running
+until `timeoutMs`. Call `unref()` on handles that must not hold it open, or use
+`spawn` for long-lived work.
+
 ## Pass data into code
 
 In the library, `inputs` hands host values to the guest as real objects, so data never gets
@@ -79,9 +88,29 @@ calls.
 
 <CodeSnippet file="examples/js-sdk-overview/src/contexts.ts" title="Library" />
 
-A context runs one operation at a time, so reusing a busy `contextId` fails
-immediately. Files, npm, Bash, and type checks may pass the same id, but they run
-in fresh processes and never touch retained memory.
+A call in a context completes when its top-level code, including any promise it
+awaits, settles. It does not wait for work it leaves behind. Globals stay, so the
+next call sees the state, but agentOS releases what would keep a Node process
+alive:
+
+- **Ref'd timers and immediates** are cancelled and never run. A promise that
+  waits on one never settles.
+- **Ref'd sockets, servers, and child processes** are closed. Pending I/O on them
+  fails with `ERR_AGENTOS_CONTEXT_HANDLE_RELEASED`, never a clean end. A `fetch`
+  that is still in flight rejects with that error as its `cause`, and reading a
+  stored `Response` body fails the same way.
+- **Unref'd timers and handles** are left alone, but nothing runs between calls,
+  so they only make progress while a later call is running.
+
+The call's stderr names what was released. Errors raised during that cleanup,
+such as an unhandled rejection from a released `fetch`, are written to the same
+stderr and never change the call's result. Finish I/O inside one call, and run
+long-lived servers with `spawn` instead of a context.
+
+A context runs one call at a time. A call made while another call in the same
+context is still running fails immediately with `execution_busy`. Files, npm,
+Bash, and type checks may pass the same id, but they run in fresh processes and
+never touch retained memory.
 
 JavaScript defaults to `format: "module"`. Each call is a separate root ES
 module, so its imports, top-level declarations, and exports are scoped to that
@@ -192,7 +221,9 @@ See [Filesystem](/agentos/docs/filesystem), [Processes & Shells](/agentos/docs/p
 ## Host functions
 
 Guest JavaScript calls [host functions](/agentos/docs/host-functions) as async globals, so host
-credentials stay outside the VM. Host functions are library-only.
+credentials stay outside the VM. The globals exist in every guest Node process,
+whether it runs inline code, a spawned script, `node` from the shell, or a child
+process. Host functions are library-only.
 
 <CodeSnippet file="examples/embedded/host-functions-javascript.ts" title="Library" />
 

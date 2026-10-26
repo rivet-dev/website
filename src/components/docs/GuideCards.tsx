@@ -1,6 +1,8 @@
 import { guidesSidebar } from "@/sitemap/products";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
 import type { AnyPage, SidebarItem } from "@/lib/sitemap";
+import { DiagramMini } from "@/components/docs/diagram/Diagram";
+import type { DiagramSpec } from "@/components/docs/diagram/fromMdx";
 
 function slugify(title: string): string {
 	return title
@@ -37,15 +39,18 @@ function guideGroups(overviewHref: string): GuideGroup[] {
  * one heading per sidebar section, then a card per guide in it. Adding a guide
  * to any bundle's `guides` sidebar updates both.
  *
- * `descriptions` maps each guide href to its frontmatter description; the
- * route supplies it from the content collections.
+ * `descriptions` maps each guide href to its frontmatter description and
+ * `diagrams` to the data of its `<Diagram>`, drawn as a thumbnail on the card;
+ * the route supplies both from the content collections.
  */
 export function GuideCards({
 	overviewHref,
 	descriptions,
+	diagrams,
 }: {
 	overviewHref: string;
 	descriptions: Record<string, string | undefined>;
+	diagrams: Record<string, DiagramSpec | undefined>;
 }) {
 	return (
 		<>
@@ -59,6 +64,11 @@ export function GuideCards({
 								href={page.href}
 								className="group flex flex-col gap-1 rounded-lg border border-ink/10 bg-white/55 p-4 no-underline transition-colors hover:border-ink/25"
 							>
+								{diagrams[page.href] ? (
+									<div className="mb-3 h-32 rounded-md border border-ink/5 bg-paper/60 px-2 py-3">
+										<DiagramMini {...(diagrams[page.href] as DiagramSpec)} />
+									</div>
+								) : null}
 								<span className="text-[15px] font-medium text-ink">{page.title}</span>
 								{descriptions[page.href] ? (
 									<p className="text-[13px] leading-snug text-ink-soft">

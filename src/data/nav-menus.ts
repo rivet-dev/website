@@ -41,21 +41,21 @@ export interface SolutionMenuItem {
 export const SOLUTIONS_MENU: SolutionMenuItem[] = [
 	{
 		id: "coding-agents",
-		href: "/guides/coding-agents/",
+		href: "/guides/run-claude-code/",
 		label: "Coding agents",
 		description: "A sandbox and durable memory per session",
 		icon: faCode,
 	},
 	{
 		id: "agent-app-builders",
-		href: "/guides/agent-app-builders/",
+		href: "/guides/host-ai-generated-apps/",
 		label: "Agent app builders",
 		description: "A backend per user, deployed on generation",
 		icon: faSparkles,
 	},
 	{
 		id: "company-agents",
-		href: "/guides/company-agents/",
+		href: "/guides/durable-ai-agents/",
 		label: "Company-specific agents",
 		description: "Agents on internal data, inside your network",
 		icon: faBuilding,
