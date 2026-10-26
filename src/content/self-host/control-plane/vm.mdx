@@ -1,136 +1,115 @@
 ---
 title: "VM & Bare Metal"
-description: "Run the Rivet control plane on a Linux host with Docker."
+description: "Run the control plane with systemd on Linux virtual machines or bare metal."
 ---
+
+The control plane runs anywhere that meets the requirements below. The example runs it with systemd on Linux virtual machines or bare metal.
 
 ## Requirements
 
-- A Linux host with SSH access and Docker installed
-- A persistent disk for the data volume
+Every control plane instance needs:
 
-This guide covers any Linux host: Hetzner, DigitalOcean, Linode, EC2, or hardware you own.
+- **Its own persistent disk.** A local or block-storage disk that survives restarts and supports `fsync`. Never share one disk between instances, and never use a network file system such as NFS or EFS. 
+- **A stable private address** that the other instances can reach on port `6421`.
+- **Access to the bucket.**
+- **A pinned image or binary version.** Run the same version on every instance.
+
+Run at least three instances in production, each on its own machine.
 
 ## Steps
 
 <Steps>
 
-<Step title="Generate an admin token">
+<Step title="Install the binary">
+
+Copy `rivet-engine` from the `rivetdev/engine:2.3.31` image to each machine and create the disk directory:
 
 ```bash
-export RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)
-echo $RIVET_ADMIN_TOKEN
+docker create --name rivet-extract rivetdev/engine:2.3.31
+docker cp rivet-extract:/usr/bin/rivet-engine /usr/local/bin/rivet-engine
+docker rm rivet-extract
+sudo useradd --system rivet
+sudo mkdir -p /var/lib/rivet/log && sudo chown rivet /var/lib/rivet/log
 ```
 
-Save it. Without a token the API is unauthenticated.
+Mount the instance's disk at `/var/lib/rivet/log`.
 
 </Step>
 
-<Step title="Start the control plane">
+<Step title="Write the config file">
 
-```bash
-docker run -d \
-  --name rivet-engine \
-  --restart unless-stopped \
-  -p 6420:6420 \
-  -p 6421:6421 \
-  -v rivet-data:/data \
-  -e RIVET__FILE_SYSTEM__PATH="/data" \
-  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
-  rivetdev/engine:latest
+Save this as `/etc/rivet/config.json` on each machine. Set `advertise_address` to that machine's private IP.
+
+```json
+{
+	"auth": { "admin_token": "<rivet-token>" },
+	"api_peer": { "advertise_address": "10.0.0.11:6421" },
+	"depot": { "log_directory": "/var/lib/rivet/log" },
+	"object_storage": {
+		"primary": {
+			"s3": {
+				"bucket": "my-rivet-bucket",
+				"region": "us-east-1",
+				"access_key_id": "AKIA...",
+				"secret_access_key": "..."
+			}
+		}
+	}
+}
 ```
 
-The named volume is what makes data survive a container replacement. Pin the image tag for anything long-lived.
+Use the same Rivet token and bucket on every instance. Make the file readable only by the `rivet` user. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends.
 
 </Step>
 
-<Step title="Verify">
+<Step title="Create the service">
 
-```bash
-curl -i http://localhost:6421/health
+Save this as `/etc/systemd/system/rivet.service`:
+
+```ini
+[Unit]
+Description=Rivet control plane
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=rivet
+ExecStart=/usr/local/bin/rivet-engine --config /etc/rivet/config.json
+Restart=always
+LimitNOFILE=1048576
+TimeoutStopSec=660
+
+[Install]
+WantedBy=multi-user.target
 ```
-
-Expect `200`. The dashboard is at `http://<host>:6420/ui`.
-
-</Step>
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
-
-```bash
-curl -X PUT "http://<host>:6420/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
-```
-
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
-
-</Step>
-
-<Step title="Put TLS in front">
-
-Port `6420` should not be exposed directly to the internet. Terminate TLS at NGINX or Caddy and raise the idle timeout to `3600` seconds, or long-lived WebSockets will be cut. See <SelfHostLink to="control-plane/tls">TLS</SelfHostLink>.
 
 </Step>
 
-<Step title="Connect a worker">
+<Step title="Start every instance">
 
-From another host, point the worker at this one:
+Start all instances within a minute of each other, so the first storage placement uses all of them.
 
 ```bash
-RIVET_ENDPOINT="http://default:$RIVET_ADMIN_TOKEN@your-host.example.com:6420"
+sudo systemctl enable --now rivet
+curl http://localhost:6420/health
 ```
 
-From a container on the same host, use `host.docker.internal` instead of the hostname. Confirm the worker appears under **Runners** in the dashboard.
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
+
+</Step>
+
+<Step title="Add a load balancer">
+
+Point a load balancer at port `6420` on every instance, terminate TLS there and raise its idle timeout to one hour. See <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>.
 
 </Step>
 
 </Steps>
 
-## Using PostgreSQL
-
-The file system backend above is RocksDB on local disk: single-node, and impossible to share between hosts. Scaling past one control plane node means moving to PostgreSQL first, then adding NATS for pub/sub. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. The commands below are still one engine container on one host; PostgreSQL is what makes adding a second host possible later.
-
-```bash
-docker network create rivet-net
-
-docker run -d --name postgres --network rivet-net \
-  -e POSTGRES_DB=rivet -e POSTGRES_USER=rivet -e POSTGRES_PASSWORD=rivet_password \
-  -v postgres-data:/var/lib/postgresql/data \
-  postgres:15
-
-docker run -d --name rivet-engine --network rivet-net \
-  --restart unless-stopped \
-  -p 6420:6420 -p 6421:6421 \
-  -e RIVET__POSTGRES__URL="postgresql://rivet:rivet_password@postgres:5432/rivet" \
-  -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
-  rivetdev/engine:latest
-```
-
-## Using a config file
-
-```bash
-docker run -d \
-  --name rivet-engine \
-  -p 6420:6420 \
-  -v rivet-data:/data \
-  -v $(pwd)/rivet-config.json:/etc/rivet/config.json:ro \
-  rivetdev/engine:latest
-```
-
-See <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink> for the full schema.
-
-## Building from source
-
-```bash
-git clone https://github.com/rivet-dev/rivet.git
-cd rivet
-cargo build --release -p rivet-engine
-./target/release/rivet-engine
-```
-
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="control-plane/docker-compose">Docker Compose</SelfHostLink> for multi-container setups
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="nodes">Deploy nodes</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

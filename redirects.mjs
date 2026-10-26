@@ -56,11 +56,8 @@ const explicitRedirects = {
 	'/cookbook/per-tenant-database': '/guides/per-tenant-database/',
 	// Documentation restructure
 	'/docs/setup': '/actors/docs/',
-	// The docs overview absorbed the product-agnostic quickstart chooser, and
-	// Troubleshooting moved out of the Actors bundle because it covers control
-	// plane statuses rather than the SDK.
+	// The docs overview absorbed the product-agnostic quickstart chooser.
 	'/docs/quickstart': '/docs/',
-	'/actors/docs/troubleshooting': '/docs/troubleshooting/',
 	// The container runner and its Containers, Unity, and Godot integration
 	// pages were removed.
 	'/docs/container-runner': '/integrations/',
@@ -68,9 +65,9 @@ const explicitRedirects = {
 	'/integrations/unity': '/integrations/',
 	'/integrations/godot': '/integrations/',
 	// Endpoints was rewritten as the shorter Connect page; Runtime Modes folded
-	// into Workers & Pools.
+	// into Nodes & Node Pools.
 	'/docs/endpoints': '/docs/connect/',
-	'/docs/runtime-modes': '/docs/workers/',
+	'/docs/runtime-modes': '/docs/nodes/',
 	// Dead links inside dated changelog posts. Neither target ever existed, so
 	// these point at the nearest real page rather than being rewritten in the
 	// posts, which are historical records.
@@ -115,19 +112,19 @@ const explicitRedirects = {
 	'/docs/actors/quickstart': '/actors/docs/',
 	// Connect tab renamed to Deploy. The bare `/docs/connect` URL is now the
 	// Connect page in docs/general, so only the platform sub-pages redirect.
-	'/docs/connect/aws-ecs': '/docs/deploy/self-host/workers/',
-	'/docs/connect/aws-lambda': '/docs/deploy/self-host/workers/',
-	'/docs/connect/cloudflare': '/docs/deploy/self-host/workers/',
-	'/docs/connect/custom': '/docs/deploy/self-host/workers/',
-	'/docs/connect/freestyle': '/docs/deploy/self-host/workers/',
-	'/docs/connect/gcp-cloud-run': '/docs/deploy/self-host/workers/',
-	'/docs/connect/hetzner': '/docs/deploy/self-host/workers/',
-	'/docs/connect/kubernetes': '/docs/deploy/self-host/workers/',
-	'/docs/connect/railway': '/docs/deploy/self-host/workers/',
-	'/docs/connect/rivet-compute': '/docs/deploy/self-host/workers/',
-	'/docs/connect/supabase': '/docs/deploy/self-host/workers/',
-	'/docs/connect/vercel': '/docs/deploy/self-host/workers/',
-	'/docs/connect/vm-and-bare-metal': '/docs/deploy/self-host/workers/',
+	'/docs/connect/aws-ecs': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/aws-lambda': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/cloudflare': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/custom': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/freestyle': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/gcp-cloud-run': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/hetzner': '/docs/deploy/self-host/nodes/hetzner/',
+	'/docs/connect/kubernetes': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/railway': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/rivet-compute': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/supabase': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/vercel': '/docs/deploy/self-host/nodes/',
+	'/docs/connect/vm-and-bare-metal': '/docs/deploy/self-host/nodes/',
 	// Cloud docs removed - redirect to relevant sections
 	'/docs/cloud': '/docs/deploy/',
 	'/docs/cloud/api/actors/create': '/actors/docs/',
@@ -193,8 +190,8 @@ const explicitRedirects = {
 	'/cookbook/vpc-air-gapped': '/docs/deploy/self-host/control-plane/vm/',
 	// Rivet Compute is a Cloud feature, not a self-hosting target.
 	'/docs/deploy/rivet-compute': '/docs/deploy/cloud/compute/',
-	'/docs/deploy/freestyle': '/docs/deploy/self-host/workers/freestyle/',
-	'/docs/deploy/hetzner': '/docs/deploy/self-host/workers/vm/',
+	'/docs/deploy/freestyle': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/hetzner': '/docs/deploy/self-host/nodes/hetzner/',
 	'/docs/self-hosting/render': '/docs/deploy/self-host/control-plane/render/',
 	// Comparison slugs name the product, not the company.
 	'/compare/rivet-vs-cloudflare-durable-objects':
@@ -293,12 +290,12 @@ function legacyDocsRedirects() {
 	}
 
 	// The old Deploy and Self-Hosting sections merged into the Deploy
-	// section: app deployment became `workers`, running Rivet yourself became
+	// section: app deployment became `nodes`, running Rivet yourself became
 	// `control-plane`. Pages land on the matching group overview until each
 	// guide is rewritten. `/docs/deploy` itself is a real page again (the
 	// Deploy overview), so only the Self-Hosting root gets a redirect.
 	const SECTION_TARGETS = {
-		deploy: '/docs/deploy/self-host/workers/',
+		deploy: '/docs/deploy/self-host/nodes/',
 		'self-hosting': '/docs/deploy/self-host/control-plane/',
 	};
 	for (const [section, target] of Object.entries(SECTION_TARGETS)) {
@@ -385,13 +382,13 @@ function bundleSplitRedirects() {
 	const MOVED = {
 		cli: '/docs/cli/',
 		'container-runner': '/integrations/',
-		statuses: '/docs/statuses/',
+		statuses: '/actors/docs/lifecycle/',
 		versions: '/docs/versions/',
-		'general/edge': '/docs/regions/',
+		'general/edge': '/docs/architecture/',
 		'general/endpoints': '/docs/connect/',
 		'general/environment-variables': '/docs/environment-variables/',
-		'general/pool-configuration': '/docs/pool-configuration/',
-		'general/runtime-modes': '/docs/workers/',
+		'general/pool-configuration': '/docs/nodes/',
+		'general/runtime-modes': '/docs/nodes/',
 		'general/skill': '/docs/skill/',
 		'general/tracing': '/docs/tracing/',
 	};
@@ -448,7 +445,70 @@ function agentosIntegrationsRedirects() {
 	return map;
 }
 
-export const redirects = {
+// Retired pages and the page that replaced each. The serverless node
+// platforms are gone. Workers & Pools became Nodes & Node Pools, which absorbed
+// Pool Configuration. Statuses, Regions and the control plane Troubleshooting
+// page were removed for their closest replacements. The control plane Access
+// Control and Performance pages are covered by Scoped Tokens and Benchmarking.
+// Per-product copies of the self-host slugs redirect too.
+const RETIRED_PAGES = {
+	'/docs/deploy/self-host/workers/vercel': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/self-host/workers/cloudflare': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/self-host/workers/gcp-cloud-run': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/self-host/workers/aws-lambda': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/self-host/workers/supabase': '/docs/deploy/self-host/nodes/',
+	'/docs/deploy/self-host/workers/freestyle': '/docs/deploy/self-host/nodes/',
+	'/docs/workers': '/docs/nodes/',
+	'/docs/pool-configuration': '/docs/nodes/',
+	'/docs/runtime-modes': '/docs/nodes/',
+	'/docs/statuses': '/actors/docs/lifecycle/',
+	'/docs/regions': '/docs/architecture/',
+	'/docs/troubleshooting': '/actors/docs/troubleshooting/',
+	'/actors/docs/inspector-tabs': '/actors/docs/debugging/',
+	'/docs/deploy/self-host/control-plane/rbac': '/docs/jwt/',
+	'/docs/deploy/self-host/control-plane/performance': '/docs/benchmarking/',
+	'/docs/deploy/cloud/preview-deployments': '/docs/deploy/cloud/',
+	'/integrations/durable-streams': '/integrations/',
+};
+
+// The node guides moved from `self-host/workers/` to `self-host/nodes/` with
+// every page keeping its slug. The per-product copies of the old slugs
+// redirect too.
+function nodeGuideRenameRedirects() {
+	const map = {};
+	const PRODUCTS = ['actors', 'workflows', 'dynamic-apps', 'agentos'];
+	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'self-host/nodes'))) {
+		const suffix = slug ? `/${slug}` : '';
+		const target = `/docs/deploy/self-host/nodes${suffix}/`;
+		map[`/docs/deploy/self-host/workers${suffix}`] = target;
+		for (const product of PRODUCTS) map[`/${product}/self-host/workers${suffix}`] = target;
+	}
+	return map;
+}
+
+function retiredPageRedirects() {
+	const map = {};
+	const PRODUCTS = ['actors', 'workflows', 'dynamic-apps', 'agentos'];
+	for (const [from, to] of Object.entries(RETIRED_PAGES)) {
+		map[from] = to;
+		const selfHost = /^\/docs\/deploy\/self-host\/(.+)$/.exec(from);
+		if (selfHost) {
+			for (const product of PRODUCTS) map[`/${product}/self-host/${selfHost[1]}`] = to;
+		}
+	}
+	return map;
+}
+
+/** Points redirects that land on a retired page straight at its replacement. */
+function skipRetiredHops(map) {
+	const out = {};
+	for (const [from, to] of Object.entries(map)) {
+		out[from] = RETIRED_PAGES[to.replace(/\/$/, '')] ?? to;
+	}
+	return out;
+}
+
+export const redirects = skipRetiredHops({
 	...legacyDocsRedirects(),
 	...bundleSplitRedirects(),
 	...cloudDocsRedirects(),
@@ -456,8 +516,10 @@ export const redirects = {
 	...guidesRedirects(),
 	...integrationsRedirects(),
 	...agentosIntegrationsRedirects(),
+	...nodeGuideRenameRedirects(),
+	...retiredPageRedirects(),
 	...explicitRedirects,
-};
+});
 
 
 // External hosts that wildcard and absolute-URL redirect targets are restricted

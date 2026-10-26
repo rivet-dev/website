@@ -1,87 +1,67 @@
 ---
 title: "Railway"
-description: "Run the Rivet control plane on Railway."
+description: "Run a single control plane instance on Railway with a persistent volume."
 ---
+
+{/* TODO(verify): run this on Railway and confirm a Railway volume gives the instance an exclusive, fsync-capable disk. */}
+
+Railway runs one control plane instance with a Railway volume as its disk. Use it to try Rivet on a managed platform. For production, run three or more instances on <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/vm">VMs</SelfHostLink>.
 
 ## Requirements
 
 - A [Railway account](https://railway.app)
-- The [Railway CLI](https://docs.railway.app/develop/cli), optional
+- An object storage bucket, such as S3.
 
 ## Steps
 
 <Steps>
 
-<Step title="Deploy a template">
+<Step title="Create the service">
 
-Two templates are published. Both provision the control plane and a PostgreSQL database.
-
-| [Rivet](https://railway.com/deploy/rivet?referralCode=RC7bza&utm_medium=integration&utm_source=template&utm_campaign=generic) | [Rivet Starter](https://railway.com/deploy/rivet-starter) |
-| --- | --- |
-| Blank template | Complete example |
-| Control plane and PostgreSQL | Control plane, PostgreSQL, and a chat app built with actors |
-| Manual setup from here | Runs immediately |
-
-To build it by hand instead, create a project, add a **PostgreSQL** database, then add a **Docker Image** service using `rivetdev/engine:latest` with `RIVET__POSTGRES__URL=${{Postgres.DATABASE_URL}}`.
-
-The [Railway template repository](https://github.com/rivet-dev/template-railway) is a useful starting point for your own application.
+Create a service from the Docker image `rivetdev/engine:2.3.31` and set its start command to `--config /etc/rivet`.
 
 </Step>
 
-<Step title="Find the admin token">
+<Step title="Attach a volume">
 
-The templates generate one. It is under the **Variables** tab as `RIVET__AUTH__ADMIN_TOKEN`.
-
-</Step>
-
-<Step title="Set the draining period">
-
-Railway kills the old deploy **0 seconds** after `SIGTERM` by default, so in-flight requests are dropped and state flushes are interrupted on every single deploy. Rivet drains cleanly on `SIGTERM`, but only if it is given time.
-
-Under **Settings → Deploy**, set **Draining seconds** to `60`. It can also be set with `drainingSeconds` in config-as-code, or the `RAILWAY_DEPLOYMENT_DRAINING_SECONDS` service variable. See [Railway's deployment teardown docs](https://docs.railway.com/deployments/deployment-teardown).
+Attach a volume mounted at `/var/lib/rivet/log`. Keep the service at one replica: a volume belongs to one instance.
 
 </Step>
 
-<Step title="Verify">
-
-Open your service URL with `/ui` appended and log in with the admin token.
-
-</Step>
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+<Step title="Set the variables">
 
 ```bash
-curl -X PUT "https://<your-service>.up.railway.app/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
+RIVET__AUTH__ADMIN_TOKEN=<openssl rand -hex 32>
+RIVET__DEPOT__LOG_DIRECTORY=/var/lib/rivet/log
+RIVET__DEPOT__AUTO_PROVISION_TABLETS=1
+RIVET__DEPOT__BALANCING__ENABLED=false
+RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET=my-rivet-bucket
+RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION=us-east-1
+RIVET__OBJECT_STORAGE__PRIMARY__S3__ACCESS_KEY_ID=...
+RIVET__OBJECT_STORAGE__PRIMARY__S3__SECRET_ACCESS_KEY=...
 ```
 
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends.
+
+</Step>
+
+<Step title="Expose port 6420 and verify">
+
+Generate a public domain for port `6420`, then:
+
+```bash
+curl https://<your-domain>/health
+```
+
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
 
 </Step>
 
 </Steps>
 
-## Signal handling
-
-If your start command is a wrapper (`npm start`, `yarn start`, a shell script), the wrapper becomes PID 1, swallows `SIGTERM`, and the drain never happens no matter what you set the draining period to.
-
-- Invoke the binary directly, for example `node dist/index.js`.
-- Or run `dumb-init` or `tini` as PID 1 in your Dockerfile.
-
-## WebSocket timeouts
-
-Railway's HTTP proxy supports WebSockets. If you add your own reverse proxy inside the service, raise its idle and read timeouts to `3600`. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
-
-## Scaling past one instance
-
-Both templates provision a single control plane service on PostgreSQL, which is a fine starting point. Before raising the replica count, add NATS for pub/sub so replicas coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-Railway has no CPU-target autoscaler, so replica count is a number you set rather than one that moves with load. Pick it for peak traffic, and use <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/aws-ecs">AWS ECS</SelfHostLink> if you need it to scale on its own.
-
 ## Next steps
 
+- <SelfHostLink to="nodes/railway">Run your nodes on Railway</SelfHostLink>
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers/railway">Deploy workers on Railway</SelfHostLink>

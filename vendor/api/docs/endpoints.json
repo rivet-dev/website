@@ -1,6 +1,6 @@
 {
 	"$comment": "Source of truth for the generated HTTP API reference. Run `node scripts/docs/gen-api-reference.mjs` after editing.",
-	"baseUrl": "https://api.rivet.dev",
+	"baseUrl": "https://rivet.example.com",
 	"specs": {
 		"engine": {
 			"file": "engine/artifacts/openapi.json",
@@ -8,47 +8,48 @@
 				"curlHeaders": [
 					"Authorization: Bearer $RIVET_TOKEN"
 				],
-				"description": "Send your namespace token as a bearer token in the `Authorization` header. Every control plane request also requires the `namespace` query parameter. See [Authentication](/docs/api/authentication)."
+				"description": "Send the admin token, or a namespace token from [Create Token](/docs/api/tokens/create) whose grants cover the request, as a bearer token in the `Authorization` header. The `x-rivet-token` header is also accepted. Routes with a `namespace` query parameter use the `default` namespace when it is omitted. See [Authentication](/docs/api/authentication)."
 			},
 			"parameters": {
-				"namespace": "Name of the namespace to operate in.",
+				"namespace": "Name of the namespace to operate in. Defaults to `default`.",
 				"actor_id": "ID of the actor.",
-				"limit": "Maximum number of results to return.",
+				"limit": "Maximum number of results to return, from 1 to 100. Defaults to 100.",
 				"cursor": "Pagination cursor. Pass the `pagination.cursor` value from the previous response to fetch the next page.",
 				"pagination.cursor": "Cursor for the next page, or `null` when there are no more results.",
 				"actor.actor_id": "Unique ID of the actor.",
 				"actor.name": "Actor name as registered in your RivetKit registry.",
-				"actor.key": "Actor key. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys).",
-				"actor.namespace_id": "ID of the namespace the actor belongs to.",
-				"actor.datacenter": "Datacenter the actor is scheduled in.",
-				"actor.runner_name_selector": "Pool the actor runs on.",
-				"actor.crash_policy": "What happens when the actor crashes.",
+				"actor.key": "Actor key. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys). An empty string for an actor without a key.",
+				"actor.runner_name_selector": "Node pool the actor runs in.",
 				"actors[].actor_id": "Unique ID of the actor.",
 				"actors[].name": "Actor name as registered in your RivetKit registry.",
-				"actors[].key": "Actor key. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys).",
-				"actors[].namespace_id": "ID of the namespace the actor belongs to.",
-				"actors[].datacenter": "Datacenter the actor is scheduled in.",
-				"actors[].runner_name_selector": "Pool the actor runs on.",
-				"actors[].crash_policy": "What happens when the actor crashes.",
-				"created": "`true` if this request created the actor, `false` if it already existed.",
+				"actors[].key": "Actor key. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys). An empty string for an actor without a key.",
+				"actors[].runner_name_selector": "Node pool the actor runs in.",
 				"names": "Map of actor name to metadata.",
-				"names.metadata": "Free-form metadata attached to the actor name.",
 				"token": "The issued token. Treat it as a secret.",
 				"issued_ts": "When the token was issued, in Unix milliseconds.",
 				"expires_ts": "When the token expires, in Unix milliseconds.",
-				"namespace_id": "ID of the namespace the token is scoped to.",
-				"subject": "Subject attached to the token, if any.",
+				"subject": "Subject attached to the token, or `null`.",
 				"grants": "Permissions the token carries.",
 				"grants[].resource": "Resource type the grant applies to.",
 				"grants[].target": "`\"any\"` for every resource of this type, or `{ \"id\": \"...\" }` for one resource.",
-				"grants[].operations": "Operations the token may perform on the target.",
-				"value": "Base64-encoded value bytes.",
-				"update_ts": "When the key was last written, in Unix milliseconds."
+				"grants[].operations": "Operations the token may perform on the target."
 			},
 			"authProfiles": {
 				"none": {
 					"curlHeaders": [],
 					"description": "No authentication is required."
+				},
+				"admin": {
+					"curlHeaders": [
+						"Authorization: Bearer $RIVET_TOKEN"
+					],
+					"description": "Requires the admin token, sent as a bearer token in the `Authorization` header. Namespace tokens are rejected. See [Authentication](/docs/api/authentication)."
+				},
+				"token": {
+					"curlHeaders": [
+						"Authorization: Bearer $RIVET_TOKEN"
+					],
+					"description": "Send the namespace token to inspect as a bearer token in the `Authorization` header. The admin token is rejected. See [Authentication](/docs/api/authentication)."
 				}
 			}
 		},
@@ -58,7 +59,7 @@
 				"curlHeaders": [
 					"x-rivet-token: $RIVET_TOKEN"
 				],
-				"description": "Send a token in the `x-rivet-token` header, inline in the path as `{actor_id}@{token}`, or in the `rvt-token` query parameter. Use a public token (`pk_`) from browsers and a secret token (`sk_`) from trusted backends. See [Authentication](/docs/api/authentication)."
+				"description": "Send a token in the `x-rivet-token` header, inline in the path as `{actor_id}@{token}`, or in the `rvt-token` query parameter. Use a [scoped token](/docs/jwt) from browsers and your Rivet token from trusted backends. See [Authentication](/docs/api/authentication)."
 			},
 			"parameters": {
 				"actor": "Actor ID, actor ID with an inline token (`{actor_id}@{token}`), or actor name combined with the `rvt-*` query parameters.",
@@ -80,7 +81,7 @@
 					"curlHeaders": [
 						"Authorization: Bearer $INSPECTOR_TOKEN"
 					],
-					"description": "Inspector endpoints do not accept namespace tokens. Send the actor's inspector token as a bearer token in the `Authorization` header. Each actor generates its own inspector token on first start and stores it in its KV storage under the single byte `0x03`. Read it through the control plane with `GET /actors/{actor_id}/kv/keys/Aw==?namespace={namespace}` using a namespace token; the response `value` is the token, base64-encoded. The dashboard does this for you."
+					"description": "Inspector endpoints do not accept namespace tokens. Send the actor's inspector token as a bearer token in the `Authorization` header. {/* TODO(code): document how to read an Actor's inspector token once an API returns it (ACT-6493). */}"
 				}
 			}
 		},
@@ -97,11 +98,11 @@
 		"statusSources": [
 			{
 				"label": "gateway",
-				"file": "engine/packages/guard-core/src/utils.rs"
+				"file": "engine/packages/guard-core/src/errors.rs"
 			},
 			{
 				"label": "control plane",
-				"file": "engine/packages/api-builder/src/error_response.rs"
+				"file": "engine/packages/api-public-shim/src/lib.rs"
 			},
 			{
 				"label": "gateway",
@@ -117,10 +118,11 @@
 			"api": "Malformed requests to the control plane.",
 			"auth": "Token validation and permissions.",
 			"connection": "Actor connections opened through the connection protocol.",
+			"envoy": "Node connections, and validation of namespace and pool names.",
 			"guard": "The gateway that routes requests to actors, including request parsing, rate limits, and timeouts.",
-			"kv": "Low-level KV storage inside an actor.",
 			"message": "Message size limits on connections.",
 			"namespace": "Namespace lookup and creation.",
+			"pool": "Node pool configuration.",
 			"protocol": "Encoding and framing of connection protocol messages.",
 			"queue": "Actor queues.",
 			"user": "Errors thrown by your actor code. The code is whatever you pass to `UserError`.",
@@ -174,15 +176,15 @@
 					"path": "/actors",
 					"slug": "list",
 					"title": "List Actors",
-					"description": "List actors in a namespace, optionally filtered by name, key, or ID. Results are paginated.",
-					"notes": "`key` requires `name`. `actor_id` cannot be combined with `name` or `key`. Destroyed actors are excluded unless `include_destroyed` is `true`.",
+					"description": "List actors in a namespace by ID, by name and key, or by name. Listings by name are paginated.",
+					"notes": "Pass `actor_ids` (comma-separated) to look up actors by ID, or `name` with an optional `key`. `actor_ids` takes precedence over `name` and `key`. Only a listing by `name` without `key` is paginated; a page can hold fewer than `limit` actors while `pagination.cursor` is still set. Destroyed actors are excluded unless `include_destroyed` is `true`. A namespace token needs a grant on `actor` with `list`.",
 					"typescript": "examples/docs/api/actors-list.ts",
 					"parameters": {
-						"name": "Only return actors with this name.",
+						"name": "Only return actors with this name. Required unless `actor_ids` or `actor_id` is set.",
 						"key": "Only return the actor with this key. Requires `name`. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys).",
-						"actor_id": "Only return actors with these IDs. Repeat the parameter for multiple IDs.",
-						"actor_ids": "Deprecated. Use `actor_id` instead.",
-						"include_destroyed": "Include actors that have been destroyed."
+						"actor_ids": "Comma-separated IDs of the actors to return.",
+						"actor_id": "Same as `actor_ids`. Used only when `actor_ids` is absent.",
+						"include_destroyed": "Include destroyed actors. Must be `true` or `false`."
 					},
 					"examples": {
 						"query": {
@@ -196,20 +198,35 @@
 				},
 				{
 					"spec": "engine",
+					"method": "get",
+					"path": "/actors/{actor_id}",
+					"slug": "get",
+					"title": "Get Actor",
+					"description": "Get a live actor by ID.",
+					"notes": "Returns `actor.not_found` for an actor that was destroyed or belongs to another namespace. A namespace token needs a grant on `actor` with `read`.",
+					"examples": {
+						"query": {
+							"namespace": "$RIVET_NAMESPACE"
+						}
+					},
+					"responses": {
+						"200": "The actor."
+					}
+				},
+				{
+					"spec": "engine",
 					"method": "post",
 					"path": "/actors",
 					"slug": "create",
 					"title": "Create Actor",
-					"description": "Create a new actor. Fails if an actor with the same name and key already exists.",
-					"notes": "Prefer [Get or Create Actor](/docs/api/actors/get-or-create) for idempotent access by key. Use this endpoint when you need a fresh actor every time, for example with a random key.",
+					"description": "Create a new actor. Fails if a live actor with the same name and key already exists.",
+					"notes": "Prefer [Get or Create Actor](/docs/api/actors/get-or-create) for idempotent access by key. Use this endpoint when you need a fresh actor every time, for example with a random key. The request returns once the actor's record exists, and fails after 30 seconds. A namespace token needs a grant on `actor` with `create`.",
 					"typescript": "examples/docs/api/actors-create.ts",
 					"parameters": {
-						"name": "Name of the actor as registered in your RivetKit registry.",
-						"key": "Key identifying this actor within its name. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys). Omit for a keyless actor.",
-						"runner_name_selector": "Pool that runs the actor. RivetKit registers the `default` pool unless configured otherwise.",
-						"crash_policy": "What happens when the actor crashes. RivetKit defaults to `sleep`.",
-						"datacenter": "Datacenter to create the actor in. Defaults to the datacenter serving the request.",
-						"input": "Base64url-encoded CBOR input passed to the actor's `createState` and `onCreate` hooks."
+						"name": "Name of the actor as registered in your RivetKit registry. 1 to 64 bytes.",
+						"key": "Key identifying this actor within its name. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys). Omit for an actor without a key.",
+						"runner_name_selector": "Node pool that runs the actor. Defaults to `default`.",
+						"input": "Input passed to the actor, encoded as standard base64 (not base64url)."
 					},
 					"examples": {
 						"query": {
@@ -218,9 +235,11 @@
 						"body": {
 							"name": "counter",
 							"key": "my-counter",
-							"runner_name_selector": "default",
-							"crash_policy": "sleep"
+							"runner_name_selector": "default"
 						}
+					},
+					"responses": {
+						"200": "The created actor. `created` is always `true`."
 					}
 				},
 				{
@@ -230,15 +249,13 @@
 					"slug": "get-or-create",
 					"title": "Get or Create Actor",
 					"description": "Return the actor with the given name and key, creating it if it does not exist. This is the HTTP equivalent of client.actor.getOrCreate(key).",
-					"notes": "The response includes `created`, which is `true` when this call created the actor. Gateway endpoints can perform the same lookup inline with the `rvt-*` selector parameters, so you only need this endpoint when you want the `actor_id` up front.",
+					"notes": "The response includes `created`, which is `true` when this call created the actor. A sleeping actor is woken. Without `key`, a new actor is created every time. Gateway endpoints can perform the same lookup inline with the `rvt-*` selector parameters, so you only need this endpoint when you want the `actor_id` up front. A namespace token needs a grant on `actor` with `create`.",
 					"typescript": "examples/docs/api/actors-get-or-create.ts",
 					"parameters": {
-						"name": "Name of the actor as registered in your RivetKit registry.",
+						"name": "Name of the actor as registered in your RivetKit registry. 1 to 64 bytes.",
 						"key": "Key identifying this actor within its name. Multi-part keys are joined with `/`, see [Actor Keys](/docs/api/actor-keys).",
-						"runner_name_selector": "Pool that runs the actor. RivetKit registers the `default` pool unless configured otherwise.",
-						"crash_policy": "What happens when the actor crashes. RivetKit defaults to `sleep`.",
-						"datacenter": "Datacenter to create the actor in if it does not exist. Defaults to the datacenter serving the request.",
-						"input": "Base64url-encoded CBOR input passed to the actor's `createState` and `onCreate` hooks when the actor is created."
+						"runner_name_selector": "Node pool that runs the actor. Defaults to `default`.",
+						"input": "Input passed to the actor if this request creates it, encoded as standard base64 (not base64url)."
 					},
 					"examples": {
 						"query": {
@@ -247,8 +264,7 @@
 						"body": {
 							"name": "counter",
 							"key": "my-counter",
-							"runner_name_selector": "default",
-							"crash_policy": "sleep"
+							"runner_name_selector": "default"
 						}
 					}
 				},
@@ -270,7 +286,11 @@
 							"title": "Destroying Actors",
 							"href": "/actors/docs/destroy"
 						}
-					]
+					],
+					"notes": "A namespace token needs a grant on `actor` with `delete`.",
+					"responses": {
+						"200": "The destroy was accepted. The response body is an empty object."
+					}
 				},
 				{
 					"spec": "engine",
@@ -283,15 +303,18 @@
 					"examples": {
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
-						},
-						"body": {}
+						}
 					},
 					"related": [
 						{
 							"title": "Lifecycle",
 							"href": "/actors/docs/lifecycle"
 						}
-					]
+					],
+					"notes": "The request body is ignored. A namespace token needs a grant on `actor` with `update`.",
+					"responses": {
+						"200": "The sleep was accepted. The response body is an empty object."
+					}
 				},
 				{
 					"spec": "engine",
@@ -299,20 +322,23 @@
 					"path": "/actors/{actor_id}/reschedule",
 					"slug": "reschedule",
 					"title": "Reschedule Actor",
-					"description": "Move an actor to a different worker. The actor runs its shutdown sequence, then restarts elsewhere with its persisted state.",
+					"description": "Move an actor to a new allocation. A running actor is stopped and starts again, possibly on another node, with its persisted state.",
 					"typescript": "examples/docs/api/actors-reschedule.ts",
 					"examples": {
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
-						},
-						"body": {}
+						}
 					},
 					"related": [
 						{
 							"title": "Lifecycle",
 							"href": "/actors/docs/lifecycle"
 						}
-					]
+					],
+					"notes": "A running or stopping actor is stopped and allocated again, and a sleeping actor is allocated now. An actor that is still starting, or is destroyed, is left as is and the request still succeeds. The request body is ignored. A namespace token needs a grant on `actor` with `update`.",
+					"responses": {
+						"200": "The reschedule was accepted, or there was nothing to move. The response body is an empty object."
+					}
 				},
 				{
 					"spec": "engine",
@@ -320,12 +346,16 @@
 					"path": "/actors/names",
 					"slug": "list-names",
 					"title": "List Actor Names",
-					"description": "List the distinct actor names that have been created in a namespace.",
+					"description": "List the actor names that the namespace's connected nodes accept.",
 					"typescript": "examples/docs/api/actors-list-names.ts",
 					"examples": {
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
 						}
+					},
+					"notes": "A namespace token needs a grant on `actor` with `list`.",
+					"responses": {
+						"200": "Map of actor name to metadata."
 					}
 				}
 			]
@@ -512,7 +542,7 @@
 					"slug": "connect",
 					"title": "Connect",
 					"description": "Open a persistent WebSocket connection to an actor. One connection carries action calls, event subscriptions, and errors as JSON messages, which is what handle.connect() does in the RivetKit client.",
-					"url": "wss://api.rivet.dev/gateway/{actor}/connect",
+					"url": "wss://rivet.example.com/gateway/{actor}/connect",
 					"notes": "`{actor}` accepts the same forms as every gateway endpoint: an actor ID, `{actor_id}@{token}`, or an actor name with `rvt-*` query parameters. See [Actor Routing](/docs/api/actor-routing).\n\nConnection options travel as WebSocket subprotocols in the `Sec-WebSocket-Protocol` header because browsers cannot set arbitrary headers on an upgrade. Always include `rivet`, then add any of the prefixed entries below.\n\n| Subprotocol | Purpose |\n| --- | --- |\n| `rivet` | Required. Lets servers that insist on a matching protocol accept the upgrade. |\n| `rivet_encoding.json` | Message encoding. `json` is the default and is documented here. The RivetKit client uses `cbor` or `bare`; the payloads are the same, only the framing differs. |\n| `rivet_token.{token}` | Token to authenticate with. See [WebSocket Requests](/docs/api/authentication#websocket-requests). |\n| `rivet_conn_params.{params}` | Optional connection parameters passed to the actor's `createConnState` and `onBeforeConnect` hooks, as URL-encoded JSON. |\n| `rivet_skip_ready_wait` | Complete the upgrade as soon as the actor is resolved instead of waiting for it to be ready. |\n\nEvery message in both directions is a JSON object of the form `{ \"body\": { \"tag\": \"<Message>\", \"val\": { ... } } }`. The server sends `Init` first; nothing else arrives before it. There is no ping or heartbeat message. Rely on WebSocket ping frames or your own timeout to detect a dead connection.",
 					"sections": [
 						{
@@ -694,7 +724,7 @@
 					"title": "Inspector",
 					"dir": "inspector",
 					"icon": "faMagnifyingGlass",
-					"notes": "These endpoints power the Rivet dashboard's actor inspector.",
+					"notes": "These endpoints power the actor inspector.",
 					"endpoints": [
 						{
 							"spec": "rivetkit",
@@ -1044,7 +1074,7 @@
 							"badge": "WS"
 						}
 					],
-					"notice": "The inspector API powers the Rivet dashboard and is subject to change without notice. Do not build production integrations on it."
+					"notice": "The inspector API is subject to change without notice. Do not build production integrations on it."
 				}
 			]
 		},
@@ -1059,12 +1089,12 @@
 					"slug": "create",
 					"title": "Create Token",
 					"description": "Issue a scoped token. Use this to mint short-lived tokens that grant a client access to a single actor instead of sharing your namespace token.",
-					"notes": "Each grant names a resource type, a target (`\"any\"` or a specific `{ \"id\": ... }`), and the operations it allows. The RivetKit client wraps this as `handle.issueToken()`.",
+					"notes": "Each grant names a resource type, a target (`\"any\"` or a specific `{ \"id\": ... }`), and the operations it allows. A token carries 1 to 32 grants with 1 to 5 operations each. The RivetKit client wraps this as `handle.issueToken()`.",
 					"typescript": "examples/docs/api/tokens-create.ts",
 					"parameters": {
-						"namespace": "Namespace the token is valid in.",
-						"duration": "Lifetime in seconds. Omit for the default lifetime.",
-						"subject": "Free-form subject to attach to the token, such as a user ID.",
+						"namespace": "Namespace the token is valid in. It must exist.",
+						"duration": "Lifetime in seconds, from 1 to the deployment's maximum. Omit for the default lifetime.",
+						"subject": "Free-form subject to attach to the token, such as a user ID. At most 256 UTF-8 bytes.",
 						"grants": "Permissions the token carries.",
 						"grants[].resource": "Resource type the grant applies to.",
 						"grants[].target": "`\"any\"` for every resource of this type, or `{ \"id\": \"...\" }` for one resource.",
@@ -1079,7 +1109,7 @@
 								{
 									"resource": "actor_gateway",
 									"target": {
-										"id": "00000000-0000-0000-0000-000000000000"
+										"id": "d97pbq1nyqxw1w5qdwz0iirbqiblh2"
 									},
 									"operations": [
 										"read"
@@ -1087,7 +1117,8 @@
 								}
 							]
 						}
-					}
+					},
+					"auth": "admin"
 				},
 				{
 					"spec": "engine",
@@ -1096,7 +1127,11 @@
 					"slug": "inspect",
 					"title": "Inspect Token",
 					"description": "Return the namespace, grants, and expiry of the token used to authenticate the request.",
-					"typescript": "examples/docs/api/tokens-inspect.ts"
+					"typescript": "examples/docs/api/tokens-inspect.ts",
+					"auth": "token",
+					"parameters": {
+						"namespace": "Namespace the token is scoped to."
+					}
 				}
 			]
 		},
@@ -1110,17 +1145,16 @@
 					"path": "/namespaces",
 					"slug": "list",
 					"title": "List Namespaces",
-					"description": "List namespaces, optionally filtered by name or ID. Results are paginated.",
-					"notes": "Use `namespace_id` for multiple IDs. `namespace_ids` is deprecated.",
+					"description": "List namespaces in name order, or look up one namespace by name. Results are paginated.",
+					"notes": "`name` returns zero or one namespace and ignores `limit` and `cursor`. Any other query parameter, including `namespace`, is rejected.",
 					"typescript": "examples/docs/api/namespaces-list.ts",
 					"parameters": {
-						"name": "Only return namespaces with this name.",
-						"namespace_ids": "Deprecated. Use `namespace_id` instead.",
-						"namespace_id": "Only return namespaces with these IDs. Repeat the parameter for multiple IDs."
+						"name": "Only return the namespace with this name."
 					},
 					"responses": {
 						"200": "Matching namespaces and a cursor for the next page."
-					}
+					},
+					"auth": "admin"
 				},
 				{
 					"spec": "engine",
@@ -1128,177 +1162,129 @@
 					"path": "/namespaces",
 					"slug": "create",
 					"title": "Create Namespace",
-					"description": "Create a namespace with a unique name and a display name.",
+					"description": "Create a namespace with a unique name.",
 					"typescript": "examples/docs/api/namespaces-create.ts",
 					"parameters": {
-						"name": "Unique name used to identify the namespace.",
-						"display_name": "Human-readable name for the namespace."
+						"name": "Unique name of the namespace. A DNS label of 1 to 63 lowercase letters, digits and hyphens.",
+						"namespace": "The created namespace."
 					},
 					"examples": {
 						"body": {
-							"name": "my-app",
-							"display_name": "My App"
+							"name": "my-app"
 						}
 					},
 					"responses": {
 						"200": "The newly created namespace."
-					}
+					},
+					"auth": "admin"
 				}
 			]
 		},
 		{
-			"title": "Workers",
-			"dir": "workers",
+			"title": "Node Pools",
+			"dir": "pools",
 			"endpoints": [
 				{
 					"spec": "engine",
 					"method": "get",
-					"path": "/envoys",
+					"path": "/pools",
 					"slug": "list",
-					"title": "List Workers",
-					"description": "List workers connected to the control plane in a namespace, optionally filtered by name or key. Results are paginated.",
-					"typescript": "examples/docs/api/workers-list.ts",
-					"parameters": {
-						"name": "Only return workers with this name.",
-						"envoy_key": "Only return workers with these keys. Repeat the parameter for multiple keys."
-					},
+					"title": "List Node Pools",
+					"description": "List the node pools configured in a namespace, ordered by name. Results are paginated.",
+					"notes": "A pool is listed once it is configured, whether or not any node is connected. A namespace token needs a grant on `pool` with `list`.",
 					"examples": {
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
 						}
 					},
 					"responses": {
-						"200": "Matching workers and a cursor for the next page."
+						"200": "A page of node pools and a cursor for the next page."
 					}
 				},
 				{
 					"spec": "engine",
 					"method": "get",
-					"path": "/runner-configs",
-					"slug": "configs-list",
-					"title": "List Worker Configs",
-					"description": "List worker configurations in a namespace, grouped by worker name and datacenter.",
-					"notes": "Filter by `variant` to return only `normal` or `serverless` configurations. Use `runner_name` for multiple names because `runner_names` is deprecated.",
-					"typescript": "examples/docs/api/workers-configs-list.ts",
-					"parameters": {
-						"variant": "Only return configurations with this variant.",
-						"runner_names": "Deprecated. Use `runner_name` instead.",
-						"runner_name": "Only return configurations for these worker names. Repeat the parameter for multiple names."
-					},
+					"path": "/pools/{pool}",
+					"slug": "get",
+					"title": "Get Node Pool",
+					"description": "Get a node pool's configuration.",
+					"notes": "A namespace token needs a grant on `pool` with `read`.",
 					"examples": {
+						"path": {
+							"pool": "default"
+						},
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
 						}
 					},
 					"responses": {
-						"200": "Worker configurations grouped by worker name and datacenter."
+						"200": "The node pool."
 					}
 				},
 				{
 					"spec": "engine",
 					"method": "put",
-					"path": "/runner-configs/{runner_name}",
-					"slug": "configs-upsert",
-					"title": "Upsert Worker Config",
-					"description": "Create or replace a worker configuration in each specified datacenter.",
-					"notes": "A `normal` configuration controls workers with direct, persistent connections. A `serverless` configuration starts workers through a URL and requires `url` and `request_lifespan`. Configurations for omitted datacenters are deleted. A failure can occur after some datacenters have already changed.",
-					"typescript": "examples/docs/api/workers-configs-upsert.ts",
-					"parameters": {
-						"runner_name": "Name of the worker pool to configure.",
-						"datacenters": "Map of datacenter names to worker configurations."
-					},
+					"path": "/pools/{pool}",
+					"slug": "upsert",
+					"title": "Upsert Node Pool",
+					"description": "Create or replace a node pool's configuration.",
+					"notes": "Every field is optional and omitted fields take their defaults, so a request replaces the whole configuration. Unknown fields are rejected. Serverless pools are not supported. Nodes pick up the new configuration on their next connection. A namespace token needs a grant on `pool` with `update`.",
 					"examples": {
 						"path": {
-							"runner_name": "$RUNNER_NAME"
+							"pool": "default"
 						},
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
 						},
 						"body": {
-							"datacenters": {
-								"local": {
-									"normal": {}
-								}
-							}
+							"drain_on_version_upgrade": true,
+							"actor_eviction_delay": 0,
+							"actor_eviction_period": 0,
+							"actor_eviction_rate": 1
 						}
 					},
 					"responses": {
-						"200": "Whether the endpoint configuration changed."
+						"200": "The stored node pool."
 					}
 				},
 				{
 					"spec": "engine",
 					"method": "delete",
-					"path": "/runner-configs/{runner_name}",
-					"slug": "configs-delete",
-					"title": "Delete Worker Config",
-					"description": "Delete a worker configuration from every configured datacenter.",
-					"notes": "A failure can occur after the configuration has already been deleted from some datacenters.",
-					"typescript": "examples/docs/api/workers-configs-delete.ts",
-					"parameters": {
-						"runner_name": "Name of the worker pool whose configuration will be deleted."
-					},
+					"path": "/pools/{pool}",
+					"slug": "delete",
+					"title": "Delete Node Pool",
+					"description": "Delete a node pool's configuration.",
+					"notes": "Fails with `pool.nodes_connected` while any node of the pool is connected. A namespace token needs a grant on `pool` with `delete`.",
 					"examples": {
 						"path": {
-							"runner_name": "$RUNNER_NAME"
+							"pool": "default"
 						},
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
 						}
 					},
 					"responses": {
-						"200": "The configuration was deleted."
+						"200": "The node pool was deleted. The response body is an empty object."
 					}
 				},
 				{
 					"spec": "engine",
-					"method": "post",
-					"path": "/runner-configs/{runner_name}/refresh-metadata",
-					"slug": "configs-refresh-metadata",
-					"title": "Refresh Config Metadata",
-					"description": "Fetch and store fresh metadata for a serverless worker configuration.",
-					"notes": "The endpoint refreshes the first serverless configuration it finds across datacenters. It fails when the worker name has no serverless configuration.",
-					"typescript": "examples/docs/api/workers-configs-refresh-metadata.ts",
-					"parameters": {
-						"runner_name": "Name of the worker pool whose metadata will be refreshed."
-					},
+					"method": "get",
+					"path": "/pools/{pool}/nodes",
+					"slug": "list-nodes",
+					"title": "List Nodes",
+					"description": "List the live nodes of a node pool in node key order. Results are paginated.",
+					"notes": "A node is listed while its heartbeat is recent enough for it to receive actors. A page can hold fewer than `limit` nodes while `pagination.cursor` is still set. A namespace token needs a grant on `node` with `list`.",
 					"examples": {
 						"path": {
-							"runner_name": "$RUNNER_NAME"
+							"pool": "default"
 						},
 						"query": {
 							"namespace": "$RIVET_NAMESPACE"
-						},
-						"body": {}
-					},
-					"responses": {
-						"200": "The metadata was refreshed."
-					}
-				},
-				{
-					"spec": "engine",
-					"method": "post",
-					"path": "/runner-configs/serverless-health-check",
-					"slug": "serverless-health-check",
-					"title": "Serverless Health Check",
-					"description": "Probe a serverless URL and return the protocol version reported by its metadata endpoint.",
-					"notes": "Metadata fetch failures are returned as a `failure` result in a successful HTTP response.",
-					"typescript": "examples/docs/api/workers-serverless-health-check.ts",
-					"parameters": {
-						"url": "Serverless URL to probe.",
-						"headers": "Headers to include in the metadata request."
-					},
-					"examples": {
-						"query": {
-							"namespace": "$RIVET_NAMESPACE"
-						},
-						"body": {
-							"url": "https://workers.example.com",
-							"headers": {}
 						}
 					},
 					"responses": {
-						"200": "A success result with the reported version or a failure result with error details."
+						"200": "A page of live nodes and a cursor for the next page."
 					}
 				}
 			],
@@ -1307,7 +1293,7 @@
 					"title": "Worker Connection",
 					"href": "/docs/api/worker-connect",
 					"badge": "WS",
-					"after": "list"
+					"after": "list-nodes"
 				}
 			]
 		},
@@ -1321,12 +1307,12 @@
 					"path": "/metadata",
 					"slug": "metadata",
 					"title": "Get Metadata",
-					"description": "Get build, runtime, compiler, and fleet protocol metadata for the control plane.",
-					"notes": "The protocol versions are the versions agreed on by the fleet, which can differ from the versions compiled into the responding node.",
+					"description": "Get the runtime and version of the control plane.",
+					"notes": "A request made with the admin token also receives `actorNames`.",
 					"typescript": "examples/docs/api/control-plane-metadata.ts",
 					"auth": "none",
 					"responses": {
-						"200": "Build and protocol metadata for the responding node and its fleet."
+						"200": "Runtime and version metadata."
 					}
 				},
 				{
@@ -1338,8 +1324,9 @@
 					"description": "List the datacenters configured for the control plane.",
 					"typescript": "examples/docs/api/control-plane-datacenters.ts",
 					"responses": {
-						"200": "Configured datacenters and an empty pagination cursor."
-					}
+						"200": "Configured datacenters."
+					},
+					"notes": "A namespace token needs a grant on `datacenter` with `list`."
 				}
 			]
 		}

@@ -10,9 +10,8 @@ import { DEPLOY_ROUTE_PREFIX, SELF_HOST_ROUTE_PREFIX } from "./deploy";
 
 const REFERENCE_PAGES = new Set([
 	"configuration",
-	"rbac",
-	"ports",
 	"storage",
+	"ports",
 	"tls",
 	"multi-region",
 	"upgrades",
@@ -21,9 +20,8 @@ const REFERENCE_PAGES = new Set([
 
 const PAGE_TITLES: Record<string, string> = {
 	configuration: "Configuration",
-	rbac: "RBAC",
-	ports: "Ports",
 	storage: "Storage",
+	ports: "Ports",
 	tls: "TLS & Certificates",
 	"multi-region": "Multi-Region",
 	upgrades: "Upgrades",
@@ -33,7 +31,7 @@ const PAGE_TITLES: Record<string, string> = {
 const platformPage = (role: "worker" | "control-plane") =>
 	platformsFor(role).map((platform) => ({
 		title: platform.shortTitle ?? platform.displayName,
-		href: `${SELF_HOST_ROUTE_PREFIX}/${role === "worker" ? "workers" : "control-plane"}/${platform.slug}/`,
+		href: `${SELF_HOST_ROUTE_PREFIX}/${role === "worker" ? "nodes" : "control-plane"}/${platform.slug}/`,
 		icon: platform.icon,
 	}));
 
@@ -58,11 +56,11 @@ export function deployOverviewGroup(): SidebarItem {
 	};
 }
 
-/** Running workers: applies to every option, since workers are always yours. */
+/** Running nodes: applies to every option, since nodes are always yours. */
 export function deployWorkersGroup(): SidebarItem {
-	const base = `${SELF_HOST_ROUTE_PREFIX}/workers`;
+	const base = `${SELF_HOST_ROUTE_PREFIX}/nodes`;
 	return {
-		title: "Deploy Workers",
+		title: "Deploy Nodes",
 		pages: [
 			{
 				title: "Overview",
@@ -134,7 +132,6 @@ export function selfHostGroup(): SidebarItem {
 				).map((page) => ({
 					title: PAGE_TITLES[page] ?? page,
 					href: `${base}/${page}/`,
-					...(page === "rbac" ? { badge: "Enterprise" } : {}),
 				})),
 			},
 		],

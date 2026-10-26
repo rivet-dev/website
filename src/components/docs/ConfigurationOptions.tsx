@@ -17,7 +17,7 @@ export function ConfigurationOptions() {
 				<a href="/actors/docs/general/logging/">Logging</a>: Configure logging output for debugging and monitoring.
 			</li>
 			<li>
-				<a href="/docs/workers/">Workers &amp; Pools</a>: Serverless vs long-running workers for different deployment scenarios.
+				<a href="/docs/nodes/">Nodes &amp; Node Pools</a>: Run your app as long-lived nodes grouped into node pools.
 			</li>
 		</ul>
 	);

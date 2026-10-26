@@ -1,137 +1,67 @@
 ---
 title: "Render"
-description: "Run the Rivet control plane on Render with managed PostgreSQL."
+description: "Run a single control plane instance on Render with a persistent disk."
 ---
+
+{/* TODO(verify): run this on Render and confirm a Render persistent disk gives the instance an exclusive, fsync-capable disk. */}
+
+Render runs one control plane instance with a Render persistent disk. Use it to try Rivet on a managed platform. For production, run three or more instances on <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/vm">VMs</SelfHostLink>.
 
 ## Requirements
 
 - A [Render account](https://render.com)
-- A GitHub repository Render can build from
+- An object storage bucket, such as S3.
 
 ## Steps
 
 <Steps>
 
-<Step title="Add the blueprint files">
+<Step title="Create the service">
 
-Three files at the root of your repository. The blueprint provisions a managed PostgreSQL database and the control plane together, and generates the admin token for you.
-
-```yaml render.yaml
-databases:
-  - name: rivet-db
-    plan: basic-256mb
-    databaseName: rivet
-    user: rivet
-
-services:
-  - type: web
-    name: rivet-engine
-    runtime: docker
-    dockerfilePath: ./Dockerfile.render
-    plan: starter
-    healthCheckPath: /health
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: rivet-db
-          property: connectionString
-      - key: RIVET__AUTH__ADMIN_TOKEN
-        generateValue: true
-```
-
-```dockerfile Dockerfile.render
-FROM rivetdev/engine:latest
-
-COPY entrypoint.render.sh /entrypoint.render.sh
-RUN chmod +x /entrypoint.render.sh
-
-ENTRYPOINT ["/entrypoint.render.sh"]
-```
-
-The entrypoint exists because Render hands you `DATABASE_URL`, and the engine reads `RIVET__POSTGRES__URL`. It translates one into the other.
-
-```bash entrypoint.render.sh
-#!/bin/sh
-
-if [ -n "$DATABASE_URL" ]; then
-    export RIVET__POSTGRES__URL="${DATABASE_URL}?sslmode=disable"
-fi
-
-exec /usr/bin/rivet-engine start
-```
-
-Commit and push all three.
+Create a Web Service from the image `rivetdev/engine:2.3.31` with the Docker command `--config /etc/rivet`.
 
 </Step>
 
-<Step title="Create the blueprint instance">
+<Step title="Add a disk">
 
-1. Open the [Render dashboard](https://dashboard.render.com/).
-2. Click **Blueprints**, then **New Blueprint Instance**.
-3. Connect GitHub if you have not already, and select the repository.
-4. Click **Apply**.
-
-Render creates the database and deploys the control plane.
+Add a persistent disk mounted at `/var/lib/rivet/log`. A service with a disk runs one instance.
 
 </Step>
 
-<Step title="Get the admin token">
-
-On the **rivet-engine** service, open the **Environment** tab, find `RIVET__AUTH__ADMIN_TOKEN`, and reveal it. You need it for the dashboard and for every worker.
-
-</Step>
-
-<Step title="Verify">
-
-Open your service URL with `/ui/` appended:
-
-```
-https://rivet-engine-xxxx.onrender.com/ui/
-```
-
-Log in with the admin token.
-
-</Step>
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+<Step title="Set the variables">
 
 ```bash
-curl -X PUT "https://rivet-engine-xxxx.onrender.com/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
+RIVET__AUTH__ADMIN_TOKEN=<openssl rand -hex 32>
+RIVET__DEPOT__LOG_DIRECTORY=/var/lib/rivet/log
+RIVET__DEPOT__AUTO_PROVISION_TABLETS=1
+RIVET__DEPOT__BALANCING__ENABLED=false
+RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET=my-rivet-bucket
+RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION=us-east-1
+RIVET__OBJECT_STORAGE__PRIMARY__S3__ACCESS_KEY_ID=...
+RIVET__OBJECT_STORAGE__PRIMARY__S3__SECRET_ACCESS_KEY=...
 ```
 
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends.
 
 </Step>
 
-<Step title="Connect a worker">
+<Step title="Expose port 6420 and verify">
+
+Set the service port to `6420`, then:
 
 ```bash
-RIVET_ENDPOINT=https://<namespace>:<admin-token>@rivet-engine-xxxx.onrender.com
-RIVET_PUBLIC_ENDPOINT=https://<namespace>@rivet-engine-xxxx.onrender.com
+curl https://<service>.onrender.com/health
 ```
 
-Confirm the worker appears under **Runners**. See <SelfHostLink to="workers">Workers</SelfHostLink>.
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
 
 </Step>
 
 </Steps>
 
-## WebSocket timeouts
-
-Render's proxy supports WebSockets but closes connections that sit idle past its own timeout. If you put your own reverse proxy in front of the engine on Render, raise its idle and read timeouts to `3600` seconds. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
-
-## Scaling past one instance
-
-The blueprint above is a single instance on managed PostgreSQL, which is a fine starting point. Before scaling out, add NATS for pub/sub so instances coordinate. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-With NATS in place, instance count can be raised or handed to Render's autoscaling on a CPU target. Target 60% CPU, matching the <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> manifests, and keep a minimum of two instances. Autoscaling a control plane that is still on the file system backend corrupts it, but that does not apply here: this blueprint is on PostgreSQL from the start.
-
 ## Next steps
 
+- <SelfHostLink to="nodes/render">Run your nodes on Render</SelfHostLink>
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers/render">Deploy workers on Render</SelfHostLink>
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>

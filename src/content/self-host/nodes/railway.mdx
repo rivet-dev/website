@@ -1,0 +1,76 @@
+---
+title: "Railway"
+description: "Run Rivet nodes on Railway."
+---
+
+Your service runs as a node: it opens a connection out to the control plane on startup. It needs no public domain and nothing pasted into a connect form.
+
+## Requirements
+
+A namespace and a node pool created with `PUT /pools/{pool}` (see [Nodes & Node Pools](/docs/nodes#quickstart)). In local development, RivetKit creates the `default` pool for you.
+
+- A [Railway account](https://railway.app)
+- A GitHub repository containing your app
+- A running <SelfHostLink to="control-plane">control plane</SelfHostLink>
+
+## Steps
+
+<Steps>
+
+<Step title="Deploy the repository">
+
+Connect your GitHub account to Railway and select the repository. Railway detects and deploys it. See [Railway's quick start](https://docs.railway.com/quick-start).
+
+</Step>
+
+<Step title="Set the environment variables">
+
+Add `RIVET_ENDPOINT` as a service variable. The value is described in <SelfHostLink to="nodes">Deploy Nodes</SelfHostLink>. See [Railway's variables docs](https://docs.railway.com/guides/variables#service-variables).
+
+If your control plane is another Railway service, reference its private domain rather than a public one.
+
+</Step>
+
+<Step title="Set the draining period">
+
+Railway kills the old deploy 0 seconds after `SIGTERM` by default, so actors are cut off mid-drain on every deploy.
+
+Under **Settings → Deploy**, set **Draining seconds**. Each Rivet Actor gets up to 15 seconds to save its state, so `60` is a safe value. See [Railway's deployment teardown docs](https://docs.railway.com/deployments/deployment-teardown).
+
+</Step>
+
+<Step title="Verify">
+
+Call one of your Rivet Actors to confirm it responds. It reconnects automatically if the connection drops.
+
+</Step>
+
+</Steps>
+
+## Signal handling
+
+If your start command is a wrapper (`npm start`, `yarn start`, a shell script), the wrapper becomes PID 1 and swallows `SIGTERM`, so the drain never runs regardless of the draining period.
+
+- Invoke the binary directly, for example `node dist/index.js`.
+- Or run `dumb-init` or `tini` as PID 1 in your Dockerfile.
+
+## Scaling
+
+Nodes are interchangeable, so raising the service's replica count adds capacity with nothing to re-register. New replicas dial out and start serving Rivet Actors.
+
+Removing a replica is the slow direction: it drains for up to a minute, so keep the draining period at `60` and reduce replica count gradually rather than in one step.
+
+Railway has no CPU-target autoscaler, so replica count is fixed until you change it. Size it for peak traffic, or use <SelfHostLink to="nodes/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="nodes/aws-ecs">AWS ECS</SelfHostLink> where the count moves with load.
+
+## Settings to avoid
+
+<Warning>
+Do not enable [App Sleeping](https://docs.railway.com/reference/app-sleeping) on a node. Sleeping suspends the process, which drops its connection to the control plane, and Railway only wakes a service on inbound HTTP. Node traffic is outbound, so the service would never wake and actors could not be scheduled to it.
+</Warning>
+
+[Multi-region deploys](https://docs.railway.com/reference/deployment-regions) are supported and place nodes closer to your users.
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/railway">Run the control plane on Railway</SelfHostLink>

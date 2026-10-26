@@ -1,0 +1,171 @@
+---
+title: "Hetzner"
+description: "Run the control plane with systemd on Hetzner Cloud servers, with a Volume per instance and a bucket in Hetzner Object Storage."
+---
+
+{/* TODO(verify): run this on Hetzner Cloud end to end. */}
+
+This guide runs three control plane instances on Hetzner Cloud servers. Each server has its own Volume, the servers talk to each other over a private Network, and all three share one bucket in Hetzner Object Storage. It follows the same steps as the <SelfHostLink to="control-plane/vm">VM guide</SelfHostLink>.
+
+## Requirements
+
+- The [`hcloud` CLI](https://github.com/hetznercloud/cli), configured for your project, and an SSH key uploaded to the project.
+- **A bucket in Hetzner Object Storage** and S3 credentials for it, both created in the [Hetzner Console](https://console.hetzner.com). Object Storage runs in Falkenstein (`fsn1`), Nuremberg (`nbg1`) and Helsinki (`hel1`), so put the bucket and the servers in the same one of these locations. Leave versioning off: the control plane relies on conditional writes, which Hetzner does not support on versioned buckets.
+- **One server per instance.** Run at least three in production.
+- **A persistent disk per instance.** Use the server's local NVMe disk for the lowest latency, or a Hetzner Volume if the data must survive deleting the server. Never share one disk between instances.
+
+{/* TODO(verify): on an unversioned bucket at https://fsn1.your-objectstorage.com, `aws s3api put-object --if-none-match '*'` twice (second returns 412), `put-object --if-match '"bogus"'` (412) and `delete-object --if-match '"bogus"'` (412, object kept). */}
+
+## Steps
+
+<Steps>
+
+<Step title="Create the servers">
+
+Create a private Network, a Firewall that only allows SSH from the internet, and a spread placement group so each server lands on a different physical host. Then create three servers, give each a fixed private IP and attach a Volume to each.
+
+```bash
+hcloud network create --name rivet --ip-range 10.0.0.0/16
+hcloud network add-subnet rivet --type cloud --network-zone eu-central --ip-range 10.0.0.0/24
+hcloud firewall create --name rivet
+hcloud firewall add-rule rivet --direction in --protocol tcp --port 22 --source-ips 0.0.0.0/0 --source-ips ::/0
+hcloud placement-group create --name rivet --type spread
+
+for i in 1 2 3; do
+  hcloud server create --name rivet-$i --type ccx23 --image ubuntu-24.04 --location fsn1 \
+    --ssh-key my-key --firewall rivet --placement-group rivet
+  hcloud server attach-to-network rivet-$i --network rivet --ip 10.0.0.1$i
+  hcloud volume create --name rivet-$i-log --size 100 --server rivet-$i --format ext4 --automount
+done
+```
+
+Instances reach each other on port `6421` over their private IPs (`10.0.0.11` to `10.0.0.13`); it listens only on the private IP. The Firewall keeps ports `6420` and `6430` off the public internet. Hetzner Firewalls do not filter traffic inside a Network, so attach only the control plane servers and its Load Balancer to this Network. Port `6421` is unauthenticated.
+
+</Step>
+
+<Step title="Install the binary">
+
+On each server, install Docker, copy `rivet-engine` from the `rivetdev/engine:2.3.31` image and create the disk directory on the server's Volume. Hetzner mounts an automounted Volume at `/mnt/HC_Volume_<volume-id>`; `ls -d /mnt/HC_Volume_*` shows the path.
+
+```bash
+sudo apt-get update && sudo apt-get install -y docker.io
+sudo docker create --name rivet-extract rivetdev/engine:2.3.31
+sudo docker cp rivet-extract:/usr/bin/rivet-engine /usr/local/bin/rivet-engine
+sudo docker rm rivet-extract
+sudo useradd --system rivet
+sudo mkdir -p /mnt/HC_Volume_<volume-id>/log /etc/rivet && sudo chown rivet /mnt/HC_Volume_<volume-id>/log
+```
+
+</Step>
+
+<Step title="Write the config file">
+
+Save this as `/etc/rivet/config.json` on each server. Set `advertise_address` to that server's private IP and `log_directory` to the directory on its Volume. Generate the Rivet token once with `openssl rand -hex 32`; it is the control plane's `auth.admin_token`, and your nodes use it to connect.
+
+```json
+{
+	"auth": { "admin_token": "<rivet-token>" },
+	"api_peer": { "advertise_address": "10.0.0.11:6421" },
+	"depot": { "log_directory": "/mnt/HC_Volume_<volume-id>/log" },
+	"object_storage": {
+		"primary": {
+			"s3": {
+				"bucket": "my-rivet-bucket",
+				"region": "fsn1",
+				"endpoint": "https://fsn1.your-objectstorage.com",
+				"access_key_id": "<access-key>",
+				"secret_access_key": "<secret-key>"
+			}
+		}
+	}
+}
+```
+
+The endpoint and region name the bucket's location. Use the same Rivet token and bucket on every instance, and make the file readable only by the `rivet` user:
+
+```bash
+sudo chown rivet /etc/rivet/config.json && sudo chmod 600 /etc/rivet/config.json
+```
+
+See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends.
+
+</Step>
+
+<Step title="Create the service">
+
+Save this as `/etc/systemd/system/rivet.service` on each server:
+
+```ini
+[Unit]
+Description=Rivet control plane
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/HC_Volume_<volume-id>
+
+[Service]
+User=rivet
+ExecStart=/usr/local/bin/rivet-engine --config /etc/rivet/config.json
+Restart=always
+RestartSec=5
+LimitNOFILE=1048576
+TimeoutStopSec=660
+
+[Install]
+WantedBy=multi-user.target
+```
+
+</Step>
+
+<Step title="Start every instance">
+
+Start all instances within a minute of each other, so the first storage placement uses all of them.
+
+```bash
+sudo systemctl enable --now rivet
+curl http://localhost:6420/health
+```
+
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
+
+</Step>
+
+<Step title="Add a load balancer">
+
+Create a Hetzner Load Balancer on the Network, target each server over its private IP, and terminate TLS on it. A managed certificate needs the domain's DNS hosted at Hetzner; otherwise upload your own with `--type uploaded --cert-file <file> --key-file <file>`.
+
+```bash
+hcloud certificate create --name rivet --type managed --domain rivet.example.com
+hcloud load-balancer create --name rivet --type lb11 --location fsn1 --network rivet
+for i in 1 2 3; do
+  hcloud load-balancer add-target rivet --server rivet-$i --use-private-ip
+done
+hcloud load-balancer add-service rivet --protocol https --http-certificates rivet \
+  --destination-port 6420 --http-timeout-idle 300s \
+  --health-check-protocol http --health-check-port 6420 --health-check-http-path /health
+```
+
+Point an `A` and `AAAA` record for `rivet.example.com` at the Load Balancer's public IPs, shown by `hcloud load-balancer describe rivet`. Use `lb21` or `lb31` above 10,000 concurrent connections.
+
+```bash
+curl https://rivet.example.com/health
+```
+
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
+
+Hetzner caps the idle timeout of an HTTPS service at 300 seconds, below the one hour other guides use. Node connections send pings every few seconds and stay open. A client WebSocket that is idle for 5 minutes is closed; RivetKit clients reconnect automatically, and raw WebSockets in your app must reconnect or send their own pings. See <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>.
+
+{/* TODO(verify): confirm a WebSocket upgrade works through a Hetzner Load Balancer HTTPS service. */}
+
+</Step>
+
+</Steps>
+
+## Next steps
+
+- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="nodes/hetzner">Run your nodes on Hetzner</SelfHostLink>
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

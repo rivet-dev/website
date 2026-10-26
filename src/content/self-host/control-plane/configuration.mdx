@@ -1,122 +1,54 @@
 ---
 title: "Configuration"
-description: "Every control plane setting, in one table. Guides link here instead of restating options."
+description: "How the control plane loads its configuration, the settings every cluster needs, and the full reference."
 ---
 
 import EngineConfigSchema from "@/components/docs/EngineConfigSchemaClient.astro";
 
-The control plane is the Rivet Engine. It reads configuration from files, from environment variables, or from both.
+## Loading configuration
 
-## Configuration sources
+The control plane reads JSON, JSON5, JSONC or YAML files, then applies environment variables on top.
 
-The engine accepts JSON, JSON5, JSONC, YAML, and YML, plus environment variables.
-
-### Environment variables
-
-Prefix a setting with `RIVET__` and separate each level of nesting with `__`. Names are case-insensitive. To set `postgres.url`:
+- **Files.** Pass `--config` with a file or a directory; files in a directory are merged. Repeat `--config` to merge several paths in order. Without `--config`, the control plane loads `/etc/rivet` if it exists.
+- **Environment variables.** Prefix a setting with `RIVET__` and separate each level with `__`. For example, `depot.log_directory` is `RIVET__DEPOT__LOG_DIRECTORY`.
 
 ```bash
-RIVET__POSTGRES__URL="postgresql://user:password@host:5432/database"
+rivet-engine --config /etc/rivet/config.json
 ```
 
-### Configuration files
+Unknown settings are an error, so a typo stops the control plane at startup instead of being ignored.
 
-Files are discovered automatically in a platform-specific directory:
+## Required settings
 
-| Platform | Path |
+| Setting | Purpose |
 | --- | --- |
-| Linux | `/etc/rivet/config.json` |
-| macOS | `/Library/Application Support/rivet/config.json` |
-| Windows | `C:\ProgramData\rivet\config.json` |
+| `auth.admin_token` | Your Rivet token, the credential nodes and your backend use. The control plane refuses to start without it. |
+| `depot.log_directory` | The instance's disk. The directory must already exist. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. |
+| `object_storage.primary` | The bucket. The default keeps data in memory and loses it on restart. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. |
+| `api_peer.advertise_address` | The `host:port` other instances use to reach this one on port `6421`. Required when more than one instance runs. |
 
-Multiple files in the same directory are merged. `/etc/rivet/config.json` and `/etc/rivet/database.json` are loaded together.
+## Rivet token
 
-Override the search path with `--config`:
+Your Rivet token is the `auth.admin_token` value. It works in every namespace. Generate one with `openssl rand -hex 32` and keep it on your backend.
+
+Clients pass it as a bearer token, or inside the endpoint URL:
 
 ```bash
-# Load from a specific file
-rivet-engine --config /path/to/config.json
-
-# Load from a directory
-rivet-engine --config /etc/rivet
-
-# Load multiple paths, merged in order
-rivet-engine --config /etc/rivet/base.json --config /etc/rivet/override.json
+export RIVET_ENDPOINT="https://default:$RIVET_TOKEN@rivet.example.com"
 ```
+
+Use it to issue scoped tokens for browser clients, and keep the Rivet token itself out of them. See [Scoped Tokens](/docs/jwt).
+
+## Crash reports
+
+The control plane sends crash reports to Rivet by default. Turn them off with `"telemetry": { "enabled": false }` or `RIVET__TELEMETRY__ENABLED=false`.
 
 ## Reference
 
 <EngineConfigSchema />
 
-### Admin token
-
-`auth.admin_token` is the root credential for the control plane. Set it through `RIVET__AUTH__ADMIN_TOKEN`; the control plane will not start without one.
-
-```sh
-openssl rand -hex 32
-```
-
-Clients pass it as a bearer token, or inline in the endpoint URL:
-
-```sh
-export RIVET_ENDPOINT="http://default:$RIVET_ADMIN_TOKEN@localhost:6420"
-```
-
-It grants every operation in every namespace, cannot be scoped, and cannot be revoked without a restart. Keep it on your backend and use it to mint scoped credentials rather than shipping it anywhere else. See [Authentication](/docs/authentication).
-
-### Envoy load balancing
-
-`pegboard.envoy_load_balancer` selects how actors are assigned to envoys. The `hash` strategy uses a hash ring:
-
-```json
-{
-	"pegboard": {
-		"envoy_load_balancer": {
-			"hash": {
-				"virtual_nodes": 8,
-				"samples": 2,
-				"max_scan": 16,
-				"use_snapshot_read": true
-			}
-		}
-	}
-}
-```
-
-Use `samples: 1` for a uniform random pick that skips slot reads, or `samples: 2` or higher for power-of-K choices over envoy slot counts. Treat `virtual_nodes` as an operational invariant once envoys have registered: changing it reshuffles the ring.
-
-## Telemetry
-
-### OpenTelemetry export
-
-The engine exports traces and metrics over OpenTelemetry to a collector you run.
-
-| Variable | Purpose | Default |
-| --- | --- | --- |
-| `RIVET_OTEL_ENABLED` | Set to `1` to enable export | off |
-| `RIVET_OTEL_GRPC_ENDPOINT` | Collector endpoint | `http://localhost:4317` |
-| `RIVET_OTEL_SAMPLER_RATIO` | Trace sampling ratio | `0.001` |
-
-### Crash reporting
-
-The control plane sends crash reports to Rivet's error-tracking service by default. Disable it with one flag:
-
-```json
-{
-	"telemetry": {
-		"enabled": false
-	}
-}
-```
-
-Or as an environment variable:
-
-```bash
-RIVET__TELEMETRY__ENABLED=false
-```
-
 ## Next steps
 
-- <SelfHostLink to="control-plane/storage">Storage backends</SelfHostLink>
-- <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>
+- <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>
+- <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>

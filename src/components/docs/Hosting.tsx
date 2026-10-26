@@ -21,28 +21,28 @@ export function Hosting() {
 			icon: faCloudArrowUp,
 			href: "https://dashboard.rivet.dev",
 			description:
-				"Rivet runs the control plane and your workers. Nothing to operate.",
+				"Rivet runs the control plane and your nodes. Nothing to operate.",
 		},
 		{
 			title: "Bring your own compute",
 			icon: faShareNodes,
-			href: `${base}/workers`,
+			href: `${base}/nodes`,
 			description:
-				"Rivet runs the control plane. Your workers run on your own infrastructure.",
+				"Rivet runs the control plane. Your nodes run on your own infrastructure.",
 		},
 		{
 			title: "Full self-hosting",
 			icon: faServer,
 			href: `${base}/control-plane`,
 			description:
-				"You run the control plane and your workers. No dependency on Rivet Cloud.",
+				"You run the control plane and your nodes. No dependency on Rivet Cloud.",
 		},
 	];
 
 	return (
 		<>
 			<p>
-				By default, Rivet stores Actor state on the local file system.
+				In development, Rivet runs a local control plane for you and keeps Actor data on your machine.
 			</p>
 
 			<p>
@@ -59,7 +59,7 @@ export function Hosting() {
 			</CardGroup>
 
 			<p>
-				If you are running your own workers, follow the guide for your hosting
+				If you are running your own nodes, follow the guide for your hosting
 				provider:
 			</p>
 
@@ -70,7 +70,7 @@ export function Hosting() {
 						<Card
 							key={slug}
 							title={title}
-							href={`${base}/workers/${slug}`}
+							href={`${base}/nodes/${slug}`}
 							icon={icon}
 						/>
 					))}

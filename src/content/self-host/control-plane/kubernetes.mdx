@@ -1,136 +1,214 @@
 ---
 title: "Kubernetes"
-description: "Run the Rivet control plane on Kubernetes."
+description: "Run a production control plane on Kubernetes as a StatefulSet with one persistent volume per instance."
 ---
+
+{/* TODO(verify): apply these manifests on a real cluster with the published image, and confirm three instances started together place storage on all three. */}
+
+This guide runs three control plane instances as a StatefulSet. Each pod gets its own persistent volume, and all three share one bucket.
 
 ## Requirements
 
-- A Kubernetes cluster with `kubectl` configured
-- [Metrics server](https://github.com/kubernetes-sigs/metrics-server), required for the HPA and included by default in k3d, GKE, EKS, and AKS
-- An Ingress controller you can raise timeouts on
+- A Kubernetes cluster with at least three Kubernetes nodes, so each instance can land on its own machine
+- A StorageClass backed by block storage, such as `gp3` on EKS or `pd-ssd` on GKE. Network file systems such as NFS or EFS are not supported.
+- An object storage bucket, with credentials that can read, write, list and delete in it.
+
+Pods do not get raw NVMe disks, so a Kubernetes cluster will not match the published latency numbers. See [Benchmarking](/docs/benchmarking).
 
 ## Steps
 
 <Steps>
 
-<Step title="Download the manifests">
+<Step title="Create the secret">
 
 ```bash
-npx giget@latest gh:rivet-dev/rivet/self-host/control-plane/kubernetes rivet-k8s
-cd rivet-k8s
+kubectl create namespace rivet
+kubectl -n rivet create secret generic rivet \
+  --from-literal=rivet-token="$(openssl rand -hex 32)" \
+  --from-literal=s3-access-key-id="AKIA..." \
+  --from-literal=s3-secret-access-key="..."
+```
+
+```
+namespace/rivet created
+secret/rivet created
 ```
 
 </Step>
 
-<Step title="Configure the engine">
+<Step title="Apply the manifests">
 
-In `02-engine-configmap.yaml`, set `public_url` to the external URL the control plane will be reachable at.
-
-In `11-postgres-secret.yaml`, set the PostgreSQL password. To use a managed database instead, see [Managed PostgreSQL](#managed-postgresql) below.
-
-</Step>
-
-<Step title="Create the admin token">
-
-```bash
-openssl rand -hex 32
-```
-
-Save the value somewhere safe, then store it as a secret:
-
-```bash
-kubectl create namespace rivet-engine
-kubectl -n rivet-engine create secret generic rivet-engine-secrets --from-literal=admin-token=YOUR_TOKEN_HERE
-```
-
-</Step>
-
-<Step title="Deploy">
-
-```bash
-kubectl apply -f .
-
-kubectl -n rivet-engine wait --for=condition=ready pod -l app=nats --timeout=300s
-kubectl -n rivet-engine wait --for=condition=ready pod -l app=postgres --timeout=300s
-kubectl -n rivet-engine wait --for=condition=ready pod -l app=rivet-engine --timeout=300s
-```
-
-</Step>
-
-<Step title="Raise the Ingress timeout">
-
-Long-lived WebSockets are dropped by the default 30 to 60 second idle timeout. On an NGINX Ingress:
+Save this as `rivet.yaml`, set the bucket name and region, and apply it.
 
 ```yaml
-nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+apiVersion: v1
+kind: Service
+metadata:
+  name: rivet
+  namespace: rivet
+spec:
+  selector: { app: rivet }
+  ports:
+    - { name: http, port: 6420 }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rivet-peer
+  namespace: rivet
+spec:
+  clusterIP: None
+  selector: { app: rivet }
+  ports:
+    - { name: peer, port: 6421 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rivet
+  namespace: rivet
+spec:
+  serviceName: rivet-peer
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: { app: rivet }
+  template:
+    metadata:
+      labels: { app: rivet }
+    spec:
+      terminationGracePeriodSeconds: 660
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels: { app: rivet }
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: rivet
+          image: rivetdev/engine:2.3.31
+          ports:
+            - { name: http, containerPort: 6420 }
+            - { name: peer, containerPort: 6421 }
+            - { name: metrics, containerPort: 6430 }
+          env:
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+            - name: RIVET__API_PEER__ADVERTISE_ADDRESS
+              value: "$(POD_IP):6421"
+            - name: RIVET__DEPOT__LOG_DIRECTORY
+              value: /var/lib/rivet/log
+            - name: RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET
+              value: my-rivet-bucket
+            - name: RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION
+              value: us-east-1
+            - name: RIVET__OBJECT_STORAGE__PRIMARY__S3__ACCESS_KEY_ID
+              valueFrom: { secretKeyRef: { name: rivet, key: s3-access-key-id } }
+            - name: RIVET__OBJECT_STORAGE__PRIMARY__S3__SECRET_ACCESS_KEY
+              valueFrom: { secretKeyRef: { name: rivet, key: s3-secret-access-key } }
+            - name: RIVET__AUTH__ADMIN_TOKEN
+              valueFrom: { secretKeyRef: { name: rivet, key: rivet-token } }
+          readinessProbe:
+            httpGet: { path: /health, port: 6420 }
+          volumeMounts:
+            - { name: log, mountPath: /var/lib/rivet/log }
+  volumeClaimTemplates:
+    - metadata:
+        name: log
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Gi
 ```
 
-Other controllers are covered in <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>. Skipping this step produces reconnect storms under load rather than an obvious failure at deploy time.
+```bash
+kubectl apply -f rivet.yaml
+kubectl -n rivet rollout status statefulset/rivet
+```
+
+```
+partitioned roll out complete: 3 new pods have been updated...
+```
+
+The manifest uses an S3 bucket. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> for other object storage backends.
 
 </Step>
 
-<Step title="Verify">
+<Step title="Check that the instances are serving">
+
+On first start the instances place their storage on each other automatically, which takes about a minute after the last pod is ready. The health route shows that an instance is serving requests.
 
 ```bash
-kubectl -n rivet-engine get pods
+kubectl -n rivet port-forward svc/rivet 6420:6420 &
+curl http://localhost:6420/health
 ```
 
-Every pod should be `Running`. Visit `/ui` on your `public_url` and log in with the admin token.
+```json
+{"runtime":"engine","status":"ok","version":"2.3.31",...}
+```
 
 </Step>
 
-<Step title="Create the runner config">
+<Step title="Expose port 6420">
 
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
+Put a load balancer or Ingress in front of the `rivet` Service and terminate TLS there. Raise its idle timeout to one hour, or it will cut the long-lived connections that nodes and clients hold open. See <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>.
+
+</Step>
+
+<Step title="Connect your nodes">
+
+Create the `default` node pool, because the control plane refuses a node whose pool does not exist. See [Nodes & Node Pools](/docs/nodes#quickstart).
 
 ```bash
-curl -X PUT "<public_url>/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
+export RIVET_API=https://rivet.example.com
+export RIVET_TOKEN="$(kubectl -n rivet get secret rivet -o jsonpath='{.data.rivet-token}' | base64 -d)"
+curl -X PUT "$RIVET_API/pools/default?namespace=default" -H "Authorization: Bearer $RIVET_TOKEN" -H 'Content-Type: application/json' -d '{}'
 ```
 
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
+```json
+{"pool":{"name":"default","drain_on_version_upgrade":false,"actor_eviction_delay":0,"actor_eviction_period":0,"actor_eviction_rate":1.0,"metadata":null}}
+```
+
+Then set `RIVET_ENDPOINT` on your app to the public URL of the load balancer, with your Rivet token. See <SelfHostLink to="nodes">Deploy nodes</SelfHostLink>.
+
+```bash
+RIVET_ENDPOINT=https://default:<rivet-token>@rivet.example.com
+```
 
 </Step>
 
 </Steps>
 
-## Managed PostgreSQL
+## Keep port 6421 private
 
-To use Amazon RDS, Cloud SQL, or Azure Database instead of the bundled Postgres:
+Instances talk to each other on port `6421` with no authentication. Allow it only between control plane pods:
 
-1. Point `postgres.url` in `02-engine-configmap.yaml` at your instance.
-2. Delete the bundled manifests: `10-postgres-configmap.yaml`, `11-postgres-secret.yaml`, `12-postgres-statefulset.yaml`, `13-postgres-service.yaml`.
-
-Use the direct connection string, not a pooled one. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-## Autoscaling
-
-`05-rivet-engine-hpa.yaml` is a HorizontalPodAutoscaler on the engine Deployment. It scales between **2 and 10 replicas**, targeting **60% average CPU** and **80% average memory**.
-
-Memory is a backstop, not a scaling signal. It does not fall as quickly as CPU, so the manifest pairs it with a **15 minute scale-down stabilization window** and removes at most one pod at a time. Without that, a memory spike holds the replica count up long after load has passed, and every removed replica severs the long-lived WebSockets it was serving.
-
-```bash
-kubectl -n rivet-engine get hpa rivet-engine
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rivet-peer
+  namespace: rivet
+spec:
+  podSelector:
+    matchLabels: { app: rivet }
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports: [{ port: 6420 }]
+    - from:
+        - podSelector: { matchLabels: { app: rivet } }
+      ports: [{ port: 6421 }]
 ```
 
-It needs the metrics server from the requirements above. Without it the targets read `<unknown>` and the HPA never scales.
+Add a rule for port `6430` if Prometheus scrapes the instances.
 
-Autoscaling is only safe here because this bundle runs on PostgreSQL and NATS. The file system (RocksDB) backend is single-node, so an engine using it must stay at one replica. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
+## Scaling
 
-## Applying configuration changes
-
-The ConfigMap is read at startup, so a change needs a restart:
-
-```bash
-kubectl apply -f 02-engine-configmap.yaml
-kubectl -n rivet-engine rollout restart deployment/rivet-engine
-```
+Add instances by raising `replicas`. The control plane moves storage onto new instances on its own. Never delete a PersistentVolumeClaim of a running cluster to free space: the instance that owned it is replaced, and its replicas are rebuilt from the other instances.
 
 ## Next steps
 
 - <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers/kubernetes">Deploy workers on Kubernetes</SelfHostLink>
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
+- <SelfHostLink to="nodes">Deploy nodes</SelfHostLink>
+- <SelfHostLink to="control-plane/upgrades">Upgrades</SelfHostLink>

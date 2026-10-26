@@ -1,111 +1,23 @@
 ---
 title: "Custom Platform"
-description: "Run the Rivet control plane on any platform that can run a container."
+description: "What any platform must provide to run the control plane."
 ---
 
-The control plane is a single container image, `rivetdev/engine`. Any platform that can run it with a persistent volume and a stable address can host it.
+The control plane runs on any platform that gives each instance the following.
 
 ## Requirements
 
-Your platform must provide:
+- **Its own persistent disk.** Local or block storage that survives restarts and supports `fsync`, mounted at `depot.log_directory`. Never share one disk between instances, and never use a network file system such as NFS or EFS.
+- **A stable private address** that the other instances can reach on port `6421`. Set it as `api_peer.advertise_address`.
+- **Access to one object storage bucket**, shared by every instance.
+- **The same pinned version** of `rivetdev/engine` on every instance, started with `--config`.
+- **A load balancer on port `6420`** with a one hour idle timeout. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
 
-- **A container runtime**, or a Linux host you can run the binary on.
-- **A persistent volume.** The control plane is stateful. Storage that resets on redeploy will lose actor state.
-- **A stable network identity**, so workers keep reaching the same place.
-- **Long-lived connections.** Platforms that cap request duration or idle time below an hour will sever WebSockets. This rules out serverless platforms entirely.
-- **`SIGTERM` plus a grace period**, so the control plane can drain and flush state before it is killed.
+Run at least three instances in production, each on its own machine. Start them within a minute of each other so the first storage placement uses all of them.
 
-## Steps
-
-<Steps>
-
-<Step title="Generate an admin token">
-
-```bash
-openssl rand -hex 32
-```
-
-Store it wherever your platform keeps secrets. Without it, the API is unauthenticated.
-
-</Step>
-
-<Step title="Run the image">
-
-Pin the tag. Never run `latest` in production.
-
-```bash
-docker run -d \
-  --restart unless-stopped \
-  -p 6420:6420 \
-  -p 6421:6421 \
-  -v rivet-data:/data \
-  -e RIVET__FILE_SYSTEM__PATH="/data" \
-  -e RIVET__AUTH__ADMIN_TOKEN="<your-token>" \
-  rivetdev/engine:2.3.3
-```
-
-For multi-node, drop the file system variable, set `RIVET__POSTGRES__URL` instead, and add NATS for pub/sub. Do not replicate or autoscale a node that is still on the file system backend: RocksDB is single-node. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
-
-</Step>
-
-<Step title="Expose the ports">
-
-`6420` carries API, dashboard, and WebSocket traffic and should sit behind TLS. `6421` serves health checks and should stay internal. See <SelfHostLink to="control-plane/ports">Ports</SelfHostLink>.
-
-</Step>
-
-<Step title="Raise the load balancer idle timeout">
-
-Set idle, read, and send timeouts to at least `3600` seconds on every proxy in the path. The 30 to 60 second defaults sever live WebSockets and cause reconnect storms.
-
-</Step>
-
-<Step title="Verify">
-
-```bash
-curl -i http://<host>:6421/health
-```
-
-Expect `200`. The dashboard is at `/ui` on port `6420`.
-
-</Step>
-<Step title="Create the runner config">
-
-A runner config declares a pool that workers connect to. Without one the control plane refuses every worker, so create it before deploying any:
-
-```bash
-curl -X PUT "http://<host>:6420/runner-configs/default?namespace=default" \
-  -H "Authorization: Bearer $RIVET_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"datacenters":{"default":{"normal":{}}}}'
-```
-
-Use `normal` for long-lived workers. See <SelfHostLink to="workers">Runner configs</SelfHostLink>.
-
-</Step>
-
-<Step title="Connect a worker">
-
-Point a worker at the control plane and confirm it appears under **Runners**:
-
-```bash
-RIVET_ENDPOINT="https://default:<admin-token>@your-control-plane.example.com"
-```
-
-</Step>
-
-</Steps>
-
-## Troubleshooting
-
-**Workers connect, then drop every 30 to 60 seconds.** The load balancer idle timeout is still at its default.
-
-**State disappears after a deploy.** The volume is not persistent, or the data path does not point at it.
-
-**The dashboard rejects your token.** `RIVET__AUTH__ADMIN_TOKEN` is not reaching the container. Confirm the variable name, including the double underscores.
+Point every instance at the same bucket with `object_storage.primary`, as described in <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
 ## Next steps
 
-- <SelfHostLink to="control-plane/configuration">Configuration reference</SelfHostLink>
-- <SelfHostLink to="control-plane/production-checklist">Production checklist</SelfHostLink>
-- <SelfHostLink to="workers">Deploy your workers</SelfHostLink>
+- <SelfHostLink to="control-plane/vm">VM & bare metal</SelfHostLink>, the reference setup
+- <SelfHostLink to="control-plane/configuration">Configuration</SelfHostLink>

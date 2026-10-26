@@ -11,7 +11,7 @@ export const homeFaqs: FaqItem[] = [
 	{
 		question: 'Does Rivet have a cloud?',
 		answerHtml:
-			'Yes. Rivet Cloud is fully managed. It can run your Actors for you on <a href="/docs/deploy/cloud/compute/">Rivet Compute</a>, with preview deployments and auto-scaling in edge regions, or you can <a href="/docs/deploy/self-host/workers/">bring your own worker</a> and run Actors on your compute while Rivet Cloud provides the control plane and routing layer.',
+			'Yes. Rivet Cloud is fully managed. It can run your Actors for you on <a href="/docs/deploy/cloud/compute/">Rivet Compute</a>, with preview deployments and auto-scaling in edge regions, or you can <a href="/docs/deploy/self-host/nodes/">bring your own nodes</a> and run Actors on your compute while Rivet Cloud provides the control plane and routing layer.',
 	},
 	{
 		question: 'Can I self-host Rivet?',

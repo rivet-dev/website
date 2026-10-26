@@ -1,0 +1,46 @@
+---
+title: "AWS ECS"
+description: "Run Rivet nodes on Amazon ECS with Fargate."
+---
+
+Your task runs as a node: it opens a connection out to the control plane on startup. It needs no load balancer and no public address.
+
+## Requirements
+
+A namespace and a node pool created with `PUT /pools/{pool}` (see [Nodes & Node Pools](/docs/nodes#quickstart)). In local development, RivetKit creates the `default` pool for you.
+
+- An AWS account with ECS and Fargate available
+- A container registry, typically ECR
+- A running <SelfHostLink to="control-plane">control plane</SelfHostLink>
+
+## Steps
+
+A reference deployment is published as the [AWS ECS template](https://github.com/rivet-dev/template-aws-ecs), with two paths:
+
+- [Deploy with Terraform](https://github.com/rivet-dev/template-aws-ecs#option-a-deploy-with-terraform)
+- [Deploy with the AWS CLI](https://github.com/rivet-dev/template-aws-ecs#option-b-deploy-with-aws-cli)
+
+Whichever path you take, two things in the task definition are specific to Rivet:
+
+- **`stopTimeout`.** Each Rivet Actor gets up to 15 seconds to save its state when a task stops. Set `stopTimeout` to 60 seconds. Plan rollouts so old tasks overlap new ones, and keep `minimumHealthyPercent` at 100 so capacity is added before it is removed.
+- **The endpoint variable.** Set `RIVET_ENDPOINT` through the `secrets` block, backed by Secrets Manager, rather than a plain `environment` entry. The value is described in <SelfHostLink to="nodes">Deploy Nodes</SelfHostLink>.
+
+## Verify
+
+```bash
+aws ecs describe-services --cluster <cluster> --services <service> \
+  --query 'services[0].runningCount'
+```
+
+Once tasks are running they serve Rivet Actors.
+
+## Autoscaling
+
+Tasks are interchangeable, so ECS Service Auto Scaling can drive the desired count. Use target tracking on `ECSServiceAverageCPUUtilization` at 60%, with a minimum of two tasks.
+
+Scale-in stops tasks the same way, so Rivet Actors on a removed task sleep and wake on another task. Set a long scale-in cooldown, or leave the desired count fixed and change capacity at deploy time instead.
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/aws-ecs">Run the control plane on AWS ECS</SelfHostLink>

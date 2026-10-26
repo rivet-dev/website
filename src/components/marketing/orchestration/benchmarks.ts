@@ -6,29 +6,25 @@
  * computed from them, and each measured figure carries a `method` string that
  * the page shows in an info tooltip beside the stat.
  *
- * Measured September 2026 on FoundationDB with the Rust rivetkit SDK. The
- * Kubernetes figures are typical published values, not a matched benchmark.
+ * The cold start comes from the benchmark documented at /docs/benchmarking.
+ * The density figure was measured in September 2026 with the Rust rivetkit
+ * SDK. The Kubernetes figures are typical published values, not a matched
+ * benchmark.
  */
 
-/** Shared setup line for the measured Rivet figures. */
-const SETUP = 'Measured on FoundationDB with the Rust rivetkit SDK.';
+/** Setup line for the density figure. */
+const SETUP = 'Measured with the Rust rivetkit SDK.';
 
 export const COLD_START = {
 	/**
-	 * p50 round trip of an HTTP request that wakes a hibernated actor. p99 is
-	 * 27.7 ms on the same run.
+	 * p50 round trip of a request that creates a new Actor, from the
+	 * benchmark at /docs/benchmarking. p99 is 8.11 ms on the same run.
 	 */
-	rivetMs: 12.3,
-	method: `Round trip of an HTTP request waking an Actor from hibernation: 12.3 ms p50, 27.7 ms p99. ${SETUP}`,
-	/**
-	 * The run relies on a feature that is still behind a flag. The section
-	 * renders this as a trailing sentence with the label linked to the PR.
-	 */
-	experimental: {
-		label: 'experimental Rivet feature',
-		href: 'https://github.com/rivet-dev/rivet/pull/5772',
-		status: 'will be enabled by default in an upcoming update',
-	},
+	rivetMs: 6.92,
+	method:
+		'Round trip from sending a request to the first reply from a newly created Rivet Actor: 6.92 ms p50, 8.11 ms p99, on a three-zone cluster.',
+	/** Methodology page linked from the stat's tooltip. */
+	benchmarkHref: '/docs/benchmarking/',
 	/** Pod scheduled to serving: image pull, runtime setup, container start. */
 	kubernetesLabel: '~6 s',
 	kubernetesMs: 6000,
@@ -55,8 +51,8 @@ export const SCALE = {
 export const HIBERNATION = {
 	/** Memory an actor holds once it has persisted its state and unloaded. */
 	idleLabel: '0 MB',
-	/** Wake is a cold start: the same path and figure as COLD_START. */
-	wakeMs: COLD_START.rivetMs,
+	/** p50 round trip of a request waking an Actor asleep for at least 10 seconds, from /docs/benchmarking. */
+	wakeMs: 4.37,
 } as const;
 
 /** Ratio helpers, so the page never hard-codes a multiple beside its inputs. */
@@ -68,8 +64,8 @@ export const DENSITY_MULTIPLE = Math.round(
 ).toLocaleString('en-US');
 
 /** The three hero stats, each anchored to the section that argues it. */
-// The hero rounds to whole units; the sections below carry the exact figures.
-const heroColdStartMs = Math.floor(COLD_START.rivetMs);
+// The hero rounds; the sections below carry the exact figures.
+const heroColdStartMs = COLD_START.rivetMs.toFixed(1);
 const heroDensityKb = Math.floor(DENSITY.rivetKb);
 
 export const HERO_STATS = [

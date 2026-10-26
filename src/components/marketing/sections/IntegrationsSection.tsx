@@ -83,11 +83,7 @@ interface StackGroup {
 const featuredPlatformProviders: DeployOption["name"][] = [
   "aws-ecs",
   "kubernetes",
-  "gcp-cloud-run",
   "vm",
-  "cloudflare-workers",
-  "vercel",
-  "supabase-functions",
   "railway",
   "custom",
 ];

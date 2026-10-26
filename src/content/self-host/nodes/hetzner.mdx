@@ -1,0 +1,112 @@
+---
+title: "Hetzner"
+description: "Run Rivet nodes on Hetzner Cloud servers."
+---
+
+Your process runs as a node: it opens a connection out to the control plane on startup. The server needs no public port and no Load Balancer, only outbound network access.
+
+## Requirements
+
+A namespace and a node pool created with `PUT /pools/{pool}` (see [Nodes & Node Pools](/docs/nodes#quickstart)). In local development, RivetKit creates the `default` pool for you.
+
+- The [`hcloud` CLI](https://github.com/hetznercloud/cli), configured for your project, and an SSH key uploaded to the project
+- A running <SelfHostLink to="control-plane/hetzner">control plane</SelfHostLink>
+
+## Steps
+
+<Steps>
+
+<Step title="Create the server">
+
+Create a Firewall that only allows SSH from the internet, then a server behind it. Install Node.js 22 or newer on the server; Ubuntu's own package is older, so use NodeSource.
+
+```bash
+hcloud firewall create --name rivet-node
+hcloud firewall add-rule rivet-node --direction in --protocol tcp --port 22 --source-ips 0.0.0.0/0 --source-ips ::/0
+hcloud server create --name rivet-node-1 --type cpx32 --image ubuntu-24.04 --location fsn1 \
+  --ssh-key my-key --firewall rivet-node
+ssh root@$(hcloud server ip rivet-node-1) 'curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs'
+```
+
+If your control plane runs on Hetzner too, put the server in the same location.
+
+</Step>
+
+<Step title="Upload your build">
+
+Build locally, then copy the output somewhere readable by the service user:
+
+```bash
+scp -r ./dist root@<server-ip>:/opt/rivet-node
+```
+
+</Step>
+
+<Step title="Create the systemd unit">
+
+`TimeoutStopSec` is the important line. Each Rivet Actor gets up to 15 seconds to save its state, so allow a minute.
+
+```ini /etc/systemd/system/rivet-node.service
+[Unit]
+Description=Rivet Node
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/rivet-node
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+TimeoutStopSec=60
+Environment=RIVET_ENDPOINT=<your-rivet-endpoint>
+
+[Install]
+WantedBy=multi-user.target
+```
+
+The endpoint value is described in <SelfHostLink to="nodes">Deploy Nodes</SelfHostLink>. For secrets, prefer `EnvironmentFile=` pointing at a root-owned file over inline `Environment=` lines.
+
+</Step>
+
+<Step title="Start the service">
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now rivet-node.service
+```
+
+</Step>
+
+<Step title="Verify">
+
+```bash
+systemctl is-active rivet-node.service
+```
+
+Expect `active`. Call one of your Rivet Actors to confirm it responds.
+
+</Step>
+
+</Steps>
+
+## Scaling
+
+Servers do not scale on their own. Nodes are interchangeable, so capacity is added by creating more servers with the same unit, each with the same unit and `RIVET_ENDPOINT`. They all join the same pool and start serving Rivet Actors. To autoscale instead, move the node to a platform that has one, such as <SelfHostLink to="nodes/kubernetes">Kubernetes</SelfHostLink>.
+
+## Operating
+
+Restart after deploying a new build or changing environment variables:
+
+```bash
+sudo systemctl restart rivet-node.service
+```
+
+Follow logs while debugging:
+
+```bash
+sudo journalctl -u rivet-node.service -f
+```
+
+## Next steps
+
+- <SelfHostLink to="nodes/production-checklist">Production checklist</SelfHostLink>
+- <SelfHostLink to="control-plane/hetzner">Run the control plane on Hetzner</SelfHostLink>
