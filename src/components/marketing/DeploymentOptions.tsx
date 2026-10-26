@@ -28,7 +28,7 @@ export const DeploymentOptions = ({
   productName,
   quickstartHref,
   selfHostHref,
-  installCommand = "npm install rivetkit",
+  installCommand = "npm install rivetkit@3.0.0-preview.1",
   className,
 }: DeploymentOptionsProps) => (
   <div
