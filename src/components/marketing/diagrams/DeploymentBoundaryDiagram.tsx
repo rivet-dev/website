@@ -1,22 +1,30 @@
-import { Icon, faDatabase, faNodeJs, faRust } from "@rivet-gg/icons";
+import {
+	Icon,
+	faAws,
+	faCloudflare,
+	faDatabase,
+	faGoogleCloud,
+	faMicrosoft,
+	faNodeJs,
+	faRust,
+	type IconProp,
+} from "@rivet-gg/icons";
 import { ACTOR_TYPES } from "@/data/actor-types";
 import { productLogos } from "@/sitemap/productLogos";
 import { wordmarkMaskStyle } from "@/lib/product-accent";
-import foundationDbLogo from "../images/platforms/foundationdb.svg";
-import postgresLogo from "../images/platforms/postgres.svg";
 
 /**
- * What sits inside the customer's boundary, top to bottom: a Rivet Worker
- * running their code (the Actor types it hosts, on Node.js or Rust), the Rivet
- * Control Plane scheduling it, and the storage underneath. The dashed frame is
- * the boundary itself.
+ * What sits inside the customer's boundary, top to bottom: the nodes running
+ * their code (the Actor types they host, on Node.js or Rust), the Rivet
+ * Control Plane scheduling them, and WarpDrive underneath, offloading to the
+ * customer's own bucket. The dashed frame is the boundary itself.
  *
  * The three layers are drawn as a stacked isometric deck — the 2:1 dimetric
  * plates with extruded walls from the retired "Everything agents need" stack
  * on the old homepage, over that figure's hairline grid — with a leader from
  * each plate's front edge to a card naming the layer. Upper plates paint over
  * the ones beneath so the deck reads as one object. Plates are painted in
- * neutral theme tokens; the only accent is the awake Actor slots on the worker.
+ * neutral theme tokens; the only accent is the awake Actor slots on the nodes.
  */
 
 // --- Plate geometry ---------------------------------------------------------
@@ -85,10 +93,10 @@ const highlight = (alpha: number) =>
 // --- Motifs ------------------------------------------------------------------
 
 /**
- * Worker: a 4×4 grid of Actor slots centred on the face, a few of them awake.
+ * Nodes: a 4×4 grid of Actor slots centred on the face, a few of them awake.
  * Static; the plate is a diagram, not a live view.
  */
-const WorkerMotif = () => {
+const NodesMotif = () => {
 	const n = 4;
 	const size = 14;
 	const gap = 6;
@@ -287,22 +295,14 @@ const Pill = ({ children }: { children: React.ReactNode }) => (
 	</span>
 );
 
-const StorageBadge = ({
-	label,
-	imageSrc,
-	imageClassName = "h-3.5 w-3.5",
-}: {
-	label: string;
-	imageSrc: string;
-	imageClassName?: string;
-}) => (
+/**
+ * One bucket backend. The marks are monochrome glyphs in the pill's text color,
+ * like `CloudStrip`, so they retint with the theme and the row reads as one
+ * set. A backend without a glyph gets a text-only pill.
+ */
+const StorageBadge = ({ label, icon }: { label: string; icon?: IconProp }) => (
 	<Pill>
-		<img
-			src={imageSrc}
-			alt=""
-			aria-hidden="true"
-			className={`shrink-0 object-contain ${imageClassName}`}
-		/>
+		{icon && <Icon icon={icon} aria-hidden="true" className="size-3.5 shrink-0" />}
 		<span className="truncate text-ink">{label}</span>
 	</Pill>
 );
@@ -315,13 +315,13 @@ const RuntimeTile = ({ children }: { children: React.ReactNode }) => (
 );
 
 /**
- * The Actor types the worker hosts, then the runtimes it hosts them on. All in
+ * The Actor types the nodes host, then the runtimes they host them on. All in
  * the same monochrome tile so the marks and the language glyphs share one
  * rhythm; the marks are masked and painted in the tile's text color. The two
  * groups are separated by spacing only, so the runtimes can wrap to a second
  * line in the narrow card without stranding a divider.
  */
-const WorkerRuntimes = () => (
+const NodeRuntimes = () => (
 	<div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
 		<div className="flex items-center gap-1">
 			{ACTOR_TYPES.map((type) => {
@@ -376,7 +376,7 @@ const LayerRow = ({
 );
 
 const DEPLOYMENT_BOUNDARY_DESCRIPTION =
-	"In your VPC, on-prem, air-gapped, or embedded: a Rivet Worker running your agents, workflows, sandboxes, and dynamic apps on Node.js or Rust; the Rivet Control Plane scheduling, routing, and observing them; and Postgres or FoundationDB underneath, tiered to S3.";
+	"In your VPC, on-prem, air-gapped, or embedded: Actor nodes running your agents, workflows, sandboxes, and dynamic apps on Node.js or Rust; the Rivet Control Plane, one stateless binary, scheduling, routing, and observing them; and WarpDrive underneath, keeping recent writes on local disk and offloading them to your own bucket on S3, Google Cloud Storage, Azure Blob Storage, Cloudflare R2, or MinIO.";
 
 export const DeploymentBoundaryDiagram = ({
 	className,
@@ -421,22 +421,23 @@ export const DeploymentBoundaryDiagram = ({
 
 		<div className="mt-3 flex flex-1 flex-col justify-center gap-2 py-3 sm:py-4 md:py-5">
 			<LayerRow
-				title="Rivet Worker"
-				detail="Your code, using the Rivet SDK"
+				title="Actor nodes"
+				detail="Your app, running the Rivet SDK"
 				zIndex={3}
 				plate={
-					<Plate clipId="dbd-face-worker">
-						<IsoMotif clipId="dbd-face-worker">
-							<WorkerMotif />
+					<Plate clipId="dbd-face-nodes">
+						<IsoMotif clipId="dbd-face-nodes">
+							<NodesMotif />
 						</IsoMotif>
 					</Plate>
 				}
 			>
-				<WorkerRuntimes />
+				<NodeRuntimes />
 			</LayerRow>
 
 			<LayerRow
 				title="Rivet Control Plane"
+				detail="One stateless binary"
 				zIndex={2}
 				plate={
 					<Plate clipId="dbd-face-control">
@@ -454,8 +455,8 @@ export const DeploymentBoundaryDiagram = ({
 			</LayerRow>
 
 			<LayerRow
-				title="Durable storage"
-				detail="Postgres or FoundationDB for persistence, tiered to S3"
+				title="WarpDrive storage"
+				detail="Recent writes on local disk, offloaded to your bucket"
 				zIndex={1}
 				plate={
 					<Plate clipId="dbd-face-storage">
@@ -466,13 +467,11 @@ export const DeploymentBoundaryDiagram = ({
 				}
 			>
 				<div className="mt-2 flex flex-wrap gap-1.5">
-					<StorageBadge label="Postgres" imageSrc={postgresLogo.src} />
-					<StorageBadge
-						label="FoundationDB"
-						imageSrc={foundationDbLogo.src}
-						imageClassName="h-3.5 w-5"
-					/>
-					<StorageBadge label="S3" imageSrc="/images/registry/s3.svg" />
+					<StorageBadge label="S3" icon={faAws} />
+					<StorageBadge label="Google Cloud" icon={faGoogleCloud} />
+					<StorageBadge label="Azure Blob" icon={faMicrosoft} />
+					<StorageBadge label="R2" icon={faCloudflare} />
+					<StorageBadge label="MinIO" />
 				</div>
 			</LayerRow>
 		</div>
