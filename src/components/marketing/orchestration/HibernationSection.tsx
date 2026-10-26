@@ -46,7 +46,7 @@ const AWAKE_CLASS = "orch-hibernate-dot--awake";
 /** Dots that open awake; they must not replay the wake ring on first paint. */
 const SETTLED_CLASS = "orch-hibernate-dot--settled";
 
-const HibernationFigure = () => {
+export const HibernationFigure = () => {
 	const fieldRef = useRef<HTMLDivElement>(null);
 	const gridRef = useRef<HTMLDivElement>(null);
 

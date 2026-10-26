@@ -160,7 +160,10 @@ const useHoverLights = (
 	}, [field, grids]);
 };
 
-export const ColdStartFigure = () => {
+/** `rivetLabel` lets a page quote a different measurement than the landing benchmark. */
+export const ColdStartFigure = ({
+	rivetLabel = `${COLD_START.rivetMs} ms`,
+}: { rivetLabel?: string }) => {
 	const field = useRef<HTMLDivElement>(null);
 	const fastGrid = useRef<HTMLDivElement>(null);
 	const slowGrid = useRef<HTMLDivElement>(null);
@@ -245,7 +248,7 @@ export const ColdStartFigure = () => {
 					<p className="mt-4 text-center text-xs font-medium text-highlight">
 						Rivet Actor
 						<br />
-						{COLD_START.rivetMs} ms
+						{rivetLabel}
 					</p>
 				</div>
 				<div>

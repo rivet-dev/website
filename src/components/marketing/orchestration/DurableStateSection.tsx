@@ -67,6 +67,9 @@ const HOVER_STEP_PX = 6;
 interface Palette {
 	highlight: string;
 	card: string;
+	/** Liquid body and surface opacity. Dark cards need more to read as orange. */
+	fillAlpha: number;
+	surfaceAlpha: number;
 }
 const parseRgb = (value: string, fallback: [number, number, number]) => {
 	const parts = value.trim().split(/\s+/).map(Number);
@@ -87,10 +90,13 @@ const readPalette = (el: HTMLElement): Palette => {
 	const card = paper.map((channel, i) =>
 		Math.round(channel + (surface[i] - channel) * 0.55),
 	);
+	const dark = card.reduce((sum, channel) => sum + channel, 0) / 3 < 128;
 	return {
 		highlight:
 			style.getPropertyValue("--runtime-highlight").trim() || "183 75 35",
 		card: card.join(" "),
+		fillAlpha: dark ? 0.3 : 0.2,
+		surfaceAlpha: dark ? 0.44 : 0.38,
 	};
 };
 
@@ -176,16 +182,25 @@ const DurableStateFigure = () => {
 				ctx.closePath();
 				ctx.fillStyle = card;
 				ctx.fill();
-				const level = (base.y - topY) * fills[index];
+				// Fill level: a shorter cylinder of liquid inside the body. Its
+				// surface is an ellipse in the same projection as the base and lid,
+				// so the water line curves with the cylinder instead of cutting
+				// straight across it.
+				const surfaceY = base.y - HEIGHT * fills[index];
 				ctx.save();
 				ctx.clip();
-				ctx.fillStyle = `rgb(${palette.highlight} / 0.28)`;
-				ctx.fillRect(
-					base.x - RADIUS,
-					base.y - level,
-					RADIUS * 2,
-					level + ry + 1,
-				);
+				ctx.beginPath();
+				ctx.moveTo(base.x - RADIUS, surfaceY);
+				ctx.lineTo(base.x - RADIUS, base.y);
+				ctx.ellipse(base.x, base.y, RADIUS, ry, 0, Math.PI, 0, true);
+				ctx.lineTo(base.x + RADIUS, surfaceY);
+				ctx.ellipse(base.x, surfaceY, RADIUS, ry, 0, 0, Math.PI);
+				ctx.fillStyle = `rgb(${palette.highlight} / ${palette.fillAlpha})`;
+				ctx.fill();
+				ctx.beginPath();
+				ctx.ellipse(base.x, surfaceY, RADIUS, ry, 0, 0, Math.PI * 2);
+				ctx.fillStyle = `rgb(${palette.highlight} / ${palette.surfaceAlpha})`;
+				ctx.fill();
 				ctx.restore();
 				// Outline only the sides and the front of the base. The top edge
 				// is drawn by the lid ellipse below; stroking it here would leave
@@ -207,18 +222,19 @@ const DurableStateFigure = () => {
 				ctx.fillStyle = `rgb(${lid[0]} ${lid[1]} ${lid[2]})`;
 				ctx.fill();
 				ctx.stroke();
-			}
-			for (const drop of drops) {
-				const t = (now - drop.t0) / DROP_MS;
-				if (t >= 1) continue;
-				const item = items.find((candidate) => candidate.index === drop.index);
-				if (!item) continue;
-				const y1 = item.base.y - HEIGHT;
-				const y0 = y1 - 34;
-				ctx.beginPath();
-				ctx.arc(item.base.x, y0 + (y1 - y0) * t * t, 2.2, 0, Math.PI * 2);
-				ctx.fillStyle = highlight;
-				ctx.fill();
+				// Writes falling onto this cylinder paint in its depth slot, so
+				// nearer cylinders hide them instead of the drop appearing to land
+				// on the wrong one.
+				for (const drop of drops) {
+					if (drop.index !== index) continue;
+					const t = (now - drop.t0) / DROP_MS;
+					if (t >= 1) continue;
+					const y0 = topY - 34;
+					ctx.beginPath();
+					ctx.arc(base.x, y0 + (topY - y0) * t * t, 2.2, 0, Math.PI * 2);
+					ctx.fillStyle = highlight;
+					ctx.fill();
+				}
 			}
 		};
 
