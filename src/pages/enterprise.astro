@@ -52,16 +52,16 @@ const boundaryControls = [
 
 const footprints = [
 	{
-		title: 'Single Rust binary',
-		body: 'One process to install, monitor, and upgrade.',
+		title: 'One stateless binary',
+		body: 'One process to install, monitor, and upgrade. No database or message bus to run.',
 	},
 	{
-		title: 'Kubernetes or systemd',
-		body: 'Deploy with the Enterprise Helm chart or a systemd unit.',
+		title: 'Kubernetes, systemd, or Docker',
+		body: 'Deploy as a StatefulSet, a systemd unit, or a single container.',
 	},
 	{
 		title: 'Storage you control',
-		body: 'Use Postgres or FoundationDB for persistence and tiered storage to S3.',
+		body: 'Every Actor\'s data lives in a bucket you own: S3, Google Cloud Storage, Azure Blob Storage, or an S3-compatible store like MinIO.',
 	},
 	{
 		title: 'Local dev identical to production',

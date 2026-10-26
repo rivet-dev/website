@@ -11,8 +11,8 @@ import {
 
 const pillars = [
   {
-    title: "Single Rust binary",
-    body: "One process to install, monitor, and upgrade, on Kubernetes with the Enterprise Helm chart or as a systemd unit.",
+    title: "One stateless binary",
+    body: "One container to install, monitor, and upgrade, on Kubernetes, a VM with systemd, or plain Docker. No database or message bus to run.",
   },
   {
     title: "Managed in your VPC",
@@ -20,7 +20,7 @@ const pillars = [
   },
   {
     title: "Storage you control",
-    body: "Use Postgres or FoundationDB for persistence and tiered storage to S3.",
+    body: "Every Actor's data lives in a bucket you own: S3, Google Cloud Storage, Azure Blob Storage, or an S3-compatible store like MinIO.",
   },
   {
     title: "Local dev matches production",
