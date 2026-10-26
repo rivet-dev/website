@@ -35,6 +35,11 @@ type PageWithPages = {
 	pages: AnyPage[];
 	collapsible?: true;
 	initiallyOpen?: boolean;
+	/**
+	 * Show only the first `limit` pages, with a "N more" button that expands
+	 * the rest. The group opens in full when the current page is past the cut.
+	 */
+	limit?: number;
 	icon?: IconDefinition;
 	badge?: string;
 };
@@ -44,6 +49,11 @@ type SidebarTopLevelPage = Page;
 export type SidebarSection = {
 	title: string;
 	collapsible?: true;
+	/**
+	 * Show only the first `limit` pages, with a "N more" button that expands
+	 * the rest. The group opens in full when the current page is past the cut.
+	 */
+	limit?: number;
 	pages: AnyPage[];
 	icon?: IconDefinition;
 };

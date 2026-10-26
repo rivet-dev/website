@@ -141,3 +141,4 @@ export const Tooltip = ({ tip, children }) => {
   );
 };
 export { IntegrationCards } from '@/components/docs/IntegrationCards';
+export { Diagram } from '@/components/docs/diagram/Diagram';

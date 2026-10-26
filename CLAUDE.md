@@ -38,7 +38,16 @@ Applies to all user-facing writing on the website (docs, marketing, blog). Inter
 - Each control plane instance needs its own persistent block-storage disk. Rivet has no serverless mode, so every node platform runs a long-lived process. Adding a platform means updating `deployMatrix.ts`, which feeds both the sidebar and `getStaticPaths`.
 - **Platform support is uniform across every product, including agentOS.** agentOS runs inside Actors and the Actor supplies persistence, so it needs nothing extra from the host platform.
 - Node guides inherit one shared architecture diagram from the template. Do not add a per-guide diagram; platform detail belongs in the steps.
-- Diagrams are hand-authored inline SVG via the `creating-docs-diagrams` skill, drawn in the figure accent (`highlight`, see Theme). Not Mermaid.
+- Architecture diagrams use `<Diagram>` (see below). Other figures are hand-authored inline SVG via the `creating-docs-diagrams` skill, drawn in the figure accent (`highlight`, see Theme). Not Mermaid.
+
+## Architecture Diagrams
+
+- Every architecture diagram in docs and guides uses the global `<Diagram>` MDX component (`src/components/docs/diagram/Diagram.tsx`). Do not hand-draw SVG, use Mermaid, or add images for a new architecture diagram.
+- The reference is the diagram on `/guides/personal-agent/` (`agents` repo, `docs/content/guides/personal-agent.mdx`). Match its density: five to eight nodes, numbered calls in order, a product tile on every Rivet library, and stacked cards for anything that exists once per key.
+- When a diagram needs something the component cannot draw, extend the component (a new node kind, edge option, or product) instead of drawing around it, and keep the existing diagrams rendering unchanged.
+- Give every diagram a unique `id` and a `label` that describes the full call order for screen readers.
+- The Guides overview draws each guide's first `<Diagram>` as a thumbnail (`DiagramMini`, read by `diagram/fromMdx.ts`), so keep `nodes` and `edges` as literal data with no variables or spreads.
+- Check each new diagram in light and dark theme and at 390px before finishing. The component uses site tokens, so it needs no `theme.css` remap.
 
 ## Icons
 

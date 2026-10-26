@@ -189,7 +189,7 @@ function findFirstHref(pages: SidebarItem[]): string | null {
 	return null;
 }
 
-function findActiveItem(pages: SidebarItem[], href: string) {
+export function findActiveItem(pages: SidebarItem[], href: string) {
 	for (const page of pages) {
 		if (
 			"href" in page &&

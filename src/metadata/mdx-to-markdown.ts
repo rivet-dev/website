@@ -48,6 +48,12 @@ export function mdxToMarkdown(body: string, options: ConvertOptions = {}) {
 	text = applyCallouts(text, "Info");
 	text = applyCallouts(text, "Callout");
 
+	// A diagram's label describes the whole flow, so it stands in for the figure.
+	text = text.replace(/<Diagram\b[\s\S]*?\/>/g, (diagram) => {
+		const label = diagram.match(/\blabel="([^"]*)"/);
+		return label ? `\n${label[1]}\n` : "";
+	});
+
 	// Anything left is a component with no Markdown equivalent. Keep the text it
 	// wraps, drop the tags.
 	text = text

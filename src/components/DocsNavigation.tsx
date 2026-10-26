@@ -1,11 +1,12 @@
 import { ActiveLink, SsrPathnameContext } from "@/components/ActiveLink";
-import { CollapsibleSidebarItem } from "@/components/CollapsibleSidebarItem";
+import { CollapsibleSidebarItem, findActiveItem } from "@/components/CollapsibleSidebarItem";
+import { usePathname } from "@/hooks/usePathname";
 import { NavigationStateProvider } from "@/providers/NavigationStateProvider";
 import routes from "@/generated/routes.json";
 import type { SidebarItem, SidebarLogo } from "@/lib/sitemap";
 import { type ProductAccent, productAccent } from "@/lib/product-accent";
 import { cn } from "@rivet-gg/components";
-import { Icon, faArrowUpRight } from "@rivet-gg/icons";
+import { Icon, faArrowUpRight, faChevronDown, faChevronUp } from "@rivet-gg/icons";
 import clsx from "clsx";
 import {
 	createContext,
@@ -14,8 +15,10 @@ import {
 	useContext,
 	useEffect,
 	useRef,
+	useState,
 } from "react";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
+import { SidebarPreview } from "@/components/docs/SidebarPreview";
 
 /**
  * Accent of the product vertical this sidebar belongs to.
@@ -96,6 +99,7 @@ function TreeItem({
 					pages={item.pages}
 					level={level + 1}
 					parentPath={itemPath}
+					limit={item.limit}
 				/>
 			</CollapsibleSidebarItem>
 		);
@@ -127,6 +131,7 @@ function TreeItem({
 					pages={item.pages}
 					level={level + 1}
 					parentPath={itemPath}
+					limit={item.limit}
 				/>
 			</div>
 		);
@@ -194,6 +199,8 @@ interface TreeProps {
 	className?: string;
 	level?: number;
 	parentPath?: string;
+	/** See `limit` on `SidebarSection`. */
+	limit?: number;
 }
 
 export function Tree({
@@ -201,11 +208,17 @@ export function Tree({
 	className,
 	level = 0,
 	parentPath = "",
+	limit,
 }: TreeProps) {
 	const leadingColumn = pages.some(isMethodBadge);
+	const pathname = usePathname(useContext(SsrPathnameContext)) || "";
+	const hidden = limit !== undefined && pages.length > limit ? pages.slice(limit) : [];
+	const [expanded, setExpanded] = useState(false);
+	const showAll = expanded || hidden.length === 0 || findActiveItem(hidden, pathname) !== null;
+	const shown = showAll ? pages : pages.slice(0, limit);
 	return (
 		<ul className={cn(className)}>
-			{pages.map((item, index) => (
+			{shown.map((item, index) => (
 				<li
 					// biome-ignore lint/suspicious/noArrayIndexKey: FIXME: used only for static content
 					key={index}
@@ -219,8 +232,37 @@ export function Tree({
 					/>
 				</li>
 			))}
+			{hidden.length > 0 && !(showAll && !expanded) ? (
+				<li>
+					<button
+						type="button"
+						onClick={() => setExpanded(!expanded)}
+						aria-expanded={expanded}
+						className={cn(
+							"flex w-full items-center gap-2 border-l-2 border-l-ink/15 py-2 text-sm text-ink-faint transition-colors hover:border-l-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pine",
+							getPaddingClass(level),
+						)}
+					>
+						<Icon icon={expanded ? faChevronUp : faChevronDown} className="size-3" />
+						{expanded ? "Show less" : `${hidden.length} more`}
+					</button>
+				</li>
+			) : null}
 		</ul>
 	);
+}
+
+function getPaddingClass(level: number) {
+	switch (level) {
+		case 0:
+			return "pl-2 pr-3";
+		case 1:
+			return "pl-5 pr-3";
+		case 2:
+			return "pl-8 pr-3";
+		default:
+			return "pl-11 pr-3";
+	}
 }
 
 export function NavLink({
@@ -236,19 +278,6 @@ export function NavLink({
 	className?: string;
 	level?: number;
 }>) {
-	const getPaddingClass = (level: number) => {
-		switch (level) {
-			case 0:
-				return "pl-2 pr-3";
-			case 1:
-				return "pl-5 pr-3";
-			case 2:
-				return "pl-8 pr-3";
-			default:
-				return "pl-11 pr-3";
-		}
-	};
-
 	const accent = useContext(SidebarAccentContext);
 
 	return (
@@ -304,7 +333,9 @@ export function DocsNavigation({
 						ref={scrollRef}
 						className="sticky top-header max-h-content text-ink pl-8 pr-6 py-6 overflow-y-auto [mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_2rem,#000_calc(100%-1.5rem),transparent_100%)]"
 					>
-						<Tree pages={sidebar} />
+						<SidebarPreview>
+							<Tree pages={sidebar} />
+						</SidebarPreview>
 					</div>
 				</NavigationStateProvider>
 			</SidebarAccentProvider>

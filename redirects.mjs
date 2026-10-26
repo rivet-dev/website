@@ -52,7 +52,7 @@ const explicitRedirects = {
 	'/cookbook/collaborative-text-editor': '/guides/collaborative-text-editor/',
 	'/cookbook/cron-jobs': '/guides/cron-jobs/',
 	'/cookbook/live-cursors': '/guides/live-cursors/',
-	'/cookbook/multiplayer-game': '/guides/multiplayer-game/',
+	'/cookbook/multiplayer-game': '/guides/battle-royale/',
 	'/cookbook/per-tenant-database': '/guides/per-tenant-database/',
 	// Documentation restructure
 	'/docs/setup': '/actors/docs/',
@@ -187,6 +187,16 @@ const explicitRedirects = {
 	'/agentos/docs/bindings': '/agentos/docs/host-functions/',
 	// Air-gapped deployment is a self-hosting topic, not an actors cookbook.
 	'/guides/vpc-air-gapped': '/docs/deploy/self-host/control-plane/vm/',
+	// The Solutions guides were replaced by the closest use-case guide.
+	'/guides/coding-agents': '/guides/build-coding-agent/',
+	'/actors/learn/coding-agents': '/guides/build-coding-agent/',
+	'/guides/agent-app-builders': '/guides/host-ai-generated-apps/',
+	'/actors/learn/agent-app-builders': '/guides/host-ai-generated-apps/',
+	'/guides/company-agents': '/guides/deploy-ai-agent/',
+	'/actors/learn/company-agents': '/guides/deploy-ai-agent/',
+	// The multiplayer game guide was split into one guide per game type.
+	'/guides/multiplayer-game': '/guides/battle-royale/',
+	'/actors/learn/multiplayer-game': '/guides/battle-royale/',
 	'/cookbook/vpc-air-gapped': '/docs/deploy/self-host/control-plane/vm/',
 	// Rivet Compute is a Cloud feature, not a self-hosting target.
 	'/docs/deploy/rivet-compute': '/docs/deploy/cloud/compute/',

@@ -11,6 +11,7 @@ import { getCollection } from 'astro:content';
 import { ogImageFor } from '@/lib/ogImage';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
 import { createGuideCards } from '@/components/docs/GuideCards';
+import { diagramFromMdx, type DiagramSpec } from '@/components/docs/diagram/fromMdx';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
 import { DOCS_SOURCES } from '@/sitemap/docs-sources';
@@ -23,6 +24,8 @@ export async function getStaticPaths() {
 
 	// Every guide's description, keyed by its site href, for the overview cards.
 	const descriptions: Record<string, string | undefined> = {};
+	// Every guide's architecture diagram, for the overview cards' thumbnails.
+	const diagrams: Record<string, DiagramSpec | undefined> = {};
 	// Guides from different bundles share one flat namespace.
 	const owners = new Map<string, string>();
 
@@ -37,6 +40,7 @@ export async function getStaticPaths() {
 		}
 		owners.set(guide.slug, guide.bundle);
 		descriptions[guideHref(guide.slug)] = entry.data.description;
+		diagrams[guideHref(guide.slug)] = diagramFromMdx(entry.body);
 
 		const source = DOCS_SOURCES[guide.bundle];
 		const contentPath = (entry.filePath ?? '').split(`/${guide.bundle}/${GUIDES_SECTION}/`).pop();
@@ -64,13 +68,14 @@ export async function getStaticPaths() {
 			routeSlugOverride: '',
 			editUrlOverride: `https://github.com/rivet-dev/website/edit/main/src/content/guides/${GUIDES_OVERVIEW_ID}.mdx`,
 			descriptions,
+			diagrams,
 		},
 	});
 
 	return paths;
 }
 
-const { entry, entryIdPrefix, routeSlugOverride, editUrlOverride, descriptions } = Astro.props;
+const { entry, entryIdPrefix, routeSlugOverride, editUrlOverride, descriptions, diagrams } = Astro.props;
 const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 ---
 
@@ -84,7 +89,7 @@ const robots = robotsDirective(getRouteSeoPolicy(Astro.url));
 	seoContextLabel="Rivet Guides"
 	editUrlOverride={editUrlOverride}
 	extraComponents={descriptions ? {
-		GuideCards: createGuideCards({ overviewHref: guideHref(''), descriptions }),
+		GuideCards: createGuideCards({ overviewHref: guideHref(''), descriptions, diagrams: diagrams ?? {} }),
 	} : {}}
 	robots={robots}
 />

@@ -15,6 +15,7 @@ import { withAiSidebarSection } from '@/sitemap/ai';
 import { findActiveTab, findPageForHref } from '@/lib/sitemap';
 import { productAccent } from '@/lib/product-accent';
 import { API_DOCS_ROUTE_PREFIX, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
+import { GUIDES_ROUTE_PREFIX } from '@/sitemap/guides';
 import { jsonLdString } from '@/lib/jsonLd';
 import { ogImageFor, productOgImage } from '@/lib/ogImage';
 import {
@@ -115,9 +116,12 @@ const isSiteDocsSection = routePrefix === SITE_DOCS_ROUTE_PREFIX;
 // The API reference is resolved by route for the same reason: the Overview
 // sidebar links into it, so a page lookup alone could hand it to Overview.
 const isApiDocsSection = routePrefix === API_DOCS_ROUTE_PREFIX;
+// Guides are resolved by route too: product docs sidebars list their guides
+// (`"mirror": "guides"`), and a guide must still open on the Guides tab.
+const isGuidesSection = routePrefix === GUIDES_ROUTE_PREFIX;
 const routeOwnedTab = productId && tabId
 	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
-	: isSiteDocsSection || isApiDocsSection
+	: isSiteDocsSection || isApiDocsSection || isGuidesSection
 		? sitemap.find((tab) => tab.href.replace(/\/$/, '') === routePrefix)
 		: undefined;
 const activeTab = routeOwnedTab ?? discovered?.tab;
