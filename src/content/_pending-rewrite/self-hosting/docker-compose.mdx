@@ -15,7 +15,7 @@ Create a `docker-compose.yaml` in your project root:
 ```yaml
 services:
   rivet-engine:
-    image: rivetdev/engine:latest
+    image: rivetdev/engine:next
     ports:
       - "6420:6420"
     volumes:
@@ -75,7 +75,7 @@ Update your `docker-compose.yaml` to include your app alongside the engine:
 ```yaml
 services:
   rivet-engine:
-    image: rivetdev/engine:latest
+    image: rivetdev/engine:next
     ports:
       - "6420:6420"
     volumes:
@@ -161,7 +161,7 @@ Mount a JSON configuration file in your `docker-compose.yaml`:
 ```yaml
 services:
   rivet-engine:
-    image: rivetdev/engine:latest
+    image: rivetdev/engine:next
     ports:
       - "6420:6420"
     volumes:
@@ -202,7 +202,7 @@ services:
     restart: unless-stopped
 
   rivet-engine:
-    image: rivetdev/engine:latest
+    image: rivetdev/engine:next
     ports:
       - "6420:6420"
     environment:

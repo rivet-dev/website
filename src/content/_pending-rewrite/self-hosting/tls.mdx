@@ -11,7 +11,7 @@ Rivet reads the operating system trust store (`/etc/ssl/certs` on Linux, Keychai
 To trust a private CA inside the official `rivetdev/engine` image, extend it the standard Debian way:
 
 ```dockerfile
-FROM rivetdev/engine:latest
+FROM rivetdev/engine:next
 COPY my-corp-ca.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 ```

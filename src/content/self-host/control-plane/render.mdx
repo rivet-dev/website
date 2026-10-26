@@ -18,7 +18,7 @@ Render runs one control plane instance with a Render persistent disk. Use it to 
 
 <Step title="Create the service">
 
-Create a Web Service from the image `rivetdev/engine:2.3.31` with the Docker command `--config /etc/rivet`.
+Create a Web Service from the image `rivetdev/engine:next` with the Docker command `--config /etc/rivet`.
 
 </Step>
 
@@ -54,7 +54,7 @@ curl https://<service>.onrender.com/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>

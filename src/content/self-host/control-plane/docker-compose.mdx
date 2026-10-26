@@ -3,7 +3,6 @@ title: "Docker Compose"
 description: "Run a single control plane instance with Docker Compose and connect your app to it."
 ---
 
-{/* TODO(release): replace 2.3.31 with the released version on every self-host page. */}
 {/* TODO(verify): run these steps against the published image, and confirm the image user can write to fresh named volumes. */}
 
 This runs one control plane instance that keeps its data on local Docker volumes. It is the fastest way to try Rivet. A single instance keeps one copy of your data, so use <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/vm">VMs</SelfHostLink> with three or more instances and a bucket for production.
@@ -58,7 +57,7 @@ docker run -d --name rivet \
   -v "$PWD/rivet.json:/etc/rivet/config.json:ro" \
   -v rivet-log:/var/lib/rivet/log \
   -v rivet-objects:/var/lib/rivet/objects \
-  rivetdev/engine:2.3.31
+  rivetdev/engine:next
 ```
 
 ```bash
@@ -66,7 +65,7 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>
@@ -104,7 +103,7 @@ The same instance as a Compose service, with your app beside it:
 ```yaml
 services:
   rivet:
-    image: rivetdev/engine:2.3.31
+    image: rivetdev/engine:next
     ports:
       - "6420:6420"
     environment:

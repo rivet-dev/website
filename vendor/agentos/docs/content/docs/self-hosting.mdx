@@ -37,7 +37,7 @@ export RIVET_ADMIN_TOKEN=$(openssl rand -hex 32)
 
 docker run -p 6420:6420 \
   -e RIVET__AUTH__ADMIN_TOKEN="$RIVET_ADMIN_TOKEN" \
-  rivetdev/engine
+  rivetdev/engine:next
 ```
 
 See the [self-hosting guides](/docs/deploy/) for other ways to run it.

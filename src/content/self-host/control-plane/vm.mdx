@@ -22,10 +22,10 @@ Run at least three instances in production, each on its own machine.
 
 <Step title="Install the binary">
 
-Copy `rivet-engine` from the `rivetdev/engine:2.3.31` image to each machine and create the disk directory:
+Copy `rivet-engine` from the `rivetdev/engine:next` image to each machine and create the disk directory:
 
 ```bash
-docker create --name rivet-extract rivetdev/engine:2.3.31
+docker create --name rivet-extract rivetdev/engine:next
 docker cp rivet-extract:/usr/bin/rivet-engine /usr/local/bin/rivet-engine
 docker rm rivet-extract
 sudo useradd --system rivet
@@ -95,7 +95,7 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>

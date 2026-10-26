@@ -13,7 +13,7 @@ The control plane serves plain HTTP. Terminate TLS at the load balancer in front
 For outbound HTTPS, such as to the bucket, the control plane trusts the operating system's certificate store. To trust a private CA inside the image, extend it:
 
 ```dockerfile
-FROM rivetdev/engine:2.3.31
+FROM rivetdev/engine:next
 COPY my-corp-ca.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 ```

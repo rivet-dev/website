@@ -45,11 +45,11 @@ Instances reach each other on port `6421` over their private IPs (`10.0.0.11` to
 
 <Step title="Install the binary">
 
-On each server, install Docker, copy `rivet-engine` from the `rivetdev/engine:2.3.31` image and create the disk directory on the server's Volume. Hetzner mounts an automounted Volume at `/mnt/HC_Volume_<volume-id>`; `ls -d /mnt/HC_Volume_*` shows the path.
+On each server, install Docker, copy `rivet-engine` from the `rivetdev/engine:next` image and create the disk directory on the server's Volume. Hetzner mounts an automounted Volume at `/mnt/HC_Volume_<volume-id>`; `ls -d /mnt/HC_Volume_*` shows the path.
 
 ```bash
 sudo apt-get update && sudo apt-get install -y docker.io
-sudo docker create --name rivet-extract rivetdev/engine:2.3.31
+sudo docker create --name rivet-extract rivetdev/engine:next
 sudo docker cp rivet-extract:/usr/bin/rivet-engine /usr/local/bin/rivet-engine
 sudo docker rm rivet-extract
 sudo useradd --system rivet
@@ -126,7 +126,7 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>
@@ -153,7 +153,7 @@ curl https://rivet.example.com/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 Hetzner caps the idle timeout of an HTTPS service at 300 seconds, below the one hour other guides use. Node connections send pings every few seconds and stay open. A client WebSocket that is idle for 5 minutes is closed; RivetKit clients reconnect automatically, and raw WebSockets in your app must reconnect or send their own pings. See <SelfHostLink to="control-plane/ports">Ports & TLS</SelfHostLink>.

@@ -26,7 +26,7 @@ aws secretsmanager create-secret --name rivet-admin-token \
 
 <Step title="Define the task">
 
-Run `rivetdev/engine:2.3.31` with the command `["--config", "/etc/rivet"]`, `awsvpc` networking and these settings. Mount the host's EBS volume at `/var/lib/rivet/log`.
+Run `rivetdev/engine:next` with the command `["--config", "/etc/rivet"]`, `awsvpc` networking and these settings. Mount the host's EBS volume at `/var/lib/rivet/log`.
 
 ```bash
 RIVET__AUTH__ADMIN_TOKEN=<from the secret>
@@ -59,7 +59,7 @@ curl https://rivet.example.com/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>

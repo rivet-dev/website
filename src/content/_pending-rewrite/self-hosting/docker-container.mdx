@@ -16,7 +16,7 @@ docker run -d \
   -p 6420:6420 \
   -v rivet-data:/data \
   -e RIVET__FILE_SYSTEM__PATH="/data" \
-  rivetdev/engine:latest
+  rivetdev/engine:next
 ```
 
 </Step>
@@ -117,7 +117,7 @@ docker run -d \
   -v rivet-data:/data \
   -e RIVET__FILE_SYSTEM__PATH="/data" \
   -e RIVET__POSTGRES__URL="postgresql://postgres:password@localhost:5432/db" \
-  rivetdev/engine:latest
+  rivetdev/engine:next
 ```
 
 ### Config File
@@ -130,7 +130,7 @@ docker run -d \
   -p 6420:6420 \
   -v rivet-data:/data \
   -v $(pwd)/rivet-config.json:/etc/rivet/config.json:ro \
-  rivetdev/engine:latest
+  rivetdev/engine:next
 ```
 
 Create `rivet-config.json` in your working directory. See the [Configuration](/docs/self-hosting/configuration) docs for all available options and the full [JSON Schema](/docs/engine-config-schema.json).
@@ -169,7 +169,7 @@ docker run -d \
   --network rivet-net \
   -p 6420:6420 \
   -e RIVET__POSTGRES__URL="postgresql://rivet:rivet_password@postgres:5432/rivet" \
-  rivetdev/engine
+  rivetdev/engine:next
 ```
 
 ## Next Steps

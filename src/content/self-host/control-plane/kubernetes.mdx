@@ -86,7 +86,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: rivet
-          image: rivetdev/engine:2.3.31
+          image: rivetdev/engine:next
           ports:
             - { name: http, containerPort: 6420 }
             - { name: peer, containerPort: 6421 }
@@ -145,7 +145,7 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>

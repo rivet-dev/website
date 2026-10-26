@@ -18,7 +18,7 @@ Railway runs one control plane instance with a Railway volume as its disk. Use i
 
 <Step title="Create the service">
 
-Create a service from the Docker image `rivetdev/engine:2.3.31` and set its start command to `--config /etc/rivet`.
+Create a service from the Docker image `rivetdev/engine:next` and set its start command to `--config /etc/rivet`.
 
 </Step>
 
@@ -54,7 +54,7 @@ curl https://<your-domain>/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"2.3.31",...}
+{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
 ```
 
 </Step>
