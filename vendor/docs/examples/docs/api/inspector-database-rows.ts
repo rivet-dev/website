@@ -1,4 +1,4 @@
-const endpoint = "https://rivet.example.com";
+const endpoint = "https://api.rivet.dev";
 const query = new URLSearchParams({
 	table: "users",
 	limit: "100",

@@ -1,4 +1,4 @@
-const endpoint = "https://rivet.example.com";
+const endpoint = "https://api.rivet.dev";
 const response = await fetch(
 	`${endpoint}/gateway/${process.env.ACTOR_ID}/metadata`,
 	{
