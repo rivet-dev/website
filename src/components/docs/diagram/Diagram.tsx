@@ -53,6 +53,7 @@ import dynamicAppsMark from "@/images/products/dynamic-apps-logo.svg?raw";
 import sandboxAgentMark from "@/images/products/sandbox-agent-logo.svg?raw";
 import secureExecMark from "@/images/products/secure-exec-logo.svg?raw";
 import workflowsMark from "@/images/products/workflows-logo.svg?raw";
+import tursoMark from "../../../../public/images/vendors/turso.svg?raw";
 
 export type DiagramProduct =
 	| "actors"
@@ -62,6 +63,8 @@ export type DiagramProduct =
 	| "dynamic-apps"
 	| "sandbox-agent"
 	| "secure-exec";
+
+export type DiagramVendor = "turso";
 
 type Point = [number, number];
 type Side = "left" | "right" | "top" | "bottom";
@@ -85,6 +88,8 @@ export interface DiagramNode {
 	subtitle?: string;
 	/** Product tile in the top-left corner. Use it for every Rivet library in the diagram. */
 	product?: DiagramProduct;
+	/** Vendor logo in the top-left corner, for a node that is a third-party service. */
+	vendor?: DiagramVendor;
 	/** Draws the node as a stack of cards: one instance per key. Name the key with `stackLabel`. */
 	stack?: boolean;
 	/** Dashed outline and muted text for a part the reader may leave out. */
@@ -176,8 +181,23 @@ const PRODUCTS: Record<DiagramProduct, { color: string; name: string; mark: stri
 	"secure-exec": { color: "#1B1916", name: "Secure Exec", mark: secureExecMark },
 };
 
+/** Vendor logos: the flat ink marks under `public/images/vendors/`, recolored per theme. */
+const VENDORS: Record<DiagramVendor, string> = {
+	turso: tursoMark,
+};
+
 function markInner(svg: string) {
 	return svg.replace(/^[\s\S]*?<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+}
+
+function VendorMark({ vendor, x, y, size: s, fill }: { vendor: DiagramVendor; x: number; y: number; size: number; fill: string }) {
+	const mark = VENDORS[vendor];
+	return (
+		<svg x={x} y={y} width={s} height={s} viewBox={mark.match(/viewBox="([^"]+)"/)?.[1]} aria-hidden="true">
+			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: the marks are local, trusted SVG files. */}
+			<g fill={fill} dangerouslySetInnerHTML={{ __html: markInner(mark) }} />
+		</svg>
+	);
 }
 
 interface Run {
@@ -420,7 +440,7 @@ function NodeShape({ node }: { node: DiagramNode }) {
 	const stroke = node.optional ? C.inkFaint : C.ink;
 	const fill = node.highlight ? C.tint : C.surface;
 	const tileSize = h >= 56 ? 28 : 20;
-	const textX = node.product ? cx + 20 : cx;
+	const textX = node.product || node.vendor ? cx + 20 : cx;
 	const titleY = node.subtitle ? cy - 3 : cy + 5;
 	return (
 		<g>
@@ -450,6 +470,7 @@ function NodeShape({ node }: { node: DiagramNode }) {
 				strokeDasharray={node.optional ? "5 4" : undefined}
 			/>
 			{node.product && <ProductTile product={node.product} x={node.x + 13} y={node.y + 16} size={tileSize} />}
+			{node.vendor && <VendorMark vendor={node.vendor} x={node.x + 13} y={node.y + 16} size={tileSize} fill={stroke} />}
 			{node.title && (
 				<RichText x={textX} y={titleY} text={node.title} size={14} weight={600} fill={node.optional ? C.inkSoft : C.ink} />
 			)}
@@ -805,6 +826,8 @@ export function DiagramMini({ id, nodes, edges = [] }: Pick<DiagramProps, "id" |
 								{/* biome-ignore lint/security/noDangerouslySetInnerHtml: the marks are local, trusted SVG files. */}
 								<g fill="none" dangerouslySetInnerHTML={{ __html: markInner(tile.mark) }} />
 							</svg>
+						) : node.vendor ? (
+							<VendorMark vendor={node.vendor} x={cx - (h - 22) / 2} y={cy - (h - 22) / 2} size={h - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
 						) : (
 							<MiniIcon icon={miniIcon(node)} cx={cx} cy={cy} size={h - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
 						)}

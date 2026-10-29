@@ -22,7 +22,8 @@ export interface Integration extends SeoOverrides {
 	icon: { src: string };
 	badge?: string;
 	exampleUrl?: string;
-	sourceUrl: string;
+	/** Source of the integration package. Omit for a pattern built from public SDKs. */
+	sourceUrl?: string;
 }
 
 const ACTORS: Integration[] = [
@@ -57,6 +58,14 @@ const ACTORS: Integration[] = [
 			"https://github.com/rivet-dev/rivet/tree/main/examples/workflow-sdk",
 		sourceUrl:
 			"https://github.com/rivet-dev/rivet/tree/main/integrations/workflow-world",
+	},
+	{
+		title: "Turso",
+		description: "Connect Rivet Actors to a Turso Cloud database.",
+		slug: "turso",
+		category: "Databases",
+		icon: { src: "/images/vendors/turso.svg" },
+		exampleUrl: "https://github.com/rivet-dev/rivet/tree/main/examples/turso",
 	},
 ];
 
