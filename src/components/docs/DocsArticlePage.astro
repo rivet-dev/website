@@ -17,6 +17,7 @@ import {
 	SITE_INTEGRATIONS_PRODUCT,
 } from '@/sitemap/integrations';
 import * as mdxComponents from '@/components/mdx';
+import { diagramFromMdx } from '@/components/docs/diagram/fromMdx';
 import type { SeoOverrides } from '@/lib/seo';
 
 const {
@@ -58,6 +59,11 @@ const routeEntryId = entryIdPrefix && entry.id.startsWith(entryIdPrefix)
 		? ''
 		: entry.id;
 const slugPath = routeSlugOverride ?? getContentSlugPath(routeEntryId);
+// A page that draws a `<Diagram>` previews it instead of the section card, using
+// the summary form rendered by `src/pages/og/diagrams/[...id].png.ts`.
+const diagramOgImage = entry.collection === 'docs' && diagramFromMdx(entry.body)
+	? `/og/diagrams/${entry.id}.png`
+	: undefined;
 // Integration pages carry a resource bar: the site section's (`/integrations/`,
 // its own tab) and a non-site product's (`/<product>/docs/integrations/`).
 const integrationSlug = tabId === 'integrations'
@@ -118,7 +124,7 @@ const editUrl = editUrlOverride ?? (product
 	canonicalUrl={canonicalUrl}
 	robots={robots}
 	exactTitle={exactTitle}
-	ogImage={ogImage}
+	ogImage={diagramOgImage ?? ogImage}
 	markdownPath={markdownPathOverride}
 	editUrl={editUrl}
 	lastModified={remarkPluginFrontmatter?.lastModified}

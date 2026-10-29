@@ -16,7 +16,9 @@ const links: ResourceLink[] = [];
 if (integration.exampleUrl) {
 	links.push({ label: 'Complete example', href: integration.exampleUrl });
 }
-links.push({ label: 'Integration source', href: integration.sourceUrl });
+if (integration.sourceUrl) {
+	links.push({ label: 'Integration source', href: integration.sourceUrl });
+}
 ---
 
 <nav
