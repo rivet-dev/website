@@ -8,10 +8,10 @@
       "email": "developer@rivet.dev"
     },
     "license": {
-      "name": "LicenseRef-RivetEnterprise",
-      "identifier": "LicenseRef-RivetEnterprise"
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
     },
-    "version": "2.3.20"
+    "version": "2.3.31"
   },
   "servers": [
     {
@@ -93,7 +93,7 @@
             }
           },
           "400": {
-            "description": "`validation.invalid_input`: the subject exceeds 256 UTF-8 bytes, the duration is outside the allowed range, or the grant set is invalid (empty, more than 32 grants, a grant without operations or with more than 5, or a `token`, `acl` or `jwt` resource). `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
+            "description": "`validation.invalid_input`: the subject exceeds 256 UTF-8 bytes, the duration is outside the allowed range, or the grant set is invalid (empty, more than 32 grants, a grant without operations or with more than 5, or a `token` or `jwt` resource). `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1685,7 +1685,7 @@
             }
           },
           "400": {
-            "description": "`actor.invalid_name`: `name` is empty or longer than 64 bytes. `actor.invalid_key`: `key` is longer than 1024 bytes. `actor.invalid_key_encoding`: `key` is not in canonical slash-separated form. `actor.key_owned_elsewhere`: another datacenter owns the key. `envoy.invalid_pool_name`: `runner_name_selector` is not a valid pool name. `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
+            "description": "`actor.invalid_name`: `name` is empty or longer than 64 bytes. `actor.invalid_key`: `key` is longer than 1024 bytes. `actor.invalid_key_encoding`: `key` is not in canonical slash-separated form. `actor.key_owned_elsewhere`: another datacenter owns the key. `envoy.invalid_pool_name`: `pool` is not a valid pool name. `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1861,7 +1861,7 @@
             }
           },
           "400": {
-            "description": "`actor.invalid_name`: `name` is empty or longer than 64 bytes. `actor.invalid_key`: `key` is longer than 1024 bytes. `actor.invalid_key_encoding`: `key` is not in canonical slash-separated form. `actor.key_owned_elsewhere`: another datacenter owns the key. `envoy.invalid_pool_name`: `runner_name_selector` is not a valid pool name. `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
+            "description": "`actor.invalid_name`: `name` is empty or longer than 64 bytes. `actor.invalid_key`: `key` is longer than 1024 bytes. `actor.invalid_key_encoding`: `key` is not in canonical slash-separated form. `actor.key_owned_elsewhere`: another datacenter owns the key. `envoy.invalid_pool_name`: `pool` is not a valid pool name. `envoy.invalid_namespace_name`: the `namespace` value is not a DNS label of 1 to 63 lowercase letters, digits and hyphens.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2690,7 +2690,7 @@
           "name",
           "key",
           "namespace",
-          "runner_name_selector",
+          "pool",
           "create_ts",
           "start_ts",
           "pending_allocation_ts",
@@ -2715,7 +2715,7 @@
             "type": "string",
             "description": "Name of the namespace the actor belongs to."
           },
-          "runner_name_selector": {
+          "pool": {
             "type": "string",
             "description": "Name of the node pool the actor runs in."
           },
@@ -2817,7 +2817,7 @@
             ],
             "description": "Actor input as standard base64 (with padding)."
           },
-          "runner_name_selector": {
+          "pool": {
             "type": [
               "string",
               "null"
@@ -2877,7 +2877,7 @@
             ],
             "description": "Actor input as standard base64 (with padding)."
           },
-          "runner_name_selector": {
+          "pool": {
             "type": [
               "string",
               "null"
