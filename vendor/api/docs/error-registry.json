@@ -42,14 +42,7 @@
 				{
 					"code": "duplicate_key",
 					"message": "Actor key already in use.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "input_too_large",
@@ -167,7 +160,6 @@
 						{
 							"status": 404,
 							"surfaces": [
-								"control plane",
 								"gateway"
 							]
 						}
@@ -221,6 +213,7 @@
 						{
 							"status": 403,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -238,6 +231,7 @@
 						{
 							"status": 404,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -250,6 +244,7 @@
 						{
 							"status": 401,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -291,12 +286,6 @@
 					"code": "issuance_disabled",
 					"message": "JWT issuance is not enabled for this deployment.",
 					"statuses": [
-						{
-							"status": 403,
-							"surfaces": [
-								"control plane"
-							]
-						},
 						{
 							"status": 503,
 							"surfaces": [
@@ -607,7 +596,7 @@
 		},
 		{
 			"name": "envoy",
-			"description": "Node connections, and validation of namespace and pool names.",
+			"description": null,
 			"errors": [
 				{
 					"code": "connect_overloaded",
@@ -722,6 +711,11 @@
 			]
 		},
 		{
+			"name": "kv",
+			"description": "Low-level KV storage inside an actor.",
+			"errors": []
+		},
+		{
 			"name": "message",
 			"description": "Message size limits on connections.",
 			"errors": [
@@ -763,26 +757,12 @@
 				{
 					"code": "name_not_unique",
 					"message": "A namespace with this name already exists.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "not_found",
 					"message": "The namespace does not exist.",
-					"statuses": [
-						{
-							"status": 404,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				}
 			]
 		},
@@ -804,7 +784,7 @@
 		},
 		{
 			"name": "pool",
-			"description": "Node pool configuration.",
+			"description": null,
 			"errors": [
 				{
 					"code": "invalid",
@@ -814,26 +794,12 @@
 				{
 					"code": "nodes_connected",
 					"message": "The node pool still has connected nodes.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "not_found",
 					"message": "The node pool does not exist.",
-					"statuses": [
-						{
-							"status": 404,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "serverless_unsupported",

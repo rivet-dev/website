@@ -44,11 +44,6 @@
 					"badge": "GET"
 				},
 				{
-					"title": "Get Actor",
-					"href": "/docs/api/actors/get",
-					"badge": "GET"
-				},
-				{
 					"title": "Create Actor",
 					"href": "/docs/api/actors/create",
 					"badge": "POST"
@@ -94,16 +89,6 @@
 					"badge": "POST"
 				},
 				{
-					"title": "Raw HTTP Request",
-					"href": "/docs/api/gateway/request",
-					"badge": "ANY"
-				},
-				{
-					"title": "Raw WebSocket",
-					"href": "/docs/api/websockets",
-					"badge": "WS"
-				},
-				{
 					"title": "Connect",
 					"href": "/docs/api/gateway/connect",
 					"badge": "WS"
@@ -117,6 +102,11 @@
 					"title": "Get Runtime Metadata",
 					"href": "/docs/api/gateway/metadata",
 					"badge": "GET"
+				},
+				{
+					"title": "Raw WebSocket",
+					"href": "/docs/api/websockets",
+					"badge": "WS"
 				},
 				{
 					"title": "Inspector",
@@ -238,35 +228,10 @@
 			]
 		},
 		{
-			"title": "Node Pools",
+			"title": "Workers",
 			"pages": [
 				{
-					"title": "List Node Pools",
-					"href": "/docs/api/pools/list",
-					"badge": "GET"
-				},
-				{
-					"title": "Get Node Pool",
-					"href": "/docs/api/pools/get",
-					"badge": "GET"
-				},
-				{
-					"title": "Upsert Node Pool",
-					"href": "/docs/api/pools/upsert",
-					"badge": "PUT"
-				},
-				{
-					"title": "Delete Node Pool",
-					"href": "/docs/api/pools/delete",
-					"badge": "DELETE"
-				},
-				{
-					"title": "List Nodes",
-					"href": "/docs/api/pools/list-nodes",
-					"badge": "GET"
-				},
-				{
-					"title": "Node Connection",
+					"title": "Worker Connection",
 					"href": "/docs/api/worker-connect",
 					"badge": "WS"
 				}
