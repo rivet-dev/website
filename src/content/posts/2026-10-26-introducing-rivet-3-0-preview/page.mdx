@@ -1,10 +1,10 @@
 ---
 image: true
 author: nathan-flurry
-published: "2026-11-01"
+published: "2026-10-26"
 category: changelog
 keywords: ["rivet 3.0", "rivet v3", "warpdrive", "s3", "sqlite", "actors", "agents", "self-hosting", "docker", "minio", "benchmarks", "open-source"]
-title: "Introducing Rivet 3.0"
+title: "Introducing Rivet 3.0 Preview"
 description: "Rivet 3.0 is built on WarpDrive, a new storage engine with bottomless storage on S3 and the speed of an SSD. S3 is the only dependency, and Rivet is one stateless binary."
 ---
 
@@ -13,7 +13,11 @@ import { DensityFigure } from "@/components/marketing/orchestration/DensitySecti
 import { HibernationFigure } from "@/components/marketing/orchestration/HibernationSection";
 import imgStatelessBinary from "./one-stateless-binary.webp";
 
-Today we're releasing **Rivet 3.0**, built on a new storage engine called **WarpDrive**.
+<Note>
+**Updated November 1, 2026:** Rivet 3.0 is out of preview. Install the latest release to get it. Multi-region, serverless, and ACLs are still coming to 3.0 in an upcoming release, so stay on Rivet 2.x for now if you depend on them.
+</Note>
+
+Today we're releasing a preview of **Rivet 3.0**, built on a new storage engine called **WarpDrive**.
 
 WarpDrive gives every Rivet Actor **bottomless storage on S3 with the speed of an SSD**. It also leaves **S3 as Rivet's only dependency**, so Rivet now runs as **one stateless binary**.
 
@@ -424,7 +428,7 @@ Rivet works with the object store on every major cloud, including Amazon S3, Goo
 
 We'll launch a migration tool soon that moves existing 2.x deployments to 3.0 with **zero downtime** and without updating any code.
 
-A few 2.x features haven't made it to 3.0 yet. Those are **multi-region**, **serverless**, and **ACLs**. If you depend on any of these, stay on Rivet 2.x for now. We'll bring each one to 3.0 in an upcoming release.
+A few 2.x features haven't made it to 3.0 yet. Those are **multi-region**, **serverless**, and **ACLs**. If you depend on any of these, stay on Rivet 2.x for now. We'll bring each one to 3.0 before it leaves preview.
 
 ## FAQ
 
@@ -434,7 +438,11 @@ No. Rivet 3.0 uses the exact same RivetKit SDK and protocol as 2.x.
 
 ### Is Rivet 2.x still supported?
 
-Yes. Rivet 2.x stays supported, and the migration tool will move you to 3.0 with zero downtime when you're ready.
+Yes. Rivet 2.x stays supported while 3.0 is in preview, and the migration tool will move you to 3.0 with zero downtime when you're ready.
+
+### What does "preview" mean?
+
+Rivet 3.0 is in preview because multi-region, serverless, and ACLs haven't landed in 3.0 yet. We'll also keep hardening it under production load before it leaves preview.
 
 ### Do reads and writes wait on S3?
 
