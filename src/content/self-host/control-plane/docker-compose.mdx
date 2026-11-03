@@ -22,9 +22,9 @@ Save this as `rivet.json`. It keeps recent writes on one volume and the durable 
 
 ```json
 {
-	"depot": {
+	"storage": {
 		"log_directory": "/var/lib/rivet/log",
-		"auto_provision_tablets": 1,
+		"auto_provision_partitions": 1,
 		"balancing": { "enabled": false }
 	},
 	"object_storage": {
@@ -57,7 +57,7 @@ docker run -d --name rivet \
   -v "$PWD/rivet.json:/etc/rivet/config.json:ro" \
   -v rivet-log:/var/lib/rivet/log \
   -v rivet-objects:/var/lib/rivet/objects \
-  rivetdev/engine:next
+  rivetdev/engine:latest
 ```
 
 ```bash
@@ -65,17 +65,17 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
+{"runtime":"engine","status":"ok","version":"3.0.0",...}
 ```
 
 </Step>
 
 <Step title="Connect your app">
 
-Point your app at the instance with `RIVET_ENDPOINT` and start it. It connects as a node in the `default` node pool.
+Point your app at the instance with `RIVET_ENDPOINT` and start it. It uses the `RIVET_TOKEN` you exported above and connects as a node in the `default` node pool.
 
 ```bash
-export RIVET_ENDPOINT="http://default:$RIVET_TOKEN@localhost:6420"
+export RIVET_ENDPOINT="http://localhost:6420"
 npm start
 ```
 
@@ -103,7 +103,7 @@ The same instance as a Compose service, with your app beside it:
 ```yaml
 services:
   rivet:
-    image: rivetdev/engine:next
+    image: rivetdev/engine:latest
     ports:
       - "6420:6420"
     environment:

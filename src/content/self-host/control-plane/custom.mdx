@@ -7,7 +7,7 @@ The control plane runs on any platform that gives each instance the following.
 
 ## Requirements
 
-- **Its own persistent disk.** Local or block storage that survives restarts and supports `fsync`, mounted at `depot.log_directory`. Never share one disk between instances, and never use a network file system such as NFS or EFS.
+- **Its own persistent disk.** Local or block storage that survives restarts and supports `fsync`, mounted at `storage.log_directory`. Never share one disk between instances, and never use a network file system such as NFS or EFS.
 - **A stable private address** that the other instances can reach on port `6421`. Set it as `api_peer.advertise_address`.
 - **Access to one object storage bucket**, shared by every instance.
 - **The same pinned version** of `rivetdev/engine` on every instance, started with `--config`.

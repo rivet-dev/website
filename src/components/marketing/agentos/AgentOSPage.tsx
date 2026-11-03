@@ -1017,6 +1017,7 @@ const FloatingFoundation = () => {
 					<FloatingFoundationCard key={card.title} card={card} delay={HERO_INTRO_STAGGER * (index + 6)} />
 				))}
 			</div>
+			{/* Dynamic Apps is pulled from the site for now. See HIDDEN.md.
 			<motion.a
 				href='/dynamic-apps/docs/'
 				initial={reduceMotion ? false : { opacity: 0, y: 20 }}
@@ -1035,6 +1036,7 @@ const FloatingFoundation = () => {
 					className='h-3.5 w-3.5 text-ink-faint transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0'
 				/>
 			</motion.a>
+			*/}
 		</div>
 	);
 };

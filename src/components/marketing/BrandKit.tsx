@@ -131,7 +131,9 @@ export function LogoGallery() {
 
 // Display order matches the sitemap (Rivet Cloud and Secure Exec are hidden
 // from the switcher but still carried, so they are pulled in explicitly).
-const PRODUCT_ORDER = ["actors", "agentos", "workflows", "dynamic-apps", "secure-exec", "cloud"];
+// Dynamic Apps is pulled from the site for now (see HIDDEN.md); restore
+// "dynamic-apps" after "workflows" when it returns.
+const PRODUCT_ORDER = ["actors", "agentos", "workflows", "secure-exec", "cloud"];
 
 // Standalone, accent-colored versions of each badge (tile baked in), generated
 // under public/images/brand/ so the marks are downloadable exactly as shown.

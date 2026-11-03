@@ -157,6 +157,21 @@ CLASSES["sandbox-agent"] = {
 	textHover: "hover:text-product-sandbox-agent",
 };
 
+CLASSES["durable-streams"] = {
+	text: "text-product-durable-streams",
+	tint: "bg-product-durable-streams-soft",
+	border: "border-product-durable-streams-hairline",
+	fill: "bg-product-durable-streams",
+	underline: "decoration-product-durable-streams",
+	tintHover: "hover:bg-product-durable-streams-soft",
+	activeBorder: "aria-current-page:border-product-durable-streams",
+	borderHover: "hover:border-product-durable-streams-hairline",
+	activeText: "aria-current-page:text-product-durable-streams",
+	activeBorderLeft: "aria-current-page:border-l-product-durable-streams",
+	focusRing: "focus-visible:ring-product-durable-streams",
+	textHover: "hover:text-product-durable-streams",
+};
+
 // Integrations is a shared docs section with a gray tile, so it can sit beside
 // the actor types in the tab strip and the Documentation menu.
 CLASSES.integrations = {

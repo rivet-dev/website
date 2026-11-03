@@ -34,6 +34,7 @@ export type DocsTabId =
 	| "workflows"
 	| "agentos"
 	| "dynamic-apps"
+	| "durable-streams"
 	| "integrations";
 
 export type DocsTabGroup = "orchestration" | "actors";
@@ -111,6 +112,13 @@ export const DOCS_TABS: readonly DocsTab[] = (
 			productId: "dynamic-apps",
 		},
 		{
+			id: "durable-streams",
+			title: "Durable Streams",
+			href: "/durable-streams/docs/",
+			group: "actors",
+			productId: "durable-streams",
+		},
+		{
 			id: "integrations",
 			title: "Integrations",
 			href: `${INTEGRATIONS_ROUTE_PREFIX}/`,
@@ -127,6 +135,7 @@ const PRODUCT_TABS: Record<string, DocsTabId> = {
 	workflows: "workflows",
 	agentos: "agentos",
 	"dynamic-apps": "dynamic-apps",
+	"durable-streams": "durable-streams",
 };
 
 /**

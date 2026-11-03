@@ -24,11 +24,12 @@ export const workflowsFaqs: FaqItem[] = [
     answerHtml:
       'Transient failures retry per the step\'s retry and timeout policy. Terminal failures stay visible in the inspector, where eligible steps can be replayed after a fix. See <a href="https://rivet.dev/workflows/docs/failure-and-recovery/">Failure and recovery</a>.',
   },
-  {
-    question: "Do I need agentOS or Dynamic Apps?",
-    answerHtml:
-      'No. Workflows runs on Actors alone. Add <a href="https://rivet.dev/agentos/">agentOS</a> when an agent needs a computer, or <a href="https://rivet.dev/dynamic-apps/">Dynamic Apps</a> when the work should ship an application.',
-  },
+  // Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+  // {
+  //   question: "Do I need agentOS or Dynamic Apps?",
+  //   answerHtml:
+  //     'No. Workflows runs on Actors alone. Add <a href="https://rivet.dev/agentos/">agentOS</a> when an agent needs a computer, or <a href="https://rivet.dev/dynamic-apps/">Dynamic Apps</a> when the work should ship an application.',
+  // },
   {
     question: "Is Rivet Workflows open source?",
     answerHtml:

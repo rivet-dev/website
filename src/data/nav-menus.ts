@@ -8,7 +8,7 @@ import {
 	faGrid2,
 	faServer,
 	faSliders,
-	faSparkles,
+	// faSparkles, // Dynamic Apps is pulled from the site for now.
 	faUser,
 	faUsers,
 } from "@rivet-gg/icons";
@@ -48,13 +48,14 @@ export const SOLUTIONS_MENU: SolutionMenuItem[] = [
 		description: "A sandbox and durable memory per session",
 		icon: faCode,
 	},
-	{
-		id: "agent-app-builders",
-		href: "/guides/host-ai-generated-apps/",
-		label: "Agent app builders",
-		description: "A backend per user, deployed on generation",
-		icon: faSparkles,
-	},
+	// Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+	// {
+	// 	id: "agent-app-builders",
+	// 	href: "/guides/host-ai-generated-apps/",
+	// 	label: "Agent app builders",
+	// 	description: "A backend per user, deployed on generation",
+	// 	icon: faSparkles,
+	// },
 	{
 		id: "company-agents",
 		href: "/guides/durable-ai-agents/",
@@ -96,6 +97,7 @@ export interface DocsMenuLink {
 		| "agents"
 		| "workflows"
 		| "agentos"
+		| "durable-streams"
 		| "dynamic-apps"
 		| "integrations";
 	icon?: IconDefinition;

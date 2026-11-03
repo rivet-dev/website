@@ -25,6 +25,7 @@ src/content/docs/agentos
 src/content/docs/api
 src/content/docs/cloud
 src/content/docs/dynamic-apps
+src/content/docs/durable-streams
 src/content/docs/sandbox-agent
 src/content/docs/secure-exec
 src/content/docs/workflows
@@ -37,6 +38,7 @@ src/content/docs/workflows
 /public/agentos/
 /public/cloud/
 /public/dynamic-apps/
+/public/durable-streams/
 /public/docs/
 /public/docs.md
 /public/guides/

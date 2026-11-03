@@ -452,7 +452,8 @@ export const GeneratedCodeSection = () => (
 			</>
 		}
 		links={[
-			{ label: "Dynamic Apps", href: "/dynamic-apps/docs/" },
+			// Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+			// { label: "Dynamic Apps", href: "/dynamic-apps/docs/" },
 			{ label: "Secure Exec", href: "/secure-exec/" },
 		]}
 		figure={<GeneratedCodeFigure />}

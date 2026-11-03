@@ -194,6 +194,26 @@ export const PRODUCTS: ProductMetadata[] = [
 		contrast: 5.49,
 		optionalTabs: [],
 		hiddenTabs: ["use-cases"],
+		// TEMPORARY: pulled from the site. Everything is built and
+		// `/dynamic-apps/docs/` still resolves; drop this line to list Dynamic
+		// Apps again everywhere. See HIDDEN.md.
+		unlaunched: true,
+	},
+	{
+		// Rivet's implementation of the open Durable Streams protocol, backed
+		// by Actors. Not a pillar, so it stays out of the switcher and the docs
+		// index, but its docs ride in the tab strip beside the actor types.
+		id: "durable-streams",
+		name: "Durable Streams",
+		tagline: "Real-time streams with durable, replayable history",
+		repo: "rivet",
+		// One of the bundles in that repo, beside `docs/actors`.
+		bundlePath: "docs/durable-streams",
+		color: "#23656E",
+		contrast: 5.78,
+		optionalTabs: [],
+		tabs: ["docs"],
+		hidden: true,
 	},
 	{
 		// Third-party frameworks and SDKs that run on the actor types. A shared

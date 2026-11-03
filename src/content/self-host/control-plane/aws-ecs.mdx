@@ -26,11 +26,11 @@ aws secretsmanager create-secret --name rivet-admin-token \
 
 <Step title="Define the task">
 
-Run `rivetdev/engine:next` with the command `["--config", "/etc/rivet"]`, `awsvpc` networking and these settings. Mount the host's EBS volume at `/var/lib/rivet/log`.
+Run `rivetdev/engine:latest` with the command `["--config", "/etc/rivet"]`, `awsvpc` networking and these settings. Mount the host's EBS volume at `/var/lib/rivet/log`.
 
 ```bash
 RIVET__AUTH__ADMIN_TOKEN=<from the secret>
-RIVET__DEPOT__LOG_DIRECTORY=/var/lib/rivet/log
+RIVET__STORAGE__LOG_DIRECTORY=/var/lib/rivet/log
 RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET=my-rivet-bucket
 RIVET__OBJECT_STORAGE__PRIMARY__S3__REGION=us-east-1
 RIVET__API_PEER__ADVERTISE_ADDRESS=<task private IP>:6421

@@ -41,6 +41,7 @@ export function platformsFor(role: DeployRole): DeployOption[] {
 export const WORKER_PAGES = [
 	"index",
 	"production-checklist",
+	"services",
 	"health-checks",
 	"metadata",
 	"prometheus-metrics",

@@ -9,6 +9,7 @@ import actorsLogoUrl from "@/images/products/actors-logo.svg";
 import agentsLogoUrl from "@/images/products/agents-logo.svg";
 import agentosLogoUrl from "@/images/products/agentos-logo.svg";
 import dynamicAppsLogoUrl from "@/images/products/dynamic-apps-logo.svg";
+import durableStreamsLogoUrl from "@/images/products/durable-streams-logo.svg";
 import integrationsLogoUrl from "@/images/products/integrations-logo.svg";
 import secureExecLogoUrl from "@/images/products/secure-exec-logo.svg";
 import sandboxAgentLogoUrl from "@/images/products/sandbox-agent-logo.svg";
@@ -24,6 +25,8 @@ export const productLogos: Record<string, { src: string }> = {
 	agentos: agentosLogoUrl,
 	workflows: workflowsLogoUrl,
 	"dynamic-apps": dynamicAppsLogoUrl,
+	// The Durable Streams logo inside the same inset ring as the actor types.
+	"durable-streams": durableStreamsLogoUrl,
 	// The puzzle-piece glyph inside the same inset ring as the actor types.
 	integrations: integrationsLogoUrl,
 	// The secureexec.dev wordmark, stacked. It fills the tile without the inset

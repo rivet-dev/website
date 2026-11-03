@@ -10,6 +10,8 @@ import styles from "./SolutionsSection.module.css";
 // product. Each card names the shape of the workload, the products it leans
 // on, and a small hand-built vignette of the thing itself. The grid is two
 // wide plates over three narrow ones so the two biggest stories get the room.
+// While Dynamic Apps is pulled (see HIDDEN.md), its card is commented out and
+// the remaining four are wide plates in a two-by-two grid.
 // Hook-free so the landing page renders it with no client directive. Each
 // vignette replays its story on card hover via SolutionsSection.module.css;
 // `stagger(i)` sets the per-element delay index those keyframes read.
@@ -496,15 +498,16 @@ export const solutions: Solution[] = [
     vignette: <CodingAgentVignette />,
     wide: true,
   },
-  {
-    id: "agent-app-builders",
-    title: "Agent app builders",
-    href: "/dynamic-apps/docs/",
-    linkLabel: "Explore Dynamic Apps",
-    uses: ["dynamic-apps", "actors"],
-    vignette: <AppBuilderVignette />,
-    wide: true,
-  },
+  // Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+  // {
+  //   id: "agent-app-builders",
+  //   title: "Agent app builders",
+  //   href: "/dynamic-apps/docs/",
+  //   linkLabel: "Explore Dynamic Apps",
+  //   uses: ["dynamic-apps", "actors"],
+  //   vignette: <AppBuilderVignette />,
+  //   wide: true,
+  // },
   {
     id: "company-agents",
     title: "Company-specific agents",
@@ -512,6 +515,8 @@ export const solutions: Solution[] = [
     linkLabel: "Explore Enterprise",
     uses: ["actors", "agentos"],
     vignette: <CompanyAgentVignette />,
+    // Wide while Dynamic Apps is pulled; restore narrow with its card.
+    wide: true,
   },
   {
     id: "personal-agents",
@@ -520,6 +525,8 @@ export const solutions: Solution[] = [
     linkLabel: "Explore Actors",
     uses: ["actors", "workflows"],
     vignette: <PersonalAgentVignette />,
+    // Wide while Dynamic Apps is pulled; restore narrow with its card.
+    wide: true,
   },
   {
     id: "realtime-apps",
@@ -528,6 +535,8 @@ export const solutions: Solution[] = [
     linkLabel: "Explore Actors",
     uses: ["actors"],
     vignette: <RealtimeVignette />,
+    // Wide while Dynamic Apps is pulled; restore narrow with its card.
+    wide: true,
   },
 ];
 

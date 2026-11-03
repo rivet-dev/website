@@ -101,7 +101,7 @@ export const OG_CARDS: OgCard[] = [
 		id: "docs",
 		headline: "Rivet documentation",
 		supporting:
-			"Guides, references, and deployment docs for Actors, agentOS, Workflows, and Dynamic Apps.",
+			"Guides, references, and deployment docs for Actors, agentOS, and Workflows.",
 	},
 	{
 		id: "deploy",
@@ -125,7 +125,7 @@ export const OG_CARDS: OgCard[] = [
 		id: "registry",
 		headline: "Actor registry",
 		supporting:
-			"Browse the Actor types that run on Rivet: agents, workflows, sandboxes, dynamic apps, and the frameworks built on them.",
+			"Browse the Actor types that run on Rivet: agents, workflows, sandboxes, and the frameworks built on them.",
 	},
 	{
 		id: "blog",

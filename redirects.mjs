@@ -480,7 +480,9 @@ const RETIRED_PAGES = {
 	'/docs/deploy/self-host/control-plane/rbac': '/docs/jwt/',
 	'/docs/deploy/self-host/control-plane/performance': '/docs/benchmarking/',
 	'/docs/deploy/cloud/preview-deployments': '/docs/deploy/cloud/',
-	'/integrations/durable-streams': '/integrations/',
+	'/integrations/durable-streams': '/durable-streams/docs/',
+	// Self-hosting moved to the shared Rivet Services page under Deploy Nodes.
+	'/durable-streams/docs/self-hosting': '/docs/deploy/self-host/nodes/services/',
 };
 
 // The node guides moved from `self-host/workers/` to `self-host/nodes/` with

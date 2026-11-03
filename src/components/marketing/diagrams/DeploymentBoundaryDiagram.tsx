@@ -376,7 +376,7 @@ const LayerRow = ({
 );
 
 const DEPLOYMENT_BOUNDARY_DESCRIPTION =
-	"In your VPC, on-prem, air-gapped, or embedded: Actor nodes running your agents, workflows, sandboxes, and dynamic apps on Node.js or Rust; the Rivet Control Plane, one stateless binary, scheduling, routing, and observing them; and WarpDrive underneath, keeping recent writes on local disk and offloading them to your own bucket on S3, Google Cloud Storage, Azure Blob Storage, Cloudflare R2, or MinIO.";
+	"In your VPC, on-prem, air-gapped, or embedded: Actor nodes running your agents, workflows, and sandboxes on Node.js or Rust; the Rivet Control Plane, one stateless binary, scheduling, routing, and observing them; and WarpDrive underneath, keeping recent writes on local disk and offloading them to your own bucket on S3, Google Cloud Storage, Azure Blob Storage, Cloudflare R2, or MinIO.";
 
 export const DeploymentBoundaryDiagram = ({
 	className,

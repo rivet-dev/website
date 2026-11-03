@@ -13,7 +13,13 @@ import { getProduct, isListed } from "@/sitemap/products";
  */
 export interface ActorType {
 	/** Product id; also the wordmark (`productLogos`) and the accent. */
-	id: "actors" | "agents" | "workflows" | "agentos" | "dynamic-apps";
+	id:
+		| "actors"
+		| "agents"
+		| "workflows"
+		| "agentos"
+		| "durable-streams"
+		| "dynamic-apps";
 	name: string;
 	/** One line under the name on the homepage plate. No terminal period. */
 	premise: string;
@@ -49,6 +55,12 @@ const ORDERED: {
 		id: "agentos",
 		premise: "A filesystem, shell, and network for code you did not write",
 		motifId: "agentos",
+	},
+	{
+		id: "durable-streams",
+		premise: "Real-time streams with history readers replay from any offset",
+		// No motif of its own yet; the flowing lanes read as streams.
+		motifId: "workflows",
 	},
 	{
 		id: "dynamic-apps",

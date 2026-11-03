@@ -29,6 +29,18 @@ const registryMarks = [
 	{ src: "/images/vendors/flue.svg", label: "Flue" },
 ];
 
+// The registry tile fills out the last row, so the grid has no hole whatever
+// the number of listed Actor types (`unlaunched` products drop out of it).
+// Written out because Tailwind only emits classes it sees as literals.
+const registryTileSpan = [
+	ACTOR_TYPES.length % 2 === 0 ? "sm:col-span-2 sm:aspect-auto sm:min-h-[168px]" : "",
+	[
+		"lg:col-span-3 lg:aspect-auto lg:min-h-[168px]",
+		"lg:col-span-2 lg:aspect-auto",
+		"lg:col-span-1 lg:aspect-[16/10] lg:min-h-0",
+	][ACTOR_TYPES.length % 3],
+].join(" ");
+
 export const ActorTypesSection = () => (
 	<section className={`relative bg-paper ${SITE_SECTION_CLASS}`}>
 		<div className={SITE_STANDARD_RAIL_CLASS}>
@@ -98,7 +110,7 @@ export const ActorTypesSection = () => (
 				<a
 					href={canonicalizeInternalHref(ACTOR_REGISTRY_LINK.href)}
 					data-site-reveal-child=""
-					className="group flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-xl border border-ink/10 bg-ink/[0.04] p-5 text-center transition-colors duration-200 hover:border-ink/20 hover:bg-ink/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper motion-reduce:transition-none sm:aspect-[16/10] sm:min-h-0"
+					className={`group flex min-h-[168px] flex-col items-center justify-center gap-3 rounded-xl border border-ink/10 bg-ink/[0.04] p-5 text-center transition-colors duration-200 hover:border-ink/20 hover:bg-ink/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 focus-visible:ring-offset-paper motion-reduce:transition-none sm:aspect-[16/10] sm:min-h-0 ${registryTileSpan}`}
 				>
 					<span className="inline-flex items-center gap-2 text-base font-medium tracking-tight text-ink">
 						{ACTOR_REGISTRY_LINK.label}

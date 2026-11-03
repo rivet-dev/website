@@ -41,7 +41,7 @@ const QUICKSTARTS: Quickstart[] = [
 		product: 'actors',
 		quickstart: '/actors/docs/quickstart/backend/',
 		steps: [
-			{ title: 'Install', command: 'npm install rivetkit@next' },
+			{ title: 'Install', command: 'npm install rivetkit' },
 			{ title: 'Define an Actor', file: 'examples/docs/onboarding-actors/index.ts' },
 			{ title: 'Talk to it from a client', file: 'examples/docs/onboarding-actors/client.ts' },
 		],
@@ -64,14 +64,24 @@ const QUICKSTARTS: Quickstart[] = [
 		],
 	},
 	{
-		product: 'dynamic-apps',
-		quickstart: '/dynamic-apps/docs/quickstart/',
+		product: 'durable-streams',
+		quickstart: '/durable-streams/docs/',
 		steps: [
-			{ title: 'Install', command: 'npm install @rivet-dev/dynamic-apps @hono/node-server hono' },
-			{ title: 'Set up the router', file: 'examples/apps-hello-world/src/server.ts' },
-			{ title: 'Deploy an app to it', file: 'examples/apps-hello-world/src/deploy.ts' },
+			{ title: 'Start the server', command: 'npx @rivet-dev/services dev' },
+			{ title: 'Install the client', command: 'npm install @durable-streams/client' },
+			{ title: 'Write to a stream and read it back', file: 'examples/docs/durable-streams/client.ts' },
 		],
 	},
+	// Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+	// {
+	// 	product: 'dynamic-apps',
+	// 	quickstart: '/dynamic-apps/docs/quickstart/',
+	// 	steps: [
+	// 		{ title: 'Install', command: 'npm install @rivet-dev/dynamic-apps @hono/node-server hono' },
+	// 		{ title: 'Set up the router', file: 'examples/apps-hello-world/src/server.ts' },
+	// 		{ title: 'Deploy an app to it', file: 'examples/apps-hello-world/src/deploy.ts' },
+	// 	],
+	// },
 ];
 
 const NEXT = [

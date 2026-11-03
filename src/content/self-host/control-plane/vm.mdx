@@ -22,10 +22,10 @@ Run at least three instances in production, each on its own machine.
 
 <Step title="Install the binary">
 
-Copy `rivet-engine` from the `rivetdev/engine:next` image to each machine and create the disk directory:
+Copy `rivet-engine` from the `rivetdev/engine:latest` image to each machine and create the disk directory:
 
 ```bash
-docker create --name rivet-extract rivetdev/engine:next
+docker create --name rivet-extract rivetdev/engine:latest
 docker cp rivet-extract:/usr/bin/rivet-engine /usr/local/bin/rivet-engine
 docker rm rivet-extract
 sudo useradd --system rivet
@@ -44,7 +44,7 @@ Save this as `/etc/rivet/config.json` on each machine. Set `advertise_address` t
 {
 	"auth": { "admin_token": "<rivet-token>" },
 	"api_peer": { "advertise_address": "10.0.0.11:6421" },
-	"depot": { "log_directory": "/var/lib/rivet/log" },
+	"storage": { "log_directory": "/var/lib/rivet/log" },
 	"object_storage": {
 		"primary": {
 			"s3": {

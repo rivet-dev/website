@@ -1,4 +1,5 @@
 import {
+	faCubes,
 	faSquareInfo,
 	faClipboardListCheck,
 	faSliders,
@@ -71,6 +72,11 @@ export function deployWorkersGroup(): SidebarItem {
 				title: "Production Checklist",
 				href: `${base}/production-checklist/`,
 				icon: faClipboardListCheck,
+			},
+			{
+				title: "Rivet Services",
+				href: `${base}/services/`,
+				icon: faCubes,
 			},
 			{
 				title: "Platforms",

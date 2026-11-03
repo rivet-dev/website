@@ -168,13 +168,13 @@ Set only the fields you need. The same pattern works for the other backends, for
 
 ## Disks
 
-Set `depot.log_directory` to a directory on the instance's disk. The directory must already exist.
+Set `storage.log_directory` to a directory on the instance's disk. The directory must already exist.
 
 - **One disk per instance.** The disk holds the instance's identity. Never share it, copy it to another instance, or mount it on two instances.
 - **Block storage only.** Use local SSDs or block volumes such as EBS or Persistent Disk. Network file systems such as NFS and EFS are not supported.
 - **Size.** The control plane sizes its use of the disk from the free space at startup and keeps at least 10% free. Give each instance at least 100 GiB in production.
 
-The read cache lives in the same directory by default. Move it to another disk with `depot.cold_store.disk_cache_directory`; it is disposable.
+The read cache lives in the same directory by default. Move it to another disk with `storage.cold_store.disk_cache_directory`; it is disposable.
 
 ## Losing a disk or an instance
 

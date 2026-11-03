@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
 import { getDocsPath, isRoutedDocsContentId } from '../metadata/shared';
+import { PRODUCTS } from '../sitemap/product-metadata';
 
 export const prerender = true;
 
@@ -21,6 +22,8 @@ export const GET: APIRoute = async ({ site }) => {
 			const cleanPath = doc.id.replace(/\/index$/, '').replace(/^index$/, '');
 			return `${siteUrl}${getDocsPath(cleanPath)}/`;
 		})
+		// Unlaunched products are routed but unlisted.
+		.filter(url => !PRODUCTS.some(product => product.unlaunched && url.startsWith(`${siteUrl}/${product.id}/`)))
 		.sort();
 
 	// Build blog URLs. A post is published at exactly one path: changelog
@@ -53,7 +56,8 @@ export const GET: APIRoute = async ({ site }) => {
 		`${siteUrl}/docs/deploy/`,
 		`${siteUrl}/actors/docs/`,
 		`${siteUrl}/agentos/`,
-		`${siteUrl}/dynamic-apps/docs/`,
+		// Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+		// `${siteUrl}/dynamic-apps/docs/`,
 		`${siteUrl}/workflows/docs/`,
 		`${siteUrl}/pricing/`,
 		`${siteUrl}/enterprise/`,

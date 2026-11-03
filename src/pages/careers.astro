@@ -193,7 +193,9 @@ const careersSchema = {
 // landing page come from `product-metadata.ts` so this copy cannot drift from
 // the rest of the site. Rivet Cloud has no wordmark (see Product Marks in
 // CLAUDE.md), so its `logoSrc` is undefined and the tile takes the cloud glyph.
-const productTiles = ['actors', 'agentos', 'workflows', 'dynamic-apps', 'cloud'].map((id) => {
+// Dynamic Apps is pulled from the site for now (see HIDDEN.md); restore
+// 'dynamic-apps' after 'workflows' when it returns.
+const productTiles = ['actors', 'agentos', 'workflows', 'cloud'].map((id) => {
 	const product = getProduct(id);
 	if (!product) throw new Error(`Careers product tile "${id}" has no product`);
 	return {
@@ -273,9 +275,11 @@ const productTiles = ['actors', 'agentos', 'workflows', 'dynamic-apps', 'cloud']
 						</p>
 						<p data-site-reveal-child>
 							<a href="/agents/docs/" class={inlineLink}>Agents</a>,
-							<a href="/workflows/docs/" class={inlineLink}>Workflows</a>,
-							<a href="/agentos/docs/" class={inlineLink}>agentOS</a>, and
-							<a href="/dynamic-apps/docs/" class={inlineLink}>Dynamic Apps</a> are Actor types built on that
+							<a href="/workflows/docs/" class={inlineLink}>Workflows</a>, and
+							<a href="/agentos/docs/" class={inlineLink}>agentOS</a>
+							{/* Dynamic Apps is pulled from the site for now. See HIDDEN.md.
+							<a href="/dynamic-apps/docs/" class={inlineLink}>Dynamic Apps</a>
+							*/} are Actor types built on that
 							primitive. <a href="/secure-exec/" class={inlineLink}>Secure Exec</a> is a library that runs
 							inside Actors.
 						</p>

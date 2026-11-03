@@ -49,6 +49,7 @@ import type { ReactNode } from "react";
 import actorsMark from "@/images/products/actors-logo.svg?raw";
 import agentosMark from "@/images/products/agentos-logo.svg?raw";
 import agentsMark from "@/images/products/agents-logo.svg?raw";
+import durableStreamsMark from "@/images/products/durable-streams-logo.svg?raw";
 import dynamicAppsMark from "@/images/products/dynamic-apps-logo.svg?raw";
 import sandboxAgentMark from "@/images/products/sandbox-agent-logo.svg?raw";
 import secureExecMark from "@/images/products/secure-exec-logo.svg?raw";
@@ -60,6 +61,7 @@ export type DiagramProduct =
 	| "agents"
 	| "agentos"
 	| "workflows"
+	| "durable-streams"
 	| "dynamic-apps"
 	| "sandbox-agent"
 	| "secure-exec";
@@ -176,6 +178,7 @@ const PRODUCTS: Record<DiagramProduct, { color: string; name: string; mark: stri
 	agents: { color: "#2C5A7A", name: "Agent", mark: agentsMark },
 	agentos: { color: "#9C3A3F", name: "agentOS VM", mark: agentosMark },
 	workflows: { color: "#6A4C93", name: "Workflow", mark: workflowsMark },
+	"durable-streams": { color: "#23656E", name: "Durable Stream", mark: durableStreamsMark },
 	"dynamic-apps": { color: "#2F6B4B", name: "Dynamic App", mark: dynamicAppsMark },
 	"sandbox-agent": { color: "#8A4B2E", name: "Sandbox Agent", mark: sandboxAgentMark },
 	"secure-exec": { color: "#1B1916", name: "Secure Exec", mark: secureExecMark },
