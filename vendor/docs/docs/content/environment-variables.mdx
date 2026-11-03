@@ -5,8 +5,7 @@ skill: true
 ---
 
 These variables wire your process to a Rivet control plane. Variables that
-configure the RivetKit SDK itself, including logging, storage, and the
-inspector, are listed in [Environment Variables](/actors/docs/environment-variables)
+configure the RivetKit SDK itself, including logging and storage, are listed in [Environment Variables](/actors/docs/environment-variables)
 in the Actors docs.
 
 ## Connection
@@ -22,8 +21,7 @@ in the Actors docs.
 | Environment Variable | Description |
 |---------------------|-------------|
 | `RIVET_POOL` | Node pool to join (default: "default"). See [Architecture](/docs/architecture#node-pools). |
-| `RIVET_ENVOY_VERSION` | Version number of this node. Increase it on every deploy. See [Versions & Upgrades](/docs/versions#setting-the-version). |
-
+| `RIVET_NODE_VERSION` | Version number of this node (default: 1). Increase it on every deploy. `RIVET_ENVOY_VERSION` is still read as an older name. See [Versions & Upgrades](/docs/versions#setting-the-version). |
 
 ## Local Control Plane
 
@@ -35,5 +33,5 @@ In development, RivetKit starts a local control plane for you. These variables o
 | `RIVET_RUN_ENGINE_HOST` | Host the local control plane binds to. Defaults to `127.0.0.1`. |
 | `RIVET_RUN_ENGINE_PORT` | Port the local control plane binds to. Defaults to `6420`. |
 | `RIVET_RUN_ENGINE_VERSION` | Version of the local control plane to download |
-| `RIVET_RUN_SERVICES` | Set to `1` to run Services with the local control plane, or `0` to disable it. By default, Services runs whenever the local control plane does. |
+| `RIVET_RUN_SERVICES` | Services starts by default when RivetKit manages a local Engine. Set to `0` to disable it. |
 | `RIVET_SERVICES_BINARY` | Path to a local `rivet-services` binary. |

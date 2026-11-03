@@ -1,5 +1,5 @@
 const ws = new WebSocket(
-	`wss://rivet.example.com/gateway/${process.env.ACTOR_ID}/connect`,
+	`wss://api.rivet.dev/gateway/${process.env.ACTOR_ID}/connect`,
 	["rivet", "rivet_encoding.json", `rivet_token.${process.env.RIVET_TOKEN}`],
 );
 

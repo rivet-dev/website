@@ -1,18 +1,18 @@
-const endpoint = "https://rivet.example.com";
+const endpoint = "https://api.rivet.dev";
 const namespace = process.env.RIVET_NAMESPACE ?? "default";
 const token = process.env.RIVET_TOKEN ?? "";
-const workerName = process.env.RUNNER_NAME ?? "default";
+const pool = process.env.RIVET_POOL ?? "default";
 
 const params = new URLSearchParams({ namespace });
 const response = await fetch(
-	`${endpoint}/runner-configs/${encodeURIComponent(workerName)}?${params}`,
+	`${endpoint}/pools/${encodeURIComponent(pool)}?${params}`,
 	{
 		method: "PUT",
 		headers: {
 			Authorization: `Bearer ${token}`,
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ datacenters: { local: { normal: {} } } }),
+		body: JSON.stringify({ drain_on_version_upgrade: true }),
 	},
 );
 console.log(await response.json());
