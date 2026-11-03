@@ -16,6 +16,7 @@ import { findActiveTab, findPageForHref } from '@/lib/sitemap';
 import { productAccent } from '@/lib/product-accent';
 import { API_DOCS_ROUTE_PREFIX, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
 import { GUIDES_ROUTE_PREFIX } from '@/sitemap/guides';
+import { PLATFORM_DOCS_HREF } from '@/sitemap/overview';
 import { jsonLdString } from '@/lib/jsonLd';
 import { ogImageFor, productOgImage } from '@/lib/ogImage';
 import {
@@ -117,19 +118,30 @@ const isSiteDocsSection = routePrefix === SITE_DOCS_ROUTE_PREFIX;
 // sidebar links into it, so a page lookup alone could hand it to Overview.
 const isApiDocsSection = routePrefix === API_DOCS_ROUTE_PREFIX;
 // Guides are resolved by route too: product docs sidebars list their guides
-// (`"mirror": "guides"`), and a guide must still open on the Guides tab.
+// (`"mirror": "guides"`), and a guide must still open on the Overview tab,
+// whose sidebar lists every guide.
 const isGuidesSection = routePrefix === GUIDES_ROUTE_PREFIX;
-const routeOwnedTab = productId && tabId
-	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === `/${productId}/${tabId}`)
-	: isSiteDocsSection || isApiDocsSection || isGuidesSection
-		? sitemap.find((tab) => tab.href.replace(/\/$/, '') === routePrefix)
-		: undefined;
+// The site docs split across two tabs: the overview page sits on Overview with
+// the guides, and every other page on Platform (see `@/sitemap/overview`).
+const isPlatformSection = isSiteDocsSection && Boolean(slugPath);
+const routeOwnedHref = productId && tabId
+	? `/${productId}/${tabId}`
+	: isPlatformSection
+		? PLATFORM_DOCS_HREF
+		: isGuidesSection || isSiteDocsSection
+			? SITE_DOCS_ROUTE_PREFIX
+			: isApiDocsSection
+				? routePrefix
+				: undefined;
+const routeOwnedTab = routeOwnedHref
+	? sitemap.find((tab) => tab.href.replace(/\/$/, '') === routeOwnedHref.replace(/\/$/, ''))
+	: undefined;
 const activeTab = routeOwnedTab ?? discovered?.tab;
 const sourceSidebar = activeTab?.sidebar ?? [];
 // Every Documentation sidebar carries the site-wide AI Tools group: the
-// canonical pages under `/docs/`, and a contextual alias inside each product.
-// Guides, Deploy, and Integrations do not.
-const sidebar = tabId === 'docs' || isSiteDocsSection
+// canonical pages on Platform, and a contextual alias inside each product.
+// Overview, Deploy, and Integrations do not.
+const sidebar = tabId === 'docs' || isPlatformSection
 	? withAiSidebarSection(sourceSidebar, productId)
 	: sourceSidebar;
 const activePage = activeTab
@@ -155,13 +167,15 @@ const proseStyle = accent ? { '--tw-prose-links': `color-mix(in srgb, ${accent.h
 // site path plus `.md`, so the dropdown's link is just this route unslashed.
 const markdownPath = markdownPathOverride ?? fullPath.replace(/^\/|\/$/g, '');
 
-// Build BreadcrumbList schema
+// Build BreadcrumbList schema. `/guides/` itself redirects to the docs
+// overview, which lists every guide, so guides breadcrumb back to it.
+const sectionRootHref = isGuidesSection ? `${SITE_DOCS_ROUTE_PREFIX}/` : `${routePrefix}/`;
 const breadcrumbItems = [
 	{ name: "Home", url: "https://rivet.dev/" },
-	{ name: breadcrumbName, url: `https://rivet.dev${routePrefix}/` },
+	{ name: breadcrumbName, url: `https://rivet.dev${sectionRootHref}` },
 ];
 if (parentPage) {
-	breadcrumbItems.push({ name: parentPage.title, url: `https://rivet.dev${parentPage.href || `${routePrefix}/`}` });
+	breadcrumbItems.push({ name: parentPage.title, url: `https://rivet.dev${parentPage.href || sectionRootHref}` });
 }
 if (slugPath) {
 	breadcrumbItems.push({ name: title, url: canonicalUrl });

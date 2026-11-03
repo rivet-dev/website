@@ -61,8 +61,6 @@ import type { AnyPage, SidebarItem } from "../src/lib/sitemap";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const SELF_HOST_CONTENT = path.join(ROOT, "src/content/self-host");
 const DOCS_CONTENT = path.join(ROOT, "src/content/docs");
-// Website-owned solution guides on the Guides tab.
-const GUIDES_CONTENT = path.join(ROOT, "src/content/guides");
 
 const errors: string[] = [];
 
@@ -290,7 +288,7 @@ for (const product of products) {
 			const slug = file.replace(/\.mdx$/, "").replace(/(^|\/)index$/, "");
 			if (!slug) {
 				errors.push(
-					`${bundle}/${GUIDES_SECTION}/index.mdx is never rendered; the Guides overview is website-owned`,
+					`${bundle}/${GUIDES_SECTION}/index.mdx is never rendered; /guides/ redirects to the docs overview, which lists every guide`,
 				);
 				continue;
 			}
@@ -316,10 +314,7 @@ for (const product of products) {
 			.slice(`${GUIDES_ROUTE_PREFIX}/`.length)
 			.replace(/\/$/, "");
 		sidebarSlugs.add(slug);
-		const exists = slug
-			? owners.has(slug)
-			: contentFileExists(GUIDES_CONTENT, "index");
-		if (!exists) {
+		if (!owners.has(slug)) {
 			errors.push(`Guides sidebar links ${href}, which has no content file`);
 		}
 	}

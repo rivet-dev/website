@@ -7,11 +7,13 @@ import {
 	faCompass,
 	faGrid2,
 	faServer,
+	faSliders,
 	faSparkles,
 	faUser,
 	faUsers,
 } from "@rivet-gg/icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { PLATFORM_DOCS_HREF } from "@/sitemap/overview";
 import { ACTOR_REGISTRY_LINK, ACTOR_TYPES } from "./actor-types";
 
 /**
@@ -79,7 +81,7 @@ export const SOLUTIONS_MENU: SolutionMenuItem[] = [
 /** Footer link under the Solutions grid. */
 export const SOLUTIONS_MENU_FOOTER = {
 	label: "Browse all guides",
-	href: "/guides/",
+	href: "/docs/",
 };
 
 export interface DocsMenuLink {
@@ -122,7 +124,7 @@ export const DOCS_MENU: DocsMenuColumn[] = [
 			label: "Orchestration",
 			links: [
 				{ label: "Overview", href: "/docs/", icon: faBookOpen },
-				{ label: "Guides", href: "/guides/", icon: faCompass },
+				{ label: "Platform", href: PLATFORM_DOCS_HREF, icon: faSliders },
 				{ label: "Self-Host", href: "/docs/deploy/self-host/control-plane/", icon: faServer },
 				{ label: "BYOC", href: "/docs/deploy/byoc/", icon: faBuildingLock },
 				{ label: "Cloud", href: "/docs/deploy/cloud/", icon: faCloud },

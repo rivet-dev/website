@@ -792,7 +792,10 @@ export function DiagramMini({ id, nodes, edges = [] }: Pick<DiagramProps, "id" |
 				if (node.kind === "slot") {
 					return <rect key={node.id} x={node.x} y={node.y} width={w} height={h} rx={8} fill={C.surface} stroke={C.inkFaint} strokeWidth={2.4} />;
 				}
-				const glyph = h - 10;
+				// Size marks off a standard node's height so a tall node (a client
+				// column spanning several rows) keeps a normal-sized glyph.
+				const box = Math.min(h, w, size({ ...node, h: undefined }).h);
+				const glyph = box - 10;
 				const tile = node.product ? PRODUCTS[node.product] : undefined;
 				return (
 					<g key={node.id}>
@@ -827,9 +830,9 @@ export function DiagramMini({ id, nodes, edges = [] }: Pick<DiagramProps, "id" |
 								<g fill="none" dangerouslySetInnerHTML={{ __html: markInner(tile.mark) }} />
 							</svg>
 						) : node.vendor ? (
-							<VendorMark vendor={node.vendor} x={cx - (h - 22) / 2} y={cy - (h - 22) / 2} size={h - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
+							<VendorMark vendor={node.vendor} x={cx - (box - 22) / 2} y={cy - (box - 22) / 2} size={box - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
 						) : (
-							<MiniIcon icon={miniIcon(node)} cx={cx} cy={cy} size={h - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
+							<MiniIcon icon={miniIcon(node)} cx={cx} cy={cy} size={box - 22} fill={node.optional ? C.inkFaint : C.inkSoft} />
 						)}
 					</g>
 				);

@@ -1,8 +1,7 @@
 import type { Sitemap } from "@/lib/sitemap";
-import { apiDocsSidebar, deploySidebar, guidesSidebar, products } from "./products";
-import { overviewSidebar } from "./overview";
+import { apiDocsSidebar, deploySidebar, products } from "./products";
+import { PLATFORM_DOCS_HREF, platformSidebar, overviewSidebar } from "./overview";
 import { DEPLOY_ROUTE_PREFIX } from "./deploy";
-import { GUIDES_ROUTE_PREFIX } from "./guides";
 import { INTEGRATIONS_ROUTE_PREFIX, SITE_INTEGRATIONS_PRODUCT } from "./integrations";
 import { API_DOCS_ROUTE_PREFIX, SITE_DOCS_ROUTE_PREFIX } from "./docs-sources";
 import { integrationSidebar } from "@/data/integrations";
@@ -15,10 +14,10 @@ export * from "./products";
 // product registry in `./products.ts` is the single source of truth.
 //
 // Products come first so a page linked from several sidebars resolves to the
-// product that owns it. The site-wide sections (API, Overview, Guides, Deploy,
-// Integrations) own no product and follow. API sits before Overview because the
-// Overview sidebar links to `/docs/api` from its Reference group, and the API
-// section must win that lookup for its own pages.
+// product that owns it. The site-wide sections (API, Overview, Platform, Deploy,
+// Integrations) own no product and follow; Overview also lists the guides. API
+// sits before Platform because the Platform sidebar links to `/docs/api` from its
+// Reference group, and the API section must win that lookup for its own pages.
 export const sitemap = [
 	...products.flatMap((product) =>
 		product.tabs
@@ -42,9 +41,9 @@ export const sitemap = [
 		sidebar: overviewSidebar,
 	},
 	{
-		title: "Guides",
-		href: `${GUIDES_ROUTE_PREFIX}/`,
-		sidebar: guidesSidebar(),
+		title: "Platform",
+		href: PLATFORM_DOCS_HREF,
+		sidebar: platformSidebar,
 	},
 	{
 		title: "Deploy",

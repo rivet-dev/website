@@ -26,6 +26,8 @@ const explicitRedirects = {
 	// Integrations moved out of the documentation URL hierarchy.
 	'/docs/integrations/vercel-workflow': '/integrations/workflow-sdk/',
 	'/integrations/vercel-workflow': '/integrations/workflow-sdk/',
+	// The guides catalog merged into the docs overview, which lists every guide.
+	'/guides': '/docs/',
 	// The docs overview briefly lived under `/orchestrate/`; it is back at `/docs/`.
 	'/orchestrate/docs': '/docs/',
 	'/orchestrate': '/docs/',
@@ -41,12 +43,12 @@ const explicitRedirects = {
 	'/workflows': '/workflows/docs/',
 	'/dynamic-apps': '/dynamic-apps/docs/',
 	// The Tutorials tab became Learn.
-	'/actors/tutorials': '/guides/',
+	'/actors/tutorials': '/docs/',
 	'/agentos/tutorials': '/agentos/docs/',
 	'/dynamic-apps/tutorials': '/dynamic-apps/docs/',
 	'/workflows/tutorials': '/workflows/docs/',
 	// Cookbook became the Actors Learn tab.
-	'/cookbook': '/guides/',
+	'/cookbook': '/docs/',
 	'/cookbook/ai-agent': '/guides/personal-agent/',
 	'/cookbook/chat-room': '/guides/chat-room/',
 	'/cookbook/collaborative-text-editor': '/guides/collaborative-text-editor/',
@@ -152,13 +154,13 @@ const explicitRedirects = {
 	// vertical on this site, so these land on `/agentos/*` rather than off-site.
 	'/agent-os': '/agentos/',
 	'/agent-os/pricing': '/pricing/',
-	'/agent-os/use-cases': '/guides/',
+	'/agent-os/use-cases': '/docs/',
 	'/agent-os/registry': '/agentos/docs/registry/',
 	// agentOS dropped its own tab bar: the Registry is a section of its docs
 	// (old entry pages collapse onto it via the wildcard below), and the Use Cases page
 	// was retired for the site-wide Guides.
 	'/agentos/registry': '/agentos/docs/registry/',
-	'/agentos/use-cases': '/guides/',
+	'/agentos/use-cases': '/docs/',
 	// The integrations pages live at the site root now. These are not covered
 	// by legacyDocsRedirects because they moved tab, not just prefix.
 	'/docs/integrations': '/integrations/',
@@ -216,7 +218,7 @@ const explicitRedirects = {
 	'/typedoc': '/actors/docs/',
 	'/rivet.schema.json': '/actors/docs/',
 	// The standalone "Actors course" is now a guide in the Actors Learn tab.
-	'/learn': '/guides/',
+	'/learn': '/docs/',
 	'/learn/act-1/scene-1-a-radically-simpler-architecture':
 		'/guides/a-radically-simpler-architecture/',
 	'/docs/tools/actors': '/actors/docs/',
@@ -358,7 +360,7 @@ function selfHostRedirects() {
 function guidesRedirects() {
 	const map = {};
 	for (const slug of mdxSlugs(path.join(CONTENT_ROOT, 'docs/actors/guides'))) {
-		map[slug ? `/actors/learn/${slug}` : '/actors/learn'] = slug ? `/guides/${slug}/` : '/guides/';
+		map[slug ? `/actors/learn/${slug}` : '/actors/learn'] = slug ? `/guides/${slug}/` : '/docs/';
 	}
 	return map;
 }
@@ -551,7 +553,7 @@ export const wildcardRedirects = [
 	{ from: '/agentos/registry', to: '/agentos/docs/registry' },
 	// Deep TypeDoc URLs are heavily linked from old docs and search results.
 	{ from: '/typedoc', to: '/actors/docs' },
-	{ from: '/learn', to: '/guides' },
+	{ from: '/learn', to: '/docs' },
 	{ from: '/compare', to: '/actors/compare' },
 	{ from: '/docs/agent-os', to: '/agentos/docs' },
 	{ from: '/agent-os', to: '/agentos' },
@@ -565,7 +567,7 @@ export const wildcardRedirects = [
 	{ from: '/orchestrate/docs', to: '/docs' },
 	{ from: '/orchestrate/deploy', to: '/docs/deploy' },
 	{ from: '/orchestrate', to: '/docs' },
-	{ from: '/actors/learn', to: '/guides' },
+	{ from: '/actors/learn', to: '/docs' },
 	// Integrations briefly lived under the Actors vertical; they are a
 	// site-wide section at the root now. Real pages have explicit entries above
 	// (`integrationsRedirects`); unknown deep paths land on the section root.

@@ -41,7 +41,9 @@ export function NavigationStateProvider({ children }: NavigationStateProviderPro
 			const saved = localStorage.getItem(STORAGE_KEY);
 			if (saved) {
 				const parsed = JSON.parse(saved);
-				setOpenStates(parsed);
+				// Sections mount (and open the one holding the current page) before
+				// this effect runs, so their writes win over the saved snapshot.
+				setOpenStates((prev) => ({ ...parsed, ...prev }));
 			}
 		} catch (error) {
 			console.warn("Failed to load navigation state from localStorage:", error);

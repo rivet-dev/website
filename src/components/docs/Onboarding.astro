@@ -1,0 +1,248 @@
+---
+// The docs overview's onboarding block (`<Onboarding />` in the `docs/general`
+// bundle's index.mdx): one tab per product, each tab the first minute of that
+// product's quickstart, then link cards for where to go once it runs.
+//
+// Every code step shows the same example file its quickstart embeds, read from
+// the product's own repo and highlighted like any docs code block, so the two
+// never drift. Tabs are radio inputs styled per product, so switching needs no
+// script. Long files collapse with the docs' usual "Show more" (TabsScript),
+// cut shorter here through `data-code-collapse-height`.
+import { ProductBadge } from '@/components/ProductBar';
+import { Code } from '@/components/v2/Code';
+import {
+	PRIMARY_INK_BUTTON_CLASS,
+	PRODUCT_HERO_SECONDARY_BUTTON_CLASS,
+} from '@/components/marketing/typography';
+import { productAccent } from '@/lib/product-accent';
+import { highlightDocsCode } from '@/mdx/rehype';
+import { loadSnippet } from '@/mdx/remark-code-snippet';
+import { DEPLOY_ROUTE_PREFIX } from '@/sitemap/deploy';
+import { API_DOCS_ROUTE_PREFIX, DOCS_SOURCES } from '@/sitemap/docs-sources';
+import { requireDocsRoot } from '@/sitemap/docs-sources.node';
+import { PLATFORM_DOCS_HREF } from '@/sitemap/overview';
+import { getProduct } from '@/sitemap/products';
+import { Icon, faArrowRight, faCloud, faCode, faServer } from '@rivet-gg/icons';
+
+type Step =
+	| { title: string; command: string }
+	/** `file` is the example its quickstart embeds, relative to the product's repo. */
+	| { title: string; file: string };
+
+interface Quickstart {
+	product: string;
+	quickstart: string;
+	steps: Step[];
+}
+
+// Agents is built but unlaunched (see HIDDEN.md); add it here when it ships.
+const QUICKSTARTS: Quickstart[] = [
+	{
+		product: 'actors',
+		quickstart: '/actors/docs/quickstart/backend/',
+		steps: [
+			{ title: 'Install', command: 'npm install rivetkit@next' },
+			{ title: 'Define an Actor', file: 'examples/docs/onboarding-actors/index.ts' },
+			{ title: 'Talk to it from a client', file: 'examples/docs/onboarding-actors/client.ts' },
+		],
+	},
+	{
+		product: 'workflows',
+		quickstart: '/workflows/docs/quickstart/',
+		steps: [
+			{ title: 'Install', command: 'npm install @rivet-dev/workflows rivetkit' },
+			{ title: 'Define a workflow', file: 'examples/docs/onboarding/index.ts' },
+			{ title: 'Start it from a client', file: 'examples/docs/onboarding/client.ts' },
+		],
+	},
+	{
+		product: 'agentos',
+		quickstart: '/agentos/docs/quickstart-hosted/',
+		steps: [
+			{ title: 'Install', command: 'npm install @rivet-dev/agentos' },
+			{ title: 'Create a hosted VM and use it', file: 'examples/hosted/quickstart.ts' },
+		],
+	},
+	{
+		product: 'dynamic-apps',
+		quickstart: '/dynamic-apps/docs/quickstart/',
+		steps: [
+			{ title: 'Install', command: 'npm install @rivet-dev/dynamic-apps @hono/node-server hono' },
+			{ title: 'Set up the router', file: 'examples/apps-hello-world/src/server.ts' },
+			{ title: 'Deploy an app to it', file: 'examples/apps-hello-world/src/deploy.ts' },
+		],
+	},
+];
+
+const NEXT = [
+	{ title: 'Platform', href: PLATFORM_DOCS_HREF, icon: faServer, text: 'Namespaces, node pools, auth, and monitoring.' },
+	{ title: 'Deploy', href: `${DEPLOY_ROUTE_PREFIX}/`, icon: faCloud, text: 'Rivet Cloud, bring your own cloud, or self-host.' },
+	{ title: 'API', href: `${API_DOCS_ROUTE_PREFIX}/`, icon: faCode, text: 'Drive Rivet over plain HTTP.' },
+];
+
+const tabs = await Promise.all(
+	QUICKSTARTS.map(async (quickstart) => {
+		const product = getProduct(quickstart.product);
+		if (!product) throw new Error(`<Onboarding>: unknown product "${quickstart.product}"`);
+		const root = requireDocsRoot(quickstart.product);
+		const repo = DOCS_SOURCES[quickstart.product].repo;
+		const steps = await Promise.all(
+			quickstart.steps.map(async (step) => {
+				if ('command' in step) {
+					return { title: step.title, language: 'sh', code: step.command, html: await highlightDocsCode(step.command, 'sh') };
+				}
+				const code = loadSnippet(root, step.file).value;
+				// Show `index.ts`, or `src/server.ts` for files under `src/`.
+				const [dir, name] = step.file.split('/').slice(-2);
+				return {
+					title: step.title,
+					language: 'ts',
+					code,
+					html: await highlightDocsCode(code, 'ts'),
+					fileName: dir === 'src' ? `src/${name}` : name,
+					sourceUrl: `https://github.com/rivet-dev/${repo}/blob/main/${step.file}`,
+				};
+			}),
+		);
+		return { ...quickstart, product, accent: productAccent(quickstart.product)?.hex, steps };
+	}),
+);
+
+// Show the panel whose tab is checked. One rule per product, because CSS has
+// no way to match a radio's value against a panel's attribute generically.
+// Inactive panels stay laid out (hidden, not `display: none`) so the code
+// collapse can measure them on load.
+const panelCss = tabs
+	.map(
+		(tab) =>
+			`[data-onboarding]:has(input[value="${tab.product.id}"]:checked) [data-onboarding-panel="${tab.product.id}"]{position:relative;visibility:visible}`,
+	)
+	.join('');
+---
+
+<div class="not-prose my-8" data-onboarding data-code-collapse-height="280">
+	<style is:inline set:html={`[data-onboarding-panel]{position:absolute;inset:0 0 auto 0;visibility:hidden}${panelCss}`}></style>
+
+	<div class="overflow-hidden rounded-xl border border-ink/10">
+		<div role="radiogroup" aria-label="Product" class="flex gap-1 overflow-x-auto border-b border-ink/10 bg-ink/[0.03] p-1.5">
+			{tabs.map((tab, index) => (
+				<label
+					class="onboarding-tab flex shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-ink-soft hover:text-ink has-[:checked]:bg-white has-[:checked]:text-ink"
+					style={`--accent: ${tab.accent ?? 'currentColor'}`}
+				>
+					<input type="radio" name="onboarding-product" value={tab.product.id} checked={index === 0} class="sr-only" />
+					<ProductBadge product={tab.product} className="size-4" />
+					{tab.product.name}
+				</label>
+			))}
+		</div>
+
+		<div class="relative overflow-hidden">
+			{tabs.map((tab) => (
+				<div data-onboarding-panel={tab.product.id} class="p-5 sm:p-6">
+					<ol class="onboarding-steps">
+						{tab.steps.map((step, index) => (
+							<li class="onboarding-step">
+								<span class="onboarding-num">{index + 1}</span>
+								<div class="flex min-h-6 items-center justify-between gap-3">
+									<span class="text-[15px] font-medium text-ink">{step.title}</span>
+									{step.fileName && <span class="font-mono text-xs text-ink-faint">{step.fileName}</span>}
+								</div>
+								<div class="onboarding-code mt-2 min-w-0">
+									<Code language={step.language} code={step.code} highlightedCode={step.html} sourceUrl={step.sourceUrl} flush />
+								</div>
+							</li>
+						))}
+					</ol>
+					<div class="onboarding-cta mt-5 flex flex-wrap items-center gap-2">
+						<a href={tab.quickstart} class={`${PRIMARY_INK_BUTTON_CLASS} inline-flex items-center gap-2`}>
+							Full {tab.product.name} quickstart
+							<Icon icon={faArrowRight} className="size-3" />
+						</a>
+						<a href={`/${tab.product.id}/docs/`} class={`${PRODUCT_HERO_SECONDARY_BUTTON_CLASS} inline-flex items-center`}>
+							{tab.product.name} docs
+						</a>
+					</div>
+				</div>
+			))}
+		</div>
+	</div>
+
+	<p class="mt-8 text-[15px] font-medium text-ink">Once it runs</p>
+	<div class="mt-3 grid gap-3 sm:grid-cols-3">
+		{NEXT.map((item) => (
+			<a
+				href={item.href}
+				class="group flex min-w-0 flex-col gap-1 rounded-lg border border-ink/10 bg-white/55 p-4 no-underline transition-colors hover:border-ink/25"
+			>
+				<span class="flex items-center gap-2 text-[15px] font-medium text-ink">
+					<Icon icon={item.icon} className="size-3.5 text-ink-soft" />
+					{item.title}
+					<Icon icon={faArrowRight} className="ml-auto size-3 text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-ink" />
+				</span>
+				<span class="text-[13px] leading-snug text-ink-soft">{item.text}</span>
+			</a>
+		))}
+	</div>
+</div>
+
+<style>
+	.onboarding-tab:has(:checked) {
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent);
+	}
+	.onboarding-tab:has(:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 1px;
+	}
+	.onboarding-steps {
+		display: grid;
+		gap: 1.25rem;
+	}
+	/* Number chip in a 1.5rem rail, title and code in the column beside it. */
+	.onboarding-step {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1.5rem minmax(0, 1fr);
+		column-gap: 0.875rem;
+	}
+	.onboarding-step > :not(.onboarding-num) {
+		grid-column: 2;
+	}
+	.onboarding-step:not(:last-child)::before {
+		content: '';
+		position: absolute;
+		left: calc(0.75rem - 0.5px);
+		top: 1.75rem;
+		bottom: -1.25rem;
+		width: 1px;
+		background: rgb(var(--site-ink, 27 25 22) / 0.1);
+	}
+	.onboarding-num {
+		grid-column: 1;
+		grid-row: 1;
+		display: flex;
+		height: 1.5rem;
+		width: 1.5rem;
+		align-items: center;
+		justify-content: center;
+		border-radius: 9999px;
+		border: 1px solid rgb(var(--site-ink, 27 25 22) / 0.15);
+		background: rgb(var(--site-surface, 255 255 255));
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: rgb(var(--site-ink-soft, 77 72 64));
+		font-variant-numeric: tabular-nums;
+	}
+	/* The buttons start where the code does. */
+	.onboarding-cta {
+		margin-left: calc(1.5rem + 0.875rem);
+	}
+	.onboarding-code :global([data-code-block]) {
+		overflow: hidden;
+		border-radius: 0.5rem;
+		box-shadow: inset 0 0 0 1px rgb(var(--site-ink, 27 25 22) / 0.1);
+	}
+	.onboarding-code :global([data-code-block] > .overflow-x-auto > div) {
+		padding: 0.75rem 1rem;
+	}
+</style>

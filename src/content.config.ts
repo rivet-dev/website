@@ -52,15 +52,6 @@ const registry = defineCollection({
 	schema: registryDocSchema,
 });
 
-const guides = defineCollection({
-	loader: glob({ pattern: '**/*.mdx', base: './src/content/guides' }),
-	schema: z.object({
-		title: z.string(),
-		description: z.string(),
-		...seoOverrides,
-	}),
-});
-
 const posts = defineCollection({
 	loader: glob({ pattern: '**/page.mdx', base: './src/content/posts' }),
 	schema: z.object({
@@ -102,6 +93,5 @@ export const collections = {
 	selfHost,
 	overviews,
 	registry,
-	guides,
 	posts,
 };

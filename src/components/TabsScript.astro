@@ -310,14 +310,20 @@
 			const scrollArea = block.querySelector('.overflow-x-auto') as HTMLElement;
 			if (!scrollArea) return;
 
+			// A container can ask for a shorter cut with `data-code-collapse-height`
+			// (the docs overview's compact onboarding does).
+			const collapseHeight =
+				Number(block.closest('[data-code-collapse-height]')?.getAttribute('data-code-collapse-height')) ||
+				CODE_COLLAPSE_HEIGHT;
+
 			// Check if the code content is tall enough to collapse
-			if (scrollArea.scrollHeight <= CODE_COLLAPSE_HEIGHT) return;
+			if (scrollArea.scrollHeight <= collapseHeight) return;
 			// Highlighted lines are the point of the block, so never hide them.
 			if (block.querySelector('.shiki.has-highlighted')) return;
 
 			// Mark as collapsed
 			block.setAttribute('data-code-collapsed', 'true');
-			scrollArea.style.maxHeight = CODE_COLLAPSE_HEIGHT + 'px';
+			scrollArea.style.maxHeight = collapseHeight + 'px';
 			scrollArea.style.overflow = 'hidden';
 
 			// Create gradient overlay with "show more" button

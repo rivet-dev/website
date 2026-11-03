@@ -1,6 +1,6 @@
 import { guidesSidebar } from "@/sitemap/products";
 import { canonicalizeInternalHref } from "@/lib/internalHref";
-import type { AnyPage, SidebarItem } from "@/lib/sitemap";
+import type { AnyPage } from "@/lib/sitemap";
 import { DiagramMini } from "@/components/docs/diagram/Diagram";
 import type { DiagramSpec } from "@/components/docs/diagram/fromMdx";
 
@@ -16,47 +16,41 @@ interface GuideGroup {
 	pages: { title: string; href: string }[];
 }
 
-/**
- * Flattens the Guides sidebar into one group per section, dropping the
- * section's link back to this overview. Nested sections are inlined.
- */
-function guideGroups(overviewHref: string): GuideGroup[] {
+/** Flattens the guide categories into one group each. Nested sections are inlined. */
+function guideGroups(): GuideGroup[] {
 	const pagesOf = (items: AnyPage[]): GuideGroup["pages"] =>
 		items.flatMap((item) => {
 			if ("pages" in item) return pagesOf(item.pages);
 			if (!("title" in item) || !item.title || item.external) return [];
-			const href = canonicalizeInternalHref(item.href);
-			return href === overviewHref ? [] : [{ title: item.title, href }];
+			return [{ title: item.title, href: canonicalizeInternalHref(item.href) }];
 		});
 	return guidesSidebar()
-		.filter((item): item is Extract<SidebarItem, { pages: AnyPage[] }> => "pages" in item)
 		.map((section) => ({ title: section.title, pages: pagesOf(section.pages) }))
 		.filter((group) => group.pages.length > 0);
 }
 
 /**
- * The Guides overview, generated from the same sidebar the tab is built from:
- * one heading per sidebar section, then a card per guide in it. Adding a guide
- * to any bundle's `guides` sidebar updates both.
+ * Every guide, generated from the same categories the Overview tab's sidebar
+ * lists: one h3 per category (the page supplies the h2), then a card per guide. Adding a guide
+ * to any bundle's `guides` sidebar updates both. The docs overview (`/docs/`)
+ * renders it.
  *
  * `descriptions` maps each guide href to its frontmatter description and
  * `diagrams` to the data of its `<Diagram>`, drawn as a thumbnail on the card;
  * the route supplies both from the content collections.
  */
 export function GuideCards({
-	overviewHref,
 	descriptions,
 	diagrams,
 }: {
-	overviewHref: string;
 	descriptions: Record<string, string | undefined>;
 	diagrams: Record<string, DiagramSpec | undefined>;
 }) {
 	return (
 		<>
-			{guideGroups(canonicalizeInternalHref(overviewHref)).map((group) => (
+			{guideGroups().map((group) => (
 				<section key={group.title}>
-					<h2 id={slugify(group.title)}>{group.title}</h2>
+					<h3 id={slugify(group.title)}>{group.title}</h3>
 					<div className="not-prose my-6 grid gap-4 sm:grid-cols-2">
 						{group.pages.map((page) => (
 							<a
@@ -84,7 +78,7 @@ export function GuideCards({
 	);
 }
 
-/** Binds the overview's data so MDX can render a bare `<GuideCards />`. */
+/** Binds the route's data so MDX can render a bare `<GuideCards />`. */
 export function createGuideCards(props: Parameters<typeof GuideCards>[0]) {
 	return function BoundGuideCards() {
 		return <GuideCards {...props} />;

@@ -8,10 +8,14 @@
 // the Deploy section has its own routes under /docs/deploy/.
 import { getCollection } from 'astro:content';
 import DocsArticlePage from '@/components/docs/DocsArticlePage.astro';
+import { createGuideCards } from '@/components/docs/GuideCards';
+import Onboarding from '@/components/docs/Onboarding.astro';
+import { diagramFromMdx, type DiagramSpec } from '@/components/docs/diagram/fromMdx';
 import { getContentParamSlug } from '@/lib/content-path';
 import { getRouteSeoPolicy, robotsDirective } from '@/lib/routeSeoPolicy';
 import { AI_DOCS_ITEMS } from '@/sitemap/ai';
 import { SITE_DOCS_NAMESPACE, SITE_DOCS_ROUTE_PREFIX } from '@/sitemap/docs-sources';
+import { guideForContentId, guideHref } from '@/sitemap/guides';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('docs');
@@ -38,6 +42,20 @@ const isOverview = entry.id === SITE_DOCS_NAMESPACE;
 // The AI Tools pages are canonical here and aliased into every product, so the
 // shared record owns their edit link back into the `rivet` bundle.
 const aiItem = AI_DOCS_ITEMS.find((item) => item.contentId === entry.id);
+
+// The overview opens with per-product quickstarts (`<Onboarding />`), then
+// lists every guide (`<GuideCards />`), which needs each guide's description
+// and diagram for the cards.
+const descriptions: Record<string, string | undefined> = {};
+const diagrams: Record<string, DiagramSpec | undefined> = {};
+if (isOverview) {
+	for (const guideEntry of await getCollection('docs')) {
+		const guide = guideForContentId(guideEntry.id);
+		if (!guide) continue;
+		descriptions[guideHref(guide.slug)] = guideEntry.data.description;
+		diagrams[guideHref(guide.slug)] = diagramFromMdx(guideEntry.body);
+	}
+}
 ---
 
 <DocsArticlePage
@@ -54,5 +72,9 @@ const aiItem = AI_DOCS_ITEMS.find((item) => item.contentId === entry.id);
 			: aiItem?.editUrl
 	}
 	exactTitle={aiItem?.id === 'mcp' || isOverview}
+	extraComponents={isOverview ? {
+		GuideCards: createGuideCards({ descriptions, diagrams }),
+		Onboarding,
+	} : {}}
 	robots={robots}
 />

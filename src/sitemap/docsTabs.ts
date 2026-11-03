@@ -4,11 +4,12 @@
  * comes from the sidebar and the page itself.
  *
  * The strip has two groups, split by a hairline: the orchestration docs
- * (Overview, Guides, Deploy, API), then the actor types and what runs on them.
+ * (Overview, Platform, Deploy, API), then the actor types and what runs on them.
  * Actor-type tabs and Integrations carry the product's mark inline.
  *
- * Overview, Guides, Deploy, and API are site-wide sections owned by no product
- * (`/docs/`, `/guides/`, `/docs/deploy/`, `/docs/api/`, `/integrations/`). Standalone
+ * Overview, Platform, Deploy, and API are site-wide sections owned by no product
+ * (`/docs/` and `/guides/`, the other `/docs/` pages, `/docs/deploy/`,
+ * `/docs/api/`, `/integrations/`). See `./overview.ts`. Standalone
  * subsites (`Product.standalone`) are excluded: they keep their own second
  * header row, so their tab here links out and never lights up.
  */
@@ -16,6 +17,7 @@ import { DEPLOY_ROUTE_PREFIX, SELF_HOST_ROUTE_PREFIX } from "./deploy";
 import { API_DOCS_ROUTE_PREFIX } from "./docs-sources";
 import { GUIDES_ROUTE_PREFIX } from "./guides";
 import { INTEGRATIONS_ROUTE_PREFIX } from "./integrations";
+import { PLATFORM_DOCS_HREF } from "./overview";
 import { PRODUCTS } from "./product-metadata";
 
 const unlaunched = new Set(
@@ -24,7 +26,7 @@ const unlaunched = new Set(
 
 export type DocsTabId =
 	| "overview"
-	| "guides"
+	| "platform"
 	| "deploy"
 	| "api"
 	| "actors"
@@ -56,9 +58,9 @@ export const DOCS_TABS: readonly DocsTab[] = (
 			group: "orchestration",
 		},
 		{
-			id: "guides",
-			title: "Guides",
-			href: `${GUIDES_ROUTE_PREFIX}/`,
+			id: "platform",
+			title: "Platform",
+			href: PLATFORM_DOCS_HREF,
 			group: "orchestration",
 		},
 		{
@@ -136,7 +138,8 @@ export function activeDocsTab(pathname: string): DocsTabId | undefined {
 	const trimmed = pathname.replace(/\/$/, "");
 	const [, first, second] = trimmed.split("/");
 	if (!first) return undefined;
-	if (`/${first}` === GUIDES_ROUTE_PREFIX) return "guides";
+	// Guides keep their `/guides/` URLs but live in the Overview sidebar.
+	if (`/${first}` === GUIDES_ROUTE_PREFIX) return "overview";
 	if (`/${first}` === INTEGRATIONS_ROUTE_PREFIX) return "integrations";
 	if (
 		trimmed === DEPLOY_ROUTE_PREFIX ||
@@ -152,10 +155,11 @@ export function activeDocsTab(pathname: string): DocsTabId | undefined {
 	) {
 		return "api";
 	}
-	// Everything under `/docs/` is the product-agnostic overview, including the
-	// canonical AI Tools pages. Each product carries its own contextual alias
-	// under `/<product>/docs/ai/`, so no page here belongs to a product tab.
-	if (first === "docs") return "overview";
+	// The rest of `/docs/` is product-agnostic: the overview itself, then the
+	// Platform pages, including the canonical AI Tools pages. Each product carries
+	// its own contextual alias under `/<product>/docs/ai/`, so no page here
+	// belongs to a product tab.
+	if (first === "docs") return second ? "platform" : "overview";
 	if (PRODUCTS.some((product) => product.id === first && product.standalone))
 		return undefined;
 	if (second === "docs" || second === "registry") return PRODUCT_TABS[first];

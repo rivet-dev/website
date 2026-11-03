@@ -5,7 +5,6 @@ import {
 	faPuzzlePiece,
 	faRobot,
 	faSparkles,
-	faSquareInfo,
 } from "@rivet-gg/icons";
 import type { SidebarItem, SidebarSection } from "@/lib/sitemap";
 import rawSidebars from "@/generated/sidebars.json";
@@ -23,7 +22,7 @@ import {
 } from "./self-host";
 import { API_DOCS_NAMESPACE, SITE_DOCS_NAMESPACE } from "./docs-sources";
 import { CLOUD_BUNDLE_ID } from "./deploy";
-import { GUIDE_BUNDLES, GUIDE_PRIORITY, guideHref } from "./guides";
+import { GUIDE_BUNDLES, GUIDE_PRIORITY } from "./guides";
 import { integrationFold, integrationSidebar } from "@/data/integrations";
 import { registryFold } from "@/data/registry";
 import { integrationsHref, SITE_INTEGRATIONS_PRODUCT } from "./integrations";
@@ -103,7 +102,7 @@ function productSidebars(meta: ProductMetadata) {
  *
  *     { "title": "Guides", "collapsible": true, "mirror": "guides" }
  *
- * The pages keep their `/guides/...` hrefs, so they open on the Guides tab.
+ * The pages keep their `/guides/...` hrefs, so they open on the Overview tab.
  */
 function mirrorGuides<T>(node: T, guides: SidebarItem[]): T {
 	if (Array.isArray(node)) {
@@ -178,7 +177,7 @@ export function deploySidebar(): SidebarItem[] {
 	];
 }
 
-/** Guides tab groups in sidebar order, after General. Groups not listed follow in product order. */
+/** Guide categories in sidebar order. Groups not listed follow in product order. */
 const GUIDE_GROUP_ORDER = [
 	"Architecture",
 	"Agents",
@@ -196,18 +195,12 @@ const GUIDE_GROUP_ORDER = [
 ];
 
 /**
- * The Guides tab's sidebar: the website's overview, then every bundle's
- * `guides` groups, ordered by `GUIDE_GROUP_ORDER`. Groups with the same title
- * merge into one, and each group's pages sort by `GUIDE_PRIORITY`.
+ * The guide categories: every bundle's `guides` groups, ordered by
+ * `GUIDE_GROUP_ORDER`. Groups with the same title merge into one, and each
+ * group's pages sort by `GUIDE_PRIORITY`. The Overview sidebar lists them
+ * (`./overview.ts`) and the Guides overview page draws them (`GuideCards`).
  */
-/** Guides each group shows before its "more" button. */
-const GUIDE_GROUP_LIMIT = 12;
-
-export function guidesSidebar(): SidebarItem[] {
-	const overview: SidebarSection = {
-		title: "General",
-		pages: [{ title: "Overview", href: guideHref(""), icon: faSquareInfo }],
-	};
+export function guidesSidebar(): SidebarSection[] {
 	const merged: SidebarSection[] = [];
 	for (const bundleId of GUIDE_BUNDLES) {
 		for (const item of SIDEBARS[bundleId]?.guides ?? []) {
@@ -218,7 +211,7 @@ export function guidesSidebar(): SidebarItem[] {
 			}
 			const group = merged.find((candidate) => candidate.title === item.title);
 			if (group) group.pages.push(...item.pages);
-			else merged.push({ ...item, pages: [...item.pages], limit: GUIDE_GROUP_LIMIT });
+			else merged.push({ ...item, pages: [...item.pages] });
 		}
 	}
 	const rank = (group: SidebarSection) => {
@@ -232,7 +225,7 @@ export function guidesSidebar(): SidebarItem[] {
 		return index === -1 ? GUIDE_PRIORITY.length : index;
 	};
 	for (const group of merged) group.pages.sort((a, b) => priority(a) - priority(b));
-	return [overview, ...merged];
+	return merged;
 }
 
 export type ProductTabId =

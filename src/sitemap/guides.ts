@@ -1,13 +1,15 @@
 import { ownsDocsBundle, PRODUCTS } from "./product-metadata";
 
 /**
- * The Guides tab (`/guides/`). Every product bundle may ship guides:
+ * The guides (`/guides/<slug>/`), listed in the Overview tab's sidebar and on
+ * the docs overview (`/docs/`); `/guides/` itself redirects there. Every
+ * product bundle may ship guides:
  *
  *   <repo>/<bundle>/content/guides/<slug>.mdx   -> /guides/<slug>/
- *   <repo>/<bundle>/sidebar.json "guides"       -> groups of the Guides sidebar
+ *   <repo>/<bundle>/sidebar.json "guides"       -> guide categories in that sidebar
  *
  * A bundle links its guides as `/guides/<slug>`, where they render, so nothing
- * is re-rooted. The website owns only the overview (`src/content/guides/index.mdx`).
+ * is re-rooted.
  * Guides render through `src/pages/guides/[...slug].astro`, and their
  * `<CodeSnippet>` paths resolve against the bundle's own repo.
  */
