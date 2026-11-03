@@ -24,11 +24,6 @@
 							"icon": "faReact"
 						},
 						{
-							"title": "Next.js",
-							"href": "/actors/docs/quickstart/next-js",
-							"icon": "faNextjs"
-						},
-						{
 							"title": "Rust",
 							"href": "/actors/docs/quickstart/rust",
 							"icon": "faRust",
@@ -95,6 +90,10 @@
 					"collapsible": true,
 					"pages": [
 						{
+							"title": "Authentication",
+							"href": "/actors/docs/authentication"
+						},
+						{
 							"title": "Connections",
 							"href": "/actors/docs/connections"
 						},
@@ -119,10 +118,6 @@
 						{
 							"title": "Lifecycle",
 							"href": "/actors/docs/lifecycle"
-						},
-						{
-							"title": "Permissions",
-							"href": "/actors/docs/permissions"
 						},
 						{
 							"title": "Input Parameters",
@@ -163,7 +158,7 @@
 							"href": "/actors/docs/logging"
 						},
 						{
-							"title": "Performance Monitoring & Tuning",
+							"title": "Performance Monitoring",
 							"href": "/actors/docs/performance-monitoring"
 						},
 						{
@@ -247,6 +242,10 @@
 			"title": "Reference",
 			"pages": [
 				{
+					"title": "Troubleshooting",
+					"href": "/actors/docs/troubleshooting"
+				},
+				{
 					"title": "Production Checklist",
 					"href": "/actors/docs/production-checklist"
 				},
@@ -267,7 +266,7 @@
 							"href": "/actors/docs/http-server"
 						},
 						{
-							"title": "Runtime Environment Variables",
+							"title": "Environment Variables",
 							"href": "/actors/docs/environment-variables"
 						},
 						{
@@ -281,15 +280,11 @@
 	],
 	"guides": [
 		{
-			"title": "Architecture",
+			"title": "Agents",
 			"pages": [
 				{
-					"title": "A Radically Simpler Architecture",
-					"href": "/guides/a-radically-simpler-architecture"
-				},
-				{
-					"title": "Authenticate Users End to End",
-					"href": "/guides/authentication"
+					"title": "AI Agent",
+					"href": "/guides/ai-agent"
 				}
 			]
 		},
@@ -374,6 +369,19 @@
 				{
 					"title": "Collaborative Text Editor (OT)",
 					"href": "/guides/collaborative-text-editor-ot"
+				}
+			]
+		},
+		{
+			"title": "Concepts",
+			"pages": [
+				{
+					"title": "A Radically Simpler Architecture",
+					"href": "/guides/a-radically-simpler-architecture"
+				},
+				{
+					"title": "Authentication",
+					"href": "/guides/authentication"
 				}
 			]
 		}
