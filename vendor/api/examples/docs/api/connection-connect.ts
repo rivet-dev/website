@@ -1,7 +1,7 @@
 // Open a connection by actor name. The selector query parameters are the same
 // ones used by the HTTP endpoints; the token and encoding travel as
 // WebSocket subprotocols because browsers cannot set headers on an upgrade.
-const url = new URL("wss://rivet.example.com/gateway/counter/connect");
+const url = new URL("wss://api.rivet.dev/gateway/counter/connect");
 url.searchParams.set("rvt-namespace", process.env.RIVET_NAMESPACE!);
 url.searchParams.set("rvt-method", "getOrCreate");
 url.searchParams.set("rvt-key", "my-counter");

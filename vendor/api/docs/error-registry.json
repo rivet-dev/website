@@ -42,14 +42,7 @@
 				{
 					"code": "duplicate_key",
 					"message": "Actor key already in use.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "input_too_large",
@@ -99,14 +92,12 @@
 				{
 					"code": "invalid_request",
 					"message": "Invalid hibernatable websocket connection ID",
-					"statuses": [
-						{
-							"status": 400,
-							"surfaces": [
-								"gateway"
-							]
-						}
-					]
+					"statuses": []
+				},
+				{
+					"code": "invalid_version",
+					"message": "The requested actor version cannot be created here.",
+					"statuses": []
 				},
 				{
 					"code": "js_callback_unavailable",
@@ -151,6 +142,16 @@
 					]
 				},
 				{
+					"code": "migrate_from_v2_unsupported",
+					"message": "The cluster cannot hold actors for a V2 migration yet.",
+					"statuses": []
+				},
+				{
+					"code": "migrating_from_v2",
+					"message": "The actor is moving to this cluster from V2. Retry after the hinted delay.",
+					"statuses": []
+				},
+				{
 					"code": "missing_input",
 					"message": "Actor input is missing.",
 					"statuses": []
@@ -167,7 +168,6 @@
 						{
 							"status": 404,
 							"surfaces": [
-								"control plane",
 								"gateway"
 							]
 						}
@@ -221,6 +221,7 @@
 						{
 							"status": 403,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -238,6 +239,7 @@
 						{
 							"status": 404,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -250,6 +252,7 @@
 						{
 							"status": 401,
 							"surfaces": [
+								"control plane",
 								"gateway"
 							]
 						}
@@ -291,12 +294,6 @@
 					"code": "issuance_disabled",
 					"message": "JWT issuance is not enabled for this deployment.",
 					"statuses": [
-						{
-							"status": 403,
-							"surfaces": [
-								"control plane"
-							]
-						},
 						{
 							"status": 503,
 							"surfaces": [
@@ -607,7 +604,7 @@
 		},
 		{
 			"name": "envoy",
-			"description": "Node connections, and validation of namespace and pool names.",
+			"description": null,
 			"errors": [
 				{
 					"code": "connect_overloaded",
@@ -692,6 +689,18 @@
 					]
 				},
 				{
+					"code": "request_timeout",
+					"message": "Timed out waiting for the actor to become ready.",
+					"statuses": [
+						{
+							"status": 504,
+							"surfaces": [
+								"gateway"
+							]
+						}
+					]
+				},
+				{
 					"code": "service_unavailable",
 					"message": "Service unavailable.",
 					"statuses": [
@@ -720,6 +729,11 @@
 					"statuses": []
 				}
 			]
+		},
+		{
+			"name": "kv",
+			"description": "Low-level KV storage inside an actor.",
+			"errors": []
 		},
 		{
 			"name": "message",
@@ -763,26 +777,12 @@
 				{
 					"code": "name_not_unique",
 					"message": "A namespace with this name already exists.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "not_found",
 					"message": "The namespace does not exist.",
-					"statuses": [
-						{
-							"status": 404,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				}
 			]
 		},
@@ -804,7 +804,7 @@
 		},
 		{
 			"name": "pool",
-			"description": "Node pool configuration.",
+			"description": null,
 			"errors": [
 				{
 					"code": "invalid",
@@ -814,26 +814,12 @@
 				{
 					"code": "nodes_connected",
 					"message": "The node pool still has connected nodes.",
-					"statuses": [
-						{
-							"status": 409,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "not_found",
 					"message": "The node pool does not exist.",
-					"statuses": [
-						{
-							"status": 404,
-							"surfaces": [
-								"control plane"
-							]
-						}
-					]
+					"statuses": []
 				},
 				{
 					"code": "serverless_unsupported",
