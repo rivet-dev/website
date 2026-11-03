@@ -96,7 +96,7 @@ spec:
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
             - name: RIVET__API_PEER__ADVERTISE_ADDRESS
               value: "$(POD_IP):6421"
-            - name: RIVET__DEPOT__LOG_DIRECTORY
+            - name: RIVET__STORAGE__LOG_DIRECTORY
               value: /var/lib/rivet/log
             - name: RIVET__OBJECT_STORAGE__PRIMARY__S3__BUCKET
               value: my-rivet-bucket
