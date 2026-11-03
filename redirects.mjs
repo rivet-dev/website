@@ -66,9 +66,7 @@ const explicitRedirects = {
 	'/integrations/containers': '/integrations/',
 	'/integrations/unity': '/integrations/',
 	'/integrations/godot': '/integrations/',
-	// Endpoints was rewritten as the shorter Connect page; Runtime Modes folded
-	// into Nodes & Node Pools.
-	'/docs/endpoints': '/docs/connect/',
+	// Runtime Modes folded into Nodes & Node Pools.
 	'/docs/runtime-modes': '/docs/nodes/',
 	// Dead links inside dated changelog posts. Neither target ever existed, so
 	// these point at the nearest real page rather than being rewritten in the
@@ -97,10 +95,8 @@ const explicitRedirects = {
 	// split credentials (Overview, JWTs, ACL) from in-Actor authorization.
 	'/actors/docs/access-control': '/actors/docs/permissions/',
 	'/docs/actors/access-control': '/actors/docs/permissions/',
-	// Credential docs are platform-wide, so they live in the General bundle
-	// rather than the Actors one.
-	'/actors/docs/authentication': '/docs/authentication/',
-	'/docs/actors/authentication': '/docs/authentication/',
+	// Legacy Actor authentication URLs point to the restored Actor-specific page.
+	'/docs/actors/authentication': '/actors/docs/authentication/',
 	'/actors/docs/jwt': '/docs/jwt/',
 	'/docs/actors/ephemeral-variables': '/actors/docs/state/',
 	'/docs/actors/persistence': '/actors/docs/state/',
@@ -132,6 +128,10 @@ const explicitRedirects = {
 	'/docs/cloud/api/actors/create': '/actors/docs/',
 	'/docs/cloud/api/routes/update': '/actors/docs/',
 	'/docs/cloud/self-hosting/single-container': '/docs/deploy/self-host/control-plane/',
+	// Retired quickstart and gateway routes keep their existing inbound links.
+	'/actors/docs/quickstart/next-js': '/actors/docs/quickstart/react/',
+	'/docs/actors/quickstart/next-js': '/actors/docs/quickstart/react/',
+	'/docs/api/gateway/request': '/docs/api/',
 	// Next.js client redirect (linked from homepage)
 	'/docs/clients/next-js': '/actors/docs/clients/javascript/',
 	// Self-hosting redirect
@@ -438,7 +438,6 @@ function bundleSplitRedirects() {
 	map['/actors/learn/a-radically-simpler-architecture'] =
 		'/guides/a-radically-simpler-architecture/';
 	// The AI Agent guide was retired for the Agents docs and their guides.
-	map['/guides/ai-agent'] = '/guides/personal-agent/';
 	map['/actors/learn/ai-agent'] = '/guides/personal-agent/';
 	return map;
 }
@@ -470,12 +469,7 @@ const RETIRED_PAGES = {
 	'/docs/deploy/self-host/workers/aws-lambda': '/docs/deploy/self-host/nodes/',
 	'/docs/deploy/self-host/workers/supabase': '/docs/deploy/self-host/nodes/',
 	'/docs/deploy/self-host/workers/freestyle': '/docs/deploy/self-host/nodes/',
-	'/docs/workers': '/docs/nodes/',
-	'/docs/pool-configuration': '/docs/nodes/',
 	'/docs/runtime-modes': '/docs/nodes/',
-	'/docs/statuses': '/actors/docs/lifecycle/',
-	'/docs/regions': '/docs/architecture/',
-	'/docs/troubleshooting': '/actors/docs/troubleshooting/',
 	'/actors/docs/inspector-tabs': '/actors/docs/debugging/',
 	'/docs/deploy/self-host/control-plane/rbac': '/docs/jwt/',
 	'/docs/deploy/self-host/control-plane/performance': '/docs/benchmarking/',
