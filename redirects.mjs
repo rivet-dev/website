@@ -437,7 +437,7 @@ function bundleSplitRedirects() {
 	map['/actors/use-cases'] = '/actors/docs/';
 	map['/actors/learn/a-radically-simpler-architecture'] =
 		'/guides/a-radically-simpler-architecture/';
-	// The AI Agent guide was retired for the Agents docs and their guides.
+	// Preserve the older learning-page link to the personal-agent guide.
 	map['/actors/learn/ai-agent'] = '/guides/personal-agent/';
 	return map;
 }
@@ -456,12 +456,8 @@ function agentosIntegrationsRedirects() {
 	return map;
 }
 
-// Retired pages and the page that replaced each. The serverless node
-// platforms are gone. Workers & Pools became Nodes & Node Pools, which absorbed
-// Pool Configuration. Statuses, Regions and the control plane Troubleshooting
-// page were removed for their closest replacements. The control plane Access
-// Control and Performance pages are covered by Scoped Tokens and Benchmarking.
-// Per-product copies of the self-host slugs redirect too.
+// Retired deployment and product pages point to their current replacements.
+// Restored documentation pages keep their own routes.
 const RETIRED_PAGES = {
 	'/docs/deploy/self-host/workers/vercel': '/docs/deploy/self-host/nodes/',
 	'/docs/deploy/self-host/workers/cloudflare': '/docs/deploy/self-host/nodes/',
