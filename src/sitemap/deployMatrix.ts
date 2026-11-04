@@ -43,7 +43,6 @@ export const WORKER_PAGES = [
 	"production-checklist",
 	"services",
 	"health-checks",
-	"metadata",
 	"prometheus-metrics",
 ] as const;
 

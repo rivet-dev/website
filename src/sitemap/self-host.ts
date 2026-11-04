@@ -94,10 +94,6 @@ export function deployWorkersGroup(): SidebarItem {
 						href: `${base}/health-checks/`,
 					},
 					{
-						title: "Metadata",
-						href: `${base}/metadata/`,
-					},
-					{
 						title: "Prometheus Metrics",
 						href: `${base}/prometheus-metrics/`,
 					},

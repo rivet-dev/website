@@ -22,9 +22,9 @@ Wait until all control plane pods have terminated before changing the image. Cli
 
 </Step>
 
-<Step title="Change the image">
+<Step title="Pull the new image">
 
-Set the new pinned version everywhere, for example `rivetdev/engine:3.0.0-preview.1`.
+Pull the new release on every instance before starting any of them, so they all run the same version. With Docker Compose run `docker compose pull`. Kubernetes pulls `rivetdev/engine:latest` again when the pods start.
 
 </Step>
 

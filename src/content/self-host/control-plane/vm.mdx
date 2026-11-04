@@ -12,7 +12,7 @@ Every control plane instance needs:
 - **Its own persistent disk.** A local or block-storage disk that survives restarts and supports `fsync`. Never share one disk between instances, and never use a network file system such as NFS or EFS. 
 - **A stable private address** that the other instances can reach on port `6421`.
 - **Access to the bucket.**
-- **A pinned image or binary version.** Run the same version on every instance.
+- **The same release on every instance.** Pull the image or binary once and copy it to each machine.
 
 Run at least three instances in production, each on its own machine.
 
@@ -95,7 +95,7 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"3.0.0-preview.1",...}
+{"architecture":"v3","runtime":"engine","status":"ok","version":"3.0.1"}
 ```
 
 </Step>

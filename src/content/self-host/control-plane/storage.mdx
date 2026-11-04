@@ -140,7 +140,7 @@ Only one control plane process may use the directory at a time. Its conditional 
 }
 ```
 
-This is the default when `object_storage.primary` is not set. Data lives in the control plane process and is lost when it restarts. Use it only to try Rivet locally or in tests, with one instance.
+This is the default when `object_storage.primary` is not set. Data lives in the control plane process and is lost when it restarts. Use it only to try Rivet locally or in tests, with one instance. It cannot be combined with `storage.log_directory`: the control plane refuses to start with both.
 
 </Tab>
 </Tabs>
@@ -172,7 +172,7 @@ Set `storage.log_directory` to a directory on the instance's disk. The directory
 
 - **One disk per instance.** The disk holds the instance's identity. Never share it, copy it to another instance, or mount it on two instances.
 - **Block storage only.** Use local SSDs or block volumes such as EBS or Persistent Disk. Network file systems such as NFS and EFS are not supported.
-- **Size.** The control plane sizes its use of the disk from the free space at startup and keeps at least 10% free. Give each instance at least 100 GiB in production.
+- **Size.** The control plane sizes its use of the disk from the free space at startup. It keeps 10% of the disk's capacity free, and at least 4 GiB, and refuses to start when less than that is free, so a nearly full disk blocks startup however small the log is. Give each instance at least 100 GiB in production.
 
 The read cache lives in the same directory by default. Move it to another disk with `storage.cold_store.disk_cache_directory`; it is disposable.
 
@@ -180,7 +180,7 @@ The read cache lives in the same directory by default. Move it to another disk w
 
 | What is lost | What happens |
 | --- | --- |
-| One instance of three or more | Nothing is lost. After about two minutes the control plane rebuilds its replicas on the remaining instances. |
+| One instance of three or more | Nothing is lost. After a few minutes the control plane rebuilds its replicas on the remaining instances. |
 | A single-instance setup's disk | Writes that had not reached the bucket yet are lost. |
 | The bucket | Every volume's durable copy is lost. See <SelfHostLink to="control-plane/backups">Backup & restore</SelfHostLink>. |
 
