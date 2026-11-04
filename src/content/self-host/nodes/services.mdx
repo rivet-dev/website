@@ -3,13 +3,15 @@ title: "Rivet Services"
 description: "Self-host Durable Streams and agentOS VMs."
 ---
 
-Rivet Services is a prebuilt node that hosts Rivet's own Actors. Run it next to your control plane when you self-host. On Rivet Cloud it is already running.
+Rivet Services is a container of prebuilt Rivet Actors that provide services such as Durable Streams and agentOS VMs.
+
+Run it alongside your control plane when you self-host these services. On Rivet Cloud it is already running.
 
 ## Services included
 
 ### Durable Streams
 
-Real-time streams with durable history, served over HTTP at `http://<host>:8642/durable-streams/v1/stream/<path>`. See [Durable Streams](/durable-streams/docs/).
+Real-time streams with durable history, served over HTTP at `http://<host>:8642/durable-streams/v1/stream/<path>`. Each stream is its own Rivet Actor, which stores the stream's history and metadata. See [Durable Streams](/durable-streams/docs/).
 
 ### agentOS
 
@@ -132,3 +134,7 @@ The response includes `"stdout":"hello\n"`.
 ## Local development
 
 RivetKit starts Services automatically during local development when you run your application with its managed local control plane. Without RivetKit, `npx @rivet-dev/services dev` starts a local control plane and Services together.
+
+## Persistence and where data is stored
+
+Services provides prebuilt Rivet Actors that use each Actor's durable SQLite storage. This data is persisted by the control plane, not in the Services container. You don't need to configure any storage for Services.
