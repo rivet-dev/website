@@ -3,14 +3,12 @@ title: "Docker Compose"
 description: "Run a single control plane instance with Docker Compose and connect your app to it."
 ---
 
-{/* TODO(verify): run these steps against the published image, and confirm the image user can write to fresh named volumes. */}
-
 This runs one control plane instance that keeps its data on local Docker volumes. It is the fastest way to try Rivet. A single instance keeps one copy of your data, so use <SelfHostLink to="control-plane/kubernetes">Kubernetes</SelfHostLink> or <SelfHostLink to="control-plane/vm">VMs</SelfHostLink> with three or more instances and a bucket for production.
 
 ## Requirements
 
 - Docker
-- About 10 GB of free disk space
+- A disk with at least 10% of its capacity free, and no less than 4 GiB. The control plane refuses to start with less, however small its own volumes are. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 
 ## Steps
 
@@ -65,8 +63,10 @@ curl http://localhost:6420/health
 ```
 
 ```json
-{"runtime":"engine","status":"ok","version":"3.0.0",...}
+{"architecture":"v3","runtime":"engine","status":"ok","version":"3.0.1"}
 ```
+
+The instance creates its storage a few seconds after the health route first answers. An API call in that window returns `depot.overloaded`; retry it.
 
 </Step>
 
@@ -77,6 +77,17 @@ Point your app at the instance with `RIVET_ENDPOINT` and start it. It uses the `
 ```bash
 export RIVET_ENDPOINT="http://localhost:6420"
 npm start
+```
+
+List the pool's nodes to confirm it connected:
+
+```bash
+curl -H "Authorization: Bearer $RIVET_TOKEN" \
+  "http://localhost:6420/pools/default/nodes?namespace=default"
+```
+
+```json
+{"nodes":[{"connected":true,"create_ts":1793753721510,"datacenter":"default","key":"388f876f-cafc-4014-90b5-e07bebb2042e","last_ping_ts":1793753733512,"namespace":"default","pool":"default","stopping":false,"version":1}],"pagination":{"cursor":null}}
 ```
 
 </Step>

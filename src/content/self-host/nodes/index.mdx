@@ -91,7 +91,15 @@ Deploy the image as a long-running service with `RIVET_ENDPOINT` set as a secret
 </Tab>
 </Tabs>
 
-Confirm the node connected by calling one of your Rivet Actors from a client.
+Confirm the node connected by listing the pool's nodes, or by calling one of your Rivet Actors from a client:
+
+```bash
+curl -H "Authorization: Bearer $RIVET_TOKEN" "$RIVET_API/pools/default/nodes?namespace=default"
+```
+
+```json
+{"nodes":[{"connected":true,"create_ts":1793753721510,"datacenter":"default","key":"388f876f-cafc-4014-90b5-e07bebb2042e","last_ping_ts":1793753733512,"namespace":"default","pool":"default","stopping":false,"version":1}],"pagination":{"cursor":null}}
+```
 
 ## Graceful shutdown
 

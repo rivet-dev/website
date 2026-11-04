@@ -5,7 +5,7 @@ description: "Everything to check before a self-hosted Rivet cluster serves prod
 
 ## Control plane
 
-- [ ] **Three or more instances**, each on its own machine, all on the same pinned version.
+- [ ] **Three or more instances**, each on its own machine, all on the same release.
 - [ ] **A bucket** configured in `object_storage.primary`, with versioning turned on. Never the in-memory default or `file_system`. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>.
 - [ ] **One persistent block-storage disk per instance**, mounted at `storage.log_directory`, at least 100 GiB, never shared.
 - [ ] **`api_peer.advertise_address`** set to each instance's private IP and port.

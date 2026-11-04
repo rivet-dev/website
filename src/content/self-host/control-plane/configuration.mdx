@@ -24,7 +24,7 @@ Unknown settings are an error, so a typo stops the control plane at startup inst
 | --- | --- |
 | `auth.admin_token` | Your Rivet token, the credential nodes and your backend use. The control plane refuses to start without it. |
 | `storage.log_directory` | The instance's disk. The directory must already exist. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. |
-| `object_storage.primary` | The bucket. The default keeps data in memory and loses it on restart. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. |
+| `object_storage.primary` | The bucket. The default keeps data in memory, loses it on restart, and is refused when `storage.log_directory` is set. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink>. |
 | `api_peer.advertise_address` | The `host:port` other instances use to reach this one on port `6421`. Required when more than one instance runs. |
 
 ## Rivet token
