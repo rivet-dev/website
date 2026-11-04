@@ -1,9 +1,9 @@
 ---
 title: "Rivet Services"
-description: "Self-host Durable Streams and agentOS VMs, with Actor data persisted by your Rivet control plane."
+description: "Self-host Durable Streams and agentOS VMs."
 ---
 
-Rivet Services is a container of prebuilt Rivet Actors that provide services such as Durable Streams and agentOS VMs. Think of it as Rivet's equivalent of managed services built on Cloudflare Durable Objects: Services runs the application logic, while your control plane handles scheduling and persistence.
+Rivet Services is a container of prebuilt Rivet Actors that provide services such as Durable Streams and agentOS VMs.
 
 Run it alongside your control plane when you self-host these services. On Rivet Cloud it is already running.
 
@@ -16,23 +16,6 @@ Real-time streams with durable history, served over HTTP at `http://<host>:8642/
 ### agentOS
 
 Hosted agentOS VMs, created and called through your control plane. See [agentOS](/agentos/docs/quickstart-hosted/).
-
-## Persistence
-
-**Service data is stored by the control plane, not on the Services container's filesystem.** Durable Streams history and agentOS VM data use the same durable Actor storage as your own Rivet Actors. You do not need a separate database, bucket, or persistent volume for the Services container.
-
-Each Actor has a durable volume. The control plane persists writes to its log disks before acknowledging them and moves data to object storage in the background. Restarting or replacing Services does not delete persisted stream history; the replacement connects to the same control plane and namespace to load the existing Actors.
-
-What you need to retain depends on your control plane setup:
-
-| Setup | Where service data lives | What to preserve |
-| --- | --- | --- |
-| <SelfHostLink to="control-plane/docker-compose">Docker quickstart</SelfHostLink> | The control plane's `rivet-log` and `rivet-objects` Docker volumes | Both volumes, including when recreating the control plane container. Do not run `docker compose down -v`, which deletes named volumes. |
-| Production | Each control plane instance's persistent log disk and the cluster's object storage bucket | The log disks and bucket. Configure durable storage and backups on the control plane, not on Services. |
-
-<Warning>
-Services is only as durable as the control plane's storage configuration. The default in-memory object storage backend loses Actor data when the control plane restarts. Use the persistent volumes from the Docker quickstart for local testing, and a bucket plus persistent log disks in production. See <SelfHostLink to="control-plane/storage">Storage</SelfHostLink> and <SelfHostLink to="control-plane/backups">Backup & Restore</SelfHostLink>.
-</Warning>
 
 ## Run it
 
@@ -151,3 +134,7 @@ The response includes `"stdout":"hello\n"`.
 ## Local development
 
 RivetKit starts Services automatically during local development when you run your application with its managed local control plane. Without RivetKit, `npx @rivet-dev/services dev` starts a local control plane and Services together.
+
+## Persistence and where data is stored
+
+Services provides prebuilt Rivet Actors that use each Actor's durable SQLite storage. This data is persisted by the control plane, not in the Services container. You don't need to configure any storage for Services.
