@@ -6,7 +6,7 @@ import { DENSITY, DENSITY_MULTIPLE } from "./benchmarks";
 
 /**
  * Two servers of the same size filling up over the same stretch of time. The
- * pod server takes four blocks and is full; the Actor server keeps packing in
+ * sandbox server takes four blocks and is full; the Actor server keeps packing in
  * cells long after, and the counter under each one climbs as it goes.
  *
  * Cells drop into the box from above under gravity: they accelerate from a
@@ -15,8 +15,8 @@ import { DENSITY, DENSITY_MULTIPLE } from "./benchmarks";
  * above the box, so lower rows fall longer and land harder. Cells are
  * released one at a time in reading order from the bottom row up — left to
  * right, then the next row — fast at first and slowing as the box fills, so
- * the last few land one deliberate drop at a time. Pods release on equal
- * intervals: four cells, no curve. Pods fall under the same gravity and keep
+ * the last few land one deliberate drop at a time. Sandboxes release on equal
+ * intervals: four cells, no curve. Sandboxes fall under the same gravity and keep
  * a touch more of their speed on each bounce. Nothing squashes or sinks below
  * its slot; every landing is a clean bounce. On
  * reset every cell falls out through the bottom, bottom rows first, slightly
@@ -33,8 +33,8 @@ import { DENSITY, DENSITY_MULTIPLE } from "./benchmarks";
  */
 const ACTOR_COLUMNS = 16;
 const ACTOR_CELLS = ACTOR_COLUMNS * ACTOR_COLUMNS;
-const POD_COLUMNS = 2;
-const POD_CELLS = POD_COLUMNS * POD_COLUMNS;
+const SANDBOX_COLUMNS = 2;
+const SANDBOX_CELLS = SANDBOX_COLUMNS * SANDBOX_COLUMNS;
 const BOX_PX = 96;
 /** Room above the box for cells to fall in from. */
 const HEADROOM_PX = 40;
@@ -77,7 +77,7 @@ interface Kind {
 
 /**
  * One gravity for both boxes, in px/s²: it is the same server, and matching
- * fall times are what make the pod side read as the same drop at a bigger
+ * fall times are what make the sandbox side read as the same drop at a bigger
  * scale. Sized so the longest fall (bottom row of the Actor box) takes ~270ms.
  */
 const GRAVITY = 3000;
@@ -93,13 +93,13 @@ const ACTOR_KIND: Kind = {
 	restitution: 0.28,
 	color: (c, alpha) => c.hl(0.8 * alpha),
 };
-const POD_KIND: Kind = {
-	columns: POD_COLUMNS,
+const SANDBOX_KIND: Kind = {
+	columns: SANDBOX_COLUMNS,
 	pad: 2,
 	gap: 2,
-	// Four pods on a fixed beat, the last one landing well before the hold.
+	// Four sandboxes on a fixed beat, the last one landing well before the hold.
 	releaseTime: (index, count) => (index / count) * 0.8,
-	outDelay: (row, col) => (POD_COLUMNS - 1 - row) * 140 + col * 70,
+	outDelay: (row, col) => (SANDBOX_COLUMNS - 1 - row) * 140 + col * 70,
 	restitution: 0.3,
 	color: (c, alpha) => c.ink(0.55 * alpha),
 };
@@ -260,28 +260,32 @@ const Box = ({
 	</div>
 );
 
-export const DensityFigure = () => {
+/** The baseline props let a page compare against something other than a sandbox. */
+export const DensityFigure = ({
+	baselineName = "Sandboxes",
+	baselineLabel = DENSITY.sandboxLabel,
+}: { baselineName?: string; baselineLabel?: string }) => {
 	const rootRef = useRef<HTMLDivElement>(null);
 	const actorCanvasRef = useRef<HTMLCanvasElement>(null);
-	const podCanvasRef = useRef<HTMLCanvasElement>(null);
+	const sandboxCanvasRef = useRef<HTMLCanvasElement>(null);
 	const actorCountRef = useRef<HTMLSpanElement>(null);
-	const podCountRef = useRef<HTMLSpanElement>(null);
+	const sandboxCountRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
 		const root = rootRef.current;
 		const actorCanvas = actorCanvasRef.current;
-		const podCanvas = podCanvasRef.current;
+		const sandboxCanvas = sandboxCanvasRef.current;
 		const actorCount = actorCountRef.current;
-		const podCount = podCountRef.current;
-		if (!root || !actorCanvas || !podCanvas || !actorCount || !podCount) return;
+		const sandboxCount = sandboxCountRef.current;
+		if (!root || !actorCanvas || !sandboxCanvas || !actorCount || !sandboxCount) return;
 		const actorCtx = actorCanvas.getContext("2d");
-		const podCtx = podCanvas.getContext("2d");
-		if (!actorCtx || !podCtx) return;
+		const sandboxCtx = sandboxCanvas.getContext("2d");
+		if (!actorCtx || !sandboxCtx) return;
 
 		const dpr = window.devicePixelRatio || 1;
 		for (const [canvas, ctx] of [
 			[actorCanvas, actorCtx],
-			[podCanvas, podCtx],
+			[sandboxCanvas, sandboxCtx],
 		] as const) {
 			canvas.width = Math.round(BOX_PX * dpr);
 			canvas.height = Math.round((BOX_PX + HEADROOM_PX) * dpr);
@@ -290,14 +294,14 @@ export const DensityFigure = () => {
 
 		let colors = readColors(root);
 		let lastActors = -1;
-		let lastPods = -1;
+		let lastSandboxes = -1;
 		const paint = (t: number) => {
 			const actors = drawBox(actorCtx, ACTOR_KIND, t, colors);
-			const pods = drawBox(podCtx, POD_KIND, t, colors);
+			const sandboxes = drawBox(sandboxCtx, SANDBOX_KIND, t, colors);
 			// Text nodes only change when the number does, so the counters do not
 			// force a layout every frame.
 			if (actors !== lastActors) actorCount.textContent = String((lastActors = actors));
-			if (pods !== lastPods) podCount.textContent = String((lastPods = pods));
+			if (sandboxes !== lastSandboxes) sandboxCount.textContent = String((lastSandboxes = sandboxes));
 		};
 
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -330,7 +334,7 @@ export const DensityFigure = () => {
 		<div
 			ref={rootRef}
 			className="flex h-52 items-center justify-center gap-12"
-			aria-label={`A Rivet Actor holds ${DENSITY.rivetLabel}; a Kubernetes pod holds ${DENSITY.kubernetesLabel}`}
+			aria-label={`Rivet Actors hold ${DENSITY.rivetLabel} each; ${baselineName} hold ${baselineLabel} each`}
 		>
 			<div className="flex flex-col items-center gap-3">
 				<Box kind={ACTOR_KIND} canvasRef={actorCanvasRef} />
@@ -341,11 +345,11 @@ export const DensityFigure = () => {
 				</p>
 			</div>
 			<div className="flex flex-col items-center gap-3">
-				<Box kind={POD_KIND} canvasRef={podCanvasRef} />
+				<Box kind={SANDBOX_KIND} canvasRef={sandboxCanvasRef} />
 				<p className="text-center text-xs text-ink-faint">
-					Kubernetes pods
+					{baselineName}
 					<br />
-					<span className="font-mono tabular-nums" ref={podCountRef}>0</span> × {DENSITY.kubernetesLabel}
+					<span className="font-mono tabular-nums" ref={sandboxCountRef}>0</span> × {baselineLabel}
 				</p>
 			</div>
 		</div>
@@ -359,14 +363,25 @@ export const DensitySection = () => (
 		lede={
 			<>
 				An Actor lives inside a worker process you already run, not in its
-				own container or VM. A server that held hundreds of pods holds hundreds
+				own container or VM. A server that held hundreds of sandboxes holds hundreds
 				of thousands of Actors.
 			</>
 		}
 		stat={{
 			value: DENSITY.rivetLabel,
 			unit: "per running Actor",
-			method: DENSITY.method,
+			method: (
+				<>
+					{DENSITY.method}{" "}
+					<a
+						href={DENSITY.benchmarkHref}
+						className="text-pine underline decoration-pine/40 underline-offset-2 hover:decoration-pine"
+					>
+						See the baseline
+					</a>
+					.
+				</>
+			),
 		}}
 		figure={<DensityFigure />}
 	/>

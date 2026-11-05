@@ -1,3 +1,11 @@
+import {
+  Icon,
+  faAws,
+  faGoogleCloud,
+  faHetzner,
+  faMicrosoft,
+  type IconProp,
+} from "@rivet-gg/icons";
 import { Cloud, Laptop, Server } from "lucide-react";
 import {
   DEPLOY_CARD_CLASS,
@@ -16,6 +24,28 @@ interface DeploymentOptionsProps {
   installCommand?: string;
   className?: string;
 }
+
+const CLOUDS = {
+  aws: { label: "AWS", icon: faAws },
+  gcp: { label: "Google Cloud", icon: faGoogleCloud },
+  azure: { label: "Azure", icon: faMicrosoft },
+  hetzner: { label: "Hetzner", icon: faHetzner },
+} satisfies Record<string, { label: string; icon: IconProp }>;
+
+/** The clouds a deployment option runs on, as a row of labelled marks. */
+const CloudLogos = ({ clouds }: { clouds: (keyof typeof CLOUDS)[] }) => (
+  <ul className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+    {clouds.map((id) => (
+      <li
+        key={id}
+        className="flex items-center gap-1.5 text-xs font-medium text-ink-soft"
+      >
+        <Icon icon={CLOUDS[id].icon} aria-hidden="true" className="size-4 shrink-0" />
+        {CLOUDS[id].label}
+      </li>
+    ))}
+  </ul>
+);
 
 /**
  * The shared deployment decision used across product and overview pages.
@@ -44,6 +74,7 @@ export const DeploymentOptions = ({
         run the same open-source control plane as a Rust binary or container on
         your own infrastructure.
       </p>
+      <CloudLogos clouds={["aws", "gcp", "azure", "hetzner"]} />
       <div className="flex-1" />
       <div className="mt-6 border-t border-ink/10 pt-6">
         <TerminalCommand command={installCommand} />
@@ -72,6 +103,7 @@ export const DeploymentOptions = ({
         Deploy {productName} on Rivet Cloud with managed infrastructure and
         persisted Actor data.
       </p>
+      <CloudLogos clouds={["aws", "gcp"]} />
       <div className="flex-1" />
       <a
         href="https://dashboard.rivet.dev"
@@ -93,6 +125,7 @@ export const DeploymentOptions = ({
         data never leaves your cloud and there is no inbound management
         connection.
       </p>
+      <CloudLogos clouds={["aws", "gcp", "azure"]} />
       <div className="flex-1" />
       <a href="/docs/deploy/byoc/" className={`mt-6 ${DEPLOY_GHOST_BUTTON_CLASS}`}>
         Read the BYOC docs

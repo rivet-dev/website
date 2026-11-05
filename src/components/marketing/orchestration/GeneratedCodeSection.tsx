@@ -440,21 +440,17 @@ const GeneratedCodeFigure = () => (
 
 export const GeneratedCodeSection = () => (
 	<ArgumentSection
-		heading="Run code agents generate at runtime."
+		heading="Run the code your agent writes, securely."
 		lede={
 			<>
-				An agent writes a script mid-task to get something done, or your
-				product generates a whole backend for a user who described what they
-				wanted. Either way the code is new, untrusted, and needs to run now —
-				so each piece gets an Actor of its own, with its own database and
-				filesystem and no reach into anyone else's. Nothing to provision
-				first, and nothing running once it goes idle.
+				Lightweight sandboxing on your own infrastructure, with granular
+				control over network access, filesystem access, and resource limits.
 			</>
 		}
 		links={[
 			// Dynamic Apps is pulled from the site for now. See HIDDEN.md.
 			// { label: "Dynamic Apps", href: "/dynamic-apps/docs/" },
-			{ label: "Secure Exec", href: "/secure-exec/" },
+			{ label: "agentOS", href: "/agentos/" },
 		]}
 		figure={<GeneratedCodeFigure />}
 		srCaption="Three streams of AI-generated code flow into a converter, and a stream of Actors flows out the other side."

@@ -6,7 +6,7 @@ import { COLD_START } from "./benchmarks";
 
 /**
  * Two lattices of the same size, each dot lighting as one workload finishes
- * starting. The actor lattice fills in a sweep; the pod lattice is still on its
+ * starting. The actor lattice fills in a sweep; the sandbox lattice is still on its
  * first row when the actor one has cycled. The comparison is the animation
  * rather than a bar chart, so the difference is felt before it is read.
  *
@@ -160,10 +160,12 @@ const useHoverLights = (
 	}, [field, grids]);
 };
 
-/** `rivetLabel` lets a page quote a different measurement than the landing benchmark. */
+/** The label props let a page quote a different measurement than the landing benchmark. */
 export const ColdStartFigure = ({
 	rivetLabel = `${COLD_START.rivetMs} ms`,
-}: { rivetLabel?: string }) => {
+	baselineName = "Sandbox",
+	baselineLabel = COLD_START.sandboxLabel,
+}: { rivetLabel?: string; baselineName?: string; baselineLabel?: string }) => {
 	const field = useRef<HTMLDivElement>(null);
 	const fastGrid = useRef<HTMLDivElement>(null);
 	const slowGrid = useRef<HTMLDivElement>(null);
@@ -266,9 +268,9 @@ export const ColdStartFigure = ({
 						))}
 					</div>
 					<p className="mt-4 text-center text-xs text-ink-faint">
-						Kubernetes pod
+						{baselineName}
 						<br />
-						{COLD_START.kubernetesLabel}
+						{baselineLabel}
 					</p>
 				</div>
 			</div>
@@ -279,16 +281,16 @@ export const ColdStartFigure = ({
 export const ColdStartSection = () => (
 	<ArgumentSection
 		id="cold-start"
-		heading="Start in milliseconds, not minutes."
+		heading="Start in milliseconds, not seconds."
 		lede={
 			<>
 				A cold start includes scheduling the Actor, loading its state, and
-				serving the first request. No image pull, no container boot.
+				serving the first request. No sandbox to boot.
 			</>
 		}
 		stat={{
 			value: `${COLD_START.rivetMs} ms`,
-			unit: "cold start",
+			unit: "p99 cold start",
 			method: (
 				<>
 					{COLD_START.method}{" "}

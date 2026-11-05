@@ -287,13 +287,13 @@ Its state lives in WarpDrive instead of on the machine, so **any machine can run
 **Actors are tiny.** An Actor is 72 KB. A Kubernetes pod is 200 MB. That means **thousands more workloads** on every server you already own.
 
 <div className="not-prose my-10 rounded-2xl border border-ink/10 bg-white/55 px-6 pt-9 pb-3">
-  <DensityFigure client:visible />
+  <DensityFigure baselineName="Kubernetes pods" baselineLabel="200 MB" client:visible />
 </div>
 
 **Actors start fast.** A new Actor cold starts in **6.9 ms**. A pod takes seconds.
 
 <div className="not-prose my-10 rounded-2xl border border-ink/10 bg-white/55 px-6 pt-9 pb-3">
-  <ColdStartFigure rivetLabel="6.9 ms" client:visible />
+  <ColdStartFigure rivetLabel="6.9 ms" baselineName="Kubernetes pod" baselineLabel="~6 s" client:visible />
 </div>
 
 **Actors are durable and sleep when idle.** An idle Actor hibernates and wakes on the next request with its state exactly where it left it. State also survives restarts and machine failures. When a machine dies, its Actors move to other machines with their state intact.

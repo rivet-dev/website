@@ -275,7 +275,7 @@ export const HibernationSection = () => (
 		lede={
 			<>
 				An idle Actor writes its state and unloads. The next request brings
-				it back in {HIBERNATION.wakeMs} ms with nothing lost.
+				it back with nothing lost.
 			</>
 		}
 		stat={{ value: HIBERNATION.idleLabel, unit: "while hibernating" }}
