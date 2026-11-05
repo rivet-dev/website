@@ -2,21 +2,74 @@
 
 import { useEffect, useRef } from "react";
 import { ArgumentSection } from "./ArgumentSection";
+import { SQLITE_LATENCY, STORAGE, STORAGE_MULTIPLE } from "./benchmarks";
+import { MethodTooltip } from "./MethodTooltip";
 
 /**
- * The three durable surfaces an actor owns, named under the claim. Marks ride
+ * The durable surfaces an actor owns, named under the claim. Marks ride
  * on the registry's white plate so the vendor colors hold on both themes.
  */
 const surfaces = [
 	{ label: "SQLite", src: "/images/registry/sqlite3.svg" },
-	{ label: "POSIX filesystem", src: "/images/registry/linux.svg" },
-	{ label: "S3 tiered storage", src: "/images/registry/s3.svg" },
+	{ label: "S3", src: "/images/registry/s3.svg" },
 ];
 
+const LINK_CLASS =
+	"text-pine underline decoration-pine/40 underline-offset-2 hover:decoration-pine";
+
+/** Storage cost and SQLite latency as three stats of equal weight. */
+const StorageStats = () => {
+	const stats = [
+		{ value: `${STORAGE_MULTIPLE}×`, label: "cheaper" },
+		{ value: SQLITE_LATENCY.writeP99, label: "writes" },
+		{ value: SQLITE_LATENCY.readP99, label: "reads" },
+	];
+
+	const method = (
+		<MethodTooltip>
+			{STORAGE.method}{" "}
+			<a href={STORAGE.benchmarkHref} className={LINK_CLASS}>
+				See the calculation
+			</a>
+			. {SQLITE_LATENCY.method}{" "}
+			<a href={SQLITE_LATENCY.benchmarkHref} className={LINK_CLASS}>
+				See the benchmark
+			</a>
+			.
+		</MethodTooltip>
+	);
+
+	// Each stat sizes to its own number and the gaps stay equal, so the row
+	// reads evenly however wide each value is.
+	return (
+		<ul className="flex gap-x-4 md:gap-x-6">
+			{stats.map((stat, index) => (
+				<li
+					key={stat.label}
+					className={index > 0 ? "border-l border-ink/10 pl-4 md:pl-6" : undefined}
+				>
+					<p className="text-2xl font-medium leading-none tracking-[-0.02em] tabular-nums text-ink md:text-4xl">
+						{stat.value}
+					</p>
+					<p className="mt-2 inline-flex items-center gap-1 text-sm text-ink-faint">
+						{stat.label}
+						{index === stats.length - 1 ? method : null}
+					</p>
+				</li>
+			))}
+		</ul>
+	);
+};
+
 const StorageSurfaces = () => (
-	<ul className="flex flex-wrap items-center gap-x-6 gap-y-3">
-		{surfaces.map((surface) => (
+	<ul className="mt-4 flex items-center justify-center gap-3">
+		{surfaces.map((surface, index) => (
 			<li key={surface.label} className="flex items-center gap-2.5">
+				{index > 0 ? (
+					<span aria-hidden="true" className="text-ink-faint">
+						→
+					</span>
+				) : null}
 				<span className="registry-logo-plate flex size-8 items-center justify-center rounded-lg border border-ink/10 bg-white">
 					<img
 						src={surface.src}
@@ -373,19 +426,23 @@ export const DurableStateSection = () => (
 		heading="Durable state for every workload."
 		lede={
 			<>
-				Every Actor gets a SQLite database and a POSIX filesystem, tiered to S3.
-				Idle Actors cost nothing, so millions can sit parked with their state
-				intact.
+				Every Actor gets a SQLite database, backed by S3 with SSD speeds.
+				Idle Actors cost nothing.
 			</>
 		}
-		aside={<StorageSurfaces />}
+		aside={<StorageStats />}
 		links={[
 			{
 				label: "Storage architecture",
 				href: "/docs/deploy/self-host/control-plane/storage/",
 			},
 		]}
-		figure={<DurableStateFigure />}
+		figure={
+			<>
+				<DurableStateFigure />
+				<StorageSurfaces />
+			</>
+		}
 		srCaption="A plane of thirty-six small databases, one per Actor, with writes landing on them continuously."
 	/>
 );

@@ -25,23 +25,28 @@ export const MEMORY_SHELL_MB = 22;   // memory-sleep.json       (23160422 / 1024
 
 // ── Sandbox baselines (external benchmarks) ──
 
-// Date the external sandbox baselines were last verified. Interpolated wherever
-// marketing copy cites the baselines so a refresh only touches this constant.
-export const BENCHMARK_DATE = 'March 30, 2026';
+// Cold start and memory use the same E2B baseline as rivet.dev/docs/benchmarking.
 
-// Coldstart baseline: E2B (used for cold start comparison only)
+// Cold start baseline: E2B time to first command, 100 sandboxes launched concurrently.
+// Source: https://www.computesdk.com/benchmarks/sandboxes/burst-tti (October 30, 2026 run)
 export const SANDBOX_COLDSTART_PROVIDER = 'E2B';
-export const SANDBOX_COLDSTART_MS = { p50: 440, p95: 950, p99: 3150 };
+export const SANDBOX_COLDSTART_SOURCE = "ComputeSDK's October 30, 2026 sandbox benchmark";
+export const SANDBOX_COLDSTART_MS = { p50: 1270, p95: 1470, p99: 1700 };
 
-// Cost/memory baseline: Daytona, cheapest mainstream sandbox provider as of March 30, 2026
-// Pricing: $0.0504/vCPU-h + $0.0162/GiB-h. Default minimum: 1 vCPU + 1 GiB RAM.
-// Source: https://www.daytona.io/pricing (as of March 30, 2026)
-export const SANDBOX_COST_PROVIDER = 'Daytona';
-export const SANDBOX_VCPU_COST_PER_HOUR = 0.0504;
-export const SANDBOX_GIB_COST_PER_HOUR = 0.0162;
-export const SANDBOX_MIN_VCPU = 1;
-export const SANDBOX_MIN_MEMORY_GIB = 1;
-export const SANDBOX_MIN_MEMORY_MB = SANDBOX_MIN_MEMORY_GIB * 1024;
+// Memory baseline: E2B's default allocation per sandbox, not measured use.
+// Source: https://docs.e2b.dev/billing (as of November 4, 2026)
+export const SANDBOX_MEMORY_PROVIDER = 'E2B';
+export const SANDBOX_MEMORY_SOURCE = "E2B's billing documentation, as of November 4, 2026";
+export const SANDBOX_MEMORY_MB = 512;
+
+// Cost baseline: E2B's default sandbox (2 vCPU, SANDBOX_MEMORY_MB of RAM) at its
+// per-second list prices: $0.000014 per vCPU and $0.0000045 per GiB of RAM.
+// Source: https://e2b.dev/pricing (as of November 4, 2026)
+export const SANDBOX_COST_PROVIDER = 'E2B';
+export const SANDBOX_COST_SOURCE = "E2B's pricing page, as of November 4, 2026";
+export const SANDBOX_VCPU_COST_PER_SEC = 0.000014;
+export const SANDBOX_GIB_COST_PER_SEC = 0.0000045;
+export const SANDBOX_VCPU = 2;
 
 // ── Self-hosted hardware pricing ──
 
@@ -57,7 +62,8 @@ export const UTILIZATION = 0.7;
 // ── Computed data ──
 
 export const sandboxCostPerSec =
-	(SANDBOX_MIN_VCPU * SANDBOX_VCPU_COST_PER_HOUR + SANDBOX_MIN_MEMORY_GIB * SANDBOX_GIB_COST_PER_HOUR) / 3600;
+	SANDBOX_VCPU * SANDBOX_VCPU_COST_PER_SEC +
+	(SANDBOX_MEMORY_MB / 1024) * SANDBOX_GIB_COST_PER_SEC;
 
 function formatCost(perSec: number): string {
 	const magnitude = Math.floor(Math.log10(Math.abs(perSec)));
@@ -98,8 +104,8 @@ export interface WorkloadData {
 }
 
 export function computeWorkload(label: string, description: string, memoryMb: number): WorkloadData {
-	const memBar = Math.round((memoryMb / SANDBOX_MIN_MEMORY_MB) * 1000) / 10;
-	const memMultiplier = Math.round(SANDBOX_MIN_MEMORY_MB / memoryMb);
+	const memBar = Math.round((memoryMb / SANDBOX_MEMORY_MB) * 1000) / 10;
+	const memMultiplier = Math.round(SANDBOX_MEMORY_MB / memoryMb);
 
 	const cost: CostTier[] = HARDWARE.map((hw) => {
 		const instanceCostPerSec = hw.costPerHour / 3600;
@@ -126,7 +132,7 @@ export function computeWorkload(label: string, description: string, memoryMb: nu
 		memory: {
 			agentOS: `~${memoryMb} MB`,
 			agentOSBar: memBar,
-			sandbox: `~${SANDBOX_MIN_MEMORY_MB} MB`,
+			sandbox: `${SANDBOX_MEMORY_MB} MiB`,
 			sandboxBar: 100,
 			multiplier: `${memMultiplier}x smaller`,
 		},

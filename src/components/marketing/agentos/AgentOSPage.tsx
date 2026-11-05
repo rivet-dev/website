@@ -28,9 +28,13 @@ import { SetupWithAgentButton } from '@/components/marketing/SetupWithAgentButto
 import {
 	benchColdStart,
 	benchWorkloads,
-	BENCHMARK_DATE,
 	SANDBOX_COLDSTART_PROVIDER,
+	SANDBOX_COLDSTART_SOURCE,
 	SANDBOX_COST_PROVIDER,
+	SANDBOX_COST_SOURCE,
+	SANDBOX_MEMORY_MB,
+	SANDBOX_MEMORY_PROVIDER,
+	SANDBOX_MEMORY_SOURCE,
 	sandboxCostPerSec,
 } from '@/data/bench';
 import { DeploymentOptions } from '@/components/marketing/DeploymentOptions';
@@ -357,7 +361,7 @@ const Hero = () => {
 		{
 			value: `${benchWorkloads.shell.memory.multiplier.split('x')[0]}×`,
 			label: 'less memory',
-			sub: 'vs. 1 GiB sandbox minimum',
+			sub: `vs. ${SANDBOX_MEMORY_MB} MiB ${SANDBOX_MEMORY_PROVIDER} default`,
 			href: '#bench-memory',
 		},
 		{
@@ -1173,7 +1177,7 @@ const runtimeBenchmarkDetails = {
 		},
 		{
 			label: 'Sandbox baseline:',
-			text: `${SANDBOX_COLDSTART_PROVIDER}, the fastest mainstream sandbox provider as of ${BENCHMARK_DATE}.`,
+			text: `${SANDBOX_COLDSTART_PROVIDER}, from ${SANDBOX_COLDSTART_SOURCE}: 100 sandboxes launched concurrently, timed from create to the first command run inside.`,
 		},
 		{
 			label: 'agentOS:',
@@ -1191,7 +1195,7 @@ const runtimeBenchmarkDetails = {
 		},
 		{
 			label: 'Sandbox baseline:',
-			text: `${SANDBOX_COST_PROVIDER}, the cheapest mainstream sandbox provider as of ${BENCHMARK_DATE}. Default sandbox: 1 vCPU + 1 GiB RAM.`,
+			text: `${SANDBOX_MEMORY_PROVIDER}'s default of ${SANDBOX_MEMORY_MB} MiB per sandbox, from ${SANDBOX_MEMORY_SOURCE}. This is allocated memory, not measured use.`,
 		},
 		{
 			label: 'agentOS:',
@@ -1205,11 +1209,11 @@ const runtimeBenchmarkDetails = {
 		},
 		{
 			label: 'Why the gap:',
-			text: `Each execution uses ${runtimeMemory.agentOS} instead of a ${runtimeMemory.sandbox} sandbox minimum, while agentOS runs on your own hardware rather than per-second sandbox billing.`,
+			text: `Each execution uses ${runtimeMemory.agentOS} instead of a ${runtimeMemory.sandbox} ${SANDBOX_COST_PROVIDER} sandbox, while agentOS runs on your own hardware rather than per-second sandbox billing.`,
 		},
 		{
 			label: 'Sandbox baseline:',
-			text: `${SANDBOX_COST_PROVIDER}, the cheapest mainstream sandbox provider as of ${BENCHMARK_DATE}. Default sandbox: 1 vCPU + 1 GiB RAM at $0.0504/vCPU-h + $0.0162/GiB-h.`,
+			text: `${SANDBOX_COST_PROVIDER}'s default sandbox, 2 vCPU and ${runtimeMemory.sandbox} of RAM, at $0.000014 per vCPU-second and $0.0000045 per GiB-second, from ${SANDBOX_COST_SOURCE}.`,
 		},
 		{
 			label: 'agentOS:',
