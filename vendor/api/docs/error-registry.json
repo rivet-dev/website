@@ -30,6 +30,18 @@
 					]
 				},
 				{
+					"code": "create_pending",
+					"message": "Actor creation may still be in progress; do not retry creation automatically.",
+					"statuses": [
+						{
+							"status": 409,
+							"surfaces": [
+								"gateway"
+							]
+						}
+					]
+				},
+				{
 					"code": "destroying",
 					"message": "Actor is destroying.",
 					"statuses": []
@@ -1068,6 +1080,17 @@
 				{
 					"code": "unavailable",
 					"message": "SQLite is unavailable.",
+					"statuses": []
+				}
+			]
+		},
+		{
+			"name": "state_machine",
+			"description": null,
+			"errors": [
+				{
+					"code": "machine_not_found",
+					"message": "The state machine does not exist.",
 					"statuses": []
 				}
 			]
