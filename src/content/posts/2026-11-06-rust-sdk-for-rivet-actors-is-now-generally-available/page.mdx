@@ -1,0 +1,301 @@
+---
+author: nathan-flurry
+published: "2026-11-06"
+category: changelog
+image: { file: "image.png?v=3" }
+keywords: ["rust", "rust sdk", "generally available", "rivetkit", "actors", "durable objects alternative", "sqlite", "websockets", "cron", "opentelemetry"]
+title: "Rust SDK for Rivet Actors Is Now Generally Available"
+description: "The Rust SDK for Rivet, the open-source Durable Objects alternative, is now generally available. Native speed, SQLite, WebSockets, cron, and OpenTelemetry built in."
+---
+
+The **[Rust SDK](/actors/docs/quickstart/rust)** for Rivet, the open-source Durable Objects alternative, is now generally available.
+
+- Native speeds, not WASM + JS glue (like Durable Objects)
+- [SQLite](/actors/docs/sqlite), [WebSockets](/actors/docs/connections), & [cron](/actors/docs/schedule)
+- End-to-end type safety
+- [OpenTelemetry](/docs/tracing) built-in
+- Mix TypeScript & Rust
+- [Hibernation](/actors/docs/lifecycle): Actors sleep when idle and wake with their state intact
+- [Built-in test harness](/actors/docs/testing): `rivetkit::test::setup` spins up a local control plane, so tests call typed Actor handles directly
+
+## Show Me The Code
+
+### Simple example
+
+A counter that keeps its count in SQLite and broadcasts every change to connected clients:
+
+```rust
+use std::sync::Arc;
+
+use async_trait::async_trait;
+use rivetkit::prelude::*;
+use rivetkit::{BindParam, ColumnValue, Handler, action};
+use serde::{Deserialize, Serialize};
+
+pub struct Counter;
+
+#[derive(Serialize, Deserialize)]
+pub struct Increment {
+	pub amount: i64,
+}
+
+impl Action for Increment {
+	type Output = i64;
+
+	const NAME: &'static str = "increment";
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NewCount {
+	pub count: i64,
+}
+
+impl Event for NewCount {
+	const NAME: &'static str = "newCount";
+}
+
+#[async_trait]
+impl Actor for Counter {
+	type Input = ();
+	type Actions = (Increment,);
+	type Events = (NewCount,);
+	type ConnParams = ();
+	type Action = action::Raw;
+
+	async fn create(ctx: &Ctx<Self>) -> Result<Self> {
+		ctx.sql()
+			.execute(
+				"CREATE TABLE IF NOT EXISTS counter (id INTEGER PRIMARY KEY, count INTEGER NOT NULL)",
+				None,
+			)
+			.await?;
+		ctx.sql()
+			.execute("INSERT OR IGNORE INTO counter (id, count) VALUES (0, 0)", None)
+			.await?;
+		Ok(Self)
+	}
+}
+
+impl Handler<Increment> for Counter {
+	async fn handle(self: Arc<Self>, ctx: Ctx<Self>, action: Increment) -> Result<i64> {
+		let rows = ctx
+			.sql()
+			.execute(
+				"UPDATE counter SET count = count + ? WHERE id = 0 RETURNING count",
+				Some(vec![BindParam::Integer(action.amount)]),
+			)
+			.await?
+			.rows;
+		let [ColumnValue::Integer(count)] = rows[0].as_slice() else {
+			return Err(anyhow!("unexpected counter row: {rows:?}"));
+		};
+
+		ctx.emit(NewCount { count: *count })?;
+		Ok(*count)
+	}
+}
+```
+
+### Full AI agent
+
+One Actor per conversation. The history lives in the Actor's SQLite database, so it survives sleep and restarts, and each token streams to connected clients as it arrives:
+
+```rust
+use std::sync::Arc;
+
+use anyhow::Context as _;
+use async_trait::async_trait;
+use futures::StreamExt;
+use rivetkit::prelude::*;
+use rivetkit::{BindParam, ColumnValue, Handler, action};
+
+use crate::helpers::{GetHistory, Message, MessageAdded, Response, SendMessage, stream_reply};
+
+/// One actor per conversation. The history lives in the actor's SQLite
+/// database, so it survives sleep and restarts.
+pub struct Agent;
+
+#[async_trait]
+impl Actor for Agent {
+	type Input = ();
+	type Actions = (SendMessage, GetHistory);
+	type Events = (MessageAdded, Response);
+	type ConnParams = ();
+	type Action = action::Raw;
+
+	async fn create(ctx: &Ctx<Self>) -> Result<Self> {
+		// Create the table that holds the conversation the first time this actor
+		// starts
+		ctx.sql()
+			.execute(
+				"CREATE TABLE IF NOT EXISTS messages (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					role TEXT NOT NULL,
+					content TEXT NOT NULL
+				)",
+				None,
+			)
+			.await?;
+		Ok(Self)
+	}
+}
+
+impl Handler<GetHistory> for Agent {
+	async fn handle(self: Arc<Self>, ctx: Ctx<Self>, _action: GetHistory) -> Result<Vec<Message>> {
+		// Return the conversation in order, skipping replies whose stream failed
+		// before any tokens arrived
+		let rows = ctx
+			.sql()
+			.query(
+				"SELECT id, role, content FROM messages WHERE content != '' ORDER BY id ASC",
+				None,
+			)
+			.await?
+			.rows;
+		let mut history = Vec::with_capacity(rows.len());
+		for row in rows {
+			let [
+				ColumnValue::Integer(id),
+				ColumnValue::Text(role),
+				ColumnValue::Text(content),
+			] = row.as_slice()
+			else {
+				return Err(anyhow!("unexpected messages row: {row:?}"));
+			};
+			history.push(Message {
+				id: *id,
+				role: role.clone(),
+				content: content.clone(),
+			});
+		}
+		Ok(history)
+	}
+}
+
+impl Handler<SendMessage> for Agent {
+	async fn handle(self: Arc<Self>, ctx: Ctx<Self>, action: SendMessage) -> Result<Message> {
+		// Reject empty messages before touching the database
+		let content = action.content.trim().to_owned();
+		if content.is_empty() {
+			return Err(anyhow!("message content cannot be empty"));
+		}
+
+		// Save the user's message and broadcast it. It is saved before calling the
+		// model so the model always sees the message it is replying to, even if
+		// the actor restarts mid-call
+		let inserted = ctx
+			.sql()
+			.execute(
+				"INSERT INTO messages (role, content) VALUES ('user', ?)",
+				Some(vec![BindParam::Text(content.clone())]),
+			)
+			.await?;
+		ctx.emit(MessageAdded(Message {
+			id: inserted
+				.last_insert_row_id
+				.context("insert returned no row id")?,
+			role: "user".to_owned(),
+			content,
+		}))?;
+
+		// Load the whole conversation. Sending the full history on every call is
+		// what gives the agent memory. Empty replies are skipped because they come
+		// from a stream that failed before any tokens arrived
+		let rows = ctx
+			.sql()
+			.query(
+				"SELECT id, role, content FROM messages WHERE content != '' ORDER BY id ASC",
+				None,
+			)
+			.await?
+			.rows;
+		let mut history = Vec::with_capacity(rows.len());
+		for row in rows {
+			let [
+				ColumnValue::Integer(id),
+				ColumnValue::Text(role),
+				ColumnValue::Text(content),
+			] = row.as_slice()
+			else {
+				return Err(anyhow!("unexpected messages row: {row:?}"));
+			};
+			history.push(Message {
+				id: *id,
+				role: role.clone(),
+				content: content.clone(),
+			});
+		}
+
+		// Start streaming the model's reply
+		let mut stream = stream_reply(&history).await?;
+
+		// Add an empty assistant message for the reply to stream into
+		let inserted = ctx
+			.sql()
+			.execute(
+				"INSERT INTO messages (role, content) VALUES ('assistant', '')",
+				None,
+			)
+			.await?;
+		let message_id = inserted
+			.last_insert_row_id
+			.context("insert returned no row id")?;
+		ctx.emit(MessageAdded(Message {
+			id: message_id,
+			role: "assistant".to_owned(),
+			content: String::new(),
+		}))?;
+
+		// Broadcast each token as it arrives so clients can render the reply live
+		let mut content = String::new();
+		while let Some(chunk) = stream.next().await {
+			let delta = chunk?
+				.choices
+				.into_iter()
+				.next()
+				.and_then(|choice| choice.delta.content);
+			let Some(delta) = delta else {
+				continue;
+			};
+			content.push_str(&delta);
+			ctx.emit(Response {
+				message_id,
+				delta,
+				content: content.clone(),
+				done: false,
+			})?;
+		}
+
+		// Save the finished reply and tell clients the stream is done
+		ctx.sql()
+			.execute(
+				"UPDATE messages SET content = ? WHERE id = ?",
+				Some(vec![
+					BindParam::Text(content.clone()),
+					BindParam::Integer(message_id),
+				]),
+			)
+			.await?;
+		ctx.emit(Response {
+			message_id,
+			delta: String::new(),
+			content: content.clone(),
+			done: true,
+		})?;
+
+		// Also return the reply for callers that do not subscribe to events
+		Ok(Message {
+			id: message_id,
+			role: "assistant".to_owned(),
+			content,
+		})
+	}
+}
+```
+
+## More Links
+
+- [Rust quickstart](/actors/docs/quickstart/rust)
+- [API reference on docs.rs](https://docs.rs/rivetkit)
+- [GitHub](https://github.com/rivet-dev/rivet)
+- [Discord](https://rivet.dev/discord)
